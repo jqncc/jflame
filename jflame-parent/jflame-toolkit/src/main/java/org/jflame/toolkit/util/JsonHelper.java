@@ -9,11 +9,12 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.serializer.Labels;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 /**
- * json工具类，依赖于fastjson.
- * 具体属性的序列化请使用@JSONField注解定制
+ * json工具类，依赖于fastjson. 具体属性的序列化请使用@JSONField注解定制
+ * 
  * @author yucan.zhang
  */
 public final class JsonHelper {
@@ -26,6 +27,19 @@ public final class JsonHelper {
      */
     public static String toJson(Object obj) {
         return JSON.toJSONString(obj, SerializerFeature.WriteMapNullValue);
+    }
+
+    /**
+     * Java对象序列化为JSON字符串.使用LabelFilter定制属性<p>
+     * 如：对象中@JSONField(label = "xx")注解定制.
+     * 
+     * @see com.alibaba.fastjson.serializer.LabelFilter
+     * @param obj Java对象
+     * @param includeLabels label分组名称，只包含指定label的属性
+     * @return
+     */
+    public static String toJson(Object obj, String... includeLabels) {
+        return JSON.toJSONString(obj, Labels.includes(includeLabels));
     }
 
     /**
