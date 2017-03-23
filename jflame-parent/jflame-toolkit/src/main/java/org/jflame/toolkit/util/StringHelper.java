@@ -1,5 +1,6 @@
 package org.jflame.toolkit.util;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jflame.toolkit.codec.TranscodeException;
 
 /**
  * 字符串工具类
@@ -333,5 +335,50 @@ public final class StringHelper {
         return StringUtils.remove(UUID.randomUUID().toString(), '-');
     }
 
+    /**
+     * 使用指定编码解码字符串
+     * 
+     * @param string 字符串
+     * @param charsetName 编码集
+     * @return
+     * @throws TranscodeException 不支持的编码集
+     */
+    public static byte[] getBytes(String string, String charsetName) throws TranscodeException {
+        if (string == null) {
+            return null;
+        }
+        try {
+            return string.getBytes(charsetName);
+        } catch (UnsupportedEncodingException e) {
+            throw new TranscodeException(charsetName, e);
+        }
+    }
     
+    /**
+     * 使用utf-8解码字符串
+     * 
+     * @param string
+     * @return
+     */
+    public static byte[] getUtf8Bytes(String string) {
+        try {
+            return getBytes(string, CharsetHelper.UTF_8);
+        } catch (TranscodeException e) {
+            return null;// 不会发生
+        }
+    }
+
+    /**
+     * 将byte[]使用utf-8编码为字符串
+     * 
+     * @param bytes byte[]
+     * @return
+     */
+    public static String getUtf8String(byte[] bytes) {
+        try {
+            return new String(bytes, CharsetHelper.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            return null;// 该异常不会出现
+        }
+    }
 }

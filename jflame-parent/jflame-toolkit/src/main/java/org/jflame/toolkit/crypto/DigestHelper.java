@@ -11,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.jflame.toolkit.codec.Hex;
 import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 消息摘要加密算法工具类，支持md5/SHA-1/SHA-256/SHA512/HmacMD5.
@@ -45,7 +46,7 @@ public class DigestHelper {
      * @return 16进制字符串,长度40
      */
     public static String shaHex(String plainText) {
-        return Hex.encodeHexString(sha(TranscodeHelper.getUtf8Bytes(plainText)));
+        return Hex.encodeHexString(sha(StringHelper.getUtf8Bytes(plainText)));
     }
 
     /**
@@ -65,7 +66,7 @@ public class DigestHelper {
      * @return 16进制字符串
      */
     public static String sha256Hex(String plainText) {
-        return Hex.encodeHexString(sha256(TranscodeHelper.getUtf8Bytes(plainText)));
+        return Hex.encodeHexString(sha256(StringHelper.getUtf8Bytes(plainText)));
     }
 
     /**
@@ -85,7 +86,7 @@ public class DigestHelper {
      * @return 密文16进制字符串
      */
     public static String sha512Hex(String plainText) {
-        return Hex.encodeHexString(sha512(TranscodeHelper.getUtf8Bytes(plainText)));
+        return Hex.encodeHexString(sha512(StringHelper.getUtf8Bytes(plainText)));
     }
 
     /**
@@ -115,7 +116,7 @@ public class DigestHelper {
      * @return MD5 16位byte[]
      */
     public static byte[] md5(String data) {
-        return md5(TranscodeHelper.getUtf8Bytes(data));
+        return md5(StringHelper.getUtf8Bytes(data));
     }
 
     /**
@@ -189,7 +190,7 @@ public class DigestHelper {
      * @throws EncryptException 加密异常
      */
     public static String hmacMD5Hex(String plainText, String key) throws EncryptException {
-        byte[] macData = hmacMD5(TranscodeHelper.getUtf8Bytes(plainText), TranscodeHelper.getUtf8Bytes(key));
+        byte[] macData = hmacMD5(StringHelper.getUtf8Bytes(plainText), StringHelper.getUtf8Bytes(key));
         return TranscodeHelper.encodeHexString(macData);
     }
 

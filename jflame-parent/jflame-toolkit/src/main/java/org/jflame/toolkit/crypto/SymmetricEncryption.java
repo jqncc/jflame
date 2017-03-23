@@ -15,11 +15,11 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jflame.toolkit.codec.Hex;
+import org.jflame.toolkit.codec.TranscodeException;
+import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 对称加密,支持算法des,3des,aes. 基于bouncyCastle加密库封装
@@ -65,28 +65,150 @@ public class SymmetricEncryption extends AbstractEncryption {
      * @param keybytes 密钥
      * @param ivParam 向量,无需向量或使用默认向量传null
      * @return 密文byte[]
-     * @throws EncryptException 加解密异常
+     * @throws EncryptException 加密异常
      */
     public byte[] encrypt(final byte[] content, final byte[] keybytes, byte[] ivParam) throws EncryptException {
-        return doCompute(content, keybytes, ivParam, CipherMode.ENCRYPT);
+        return doCompute(content, keybytes, ivParam, Cipher.ENCRYPT_MODE);
     }
 
     /**
      * 解密.
      * 
-     * @param cipherBytes 密文
-     * @param keybytes 密钥
-     * @param ivParam 向量,无需向量或使用默认向量传null
-     * @return 明文byte[]
-     * @throws EncryptException 加解密异常
+     * @param data byte[]密文
+     * @param keybytes byte[]密钥
+     * @param ivParam byte[]向量,无需向量或使用默认向量传null
+     * @return byte[]明文
+     * @throws EncryptException 解密异常
      */
-    public byte[] dencrypt(byte[] cipherBytes, byte[] keybytes, byte[] ivParam) throws EncryptException {
-        return doCompute(cipherBytes, keybytes, ivParam, CipherMode.DENCRYPT);
+    public byte[] decrypt(final byte[] data,final byte[] keybytes, byte[] ivParam) throws EncryptException {
+        return doCompute(data, keybytes, ivParam, Cipher.DECRYPT_MODE);
     }
 
-    private byte[] doCompute(final byte[] content, final byte[] keybytes, byte[] ivParam, CipherMode cipherMode)
+    
+    /**
+     * 加密字符串,返回base64密文.
+     * 
+     * @param plainText 明文
+     * @param password 密钥
+     * @param ivParam 向量,无需向量传null
+     * @return 密文,base64字符串
+     * @throws EncryptException 编码转换或加密异常
+     */
+    public String encrytToBase64(String plainText, String password, String ivParam) throws EncryptException {
+        if (StringHelper.isEmpty(plainText)) {
+            return plainText;
+        }
+        return TranscodeHelper.encodeBase64String(doEncryptString(plainText, password, ivParam));
+    }
+
+    /**
+     * 加密字符串,返回十六进制密文.
+     * 
+     * @param plainText 明文
+     * @param password 密钥
+     * @param ivParam 向量,无需向量传null
+     * @return 密文,十六进制字符串
+     * @throws EncryptException 编码转换或加密异常
+     */
+    public String encrytToHex(String plainText, String password, String ivParam) throws EncryptException {
+        if (StringHelper.isEmpty(plainText)) {
+            return plainText;
+        }
+        return TranscodeHelper.encodeHexString(doEncryptString(plainText, password, ivParam));
+    }
+
+    /**
+     * 加密字符串
+     * @param plainText 明文
+     * @param password 密钥
+     * @param ivParam 向量
+     * @return
+     * @throws EncryptException 编码转换或解密异常
+     */
+    private byte[] doEncryptString(String plainText, String password, String ivParam) throws EncryptException {
+        byte[] contBytes = null;
+        byte[] keyBytes = null;
+        byte[] ivBytes = null;
+        try {
+            contBytes = plainText.getBytes(getCharset());
+            keyBytes = password.getBytes(getCharset());
+            if (ivParam != null) {
+                ivBytes = ivParam.getBytes(getCharset());
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException("加密时,字符编码错误" + charset, e);
+        }
+        return encrypt(contBytes, keyBytes, ivBytes);
+    }
+
+    /**
+     * 解密字符串,密文为base64编码.
+     * 
+     * @param cipherBase64Text 密文
+     * @param password 密钥
+     * @param ivParam 向量
+     * @return 解密后字符串
+     * @throws EncryptException 编码转换或解密异常
+     */
+    public String decryptBase64(String cipherBase64Text, String password, String ivParam) throws EncryptException {
+        if (StringHelper.isEmpty(cipherBase64Text)) {
+            return cipherBase64Text;
+        }
+        byte[] cipherBytes = null;
+        try {
+            cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
+            return doDencrypt(cipherBytes, password, ivParam);
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException("解密异常", e);
+        }
+    }
+
+    /**
+     * 解密字符串,密文为16进制编码.
+     * 
+     * @param ciphertext 密文
+     * @param password 密钥
+     * @param ivParam 向量
+     * @return 解密后字符串
+     * @throws EncryptException 字符编码转换或解密异常
+     */
+    public String dencryptHex(String ciphertext, String password, String ivParam) throws EncryptException {
+        if (StringHelper.isEmpty(ciphertext)) {
+            return ciphertext;
+        }
+        byte[] cipherBytes = null;
+        try {
+            cipherBytes = Hex.decodeHex(ciphertext.toCharArray());
+            return doDencrypt(cipherBytes, password, ivParam);
+        } catch (TranscodeException|UnsupportedEncodingException e) {
+            throw new EncryptException("解密异常", e);
+        }
+    }
+
+    private String doDencrypt(byte[] cipherBytes, String password, String ivParam) throws UnsupportedEncodingException {
+        byte[] keyBytes = null;
+        byte[] ivBytes = null;
+        keyBytes = password.getBytes(getCharset());
+        if (ivParam != null) {
+            ivBytes = ivParam.getBytes(getCharset());
+        }
+
+        byte[] plainBytes = decrypt(cipherBytes, keyBytes, ivBytes);
+        return new String(plainBytes, charset);
+    }
+    
+    /**
+     * 执行加解密算法计算
+     * @param data byte[] 内容
+     * @param keybytes 密钥
+     * @param ivParam 向量
+     * @param cipherMode 计算方式,即加密或解密，取值:Cipher.ENCRYPT_MODE,Cipher.DECRYPT_MODE
+     * @return
+     * @throws EncryptException
+     */
+    private byte[] doCompute(final byte[] data, final byte[] keybytes, byte[] ivParam, int cipherMode)
             throws EncryptException {
-        if (content == null) {
+        if (data == null) {
             return null;
         }
         Key key;
@@ -98,16 +220,16 @@ public class SymmetricEncryption extends AbstractEncryption {
             key = new SecretKeySpec(keybytes, curAlgorithm.name());
             Cipher in = Cipher.getInstance(getCurCipher(), "BC");
             if (curEncryptMode == EncryptMode.ECB) {
-                in.init(cipherMode.getValue(), key);
+                in.init(cipherMode, key);
             } else {
-                in.init(cipherMode.getValue(), key, new IvParameterSpec(ivParam));
+                in.init(cipherMode, key, new IvParameterSpec(ivParam));
             }
-            byte[] cipherText = in.doFinal(content);
+            byte[] cipherText = in.doFinal(data);
             return cipherText;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
                 | NoSuchProviderException e) {
-            throw new EncryptException("加密异常", e);
+            throw new EncryptException(cipherMode==Cipher.ENCRYPT_MODE?"加密异常":"解密异常", e);
         }
     }
 
@@ -125,109 +247,6 @@ public class SymmetricEncryption extends AbstractEncryption {
         }
     }
 
-    /**
-     * 加密字符串,返回base64密文.
-     * 
-     * @param content 明文
-     * @param password 密钥
-     * @param ivParam 向量,无需向量传null
-     * @return 密文,base64字符串
-     * @throws EncryptException 加解密异常
-     */
-    public String encrytBase64(String content, String password, String ivParam) throws EncryptException {
-        if (StringUtils.isEmpty(content)) {
-            return content;
-        }
-        return Base64.encodeBase64String(doencrypte(content, password, ivParam));
-    }
-
-    /**
-     * 加密字符串,返回十六进制密文.
-     * 
-     * @param content 明文
-     * @param password 密钥
-     * @param ivParam 向量,无需向量传null
-     * @return 密文,十六进制字符串
-     * @throws EncryptException 加解密异常
-     */
-    public String encrytHEX(String content, String password, String ivParam) throws EncryptException {
-        if (StringUtils.isEmpty(content)) {
-            return content;
-        }
-        return Hex.encodeHexString(doencrypte(content, password, ivParam));
-    }
-
-    private byte[] doencrypte(String content, String password, String ivParam) throws EncryptException {
-        byte[] contBytes = null;
-        byte[] keyBytes = null;
-        byte[] ivBytes = null;
-        try {
-            contBytes = content.getBytes(charset);
-            keyBytes = password.getBytes(charset);
-            if (ivParam != null) {
-                ivBytes = ivParam.getBytes(charset);
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new EncryptException("加密时,字符编码错误" + charset, e);
-        }
-        return encrypt(contBytes, keyBytes, ivBytes);
-    }
-
-    /**
-     * 解密字符串,密文为base64编码.
-     * 
-     * @param ciphertext 密文
-     * @param password 密钥
-     * @param ivParam 向量
-     * @return 解密后字符串
-     * @throws EncryptException 加解密异常
-     */
-    public String dencryptBase64(String ciphertext, String password, String ivParam) throws EncryptException {
-        if (StringUtils.isEmpty(ciphertext)) {
-            return ciphertext;
-        }
-        byte[] cipherBytes = null;
-        try {
-            cipherBytes = Base64.decodeBase64(ciphertext);
-            return doDencrypt(cipherBytes, password, ivParam);
-        } catch (UnsupportedEncodingException e) {
-            throw new EncryptException("解密错误", e);
-        }
-    }
-
-    /**
-     * 解密字符串,密文为16进制编码.
-     * 
-     * @param ciphertext 密文
-     * @param password 密钥
-     * @param ivParam 向量
-     * @return 解密后字符串
-     * @throws EncryptException 加解密异常
-     */
-    public String dencryptHEX(String ciphertext, String password, String ivParam) throws EncryptException {
-        if (StringUtils.isEmpty(ciphertext)) {
-            return ciphertext;
-        }
-        byte[] cipherBytes = null;
-        try {
-            cipherBytes = Hex.decodeHex(ciphertext.toCharArray());
-            return doDencrypt(cipherBytes, password, ivParam);
-        } catch (DecoderException | UnsupportedEncodingException e) {
-            throw new EncryptException("解密错误", e);
-        }
-    }
-
-    private String doDencrypt(byte[] cipherBytes, String password, String ivParam) throws UnsupportedEncodingException {
-        byte[] keyBytes = null;
-        byte[] ivBytes = null;
-
-        keyBytes = password.getBytes(charset);
-        if (ivParam != null) {
-            ivBytes = ivParam.getBytes(charset);
-        }
-        byte[] plainBytes = dencrypt(cipherBytes, keyBytes, ivBytes);
-        return new String(plainBytes, charset);
-    }
 
     String checkKey(byte[] keyBytes) {
         if (curAlgorithm == Algorithm.DES) {

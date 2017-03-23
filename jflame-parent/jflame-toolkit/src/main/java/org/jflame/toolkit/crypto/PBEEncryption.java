@@ -19,6 +19,7 @@ import org.jflame.toolkit.codec.Base64;
  * @author zyc
  */
 public class PBEEncryption extends AbstractEncryption {
+
     public enum PbeMode {
         PBEWithMD5AndDES, PBEWithSHA1AndDESede// PBEWith<digest>And<encryption>
     }
@@ -35,7 +36,7 @@ public class PBEEncryption extends AbstractEncryption {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    private byte[] doCipher(byte[] content, String key, byte[] salt, CipherMode cipherMode) throws EncryptException {
+    private byte[] doCipher(byte[] content, String key, byte[] salt, int cipherMode) throws EncryptException {
         SecretKey secretKey = null;
         try {
             Cipher cipher = Cipher.getInstance(curMode.name());
@@ -43,7 +44,7 @@ public class PBEEncryption extends AbstractEncryption {
             SecretKeyFactory factory = SecretKeyFactory.getInstance(curMode.name());
             PBEParameterSpec parameterSpec = new PBEParameterSpec(salt, iteratCount);
             secretKey = factory.generateSecret(keySpec);
-            cipher.init(cipherMode.getValue(), secretKey, parameterSpec);
+            cipher.init(cipherMode, secretKey, parameterSpec);
             return cipher.doFinal(content);
         } catch (Exception e) {
             throw new EncryptException(e);
@@ -59,10 +60,10 @@ public class PBEEncryption extends AbstractEncryption {
      * @return 密文,base64字符串
      * @throws EncryptException 加解密异常
      */
-    public String encryptBase64(String content, String password, byte[] salt) throws EncryptException {
+    public String encryptToBase64(String content, String password, byte[] salt) throws EncryptException {
         byte[] cipher;
         try {
-            cipher = doCipher(content.getBytes(charset), password, salt, CipherMode.ENCRYPT);
+            cipher = doCipher(content.getBytes(charset), password, salt, Cipher.ENCRYPT_MODE);
             return Base64.encodeBase64String(cipher);
         } catch (UnsupportedEncodingException e) {
             throw new EncryptException(e);
@@ -78,10 +79,10 @@ public class PBEEncryption extends AbstractEncryption {
      * @return 明文
      * @throws EncryptException 加解密异常
      */
-    public String dencryptBase64(String cipherBase64, String password, byte[] salt) throws EncryptException {
+    public String decryptToBase64(String cipherBase64, String password, byte[] salt) throws EncryptException {
         byte[] cipher;
         try {
-            cipher = doCipher(Base64.decodeBase64(cipherBase64), password, salt, CipherMode.DENCRYPT);
+            cipher = doCipher(Base64.decodeBase64(cipherBase64), password, salt, Cipher.DECRYPT_MODE);
             return new String(cipher, charset);
         } catch (UnsupportedEncodingException e) {
             throw new EncryptException(e);
@@ -101,10 +102,9 @@ public class PBEEncryption extends AbstractEncryption {
     }
 
     /*
-     * public static void main(String[] args) { PBEEncryption pbe = new
-     * PBEEncryption(PBE_MODE.PBEWithMD5AndDES); byte[] salt = new byte[] { 0x7d, 0x60, 0x43, 0x5f,
-     * 0x02, (byte) 0xe9, (byte) 0xe0, (byte) 0xae }; // byte[] salt = new byte[8]; salt[0] = 0x7d;
-     * String content = "中国字加密"; String password = "321122jjjd"; String cipher =
+     * public static void main(String[] args) { PBEEncryption pbe = new PBEEncryption(PBE_MODE.PBEWithMD5AndDES); byte[]
+     * salt = new byte[] { 0x7d, 0x60, 0x43, 0x5f, 0x02, (byte) 0xe9, (byte) 0xe0, (byte) 0xae }; // byte[] salt = new
+     * byte[8]; salt[0] = 0x7d; String content = "中国字加密"; String password = "321122jjjd"; String cipher =
      * pbe.encryptBase64(content, password, salt); System.out.println(cipher);
      * System.out.println(pbe.dencryptBase64(cipher, password, salt)); }
      */

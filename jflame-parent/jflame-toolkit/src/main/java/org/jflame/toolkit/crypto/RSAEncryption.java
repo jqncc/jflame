@@ -27,10 +27,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jflame.toolkit.codec.Base64;
+import org.jflame.toolkit.codec.Hex;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * RSA非对称加密算法,基于BouncyCastle加密库实现.
@@ -54,7 +55,7 @@ public class RSAEncryption extends AbstractEncryption {
      * @param privateKeyFile 私钥文件路径
      * @throws EncryptException 加解密异常
      */
-    public void generateKeyPair(String publicKeyFile, String privateKeyFile) throws EncryptException {
+    public KeyPair generateKeyPair(String publicKeyFile, String privateKeyFile) throws EncryptException {
         // RSA算法要求有一个可信任的随机数源
         SecureRandom sr = new SecureRandom();
         KeyPairGenerator kpg = null;
@@ -65,9 +66,9 @@ public class RSAEncryption extends AbstractEncryption {
         }
         kpg.initialize(1024, sr);
         // 生成密匙对
-        KeyPair kp = kpg.generateKeyPair();
-        Key publicKey = kp.getPublic();
-        Key privateKey = kp.getPrivate();
+        KeyPair keyPair = kpg.generateKeyPair();
+        Key publicKey = keyPair.getPublic();
+        Key privateKey = keyPair.getPrivate();
         // 用对象流将生成的密钥写入文件
         try (ObjectOutputStream pubKeyOutStream = new ObjectOutputStream(new FileOutputStream(publicKeyFile));
                 ObjectOutputStream priKeyOutStream = new ObjectOutputStream(new FileOutputStream(privateKeyFile))) {
@@ -76,48 +77,48 @@ public class RSAEncryption extends AbstractEncryption {
         } catch (IOException e) {
             throw new EncryptException("写入密钥文件失败", e);
         }
-
+        return keyPair;
     }
 
     /**
      * 加密二进制内容.
      * 
      * @param content 明文，byte数组
-     * @param keyFileOrStr base64密钥或密钥文件路径,文件路径必须提供绝对路径
+     * @param keyOrFile base64密钥或密钥文件路径,文件路径必须提供绝对路径
      * @return 密文，byte数组
      * @throws EncryptException 加解密异常
      */
-    public byte[] encrypt(final byte[] content, final String keyFileOrStr) throws EncryptException {
-        Key key = generateKey(keyFileOrStr);
-        return docrypt(key, content, CipherMode.ENCRYPT);
+    public byte[] encrypt(final byte[] content, final String keyOrFile) throws EncryptException {
+        Key key = generateKey(keyOrFile);
+        return docrypt(key, content, Cipher.DECRYPT_MODE);
     }
 
     /**
      * 解密.
      * 
      * @param cipher 密文
-     * @param keyFileOrStr base64密钥或密钥文件路径,文件路径必须提供绝对路径
+     * @param keyOrFile base64密钥或密钥文件路径,文件路径必须提供绝对路径
      * @return 明文，byte数组
      * @throws EncryptException 加解密异常
      */
-    public byte[] dencrypt(final byte[] cipher, final String keyFileOrStr) throws EncryptException {
-        Key key = generateKey(keyFileOrStr);
-        return docrypt(key, cipher, CipherMode.DENCRYPT);
+    public byte[] decrypt(final byte[] cipher, final String keyOrFile) throws EncryptException {
+        Key key = generateKey(keyOrFile);
+        return docrypt(key, cipher, Cipher.DECRYPT_MODE);
     }
 
     /**
      * 加密字符串,返回base64密文.
      * 
-     * @param content 明文
-     * @param keyFileOrStr base64密钥或密钥文件路径,文件路径必须提供绝对路径
+     * @param plainText 明文
+     * @param keyOrFile base64密钥或密钥文件路径,文件路径必须提供绝对路径
      * @return 密文,base64
      * @throws EncryptException 加解密异常
      */
-    public String encryptBase64(final String content, final String keyFileOrStr) throws EncryptException {
-        if (StringUtils.isEmpty(content)) {
-            return content;
+    public String encryptBase64(final String plainText, final String keyOrFile) throws EncryptException {
+        if (StringHelper.isEmpty(plainText)) {
+            return plainText;
         }
-        return Base64.encodeBase64String(doencrypt(content, keyFileOrStr));
+        return Base64.encodeBase64String(doencrypt(plainText, keyOrFile));
     }
 
     /**
@@ -128,8 +129,8 @@ public class RSAEncryption extends AbstractEncryption {
      * @return 密文,16进制 字符串
      * @throws EncryptException 加解密异常
      */
-    public String encryptHEX(final String content, final String keyFileOrStr) throws EncryptException {
-        if (StringUtils.isEmpty(content)) {
+    public String encryptHex(final String content, final String keyFileOrStr) throws EncryptException {
+        if (StringHelper.isEmpty(content)) {
             return content;
         }
         return Hex.encodeHexString(doencrypt(content, keyFileOrStr));
@@ -144,15 +145,15 @@ public class RSAEncryption extends AbstractEncryption {
      * @throws EncryptException 加解密异常
      */
     public String dencryptBase64(final String cipherBase64, final String keyFileOrStr) throws EncryptException {
-        if (StringUtils.isEmpty(cipherBase64)) {
+        if (StringHelper.isEmpty(cipherBase64)) {
             return cipherBase64;
         }
         byte[] cipherBytes = Base64.decodeBase64(cipherBase64);
-        byte[] plainBytes = dencrypt(cipherBytes, keyFileOrStr);
+        byte[] plainBytes = decrypt(cipherBytes, keyFileOrStr);
         try {
             return new String(plainBytes, charset);
         } catch (UnsupportedEncodingException e) {
-            throw new EncryptException(e);
+            throw new EncryptException("字符编码错误" + charset, e);
         }
     }
 
@@ -162,51 +163,60 @@ public class RSAEncryption extends AbstractEncryption {
         try {
             contBytes = content.getBytes(charset);
         } catch (UnsupportedEncodingException e) {
-            throw new EncryptException(e);
+            throw new EncryptException("字符编码错误" + charset, e);
         }
-        return docrypt(key, contBytes, CipherMode.ENCRYPT);
+        return docrypt(key, contBytes, Cipher.ENCRYPT_MODE);
     }
 
-    private Key generateKey(String keyFileOrString) throws EncryptException {
+    /**
+     * 生成密钥Key
+     * 
+     * @param keyOrFile 字符串密钥或密钥文件路径.含路径分隔符和扩展名
+     * @return Key
+     * @throws EncryptException
+     */
+    private Key generateKey(String keyOrFile) throws EncryptException {
         boolean fileKey = false;
         Path keyFilePath = null;
         // 无路径分隔符且无文件扩展名视为非密钥文件
-        if (keyFileOrString.indexOf(File.separator) > -1 || keyFileOrString.indexOf(".") > -1) {
+        if (StringUtils.containsAny(keyOrFile, "./\\")) {
             try {
-                keyFilePath = Paths.get(keyFileOrString);
-                if (keyFilePath.isAbsolute()) {
-                    fileKey = true;
-                }
+                keyFilePath = Paths.get(keyOrFile);
+                fileKey = true;
             } catch (InvalidPathException e) {
                 fileKey = false;
             }
         }
 
         if (fileKey) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(keyFilePath.toFile()))) {
-                return (Key) ois.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new EncryptException("密钥生成异常", e);
+            File keyFile = keyFilePath.toFile();
+            if (keyFile.exists()) {
+                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(keyFile))) {
+                    return (Key) ois.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    throw new EncryptException("密钥生成异常", e);
+                }
+            } else {
+                throw new EncryptException("给定密钥文件不存在:" + keyFile);
             }
-        }
-        {
+        } else {
             try {
-                byte[] keyBytes = Base64.decodeBase64(keyFileOrString);
+                byte[] keyBytes = Base64.decodeBase64(keyOrFile);
                 X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
                 KeyFactory keyFactory = KeyFactory.getInstance(curAlgorithm.name());
                 return keyFactory.generatePrivate(x509KeySpec);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                throw new EncryptException("密钥生成异常", e);
+                throw new EncryptException("密钥生成异常" + keyOrFile, e);
             }
 
         }
     }
 
-    private byte[] docrypt(Key decryptKey, byte[] cryptBytes, CipherMode cipherMode) {
+    private byte[] docrypt(Key decryptKey, byte[] cryptBytes, int cipherMode) {
         byte[] resultBytes;
         try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");// getCurCipher()
-            cipher.init(cipherMode.getValue(), decryptKey);
+            Cipher cipher = Cipher.getInstance(getCurCipher(), "BC");// RSA/ECB/PKCS1Padding
+            cipher.init(cipherMode, decryptKey);
             resultBytes = cipher.doFinal(cryptBytes);
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException | NoSuchProviderException e) {

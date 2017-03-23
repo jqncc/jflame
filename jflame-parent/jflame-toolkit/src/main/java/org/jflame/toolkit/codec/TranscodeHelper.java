@@ -1,9 +1,8 @@
 package org.jflame.toolkit.codec;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 转码工具类,支持base64,hex转码,int与byte[4]转换
@@ -32,7 +31,7 @@ public final class TranscodeHelper {
     public static String encodeBase64String(String str, Charset charset) {
         byte[] bytes = null;
         if (charset == null) {
-            bytes = getUtf8Bytes(str);
+            bytes = StringHelper.getUtf8Bytes(str);
         } else {
             bytes = str.getBytes(charset);
         }
@@ -86,7 +85,7 @@ public final class TranscodeHelper {
      * @return 16进制字符串
      */
     public static String encodeHexString(String str) {
-        return Hex.encodeHexString(getUtf8Bytes(str));
+        return Hex.encodeHexString(StringHelper.getUtf8Bytes(str));
     }
 
     /**
@@ -111,7 +110,7 @@ public final class TranscodeHelper {
      */
     public static String dencodeHexString(String hexString) throws TranscodeException {
         byte[] bytes = dencodeHex(hexString);
-        return getUtf8String(bytes);
+        return StringHelper.getUtf8String(bytes);
     }
 
     /**
@@ -160,50 +159,4 @@ public final class TranscodeHelper {
         return num;
     }
 
-    /**
-     * 使用指定编码解码字符串
-     * 
-     * @param string 字符串
-     * @param charsetName 编码集
-     * @return
-     * @throws TranscodeException 不支持的编码集
-     */
-    public static byte[] getBytes(String string, String charsetName) throws TranscodeException {
-        if (string == null) {
-            return null;
-        }
-        try {
-            return string.getBytes(charsetName);
-        } catch (UnsupportedEncodingException e) {
-            throw new TranscodeException(charsetName, e);
-        }
-    }
-
-    /**
-     * 使用utf-8解码字符串
-     * 
-     * @param string
-     * @return
-     */
-    public static byte[] getUtf8Bytes(String string) {
-        try {
-            return getBytes(string, CharsetHelper.UTF_8);
-        } catch (TranscodeException e) {
-            return null;// 不会发生
-        }
-    }
-
-    /**
-     * 将byte[]使用utf-8编码为字符串
-     * 
-     * @param bytes byte[]
-     * @return
-     */
-    public static String getUtf8String(byte[] bytes) {
-        try {
-            return new String(bytes, CharsetHelper.UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            return null;// 该异常不会出现
-        }
-    }
 }

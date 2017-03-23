@@ -3,6 +3,7 @@ package org.jflame.toolkit.codec;
 import java.math.BigInteger;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.jflame.toolkit.util.StringHelper;
 
 public class Base64 extends BaseNCodec {
 
@@ -199,7 +200,6 @@ public class Base64 extends BaseNCodec {
     public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {
         super(BYTES_PER_UNENCODED_BLOCK, BYTES_PER_ENCODED_BLOCK, lineLength,
                 lineSeparator == null ? 0 : lineSeparator.length);
-        // TODO could be simplified if there is no requirement to reject invalid line sep when length <=0
         // @see test case Base64Test.testConstructors()
         if (lineSeparator != null) {
             if (containsAlphabetOrPad(lineSeparator)) {
@@ -407,7 +407,7 @@ public class Base64 extends BaseNCodec {
      * @since 1.5
      */
     public static boolean isBase64(String base64) {
-        return isBase64(StringUtils.getBytesUtf8(base64));
+        return isBase64(StringHelper.getUtf8Bytes(base64));
     }
 
     /**
@@ -496,14 +496,12 @@ public class Base64 extends BaseNCodec {
     
     /**
      * Encodes binary data using the base64 algorithm but does not chunk the output. NOTE: We changed the behaviour of
-     * this method from multi-line chunking (commons-codec-1.4) to single-line non-chunking (commons-codec-1.5).
      * 
      * @param binaryData binary data to encode
      * @return String containing Base64 characters.
-     * @since 1.4 (NOTE: 1.4 chunked the output, whereas 1.5 does not).
      */
     public static String encodeBase64String(byte[] binaryData) {
-        return StringUtils.newStringUtf8(encodeBase64(binaryData, false));
+        return StringHelper.getUtf8String(encodeBase64(binaryData, false));
     }
 
     /**
@@ -527,7 +525,7 @@ public class Base64 extends BaseNCodec {
      * @since 1.4
      */
     public static String encodeBase64URLSafeString(byte[] binaryData) {
-        return StringUtils.newStringUtf8(encodeBase64(binaryData, false, true));
+        return StringHelper.getUtf8String(encodeBase64(binaryData, false, true));
     }
 
     /**
