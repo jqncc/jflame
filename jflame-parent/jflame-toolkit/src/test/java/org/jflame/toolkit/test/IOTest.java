@@ -1,14 +1,8 @@
 package org.jflame.toolkit.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import org.jflame.toolkit.util.FileHelper;
-import org.jflame.toolkit.util.IOHelper;
 import org.junit.Test;
 
 public class IOTest {

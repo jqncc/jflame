@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -48,11 +49,11 @@ public final class ZipHelper {
             }
             ZipEntry entry = new ZipEntry(subPath);
             zos.putNextEntry(entry);
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-            while ((count = bis.read(data, 0, bufferLen)) != -1) {
-                zos.write(data, 0, count);
+            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));) {
+                while ((count = bis.read(data, 0, bufferLen)) != -1) {
+                    zos.write(data, 0, count);
+                }
             }
-            bis.close();
             zos.closeEntry();
         } else {
             // 如果是目录，则压缩整个目录. 压缩目录中的文件或子目录
@@ -141,27 +142,30 @@ public final class ZipHelper {
      */
     public static void unzip(File unzipDir, InputStream in) throws IOException {
         unzipDir.mkdirs();
-        ZipInputStream zin = new ZipInputStream(in);
         ZipEntry entry = null;
-        while ((entry = zin.getNextEntry()) != null) {
-            File path = new File(unzipDir, entry.getName());
-            if (entry.isDirectory()) {
-                path.mkdirs();
-            } else {
-                File parentFile = path.getAbsoluteFile().getParentFile();
-                if (parentFile != null && !parentFile.equals(path.getAbsoluteFile())) {
-                    parentFile.mkdirs();
-                }
-                try (FileOutputStream output = new FileOutputStream(path)) {
-                    byte[] buf = new byte[1024];
-                    int n = 0;
-                    while ((n = zin.read(buf)) != -1) {
-                        output.write(buf, 0, n);
+        try (ZipInputStream zin = new ZipInputStream(in);) {
+            while ((entry = zin.getNextEntry()) != null) {
+                File path = new File(unzipDir, entry.getName());
+                if (entry.isDirectory()) {
+                    path.mkdirs();
+                } else {
+                    File parentFile = path.getAbsoluteFile().getParentFile();
+                    if (parentFile != null && !parentFile.equals(path.getAbsoluteFile())) {
+                        parentFile.mkdirs();
                     }
-                } catch (IOException e) {
-                    throw e;
+                    try (FileOutputStream output = new FileOutputStream(path)) {
+                        byte[] buf = new byte[1024];
+                        int n = 0;
+                        while ((n = zin.read(buf)) != -1) {
+                            output.write(buf, 0, n);
+                        }
+                    } catch (IOException e) {
+                        throw e;
+                    }
                 }
             }
+        }catch (IOException e) {
+            throw e;
         }
     }
 
