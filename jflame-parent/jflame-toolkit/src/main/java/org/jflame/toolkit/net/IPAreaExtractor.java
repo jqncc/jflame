@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jflame.toolkit.util.CharsetHelper;
@@ -23,23 +21,17 @@ import org.slf4j.LoggerFactory;
 public final class IPAreaExtractor {
 
     private final Logger logger = LoggerFactory.getLogger(IPAreaExtractor.class);
-    private boolean enableFileWatch = false;//是否开启数据文件监测线程
     private int offset;
     private int[] index = new int[256];
     private ByteBuffer dataBuffer;
     private ByteBuffer indexBuffer;
-    private Long lastModifyTime = 0L;
     private File ipFile;
     private ReentrantLock lock = new ReentrantLock();
     private final static IPAreaExtractor instance = new IPAreaExtractor();
     
-
     private IPAreaExtractor() {
         ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
         init();
-        if (enableFileWatch) {
-            watch();
-        }
     }
 
     public static IPAreaExtractor getInstance() {
@@ -83,22 +75,8 @@ public final class IPAreaExtractor {
         return new String(areaBytes, Charset.forName(CharsetHelper.UTF_8)).split("\t", -1);
     }
 
-    private void watch() {
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                long time = ipFile.lastModified();
-                if (time > lastModifyTime) {
-                    lastModifyTime = time;
-                    init();
-                }
-            }
-        }, 1000L, 5000L, TimeUnit.MILLISECONDS);
-    }
 
     private void init() {
-        lastModifyTime = ipFile.lastModified();
         FileInputStream fileInputStream = null;
         try {
             dataBuffer = ByteBuffer.allocate(Long.valueOf(ipFile.length()).intValue());
