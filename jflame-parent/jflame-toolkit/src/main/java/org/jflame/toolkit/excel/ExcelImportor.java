@@ -1,8 +1,5 @@
 package org.jflame.toolkit.excel;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +21,7 @@ import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
 import org.jflame.toolkit.excel.validator.DefaultValidator;
 import org.jflame.toolkit.excel.validator.IValidator;
 import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.toolkit.reflect.ReflectionHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
@@ -118,13 +116,10 @@ public class ExcelImportor {
         LinkedHashSet<T> results = new LinkedHashSet<>();
         curRowIndexs.clear();
         errorMap.clear();
-        BeanInfo beanInfo = null;
-        try {
-            beanInfo = Introspector.getBeanInfo(dataClass);
-        } catch (IntrospectionException e) {
-            throw new ExcelAccessException("failed to introspect " + dataClass.getName(), e);
+        PropertyDescriptor[] properties = ReflectionHelper.getBeanPropertyDescriptor(dataClass);
+        if (properties == null) {
+            throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
         }
-        PropertyDescriptor[] properties = beanInfo.getPropertyDescriptors();
         List<ColumnProperty> lstDescriptors;
         if (propertyNames == null || propertyNames.length == 0) {
             lstDescriptors = getColumnPropertysByAnnons(properties);

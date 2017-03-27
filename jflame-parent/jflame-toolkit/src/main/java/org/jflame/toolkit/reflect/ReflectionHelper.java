@@ -13,6 +13,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 /**
  * 反射工具类
  * 
+ * @see org.apache.commons.lang3.reflect.FieldUtils
  * @author zyc
  */
 public final class ReflectionHelper {
@@ -63,10 +64,6 @@ public final class ReflectionHelper {
      * @throws IllegalArgumentException
      */
     public static Object getFieldValue(final Object obj, final String fieldName) throws IllegalAccessException {
-        /*
-         * Field field = getAccessibleField(obj, fieldName); if (field == null) { throw new IllegalArgumentException(
-         * "Could not find field [" + fieldName + "] on target [" + obj + "]"); } return field.get(obj);
-         */
         return FieldUtils.readField(obj, fieldName, true);
     }
 
@@ -78,10 +75,6 @@ public final class ReflectionHelper {
      */
     public static void setFieldValue(final Object obj, final String fieldName, final Object value)
             throws IllegalAccessException {
-        /*
-         * Field field = getAccessibleField(obj, fieldName); if (field == null) { throw new IllegalArgumentException(
-         * "Could not find field [" + fieldName + "] on target [" + obj + "]"); } field.set(obj, value);
-         */
         FieldUtils.writeField(obj, fieldName, value, true);
     }
 
@@ -93,18 +86,7 @@ public final class ReflectionHelper {
      * @return Field
      */
     public static Field getAccessibleField(final Object obj, final String fieldName) {
-        for (Class<?> superClass = obj.getClass(); superClass != Object.class; superClass = superClass
-                .getSuperclass()) {
-            try {
-                Field field = superClass.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field;
-            } catch (NoSuchFieldException e) {
-                // Field不在当前类定义,继续向上转型
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return FieldUtils.getField(obj.getClass(), fieldName, true);
     }
 
     /**
@@ -115,9 +97,14 @@ public final class ReflectionHelper {
      * @return PropertyDescriptor[]
      * @throws IntrospectionException bean内省过程异常
      */
-    public static <T> PropertyDescriptor[] getBeanPropertyDescriptor(Class<T> clazz) throws IntrospectionException {
-        BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
-        return beanInfo.getPropertyDescriptors();
+    public static <T> PropertyDescriptor[] getBeanPropertyDescriptor(Class<T> clazz) {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+            return beanInfo.getPropertyDescriptors();
+        } catch (IntrospectionException e) {
+            return null;
+        }
     }
 
 }

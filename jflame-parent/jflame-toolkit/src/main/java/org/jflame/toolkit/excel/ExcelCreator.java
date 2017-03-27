@@ -21,7 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
-import org.jflame.toolkit.reflect.ReflectionUtil;
+import org.jflame.toolkit.reflect.ReflectionHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
@@ -185,12 +185,11 @@ public class ExcelCreator {
         if (CollectionHelper.isNullOrEmpty(dataList)) {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
-                PropertyDescriptor[] properties = null;
                 List<ExcelColumnProperty> columnPropertys = null;
-                try {
-                    properties = ReflectionUtil.getBeanPropertyDescriptor(dataList.iterator().next().getClass());
-                } catch (IntrospectionException e) {
-                    throw new ExcelAccessException(e);
+                Class<?> dataClass=dataList.iterator().next().getClass();
+                PropertyDescriptor[] properties = ReflectionHelper.getBeanPropertyDescriptor(dataClass);
+                if (properties == null) {
+                    throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
                 }
                 // propertyNames为空则从实体类在提取所有
                 if (ArrayUtils.isEmpty(propertyNames)) {
