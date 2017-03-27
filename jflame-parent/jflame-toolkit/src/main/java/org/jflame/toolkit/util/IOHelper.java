@@ -142,7 +142,7 @@ public final class IOHelper {
     }
 
     /**
-     * byte[]写入字节输出流
+     * 将byte[]数据字节输出流
      * 
      * @param data 待写入byte数组
      * @param output 字节输出流
@@ -155,12 +155,12 @@ public final class IOHelper {
     }
 
     /**
-     * byte[]写入字符输出流
+     * 将byte[]数据写入字符输出流
      * 
      * @param data 待写入byte数组
      * @param output 字符输出流
      * @param encoding 字符编码.为null以系统默认编码
-     * @throws IOException
+     * @throws IOException 字符编码或i/o异常
      */
     public static void write(byte[] data, Writer output, String encoding) throws IOException {
         if (data != null) {
@@ -168,6 +168,37 @@ public final class IOHelper {
                 output.write(new String(data));
             } else {
                 output.write(new String(data, encoding));
+            }
+        }
+    }
+
+    /**
+     * 将字符串写入输出流,使用系统默认编码
+     * 
+     * @param data 待写入字符串
+     * @param output 输出流
+     * @throws IOException 字符编码或i/o异常
+     */
+    public static void writeString(String data, OutputStream output) throws IOException {
+        if (data != null) {
+            output.write(data.getBytes());
+        }
+    }
+
+    /**
+     * 将字符串写入输出流,指定字符编码
+     * 
+     * @param data 待写入字符串
+     * @param output 输出流
+     * @param encoding 编码
+     * @throws IOException 字符编码或i/o异常
+     */
+    public static void writeString(String data, OutputStream output, String encoding) throws IOException {
+        if (data != null) {
+            if (encoding == null) {
+                writeString(data, output);
+            } else {
+                output.write(data.getBytes(encoding));
             }
         }
     }

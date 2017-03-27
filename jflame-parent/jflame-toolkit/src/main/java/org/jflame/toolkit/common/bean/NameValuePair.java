@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jflame.toolkit.util.CollectionHelper;
+
 /**
  * 字符串键值对封装bean
  * 
@@ -76,6 +78,18 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
         }
         return nvpirs;
     }
+    
+    public static String toUrlParam(List<NameValuePair> list) {
+        if (CollectionHelper.isNotNullAndEmpty(list)) {
+            StringBuilder strBuf = new StringBuilder(20);
+            for (NameValuePair kv : list) {
+                strBuf.append('&').append(kv.getName()).append('=').append(kv.getValue());
+            }
+            strBuf.deleteCharAt(0);
+            return strBuf.toString();
+        }
+        return "";
+    }
 
     @Override
     public int hashCode() {
@@ -114,4 +128,10 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "[name=" + name + ", value=" + value + "]";
+    }
+    
 }

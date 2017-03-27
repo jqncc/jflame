@@ -26,6 +26,10 @@ public class CallResult implements Serializable {
     public CallResult(ResultEnum result) {
         setResult(result.getStatus(), result.getMessage());
     }
+    
+    public CallResult(int status){
+        this.status=status;
+    }
 
     public CallResult(int status, String message) {
         setResult(status, message);
@@ -55,7 +59,7 @@ public class CallResult implements Serializable {
         this.data = data;
     }
 
-    public void setError(ResultEnum err) {
+    public void setResult(ResultEnum err) {
         this.status = err.getStatus();
         this.message = err.getMessage();
     }
@@ -70,7 +74,7 @@ public class CallResult implements Serializable {
      * 
      * @return boolean
      */
-    public boolean success() {
+    public boolean isSuccess() {
         return status == ResultEnum.SUCCESS.getStatus();
     }
 

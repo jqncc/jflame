@@ -31,6 +31,11 @@ public class RemoteAccessException extends Exception {
         super(exception);
     }
 
+    public RemoteAccessException(int statusCode, Throwable exception) {
+        super("",exception);
+        this.statusCode = statusCode;
+    }
+    
     public RemoteAccessException(String message, Throwable exception) {
         super(message, exception);
     }

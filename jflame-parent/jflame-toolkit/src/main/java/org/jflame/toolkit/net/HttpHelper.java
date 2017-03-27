@@ -1,17 +1,21 @@
 package org.jflame.toolkit.net;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -30,8 +34,13 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.jflame.toolkit.codec.TranscodeException;
+import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
+import org.jflame.toolkit.common.bean.NameValuePair;
 import org.jflame.toolkit.exception.RemoteAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.StringHelper;
@@ -44,15 +53,23 @@ import org.slf4j.LoggerFactory;
  * 默认属性:charset=utf-8, connectionTimeout=1500 * 60, readTimeout=1000 * 60
  * <p>
  * 如果不修改默认请求属性可直接使用便捷的静态方法: <br>
- * HttpHelper.sendGet(url)<br>
- * HttpHelper.sendPost(url,param)
+ * HttpHelper.get(url)<br>
+ * HttpHelper.post(url,param)
  * <p>
- * 实例化方式使用本类,可以修改默认属性,或者直接获取内部HttpURLConnection设置.示例:<br />
+ * 示例:<br />
  * <code><pre>
  *  HttpHelper helper=new HttpHelper();
  *  helper.setCharset("gbk");
- *  helper.getConnection("http://www.qq.com",HttpMethod.GET,null);
- *  String resultText=helper.sendRequest(null);</pre>
+ *  boolean inited=helper.initConnect("http://www.qq.com",HttpMethod.POST);
+ *  List<NameValuePair> params=new ArrayList<>();
+ *  params.add(new NameValuePair("paramName","paramValue"));
+ *  if(inited){
+ *      HttpResponse result=helper.sendRequest(params);
+ *      if(result.success()){
+ *          System.out.print(result.getData());
+ *      }
+ *  }
+ *  </pre>
  * </code>
  * 
  * @author zyc
@@ -68,9 +85,9 @@ public final class HttpHelper {
         GET, POST, PUT, DELETE
     }
 
-    private final String accept = "text/html,application/json,application/xhtml+xml, */*";
-    private final String contentTypePost = "application/x-www-form-urlencoded";
-    private final String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
+    private static final String accept = "text/html,application/json,application/xhtml+xml, */*";
+    private static final String contentTypePost = "application/x-www-form-urlencoded";
+    private static final String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
 
     private int connectionTimeout = 1500 * 60;
     private int readTimeout = 1000 * 60;
@@ -83,7 +100,7 @@ public final class HttpHelper {
     private CookieManager cookieManager;
 
     /**
-     * 构造函数.使用默认cookie管理策略
+     * 构造函数.使用默认cookie管理策略.
      */
     public HttpHelper() {
         cookieManager = new CookieManager();
@@ -91,21 +108,29 @@ public final class HttpHelper {
         CookieHandler.setDefault(cookieManager);
     }
 
-    public HttpURLConnection getConnection(String url, HttpMethod method) throws RemoteAccessException {
-        return getConnection(url, method, null);
+    /**
+     * 初始一个http连接
+     * 
+     * @param url 请求地址
+     * @param method 请求方法.HttpMethod
+     * @return true初始成功,false失败
+     */
+    public boolean initConnect(String url, HttpMethod method) {
+        return initConnect(url, method, null);
     }
 
     /**
-     * 创建一个http连接,注:此连接未打开,可设置属性
+     * 初始一个http连接,设置请求头,cookie,请求方式等
      * 
      * @param url 请求地址
-     * @param method 请求方法
-     * @param httpHeaders http头部属性
-     * @throws RemoteAccessException
+     * @param method 请求方法.HttpMethod
+     * @param httpHeaders http请求头
+     * @return true初始成功,false失败
      */
-    public HttpURLConnection getConnection(String url, HttpMethod method, Map<String,String> httpHeaders)
-            throws RemoteAccessException {
+    public boolean initConnect(String url, HttpMethod method, Map<String,String> httpHeaders) {
         headers = httpHeaders;
+        boolean isConnected = false;
+
         try {
             requestUrl = new URL(url);
             this.method = method;
@@ -117,14 +142,15 @@ public final class HttpHelper {
 
             conn.setRequestMethod(this.method.name());
             // 设置通用属性
+            conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+            conn.setRequestProperty("Connection", "keep-alive");
+            conn.setRequestProperty("User-Agent", userAgent);
+            conn.setRequestProperty("Accept", accept);
+            conn.setRequestProperty("Charset", getCharset());
             conn.setConnectTimeout(getConnectionTimeout());
             conn.setReadTimeout(getReadTimeout());
-            conn.setRequestProperty("User-Agent", userAgent);
-            conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-            conn.setRequestProperty("Accept", accept);
-            conn.setRequestProperty("Connection", "keep-alive");
-            conn.setUseCaches(false);
             HttpURLConnection.setFollowRedirects(true);
+            conn.setUseCaches(false);
             // 设置cookie
             String cookies = getCookies(requestUrl.toURI());
             if (StringHelper.isNotEmpty(cookies)) {
@@ -140,101 +166,245 @@ public final class HttpHelper {
                     conn.setRequestProperty(entry.getKey(), entry.getValue());
                 }
             }
-        } catch (IOException e) {
-            throw new RemoteAccessException("获取http连接异常,url:" + url, e);
-        } catch (URISyntaxException e) {
-            throw new RemoteAccessException(requestUrl + "转URI失败", e);
+            isConnected = true;
+        } catch (IOException | URISyntaxException e) {
+            isConnected = false;
+            if (conn != null) {
+                conn = null;
+            }
+            log.error("建立http连接失败,url:" + url, e);
         }
-        return conn;
+
+        return isConnected;
+    }
+
+    /**
+     * 发送http请求
+     * 
+     * @param params byte[]请求参数,get方式时必须为Null
+     * @param responseHandler 结果处理回调接口
+     * @param <T> 最终返回的结果类型{@link IResponseResultHandler}
+     * @return T
+     * @throws RemoteAccessException
+     */
+    public <T> T sendRequest(byte[] params, IResponseResultHandler<T> responseHandler) throws RemoteAccessException {
+        OutputStream outStream = null;
+        try {
+            conn.connect();
+            if (params != null && params.length > 0) {
+                // 提交参数
+                outStream = conn.getOutputStream();
+                outStream.write(params);
+                outStream.flush();
+            }
+            return responseHandler.handle(conn);
+        }catch(SocketTimeoutException e){
+            throw new RemoteAccessException("请求超时,url:" + requestUrl,HttpURLConnection.HTTP_CLIENT_TIMEOUT, e);
+        } catch (Exception e) {
+            throw new RemoteAccessException("http请求异常,url:" + requestUrl, e);
+        } finally {
+            IOHelper.closeQuietly(outStream);
+            conn.disconnect();
+        }
     }
 
     /**
      * 发起请求,并返回结果文本
      * 
-     * @param params 请求参数,参数为表单类型
-     * @return 返回结果文本,没有结果或返回http状态码不是200将返回null
-     * @throws RemoteAccessException
-     */
-    public String sendRequest(Map<String,String> params) throws RemoteAccessException {
-        try {
-            conn.connect();
-            if (!MapHelper.isEmpty(params)) {
-                // 输出参数
-                try (OutputStream outStream = conn.getOutputStream();
-                        OutputStreamWriter outWriter = new OutputStreamWriter(outStream,
-                                StringHelper.isEmpty(charset) ? CharsetHelper.UTF_8 : charset)) {
-                    outWriter.write(StringHelper.buildUrlParamFromMap(params));
-                    outWriter.flush();
-                }
-            }
-            log.debug("发起http请求:url={},方式={}", requestUrl, this.method);
-            return getResponseText();
-        } catch (IOException e) {
-            throw new RemoteAccessException("http请求异常,url:" + requestUrl, e);
-        } finally {
-            conn.disconnect();
-        }
-    }
-
-    /**
-     * 发起请求,参数是byte数组,发送非表单类型参数请使用该方法
-     * 
      * @param params 请求参数
-     * @return
-     * @throws RemoteAccessException
+     * @return 返回结果文本,没有结果或返回http状态码不是200将返回null
      */
-    public String sendRequest(byte[] params) throws RemoteAccessException {
+    public HttpResponse sendRequest(List<NameValuePair> params) {
+        byte[] paramBytes = null;
+        HttpResponse response = null;
+        log.debug("发起http请求:url={},方式={},参数={}", requestUrl, this.method, ArrayUtils.toString(params));
         try {
-            if (this.method == HttpMethod.GET) {
-                conn.setRequestMethod(HttpMethod.POST.name());
+            if (CollectionHelper.isNotNullAndEmpty(params)) {
+                paramBytes = StringHelper.getBytes(NameValuePair.toUrlParam(params), getCharset());
             }
-            conn.connect();
-            if (params != null && params.length > 0) {
-                // 输出参数
-                try (OutputStream outStream = conn.getOutputStream();) {
-                    outStream.write(params);
-                    outStream.flush();
-                }
+            response = sendRequest(paramBytes, new defalutResponse(0));
+        } catch (TranscodeException e) {
+            response = new HttpResponse(ResultEnum.PARAM_ERROR.getStatus(), "编码错误:" + getCharset());
+            log.error("", e);
+        } catch (RemoteAccessException e) {
+            if (response == null) {
+                response = new HttpResponse();
             }
-            log.debug("发起http请求:url={},方式={}", requestUrl, this.method);
-            return getResponseText();
-        } catch (IOException e) {
-            throw new RemoteAccessException("http请求异常,url:" + requestUrl, e);
-        } finally {
-            conn.disconnect();
+            response.setStatus(e.getStatusCode() > 0 ? e.getStatusCode() : ResultEnum.SERVER_ERROR.getStatus());
+            response.setMessage(e.getMessage());
+            log.error("", e);
         }
+        return response;
     }
 
     /**
-     * 接收返回文本结果，并转为指定字符集的文本
+     * 发起请求,参数是byte[],注：请求必须是POST方式
      * 
+     * @param params byte[]请求参数
      * @return
-     * @throws IOException i/o error
-     * @throws RemoteAccessException 请求返回状态码>300视为请求异常
      */
-    private String getResponseText() throws RemoteAccessException, IOException {
-        int statusCode = conn.getResponseCode();
-        log.debug("请求结果:url:{},status={}",requestUrl, statusCode);
-        if (statusCode < 300) {
-            String respCharset = detectCharset(conn.getContentType());
-            try (InputStream inStream = getInputStream(conn)) {
-                return IOHelper.readString(inStream,
-                        StringHelper.isEmpty(respCharset) ? CharsetHelper.UTF_8 : respCharset);
+    public HttpResponse sendRequest(byte[] params) {
+        HttpResponse response = null;
+        log.debug("发起http请求:url={},方式={},参数byte[]", requestUrl, this.method);
+        try {
+            response = sendRequest(params, new defalutResponse(1));
+        } catch (RemoteAccessException e) {
+            if (response == null) {
+                response = new HttpResponse();
             }
-        } else {
-            throw new RemoteAccessException("请求失败" + requestUrl, statusCode);
+            response.setStatus(e.getStatusCode() > 0 ? e.getStatusCode() : ResultEnum.SERVER_ERROR.getStatus());
+            response.setMessage(e.getMessage());
+            log.error("", e);
         }
+        return response;
     }
 
-    private byte[] getResponseBytes() throws IOException,RemoteAccessException {
-        int statusCode = conn.getResponseCode();
-        log.debug("请求结果:url:{},status={}",requestUrl, statusCode);
-        if (statusCode < 300) {
-            try (InputStream inStream = getInputStream(conn)) {
-                return IOHelper.readBytes(inStream);
+    // 含参数和文件上传表单报文示例：
+    // -------***anysplit
+    // Content-Disposition: form-data; name="username"
+    //
+    // hello word
+    // -------***anysplit
+    // Content-Disposition: form-data; name="file1"; filename="D:/haha.txt"
+    // Content-Type: text/plain
+    //
+    // filebytes
+    // filebytes
+    // -------***anysplit
+    // Content-Disposition: form-data; name="file2"; filename="D:/huhu.txt"
+    // Content-Type: text/plain
+    //
+    // filebytes
+    // filebytes
+    // -------***anysplit--
+    /**
+     * 发送上传文件请求.混合表单普通域和文件域
+     * 
+     * @param params 普通参数
+     * @param uploadFiles 上传文件域,Map的key为文件域name
+     * @return
+     */
+    public HttpResponse sendRequest(List<NameValuePair> params, Map<String,File> uploadFiles) {
+        HttpResponse response = null;
+        String boundary = "-----***anysplit";
+        String newLine = "\r\n";
+        String prefix = "--";
+        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        StringBuilder paramStrBuf = new StringBuilder(50);
+        DataOutputStream outStream = null;
+        log.debug("发起http请求:url={}", requestUrl);
+        try {
+            if (method != HttpMethod.POST) {
+                conn.setRequestMethod(HttpMethod.POST.name());
+                conn.setDoOutput(true);
             }
-        } else {
-            throw new RemoteAccessException("请求失败" + requestUrl,statusCode);
+            conn.connect();
+            outStream = new DataOutputStream(conn.getOutputStream());
+            // 提交普通参数
+            if (CollectionHelper.isNotNullAndEmpty(params)) {
+                for (NameValuePair paramKv : params) {
+                    if (StringHelper.isNotEmpty(paramKv.getName())) {
+                        paramStrBuf.append(prefix).append(boundary).append(newLine);
+                        paramStrBuf.append("Content-Disposition: form-data; name=\"").append(paramKv.getName())
+                                .append("\"").append(newLine);
+                        paramStrBuf.append(newLine);
+                        paramStrBuf.append(paramKv.getValue()).append(newLine);
+                    }
+                }
+                IOHelper.writeString(paramStrBuf.toString(), outStream, getCharset());
+            }
+            // 提交文件域参数，上传文件
+            if (!MapHelper.isEmpty(uploadFiles)) {
+                for (Map.Entry<String,File> fileParam : uploadFiles.entrySet()) {
+                    if (StringHelper.isEmpty(fileParam.getKey())) {
+                        throw new IllegalArgumentException("表单文件域名称不能为空", null);
+                    }
+                    if (!fileParam.getValue().exists()) {
+                        throw new FileNotFoundException("文件不存在:" + fileParam.getValue().getName());
+                    }
+                    paramStrBuf.setLength(0);
+                    paramStrBuf.append(prefix).append(boundary).append(newLine);
+                    paramStrBuf.append("Content-Disposition: form-data; name=\"").append(fileParam.getKey())
+                            .append("\";");
+                    paramStrBuf.append("filename=\"").append(fileParam.getValue().getName()).append("\"")
+                            .append(newLine);
+                    paramStrBuf.append("Content-Type: application/octet-stream; charset=").append(getCharset())
+                            .append(newLine);
+                    paramStrBuf.append(newLine);
+                    IOHelper.writeString(paramStrBuf.toString(), outStream, getCharset());
+                    try (InputStream fileStream = Files.newInputStream(fileParam.getValue().toPath())) {
+                        IOHelper.copy(fileStream, outStream);
+                    } catch (IOException e) {
+                        throw e;
+                    }
+                }
+            }
+            // 请求结束标记--boundary--\r\n
+            IOHelper.writeString((prefix + boundary + prefix + newLine), outStream, getCharset());
+            outStream.flush();
+            // 处理返回结果,实际数据作为文本
+            defalutResponse responseHandler = new defalutResponse(0);
+            response= responseHandler.handle(conn);
+        }catch(SocketTimeoutException e){
+            response = new HttpResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT,"请求超时");
+        } catch (Exception e) {
+            response = new HttpResponse(ResultEnum.SERVER_ERROR.getStatus(),e.getMessage());
+            log.error("", e);
+        } finally {
+            IOHelper.closeQuietly(outStream);
+            conn.disconnect();
+        }
+        return response;
+    }
+
+    /**
+     * 缺省请求结果处理
+     */
+    class defalutResponse implements IResponseResultHandler<HttpResponse> {
+
+        private int resultType = 0;
+
+        public defalutResponse() {
+
+        }
+
+        public defalutResponse(int resultType) {
+            this.resultType = resultType;
+        }
+
+        @Override
+        public HttpResponse handle(HttpURLConnection httpConn) throws IOException {
+            HttpResponse result = new HttpResponse();
+            result.setStatus(httpConn.getResponseCode());
+            log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
+            result.setHeaders(httpConn.getHeaderFields());
+            String respCharset = detectCharset(httpConn.getContentType());
+            if (result.isSuccess()) {
+                try (InputStream inStream = getInputStream(httpConn)) {
+                    if (resultType == 0) {
+                        result.setData(IOHelper.readString(inStream,
+                                StringHelper.isEmpty(respCharset) ? CharsetHelper.UTF_8 : respCharset));
+
+                    } else if (resultType == 1) {
+                        result.setData(IOHelper.readBytes(inStream));
+                    }
+                } catch (IOException e) {
+                    throw e;
+                }
+            } else {
+                if (null != httpConn.getErrorStream()) {
+                    try (InputStream inStream = httpConn.getErrorStream()) {
+                        result.setMessage(IOHelper.readString(inStream,
+                                StringHelper.isEmpty(respCharset) ? CharsetHelper.UTF_8 : respCharset));
+                    } catch (IOException e) {
+                        throw e;
+                    }
+                } else {
+                    result.setData(httpConn.getResponseMessage());
+                }
+                log.error("请求失败," + result);
+            }
+            return result;
         }
     }
 
@@ -265,16 +435,19 @@ public final class HttpHelper {
     }
 
     /**
-     * 执行一个http get请求,使用默认属性
+     * 执行一个get请求，使用默认属性.
      * 
      * @param url 请求地址
-     * @return
-     * @throws RemoteAccessException
+     * @return HttpResponse请求结果,实际数据为文本字符
      */
-    public static String sendGet(String url) throws RemoteAccessException {
+    public static HttpResponse get(String url) {
         HttpHelper helper = new HttpHelper();
-        helper.getConnection(url, HttpMethod.GET, null);
-        return helper.sendRequest((Map<String,String>) null);
+        boolean inited = helper.initConnect(url, HttpMethod.GET, null);
+        if (inited) {
+            return helper.sendRequest((List<NameValuePair>) null);
+        } else {
+            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
+        }
     }
 
     /**
@@ -282,13 +455,16 @@ public final class HttpHelper {
      * 
      * @param url 请求地址
      * @param params 请求参数
-     * @return
-     * @throws IOException
+     * @return HttpResponse请求结果,实际数据为文本字符
      */
-    public static String sendPost(String url, Map<String,String> params) throws RemoteAccessException {
+    public static HttpResponse post(String url, List<NameValuePair> params) {
         HttpHelper helper = new HttpHelper();
-        helper.getConnection(url, HttpMethod.POST, null);
-        return helper.sendRequest(params);
+        boolean inited = helper.initConnect(url, HttpMethod.POST, null);
+        if (inited) {
+            return helper.sendRequest(params);
+        } else {
+            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
+        }
     }
 
     /**
@@ -331,9 +507,15 @@ public final class HttpHelper {
         }
     }
 
-    public void addCookie(String name, String value) throws URISyntaxException {
-        HttpCookie cookie = new HttpCookie(name, value);
-        cookieManager.getCookieStore().add(requestUrl.toURI(), cookie);
+    public void addCookie(String cookieName, String cookieValue) {
+        if (cookieName != null) {
+            HttpCookie cookie = new HttpCookie(cookieName, cookieValue);
+            try {
+                cookieManager.getCookieStore().add(requestUrl.toURI(), cookie);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("设置cookie失败,url不正确", e);
+            }
+        }
     }
 
     String getCookies(URI uri) {
@@ -378,7 +560,7 @@ public final class HttpHelper {
     }
 
     public String getCharset() {
-        return charset;
+        return charset == null ? CharsetHelper.UTF_8 : charset;
     }
 
     /**
