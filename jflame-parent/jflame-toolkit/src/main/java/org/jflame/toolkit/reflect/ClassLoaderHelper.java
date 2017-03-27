@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 加载自定义jar包
  */
-public final class ClassLoaderUtil {
+public final class ClassLoaderHelper {
 
     /** URLClassLoader的addURL方法 */
     private static Method addURL = initAddMethod();

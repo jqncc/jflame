@@ -13,9 +13,9 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 /**
  * 反射工具类
  * 
- * @author zyc CreateDate:2015年2月5日上午11:30:11
+ * @author zyc
  */
-public final class ReflectionUtil {
+public final class ReflectionHelper {
 
     /**
      * 反射获得Class定义中声明的父类的首个泛型参数的类型. 如无法找到,返回Object.class
