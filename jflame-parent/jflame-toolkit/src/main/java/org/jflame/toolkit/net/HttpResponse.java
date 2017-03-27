@@ -33,27 +33,29 @@ public class HttpResponse extends CallResult {
     public void setHeaders(Map<String,List<String>> headers) {
         this.headers = headers;
     }
-    
+
     /**
      * 以文本类型返回实际请求结果.结果不能转为文本时无效
+     * 
      * @return
      */
-    public String getDataAsText(){
-        if(getData()!=null){
-            return (String)getData();
+    public String getDataAsText() {
+        if (getData() != null) {
+            return (String) getData();
         }
         return null;
     }
-    
+
     /**
      * 以byte[]类型返回实际请求结果.结果不能转为byte[]时无效
+     * 
      * @return
      */
-    public byte[] getDataAsBytes(){
-        if(getData()!=null){
-            return (byte[])getData();
+    public byte[] getDataAsBytes() {
+        if (getData() != null) {
+            return (byte[]) getData();
         }
         return null;
     }
-    
+
 }

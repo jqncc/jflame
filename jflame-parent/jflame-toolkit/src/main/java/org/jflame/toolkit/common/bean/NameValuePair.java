@@ -13,7 +13,6 @@ import org.jflame.toolkit.util.CollectionHelper;
  * 字符串键值对封装bean
  * 
  * @author yucan.zhang
- *
  */
 public class NameValuePair implements IKeyValuePair<String>, Serializable {
 
@@ -78,7 +77,12 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
         }
         return nvpirs;
     }
-    
+
+    /**
+     * 转为url参数格式的字符串
+     * @param list
+     * @return
+     */
     public static String toUrlParam(List<NameValuePair> list) {
         if (CollectionHelper.isNotNullAndEmpty(list)) {
             StringBuilder strBuf = new StringBuilder(20);
@@ -133,5 +137,5 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
     public String toString() {
         return "[name=" + name + ", value=" + value + "]";
     }
-    
+
 }

@@ -221,40 +221,40 @@ public abstract class BaseNCodec {
      * Encodes an Object using the Base-N algorithm. This method is provided in order to satisfy the requirements of the
      * Encoder interface, and will throw an EncoderException if the supplied object is not of type byte[].
      *
-     * @param pObject Object to encode
+     * @param pobject Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data which corresponds to the byte[] supplied.
      * @throws EncoderException if the parameter supplied is not of type byte[]
      */
-    public Object encode(Object pObject) throws EncoderException {
-        if (!(pObject instanceof byte[])) {
+    public Object encode(Object pobject) throws EncoderException {
+        if (!(pobject instanceof byte[])) {
             throw new EncoderException("Parameter supplied to Base-N encode is not a byte[]");
         }
-        return encode((byte[]) pObject);
+        return encode((byte[]) pobject);
     }
 
     /**
      * Encodes a byte[] containing binary data, into a String containing characters in the Base-N alphabet.
      *
-     * @param pArray a byte array containing binary data
+     * @param parray a byte array containing binary data
      * @return A String containing only Base-N character data
      */
-    public String encodeToString(byte[] pArray) {
-        return StringUtils.newStringUtf8(encode(pArray));
+    public String encodeToString(byte[] parray) {
+        return StringUtils.newStringUtf8(encode(parray));
     }
 
     /**
      * Decodes an Object using the Base-N algorithm. This method is provided in order to satisfy the requirements of the
      * Decoder interface, and will throw a TranscodeException if the supplied object is not of type byte[] or String.
      *
-     * @param pObject Object to decode
+     * @param pobject Object to decode
      * @return An object (of type byte[]) containing the binary data which corresponds to the byte[] or String supplied.
      * @throws TranscodeException if the parameter supplied is not of type byte[]
      */
-    public Object decode(Object pObject) throws TranscodeException {
-        if (pObject instanceof byte[]) {
-            return decode((byte[]) pObject);
-        } else if (pObject instanceof String) {
-            return decode((String) pObject);
+    public Object decode(Object pobject) throws TranscodeException {
+        if (pobject instanceof byte[]) {
+            return decode((byte[]) pobject);
+        } else if (pobject instanceof String) {
+            return decode((String) pobject);
         } else {
             throw new TranscodeException("Parameter supplied to Base-N decode is not a byte[] or a String");
         }
@@ -263,26 +263,26 @@ public abstract class BaseNCodec {
     /**
      * Decodes a String containing characters in the Base-N alphabet.
      *
-     * @param pArray A String containing Base-N character data
+     * @param parray A String containing Base-N character data
      * @return a byte array containing binary data
      */
-    public byte[] decode(String pArray) {
-        return decode(StringUtils.getBytesUtf8(pArray));
+    public byte[] decode(String parray) {
+        return decode(StringUtils.getBytesUtf8(parray));
     }
 
     /**
      * Decodes a byte[] containing characters in the Base-N alphabet.
      * 
-     * @param pArray A byte array containing Base-N character data
+     * @param parray A byte array containing Base-N character data
      * @return a byte array containing binary data
      */
-    public byte[] decode(byte[] pArray) {
+    public byte[] decode(byte[] parray) {
         reset();
-        if (pArray == null || pArray.length == 0) {
-            return pArray;
+        if (parray == null || parray.length == 0) {
+            return parray;
         }
-        decode(pArray, 0, pArray.length);
-        decode(pArray, 0, -1); // Notify decoder of EOF.
+        decode(parray, 0, parray.length);
+        decode(parray, 0, -1); // Notify decoder of EOF.
         byte[] result = new byte[pos];
         readResults(result, 0, result.length);
         return result;
@@ -291,16 +291,16 @@ public abstract class BaseNCodec {
     /**
      * Encodes a byte[] containing binary data, into a byte[] containing characters in the alphabet.
      *
-     * @param pArray a byte array containing binary data
+     * @param parray a byte array containing binary data
      * @return A byte array containing only the basen alphabetic character data
      */
-    public byte[] encode(byte[] pArray) {
+    public byte[] encode(byte[] parray) {
         reset();
-        if (pArray == null || pArray.length == 0) {
-            return pArray;
+        if (parray == null || parray.length == 0) {
+            return parray;
         }
-        encode(pArray, 0, pArray.length);
-        encode(pArray, 0, -1); // Notify encoder of EOF.
+        encode(parray, 0, parray.length);
+        encode(parray, 0, -1); // Notify encoder of EOF.
         byte[] buf = new byte[pos - readPos];
         readResults(buf, 0, buf.length);
         return buf;
@@ -383,14 +383,14 @@ public abstract class BaseNCodec {
     /**
      * Calculates the amount of space needed to encode the supplied array.
      *
-     * @param pArray byte[] array which will later be encoded
+     * @param parray byte[] array which will later be encoded
      * @return amount of space needed to encoded the supplied array. Returns a long since a max-len array will require >
      *         Integer.MAX_VALUE
      */
-    public long getEncodedLength(byte[] pArray) {
+    public long getEncodedLength(byte[] parray) {
         // Calculate non-chunked size - rounded up to allow for padding
         // cast to long is needed to avoid possibility of overflow
-        long len = ((pArray.length + unencodedBlockSize - 1) / unencodedBlockSize) * (long) encodedBlockSize;
+        long len = ((parray.length + unencodedBlockSize - 1) / unencodedBlockSize) * (long) encodedBlockSize;
         if (lineLength > 0) { // We're using chunking
             // Round up to nearest multiple
             len += ((len + lineLength - 1) / lineLength) * chunkSeparatorLength;

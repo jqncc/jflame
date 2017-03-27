@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
@@ -164,7 +163,7 @@ public final class ZipHelper {
                     }
                 }
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw e;
         }
     }

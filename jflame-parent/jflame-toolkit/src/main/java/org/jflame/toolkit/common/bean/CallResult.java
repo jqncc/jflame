@@ -26,9 +26,9 @@ public class CallResult implements Serializable {
     public CallResult(ResultEnum result) {
         setResult(result.getStatus(), result.getMessage());
     }
-    
-    public CallResult(int status){
-        this.status=status;
+
+    public CallResult(int status) {
+        this.status = status;
     }
 
     public CallResult(int status, String message) {

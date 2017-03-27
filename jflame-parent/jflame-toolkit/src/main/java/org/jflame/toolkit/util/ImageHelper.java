@@ -182,19 +182,19 @@ public final class ImageHelper {
      * 
      * @param srcImgPath 原始图片
      * @param newImgPath 新图片路径
-     * @param xPoint 起始点x坐标
-     * @param yPoint 起始点y坐标
+     * @param x 起始点x坐标
+     * @param y 起始点y坐标
      * @param width 截取宽度
      * @param height 截取长度
      * @throws IOException
      */
-    public static void cutImage(String srcImgPath, String newImgPath, int xPoint, int yPoint, int width, int height)
+    public static void cutImage(String srcImgPath, String newImgPath, int x, int y, int width, int height)
             throws IOException {
-        if (xPoint < 0) {
-            xPoint = 0;
+        if (x < 0) {
+            x = 0;
         }
-        if (yPoint < 0) {
-            yPoint = 0;
+        if (y < 0) {
+            y = 0;
         }
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("长度或宽度应大于0");
@@ -213,24 +213,14 @@ public final class ImageHelper {
             imgStream = ImageIO.createImageInputStream(inStream);
             reader.setInput(imgStream, true);
             ImageReadParam param = reader.getDefaultReadParam();
-            Rectangle rect = new Rectangle(xPoint, yPoint, width, height);
+            Rectangle rect = new Rectangle(x, y, width, height);
             param.setSourceRegion(rect);
             BufferedImage bi = reader.read(0, param);
             // 保存新图片
             ImageIO.write(bi, extName, new File(newImgPath));
         } finally {
-            if (inStream != null)
-                try {
-                    inStream.close();
-                } catch (IOException e) {
-                    inStream = null;
-                }
-            if (imgStream != null)
-                try {
-                    imgStream.close();
-                } catch (IOException e) {
-                    imgStream = null;
-                }
+            IOHelper.closeQuietly(inStream);
+            IOHelper.closeQuietly(imgStream);
         }
     }
 

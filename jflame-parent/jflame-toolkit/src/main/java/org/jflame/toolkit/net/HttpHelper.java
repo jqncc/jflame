@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  *  HttpHelper helper=new HttpHelper();
  *  helper.setCharset("gbk");
  *  boolean inited=helper.initConnect("http://www.qq.com",HttpMethod.POST);
- *  List<NameValuePair> params=new ArrayList<>();
+ *  List&lt;NameValuePair&gt; params=new ArrayList<>();
  *  params.add(new NameValuePair("paramName","paramValue"));
  *  if(inited){
  *      HttpResponse result=helper.sendRequest(params);
@@ -198,8 +198,8 @@ public final class HttpHelper {
                 outStream.flush();
             }
             return responseHandler.handle(conn);
-        }catch(SocketTimeoutException e){
-            throw new RemoteAccessException("请求超时,url:" + requestUrl,HttpURLConnection.HTTP_CLIENT_TIMEOUT, e);
+        } catch (SocketTimeoutException e) {
+            throw new RemoteAccessException("请求超时,url:" + requestUrl, HttpURLConnection.HTTP_CLIENT_TIMEOUT, e);
         } catch (Exception e) {
             throw new RemoteAccessException("http请求异常,url:" + requestUrl, e);
         } finally {
@@ -222,7 +222,7 @@ public final class HttpHelper {
             if (CollectionHelper.isNotNullAndEmpty(params)) {
                 paramBytes = StringHelper.getBytes(NameValuePair.toUrlParam(params), getCharset());
             }
-            response = sendRequest(paramBytes, new defalutResponse(0));
+            response = sendRequest(paramBytes, new DefalutResponse(0));
         } catch (TranscodeException e) {
             response = new HttpResponse(ResultEnum.PARAM_ERROR.getStatus(), "编码错误:" + getCharset());
             log.error("", e);
@@ -247,7 +247,7 @@ public final class HttpHelper {
         HttpResponse response = null;
         log.debug("发起http请求:url={},方式={},参数byte[]", requestUrl, this.method);
         try {
-            response = sendRequest(params, new defalutResponse(1));
+            response = sendRequest(params, new DefalutResponse(1));
         } catch (RemoteAccessException e) {
             if (response == null) {
                 response = new HttpResponse();
@@ -343,12 +343,12 @@ public final class HttpHelper {
             IOHelper.writeString((prefix + boundary + prefix + newLine), outStream, getCharset());
             outStream.flush();
             // 处理返回结果,实际数据作为文本
-            defalutResponse responseHandler = new defalutResponse(0);
-            response= responseHandler.handle(conn);
-        }catch(SocketTimeoutException e){
-            response = new HttpResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT,"请求超时");
+            DefalutResponse responseHandler = new DefalutResponse(0);
+            response = responseHandler.handle(conn);
+        } catch (SocketTimeoutException e) {
+            response = new HttpResponse(HttpURLConnection.HTTP_CLIENT_TIMEOUT, "请求超时");
         } catch (Exception e) {
-            response = new HttpResponse(ResultEnum.SERVER_ERROR.getStatus(),e.getMessage());
+            response = new HttpResponse(ResultEnum.SERVER_ERROR.getStatus(), e.getMessage());
             log.error("", e);
         } finally {
             IOHelper.closeQuietly(outStream);
@@ -360,15 +360,15 @@ public final class HttpHelper {
     /**
      * 缺省请求结果处理
      */
-    class defalutResponse implements IResponseResultHandler<HttpResponse> {
+    class DefalutResponse implements IResponseResultHandler<HttpResponse> {
 
         private int resultType = 0;
 
-        public defalutResponse() {
+        public DefalutResponse() {
 
         }
 
-        public defalutResponse(int resultType) {
+        public DefalutResponse(int resultType) {
             this.resultType = resultType;
         }
 
@@ -507,6 +507,11 @@ public final class HttpHelper {
         }
     }
 
+    /**
+     * 设置cookie
+     * @param cookieName cookie name
+     * @param cookieValue cookie value
+     */
     public void addCookie(String cookieName, String cookieValue) {
         if (cookieName != null) {
             HttpCookie cookie = new HttpCookie(cookieName, cookieValue);

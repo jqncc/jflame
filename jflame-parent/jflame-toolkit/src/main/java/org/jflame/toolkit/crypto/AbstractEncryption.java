@@ -9,7 +9,6 @@ import org.jflame.toolkit.util.CharsetHelper;
  */
 public abstract class AbstractEncryption {
 
-
     /**
      * 加密算法名称枚举.DES, DESede, AES, RSA, PBEWITHMD5ANDDES
      * 
@@ -68,7 +67,7 @@ public abstract class AbstractEncryption {
     }
 
     public String getCharset() {
-        return charset==null?CharsetHelper.UTF_8:charset;
+        return charset == null ? CharsetHelper.UTF_8 : charset;
     }
 
     public void setCharset(String charset) {

@@ -29,6 +29,7 @@ import org.jflame.toolkit.util.StringHelper;
  * @author zyc
  */
 public class SymmetricEncryption extends AbstractEncryption {
+
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
@@ -80,11 +81,10 @@ public class SymmetricEncryption extends AbstractEncryption {
      * @return byte[]明文
      * @throws EncryptException 解密异常
      */
-    public byte[] decrypt(final byte[] data,final byte[] keybytes, byte[] ivParam) throws EncryptException {
+    public byte[] decrypt(final byte[] data, final byte[] keybytes, byte[] ivParam) throws EncryptException {
         return doCompute(data, keybytes, ivParam, Cipher.DECRYPT_MODE);
     }
 
-    
     /**
      * 加密字符串,返回base64密文.
      * 
@@ -119,6 +119,7 @@ public class SymmetricEncryption extends AbstractEncryption {
 
     /**
      * 加密字符串
+     * 
      * @param plainText 明文
      * @param password 密钥
      * @param ivParam 向量
@@ -180,7 +181,7 @@ public class SymmetricEncryption extends AbstractEncryption {
         try {
             cipherBytes = Hex.decodeHex(ciphertext.toCharArray());
             return doDencrypt(cipherBytes, password, ivParam);
-        } catch (TranscodeException|UnsupportedEncodingException e) {
+        } catch (TranscodeException | UnsupportedEncodingException e) {
             throw new EncryptException("解密异常", e);
         }
     }
@@ -196,9 +197,10 @@ public class SymmetricEncryption extends AbstractEncryption {
         byte[] plainBytes = decrypt(cipherBytes, keyBytes, ivBytes);
         return new String(plainBytes, charset);
     }
-    
+
     /**
      * 执行加解密算法计算
+     * 
      * @param data byte[] 内容
      * @param keybytes 密钥
      * @param ivParam 向量
@@ -229,7 +231,7 @@ public class SymmetricEncryption extends AbstractEncryption {
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
                 | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
                 | NoSuchProviderException e) {
-            throw new EncryptException(cipherMode==Cipher.ENCRYPT_MODE?"加密异常":"解密异常", e);
+            throw new EncryptException(cipherMode == Cipher.ENCRYPT_MODE ? "加密异常" : "解密异常", e);
         }
     }
 
@@ -246,7 +248,6 @@ public class SymmetricEncryption extends AbstractEncryption {
             }
         }
     }
-
 
     String checkKey(byte[] keyBytes) {
         if (curAlgorithm == Algorithm.DES) {
