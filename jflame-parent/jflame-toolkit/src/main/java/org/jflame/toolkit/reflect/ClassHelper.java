@@ -17,8 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 类文件class操作工具类
- * 
+ * 类文件class操作工具类.
+
+ * @see org.apache.commons.lang3.ClassUtils
  * @author yucan.zhang
  */
 public final class ClassHelper {

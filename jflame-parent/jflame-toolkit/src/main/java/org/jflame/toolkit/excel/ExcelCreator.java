@@ -1,6 +1,5 @@
 package org.jflame.toolkit.excel;
 
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,11 +16,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
-import org.jflame.toolkit.reflect.ReflectionHelper;
+import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
@@ -187,7 +185,7 @@ public class ExcelCreator {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
                 Class<?> dataClass=dataList.iterator().next().getClass();
-                PropertyDescriptor[] properties = ReflectionHelper.getBeanPropertyDescriptor(dataClass);
+                PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
                 if (properties == null) {
                     throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
                 }

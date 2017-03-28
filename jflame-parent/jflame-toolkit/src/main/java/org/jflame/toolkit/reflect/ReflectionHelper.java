@@ -71,7 +71,7 @@ public final class ReflectionHelper {
      * 直接设置对象属性值
      * 
      * @throws IllegalAccessException
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException 目标或成员名为null
      */
     public static void setFieldValue(final Object obj, final String fieldName, final Object value)
             throws IllegalAccessException {
@@ -89,22 +89,5 @@ public final class ReflectionHelper {
         return FieldUtils.getField(obj.getClass(), fieldName, true);
     }
 
-    /**
-     * 获取类型的所有属性描述PropertyDescriptor.
-     * 
-     * @param clazz 类型
-     * @param <T> class泛型
-     * @return PropertyDescriptor[]
-     * @throws IntrospectionException bean内省过程异常
-     */
-    public static <T> PropertyDescriptor[] getBeanPropertyDescriptor(Class<T> clazz) {
-        BeanInfo beanInfo;
-        try {
-            beanInfo = Introspector.getBeanInfo(clazz);
-            return beanInfo.getPropertyDescriptors();
-        } catch (IntrospectionException e) {
-            return null;
-        }
-    }
-
+   
 }

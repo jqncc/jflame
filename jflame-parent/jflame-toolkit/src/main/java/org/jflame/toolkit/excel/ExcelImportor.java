@@ -21,7 +21,7 @@ import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
 import org.jflame.toolkit.excel.validator.DefaultValidator;
 import org.jflame.toolkit.excel.validator.IValidator;
 import org.jflame.toolkit.exception.ConvertException;
-import org.jflame.toolkit.reflect.ReflectionHelper;
+import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
@@ -116,7 +116,7 @@ public class ExcelImportor {
         LinkedHashSet<T> results = new LinkedHashSet<>();
         curRowIndexs.clear();
         errorMap.clear();
-        PropertyDescriptor[] properties = ReflectionHelper.getBeanPropertyDescriptor(dataClass);
+        PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
         if (properties == null) {
             throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
         }
