@@ -11,6 +11,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.Labels;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
 /**
  * json工具类，依赖于fastjson. 具体属性的序列化请使用@JSONField注解定制
@@ -30,16 +31,32 @@ public final class JsonHelper {
     }
 
     /**
-     * Java对象序列化为JSON字符串.使用LabelFilter定制属性<p>
-     * 如：对象中@JSONField(label = "xx")注解定制.
+     * Java对象序列化为JSON字符串,按属性组过滤.
+     * <p>
+     * 使用LabelFilter定制属性. 如：对象中@JSONField(label = "xx")注解定制.
      * 
      * @see com.alibaba.fastjson.serializer.LabelFilter
      * @param obj Java对象
      * @param includeLabels label分组名称，只包含指定label的属性
      * @return
      */
-    public static String toJson(Object obj, String... includeLabels) {
+    public static String toJsonWithGroup(Object obj, String... includeLabels) {
         return JSON.toJSONString(obj, Labels.includes(includeLabels));
+    }
+
+    /**
+     * Java对象序列化为JSON字符串,指定要排除的属性.
+     * 
+     * @param obj Java对象
+     * @param excludeFields 要排除的属性
+     * @return
+     */
+    public static String toJson(Object obj, String... excludeFields) {
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
+        for (String field : excludeFields) {
+            filter.getIncludes().add(field);
+        }
+        return JSON.toJSONString(obj, filter);
     }
 
     /**

@@ -1,12 +1,13 @@
 package org.jflame.toolkit.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
 public final class CollectionHelper {
-
 
     /**
      * 判断集合是否为null或无元素
@@ -28,6 +29,21 @@ public final class CollectionHelper {
      */
     public static <E> boolean isNotNullAndEmpty(Collection<E> collection) {
         return collection != null && !collection.isEmpty();
+    }
+
+    /**
+     * 枚举集合转数组,数组元素类型必须与集合元素相同或是其实现类
+     * 
+     * @param enumeration 枚举集合
+     * @param array 目标数组    
+     * @return
+     */
+    public static <A,E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
+        ArrayList<A> elements = new ArrayList<A>();
+        while (enumeration.hasMoreElements()) {
+            elements.add(enumeration.nextElement());
+        }
+        return elements.toArray(array);
     }
 
     /**

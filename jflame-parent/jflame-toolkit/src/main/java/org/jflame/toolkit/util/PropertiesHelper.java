@@ -14,6 +14,12 @@ public final class PropertiesHelper {
 
     private final Properties properties;
 
+    /**
+     * 构造函数.
+     * 
+     * @param resourcesPaths 路径以/开头从classpath下去，相对路径从此类所在的包下取资源
+     * @throws IOException
+     */
     public PropertiesHelper(String... resourcesPaths) throws IOException {
         properties = loadProperties(resourcesPaths);
     }
@@ -144,18 +150,16 @@ public final class PropertiesHelper {
     /**
      * 载入多个文件, 文件路径使用Spring Resource格式.
      * 
-     * @param resourcesPaths 资源文件路径
+     * @param resourcesPaths 资源文件路径,路径以/开头从classpath下去，相对路径从此类所在的包下取资源
      * @throws IOException 文件读取失败
      */
     private Properties loadProperties(String... resourcesPaths) throws IOException {
         Properties props = new Properties();
 
         for (String location : resourcesPaths) {
-            // logger.debug("Loading properties file from path:{}", location);
             try (InputStream is = PropertiesHelper.class.getResourceAsStream(location)) {
                 props.load(is);
             } catch (IOException ex) {
-                // logger.info("Could not load properties from path:{}, {} ", location, ex.getMessage());
                 throw ex;
             }
         }
