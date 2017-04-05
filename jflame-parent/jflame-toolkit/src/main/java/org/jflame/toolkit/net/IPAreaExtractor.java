@@ -3,9 +3,11 @@ package org.jflame.toolkit.net;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jflame.toolkit.util.CharsetHelper;
@@ -25,12 +27,11 @@ public final class IPAreaExtractor {
     private int[] index = new int[256];
     private ByteBuffer dataBuffer;
     private ByteBuffer indexBuffer;
-    private File ipFile;
     private ReentrantLock lock = new ReentrantLock();
     private final static IPAreaExtractor instance = new IPAreaExtractor();
     
     private IPAreaExtractor() {
-        ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
+        //ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
         init();
     }
 
@@ -79,6 +80,7 @@ public final class IPAreaExtractor {
     private void init() {
         FileInputStream fileInputStream = null;
         try {
+            File ipFile= Paths.get(IPAreaExtractor.class.getResource("/ipdb.dat").toURI()).toFile();
             dataBuffer = ByteBuffer.allocate(Long.valueOf(ipFile.length()).intValue());
             fileInputStream = new FileInputStream(ipFile);
             int readBytesLength;
@@ -100,8 +102,8 @@ public final class IPAreaExtractor {
                 index[loop - 1] = indexBuffer.getInt();
             }
             indexBuffer.order(ByteOrder.BIG_ENDIAN);
-        } catch (IOException ioe) {
-            logger.error("", ioe);
+        } catch (IOException | URISyntaxException ioe) {
+            logger.error("初始ip地区数据库失败", ioe);
         } finally {
             IOHelper.closeQuietly(fileInputStream);
         }

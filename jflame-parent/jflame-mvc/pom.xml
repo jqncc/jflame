@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jflame</groupId>
+    <artifactId>jflame-parent</artifactId>
+    <version>1.0.1</version>
+  </parent>
+  <artifactId>jflame-mvc</artifactId>
+  <packaging>war</packaging>
+  <name>jflame-mvc Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>org.jflame</groupId>
+      <artifactId>jflame-web-support</artifactId>
+      <version>${version.jflame}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>jflame-mvc</finalName>
+    <plugins>
+           
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>8.1.14.v20131031</version>
+                <configuration>
+                    <scanIntervalSeconds>1200</scanIntervalSeconds>
+                    <scanTargetPatterns>
+                        <scanTargetPattern>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/*.xml</include>
+                                <include>**/*.properties</include>
+                                <include>**/*.tld</include>
+                            </includes>
+                        </scanTargetPattern>
+                    </scanTargetPatterns>
+                    <webAppConfig>
+                        <contextPath>/jflame-mvc</contextPath>
+                    </webAppConfig>
+                    <connectors>
+                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                            <port>9090</port>
+                            <maxIdleTime>60000</maxIdleTime>
+                        </connector>
+                    </connectors>
+                </configuration>
+            </plugin>
+           
+        </plugins>
+  </build>
+</project>

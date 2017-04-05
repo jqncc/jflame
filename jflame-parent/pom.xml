@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,10 +9,13 @@
 
 	<modules>
 		<module>jflame-toolkit</module>
+		<module>jflame-web-support</module>
+		<module>jflame-mvc</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.jflame>1.0.1</version.jflame>
 		<version.logback>1.1.2</version.logback>
 		<version.slf4j>1.7.21</version.slf4j>
 		<version.junit>4.11</version.junit>
@@ -40,50 +44,50 @@
 		</dependency>
 	</dependencies>
 	<build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.2</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- 生成sources源码包的插件 -->
-            <!-- <plugin> <artifactId>maven-source-plugin</artifactId> <version>2.4</version> 
-                <configuration> <attach>true</attach> </configuration> <executions> <execution> 
-                <phase>package</phase> <goals> <goal>jar-no-fork</goal> </goals> </execution> 
-                </executions> </plugin> -->
-        </plugins>
-    </build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.2</version>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- 生成sources源码包的插件 -->
+			<!-- <plugin> <artifactId>maven-source-plugin</artifactId> <version>2.4</version> 
+				<configuration> <attach>true</attach> </configuration> <executions> <execution> 
+				<phase>package</phase> <goals> <goal>jar-no-fork</goal> </goals> </execution> 
+				</executions> </plugin> -->
+		</plugins>
+	</build>
 	<distributionManagement>
-        <repository>
-            <id>ghg-mvn</id>
-            <name>ghgcn</name>
-            <url>http://10.18.200.52:8081/nexus/content/repositories/ghgcn</url>
-        </repository>
-        <snapshotRepository>
-            <id>ghg-mvn</id>
-            <name>Snapshots</name>
-            <url>http://10.18.200.52:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+		<repository>
+			<id>ghg-mvn</id>
+			<name>ghgcn</name>
+			<url>http://10.18.200.52:8081/nexus/content/repositories/ghgcn</url>
+		</repository>
+		<snapshotRepository>
+			<id>ghg-mvn</id>
+			<name>Snapshots</name>
+			<url>http://10.18.200.52:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

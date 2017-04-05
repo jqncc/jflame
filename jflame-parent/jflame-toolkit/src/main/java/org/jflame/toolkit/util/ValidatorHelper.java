@@ -10,6 +10,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jflame.toolkit.net.IPAddressHelper;
 
 /**
  * 常用验证方法.支持规则:
@@ -262,6 +263,15 @@ public final class ValidatorHelper {
         return regex(str, "^\\w+$");
     }
 
+    /**
+     * 判断是否是ip地址字符串,ip v4 or v6
+     * @param ip
+     * @return
+     */
+    public static boolean isIPAddress(String ip) {
+        return IPAddressHelper.isIP(ip);
+    }
+    
     private static int[] converCharToInt(char[] c) throws NumberFormatException {
         int[] a = new int[c.length];
         int k = 0;

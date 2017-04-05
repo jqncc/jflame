@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="jflame-mvc">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="jflame-web-support-1.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/jflame-web-support/jflame-web-support">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jflame-toolkit-1.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/jflame-toolkit/jflame-toolkit">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="jflame-mvc"/>
+        <property name="java-output-path" value="/jflame-mvc/target/classes"/>
+    </wb-module>
+</project-modules>
