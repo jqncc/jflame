@@ -62,17 +62,18 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
     }
 
     /**
-     * Map&lt;String,?&gt;转为List&lt;NameValuePair&gt;.
+     * Map&lt;String,?&gt;转为List&lt;NameValuePair&gt;忽略null键.
      * 
      * @param map Map&lt;String,?&gt;
      * @return NameValuePair列表
      */
-    public static List<NameValuePair> toList(Map<String,Object> map) {
+    public static List<NameValuePair> toList(Map<String,String> map) {
         List<NameValuePair> nvpirs = new ArrayList<>();
         if (map != null) {
-            for (Entry<String,Object> entry : map.entrySet()) {
-                nvpirs.add(new NameValuePair(entry.getKey(),
-                        entry.getValue() == null ? null : String.valueOf(entry.getValue())));
+            for (Entry<String,String> entry : map.entrySet()) {
+                if (entry.getKey() != null) {
+                    nvpirs.add(new NameValuePair(entry.getKey(), entry.getValue()));
+                }
             }
         }
         return nvpirs;

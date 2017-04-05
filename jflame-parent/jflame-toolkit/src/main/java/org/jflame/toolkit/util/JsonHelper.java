@@ -99,12 +99,12 @@ public final class JsonHelper {
      * 将JSON字符串反序列化为泛型List
      * 
      * @param jsonStr json字符串
-     * @param clazz List元素类型
+     * @param elementClazz List元素类型
      * @return
      */
-    public static <T> List<T> parseArray(String jsonStr, Class<T> clazz) {
+    public static <T> List<T> parseArray(String jsonStr, Class<T> elementClazz) {
 
-        return JSON.parseArray(jsonStr, clazz);
+        return JSON.parseArray(jsonStr, elementClazz);
     }
 
     /**

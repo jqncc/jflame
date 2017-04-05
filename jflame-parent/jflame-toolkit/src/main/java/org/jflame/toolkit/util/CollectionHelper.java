@@ -45,6 +45,7 @@ public final class CollectionHelper {
         }
         return elements.toArray(array);
     }
+    
 
     /**
      * 合并数组,并去重,元素顺序与原数组保持一至

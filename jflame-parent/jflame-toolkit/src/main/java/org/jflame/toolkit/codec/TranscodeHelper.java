@@ -135,12 +135,9 @@ public final class TranscodeHelper {
      * @return
      */
     public static int bytesToInt(byte[] bytes) {
-        int value = 0;
-        // 由高位到低位
-        for (int i = 0; i < 4; i++) {
-            int shift = (4 - 1 - i) * 8;
-            value += (bytes[i] & 0x000000FF) << shift;// 往高位游
-        }
+        int value;
+        value = (int) ((bytes[0] & 0xFF) | ((bytes[1] & 0xFF) << 8) | ((bytes[2] & 0xFF) << 16)
+                | ((bytes[3] & 0xFF) << 24));
         return value;
     }
 
