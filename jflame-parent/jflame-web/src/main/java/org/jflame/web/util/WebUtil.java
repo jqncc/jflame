@@ -47,11 +47,11 @@ public class WebUtil {
      * 设置客户端缓存过期时间 的Header.
      * 
      * @param response HttpServletResponse
-     * @param expiresSeconds 过期时间
+     * @param expiresSeconds 过期时间,秒
      */
     public static void setExpiresHeader(HttpServletResponse response, long expiresSeconds) {
         response.setDateHeader("Expires", System.currentTimeMillis() + expiresSeconds * 1000);
-        response.setHeader("Cache-Control", "private, max-age=" + expiresSeconds);
+        response.setHeader("Cache-Control", "max-age=" + expiresSeconds);
     }
 
     /**

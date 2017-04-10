@@ -1,21 +1,20 @@
-<?xml version="1.0"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>jflame-web-support</artifactId>
-	<name>jflame-web-support</name>
-	<url>http://maven.apache.org</url>
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
 		<version>1.0.1</version>
 	</parent>
+	<artifactId>jflame-web</artifactId>
+	<name>jflame-web</name>
+	<description>jflame web support</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.jflame</groupId>
 			<artifactId>jflame-toolkit</artifactId>
-			<version>${version.jflame}</version>
+			<version>${project.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -31,10 +30,17 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>jflame-web-support</finalName>
+		<finalName>jflame-web</finalName>
 		<plugins>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
 		</plugins>
-
 	</build>
 </project>

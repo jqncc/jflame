@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-test jsp
+test jsp,go to <a href="<%=request.getContextPath() %>/index.jsp">index</a>
 </body>
 </html>

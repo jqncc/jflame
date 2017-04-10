@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -16,20 +17,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.util.FileHelper;
-import org.jflame.toolkit.util.PropertiesHelper;
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.web.ISysConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 读取本地图片输出到客户端
+ * 读取本地图片输出servlet.
+ * <p>
+ * 图片读取路径,优先从ISysConfig接口实现类取配置参数"save.path.image"，如果获取失败使用本应用要根目录下upload/images目录.<br>
+ * ISysConfig实现类使用SPI方式接入
  */
 @SuppressWarnings("serial")
 public class LoadImageServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
 
-    public final Map<String,String> IMG_MEDIA_TYPE = new HashMap<String,String>();
+    public final Map<String,String> imgMediaType = new HashMap<String,String>();
+    private final String SAVE_PATH_IMAGE_CONFIGKEY = "save.path.image";
     private String savePath;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -46,7 +51,6 @@ public class LoadImageServlet extends HttpServlet {
                         response.setContentType(getMediaType(ext));
                         try (ServletOutputStream servletOutStream = response.getOutputStream();) {
                             ImageIO.write(buffImg, ext, servletOutStream);
-                            return;
                         } catch (IOException e) {
                             log.error("输出图片失败:" + imgPath, e);
                         }
@@ -60,26 +64,27 @@ public class LoadImageServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        IMG_MEDIA_TYPE.put("png", "image/png");
-        IMG_MEDIA_TYPE.put("gif", "image/gif");
-        IMG_MEDIA_TYPE.put("jpg", "image/jpeg");
-        IMG_MEDIA_TYPE.put("ico", "image/x-icon");
-        IMG_MEDIA_TYPE.put("bmp", "application/x-bmp");
-        // 读取system.properties配置
-        try {
-            this.getInitParameter(savePath);
-            PropertiesHelper ploader = new PropertiesHelper("/system.properties");
-            savePath = ploader.getProperty("sys.upload.path");
-        } catch (IOException e) {
-            // throw new ServletException("配置文件system.properties不存在",e);
-            savePath = this.getServletContext().getRealPath("/");
-            e.printStackTrace();
+        imgMediaType.put("png", "image/png");
+        imgMediaType.put("gif", "image/gif");
+        imgMediaType.put("jpg", "image/jpeg");
+        imgMediaType.put("ico", "image/x-icon");
+        imgMediaType.put("bmp", "application/x-bmp");
+        ServiceLoader<ISysConfig> serviceLoader = ServiceLoader.load(ISysConfig.class);
+        ISysConfig sysConfig = serviceLoader.iterator().next();
+        if (sysConfig != null) {
+            savePath = (String) sysConfig.getConfigParam(SAVE_PATH_IMAGE_CONFIGKEY);
+        } else {
+            log.error("未找到ISysConfig实现类");
+        }
+        if (StringHelper.isEmpty(savePath)) {
+            savePath = this.getServletContext().getRealPath("/upload/images");
+            log.info("set image save path:{}", savePath);
         }
     }
 
     String getMediaType(String fileExtName) {
-        String mt = IMG_MEDIA_TYPE.get(fileExtName.toLowerCase());
-        return mt == null ? IMG_MEDIA_TYPE.get("jpg") : mt;
+        String mt = imgMediaType.get(fileExtName.toLowerCase());
+        return mt == null ? imgMediaType.get("jpg") : mt;
     }
 
     public void setSavePath(String savePath) {

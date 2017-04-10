@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.ServiceLoader;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
@@ -24,15 +25,17 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.web.ISysConfig;
 import org.jflame.web.util.WebUtil;
 
 /**
  * 生成随机验证码图片servlet.
  * <p>
- * 1. 可使用请求参数定制生成: w=宽度(默认80),h=高度(默认24),c=生成的字符个数(默认4),n=随机码存储名称(必须是初始参数codeNames中配置的名称) 示例:<br>
- * 生成宽度为120高为30字符数5个的验证图片  /valid?w=120&h30&c=5<br>
- * 2. 随机码存储名称，默认"validcode"<br>
- * 3. 初始参数codeNames,随机码可选名称,多个以英文逗号分隔
+ * 1. 可使用请求参数定制生成: <br>
+ * w=宽度(默认80),h=高度(默认24),c=生成的字符个数(默认4),n=随机码存储名称. 示例:<br>
+ * 生成宽度为120高为30字符数5个的验证图片 /valid?w=120&h30&c=5<br>
+ * 2. 随机码存储名称，默认"validcode"，必须是给定配置validcode.names参数中的名称，配置文件由ISysConfig接口读取<br>
+ * 3. 配置参数validcode.names,随机码可选名称,多个以英文逗号分隔
  * 
  * @author yucan.zhang
  */
@@ -42,6 +45,8 @@ public class ValidateCodeImageServlet extends HttpServlet {
     private final int defaultWidth = 80;// 缺省图片宽
     private final int defaultHeight = 24;// 缺省图片高
     private final int defaultCount = 4;// 缺省字符个数
+    private final String defaultCodeName = "validcode";
+    private final String CODE_NAMES_CONFIGKEY = "validcode.names";
     private List<String> initCodeNames = new ArrayList<>();// 验证码限定名称，默认"validcode"
 
     public ValidateCodeImageServlet() {
@@ -149,13 +154,18 @@ public class ValidateCodeImageServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        initCodeNames.add("validcode");
-        String initNameParam = config.getInitParameter("codeNames");
-        if (StringHelper.isNotEmpty(initNameParam)) {
-            String[] names = initNameParam.trim().split(",");
-            if (ArrayUtils.isNotEmpty(names)) {
-                Collections.addAll(initCodeNames, names);
+        initCodeNames.add(defaultCodeName);
+        ServiceLoader<ISysConfig> serviceLoader = ServiceLoader.load(ISysConfig.class);
+        ISysConfig sysConfig = serviceLoader.iterator().next();
+        if (sysConfig != null) {
+            String initNameParam = (String) sysConfig.getConfigParam(CODE_NAMES_CONFIGKEY);
+            if (StringHelper.isNotEmpty(initNameParam)) {
+                String[] names = initNameParam.trim().split(",");
+                if (ArrayUtils.isNotEmpty(names)) {
+                    Collections.addAll(initCodeNames, names);
+                }
             }
         }
+
     }
 }
