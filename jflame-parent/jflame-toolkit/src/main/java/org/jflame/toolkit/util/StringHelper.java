@@ -274,8 +274,11 @@ public final class StringHelper {
      * @return
      */
     public static String insertAt(String str, String insertStr, int index) {
-        if (isEmpty(str) || isEmpty(insertStr)) {
-            throw new IllegalArgumentException("参数str,insertStr不能为null且长度大于0");
+        if (isEmpty(str)) {
+            return insertStr;
+        }
+        if (isEmpty(insertStr)) {
+            return str;
         }
         if (index > str.length()) {
             return str + insertStr;
@@ -353,7 +356,7 @@ public final class StringHelper {
             throw new TranscodeException(charsetName, e);
         }
     }
-    
+
     /**
      * 使用utf-8解码字符串
      * 
