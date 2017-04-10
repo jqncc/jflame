@@ -38,7 +38,7 @@ public final class ImageHelper {
      * @return 图片最终名
      * @throws IOException IOException
      */
-    public static String zoomedWithGeometric(String srcImgUrl, String newImgPath, String newImgName, int maxWidth,
+    public static String zoomScale(String srcImgUrl, String newImgPath, String newImgName, int maxWidth,
             int maxHeight) throws IOException {
         if (maxWidth <= 0 || maxHeight <= 0) {
             throw new IllegalArgumentException("图片最大宽度和最大高度必须有一个大于0");

@@ -30,23 +30,30 @@ public final class FileHelper {
     public static final String UNIX_PATH_SEPARATOR = "/";
 
     /**
-     * 返回文件路径的目录部分
+     * 返回文件路径的目录部分.
+     * 如果指定的文件存在，使用文件属性判断<br>
+     * 如果文件不存在,则以路径结构判断,有扩展名视为文件，没有视为目录
      * 
      * @param filePath 文件路径
      * @return
      */
     public static String getDir(String filePath) {
-        int i = filePath.lastIndexOf(UNIX_PATH_SEPARATOR);
-        if (i < 0) {
-            i = filePath.lastIndexOf(WIN_PATH_SEPARATOR);
-        }
-        if (i < 0) {
-            return filePath;
+        File tmpFile = new File(filePath);
+        if (tmpFile.exists()) {
+            return tmpFile.isDirectory() ? filePath : tmpFile.getParent();
         } else {
-            if (filePath.indexOf('.', i) == -1) {
-                return filePath;
+            int i = filePath.lastIndexOf(UNIX_PATH_SEPARATOR);
+            if (i < 0) {
+                i = filePath.lastIndexOf(WIN_PATH_SEPARATOR);
             }
-            return filePath.substring(0, i + 1);
+            if (i < 0) {
+                return filePath;
+            } else {
+                if (filePath.indexOf('.', i) == -1) {
+                    return filePath;
+                }
+                return filePath.substring(0, i + 1);
+            }
         }
     }
 
