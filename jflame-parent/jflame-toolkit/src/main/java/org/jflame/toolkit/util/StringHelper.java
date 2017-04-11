@@ -334,7 +334,7 @@ public final class StringHelper {
      * 
      * @return
      */
-    public static String noHyphenUUID() {
+    public static String uuid() {
         return StringUtils.remove(UUID.randomUUID().toString(), '-');
     }
 

@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
+import org.jflame.toolkit.net.HttpHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Properties文件载入工具类. 可载入多个properties文件. 相同的属性在最后载入的文件中的值将会覆盖之前的值，但以System的Property优先.
  * 
@@ -12,15 +16,15 @@ import java.util.Properties;
  */
 public final class PropertiesHelper {
 
+    private static final Logger log = LoggerFactory.getLogger(HttpHelper.class);
     private final Properties properties;
 
     /**
      * 构造函数.
      * 
      * @param resourcesPaths 路径以/开头从classpath下去，相对路径从此类所在的包下取资源
-     * @throws IOException
      */
-    public PropertiesHelper(String... resourcesPaths) throws IOException {
+    public PropertiesHelper(String... resourcesPaths) {
         properties = loadProperties(resourcesPaths);
     }
 
@@ -148,19 +152,18 @@ public final class PropertiesHelper {
     }
 
     /**
-     * 载入多个文件, 文件路径使用Spring Resource格式.
+     * 载入多个文件
      * 
      * @param resourcesPaths 资源文件路径,路径以/开头从classpath下去，相对路径从此类所在的包下取资源
-     * @throws IOException 文件读取失败
      */
-    private Properties loadProperties(String... resourcesPaths) throws IOException {
+    private Properties loadProperties(String... resourcesPaths) {
         Properties props = new Properties();
 
         for (String location : resourcesPaths) {
             try (InputStream is = PropertiesHelper.class.getResourceAsStream(location)) {
                 props.load(is);
             } catch (IOException ex) {
-                throw ex;
+                log.error("加载资源文件失败" + location, ex);
             }
         }
         return props;

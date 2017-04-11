@@ -23,16 +23,25 @@ public final class FileHelper {
     /**
      * windows系统文件路径分隔符
      */
-    public static final String WIN_PATH_SEPARATOR = "\\";
+    public static final char WIN_PATH_SEPARATOR = '\\';
     /**
      * unix系统文件路径分隔符
      */
-    public static final String UNIX_PATH_SEPARATOR = "/";
+    public static final char UNIX_PATH_SEPARATOR = '/';
 
     /**
-     * 返回文件路径的目录部分.
-     * 如果指定的文件存在，使用文件属性判断<br>
-     * 如果文件不存在,则以路径结构判断,有扩展名视为文件，没有视为目录
+     * 返回文件路径的目录部分. 如果指定的文件存在，使用文件属性判断<br>
+     * 如果文件不存在,则以路径结构判断,有扩展名视为文件，没有视为目录. 示例：
+     * <pre>
+     * 文件存在：
+     * e:\\a\\b.txt -->  e:\\a\\
+     * /usr/local/sh --> /usr/local (sh是文件)
+     * /usr/local/sh --> /usr/local/sh (sh是目录)
+     * 
+     * 文件不存在：
+     * e:\\a\\b.txt -->  e:\\a\\
+     * /usr/local/sh --> /usr/local/sh
+     * </pre>
      * 
      * @param filePath 文件路径
      * @return
@@ -55,6 +64,22 @@ public final class FileHelper {
                 return filePath.substring(0, i + 1);
             }
         }
+    }
+
+    /**
+     * 取得文件名. 示例：
+     * 
+     * <pre>
+     * a/b/c.txt --> c.txt
+     * a.txt --> a.txt
+     * e:\\a\\b.txt --> b.txt
+     * </pre>
+     * @param filePath 文件路径
+     * @return
+     */
+    public static String getFilename(String filePath) {
+        Path p = Paths.get(filePath);
+        return p.getFileName().toString();
     }
 
     /**
@@ -114,7 +139,7 @@ public final class FileHelper {
      * @throws InvalidPathException 路径不正确
      * @throws IOException 文件不存在或i/o异常
      */
-    public static String readString(String filePath, String charset) throws IOException {
+    public static String readText(String filePath, String charset) throws IOException {
         try (InputStream stream = Files.newInputStream(Paths.get(filePath))) {
             return IOHelper.readString(stream, charset);
         }
@@ -163,7 +188,7 @@ public final class FileHelper {
     public static String detectSameNameFile(String dir, String fileName) {
         File file = Paths.get(dir, fileName).toFile();
         if (file.exists()) {
-            return StringHelper.noHyphenUUID() + getExtension(fileName, true);
+            return StringHelper.uuid() + getExtension(fileName, true);
         }
         return null;
     }

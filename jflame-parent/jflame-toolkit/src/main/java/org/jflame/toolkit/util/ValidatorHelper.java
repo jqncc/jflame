@@ -183,6 +183,15 @@ public final class ValidatorHelper {
     public static boolean isChinese(char ch) {
         return ChineseHelper.isChinese(ch);
     }
+    
+    /**
+     * 判断是否是数字包括十六制
+     * @param str
+     * @return
+     */
+    public static boolean isNumber(String str) {
+        return NumberUtils.isNumber(str);
+    }
 
     /**
      * 检查是否包含可能引起sql注入的字符

@@ -13,7 +13,7 @@ public class IOTest {
         //InputStream stream = Files.newInputStream(Paths.get("C:\\Users\\yucan.zhang\\Desktop\\new 2.txt"),
         //        StandardOpenOption.READ);
         //String text = IOHelper.readString(stream, "utf-8");
-        String text =FileHelper.readString("C:\\Users\\yucan.zhang\\Desktop\\new 2.txt", "utf-8");
+        String text =FileHelper.readText("C:\\Users\\yucan.zhang\\Desktop\\new 2.txt", "utf-8");
         System.out.println(text);
     }
 

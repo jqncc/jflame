@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.ServiceLoader;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
@@ -26,7 +25,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
+import org.jflame.web.SpiFactory;
 import org.jflame.web.util.WebUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 生成随机验证码图片servlet.
@@ -39,9 +41,10 @@ import org.jflame.web.util.WebUtil;
  * 
  * @author yucan.zhang
  */
+@SuppressWarnings("serial")
 public class ValidateCodeImageServlet extends HttpServlet {
+    private final Logger log = LoggerFactory.getLogger(ValidateCodeImageServlet.class);
 
-    private static final long serialVersionUID = 1L;
     private final int defaultWidth = 80;// 缺省图片宽
     private final int defaultHeight = 24;// 缺省图片高
     private final int defaultCount = 4;// 缺省字符个数
@@ -155,8 +158,7 @@ public class ValidateCodeImageServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         initCodeNames.add(defaultCodeName);
-        ServiceLoader<ISysConfig> serviceLoader = ServiceLoader.load(ISysConfig.class);
-        ISysConfig sysConfig = serviceLoader.iterator().next();
+        ISysConfig sysConfig = SpiFactory.loadSingleService(ISysConfig.class);
         if (sysConfig != null) {
             String initNameParam = (String) sysConfig.getConfigParam(CODE_NAMES_CONFIGKEY);
             if (StringHelper.isNotEmpty(initNameParam)) {
@@ -165,7 +167,8 @@ public class ValidateCodeImageServlet extends HttpServlet {
                     Collections.addAll(initCodeNames, names);
                 }
             }
+        }else {
+            log.error("未找到ISysConfig实现类");
         }
-
     }
 }

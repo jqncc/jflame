@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * csrf攻击拦截，比对请求来源referer.
  * <p>
  * 初始参数:<br>
- * whiteList[可选] 白名单文件名,只在classes目录下查找.<br>
+ * whiteFile[可选] 白名单文件名,只在classes目录下查找.<br>
  * errorPage[可选] 错误转向页面,不设置将返回400错误请求<br>
  * 
  * @author yucan.zhang
@@ -43,7 +43,7 @@ public class CsrfFilter implements Filter {
     private String errorPage;
 
     public void init(FilterConfig filterConfig) {
-        String paramWhiteFile = filterConfig.getInitParameter("whiteList");
+        String paramWhiteFile = filterConfig.getInitParameter("whiteFile");
         String paramErrorPage = filterConfig.getInitParameter("errorPage");
         if (StringHelper.isNotEmpty(paramErrorPage)) {
             errorPage = paramErrorPage.trim();

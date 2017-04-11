@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -19,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jflame.toolkit.util.FileHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
+import org.jflame.web.SpiFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +69,7 @@ public class LoadImageServlet extends HttpServlet {
         imgMediaType.put("jpg", "image/jpeg");
         imgMediaType.put("ico", "image/x-icon");
         imgMediaType.put("bmp", "application/x-bmp");
-        ServiceLoader<ISysConfig> serviceLoader = ServiceLoader.load(ISysConfig.class);
-        ISysConfig sysConfig = serviceLoader.iterator().next();
+        ISysConfig sysConfig = SpiFactory.loadSingleService(ISysConfig.class);
         if (sysConfig != null) {
             savePath = (String) sysConfig.getConfigParam(SAVE_PATH_IMAGE_CONFIGKEY);
         } else {
