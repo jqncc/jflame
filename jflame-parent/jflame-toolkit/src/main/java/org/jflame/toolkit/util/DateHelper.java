@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
-
 import org.jflame.toolkit.exception.ConvertException;
 
 /**
@@ -39,7 +38,11 @@ public final class DateHelper {
     /**
      * 时间格式yyyyMMddHHmmss
      */
-    public static final String DATE_YYYYMMDDHHmmss = "yyyyMMddHHmmss";
+    public static final String DATE_yyyyMMddHHmmss = "yyyyMMddHHmmss";
+    /**
+     * 时间格式yyyyMMddHHmmssSSS
+     */
+    public static final String DATE_yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
 
     /**
      * 格式化时间
@@ -50,6 +53,16 @@ public final class DateHelper {
      */
     public static String format(Date date, String pattern) {
         return DateFormatUtils.format(date, pattern);
+    }
+
+    /**
+     * 格式化当前时间
+     * 
+     * @param pattern 格式
+     * @return 当前时间的格式化字符串
+     */
+    public static String formatNow(String pattern) {
+        return DateFormatUtils.format(new Date(), pattern);
     }
 
     /**
@@ -73,8 +86,8 @@ public final class DateHelper {
      * 
      * @return
      */
-    public static String longDateStr() {
-        return format(new Date(), DATE_YYYY_MM_DD_HH_mm_ss);
+    public static String fullNow() {
+        return formatNow(DATE_YYYY_MM_DD_HH_mm_ss);
     }
 
     /**
@@ -82,8 +95,8 @@ public final class DateHelper {
      * 
      * @return
      */
-    public static String shortDateStr() {
-        return format(new Date(), DATE_YYYY_MM_DD);
+    public static String shortNow() {
+        return formatNow(DATE_YYYY_MM_DD);
     }
 
     /**
@@ -144,6 +157,36 @@ public final class DateHelper {
     public static Date setDate(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, dayOfMonth, hour, minute, second);
+        return calendar.getTime();
+    }
+
+    /**
+     * 返回某天的结束时间，即当天23点59分59秒
+     * 
+     * @param date 时间
+     * @return
+     */
+    public static Date getEndTimeOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        return calendar.getTime();
+    }
+
+    /**
+     * 返回某天的开始时间,即当天0点0分0秒
+     * 
+     * @param date 时间
+     * @return
+     */
+    public static Date getStartTimeOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
         return calendar.getTime();
     }
 
@@ -214,4 +257,15 @@ public final class DateHelper {
         return isBig ? y : 0 - y;
     }
 
+    /**
+     * 判断两个时间是否是同一天
+     * 
+     * @param date1 时间1
+     * @param date2 时间2
+     * @return
+     */
+    public static boolean isSameDay(Date date1, Date date2) {
+        return DateUtils.isSameDay(date1, date2);
+    }
+    
 }

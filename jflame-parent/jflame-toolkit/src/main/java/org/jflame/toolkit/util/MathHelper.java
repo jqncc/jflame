@@ -154,6 +154,7 @@ public final strictfp class MathHelper {
         return result.doubleValue();
     }
 
+    
     /*
      * public static final void main(String[] args) { System.out.println("float直接相加：" + (1.000001f + 2.10f));
      * System.out.println("float精度相加：" + add(1.000001f, 2.10f)); System.out.println("double直接相加：" +

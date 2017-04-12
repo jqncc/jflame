@@ -42,7 +42,7 @@ public class DateConvertor implements ICellValueConvertor<Date> {
                     resultVal = DateHelper.parseDate(text, fmt);
                 } else {
                     resultVal = DateHelper.parseDate(String.valueOf(cellValue), DateHelper.DATE_YYYY_MM_DD_HH_mm_ss,
-                            DateHelper.DATE_YYYY_MM_DD, DateHelper.CN_DATE_YYYY_MM_DD, DateHelper.DATE_YYYYMMDDHHmmss,
+                            DateHelper.DATE_YYYY_MM_DD, DateHelper.CN_DATE_YYYY_MM_DD, DateHelper.DATE_yyyyMMddHHmmss,
                             "yyyy/MM/dd");
                 }
             }

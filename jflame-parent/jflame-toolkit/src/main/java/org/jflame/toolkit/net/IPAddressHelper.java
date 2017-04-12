@@ -27,22 +27,26 @@ public final class IPAddressHelper {
      * @return List&lt;InetAddress&gt;
      * @throws SocketException
      */
-    public static List<InetAddress> getAllAddress() throws SocketException {
+    public static List<InetAddress> getAllAddress() {
         List<InetAddress> ips = new ArrayList<>(2);
-        Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-        NetworkInterface current = null;
-        while (allNetInterfaces.hasMoreElements()) {
-            current = allNetInterfaces.nextElement();
-            if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
-                continue;
-            }
-            Enumeration<InetAddress> addresses = current.getInetAddresses();
-            while (addresses.hasMoreElements()) {
-                InetAddress addr = addresses.nextElement();
-                if (!addr.isLoopbackAddress()) {
-                    ips.add(addr);
+        try {
+            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+            NetworkInterface current = null;
+            while (allNetInterfaces.hasMoreElements()) {
+                current = allNetInterfaces.nextElement();
+                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                    continue;
+                }
+                Enumeration<InetAddress> addresses = current.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (!addr.isLoopbackAddress()) {
+                        ips.add(addr);
+                    }
                 }
             }
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
 
         return ips;
@@ -54,7 +58,7 @@ public final class IPAddressHelper {
      * @return InetAddress
      * @throws SocketException
      */
-    public static InetAddress localIP4Address() throws SocketException {
+    public static InetAddress localIP4Address() {
         List<InetAddress> allIps = getAllAddress();
         for (InetAddress inetAddress : allIps) {
             if (inetAddress.isSiteLocalAddress() && inetAddress instanceof Inet4Address) {
@@ -68,9 +72,8 @@ public final class IPAddressHelper {
      * 获取本机局域网ipv4地址字符串
      * 
      * @return ipv4地址
-     * @throws SocketException
      */
-    public static String localIP4Str() throws SocketException {
+    public static String localIP4Str() {
         return toString(localIP4Address());
     }
 
@@ -78,9 +81,8 @@ public final class IPAddressHelper {
      * 返回本机所有ip的字符串表示形式
      * 
      * @return 本机所有ip字符串
-     * @throws SocketException
      */
-    public static String[] getAllAddressStr() throws SocketException {
+    public static String[] getAllAddressStr() {
         List<InetAddress> ips = getAllAddress();
         String[] ipStrArray = null;
         if (ips != null) {
@@ -99,7 +101,10 @@ public final class IPAddressHelper {
      * @return ip地址字符串
      */
     public static String toString(InetAddress ipAddress) {
-        return StringUtils.substringAfter(ipAddress.toString(), "/");
+        if (ipAddress != null) {
+            return StringUtils.substringAfter(ipAddress.toString(), "/");
+        }
+        return "";
     }
 
     /**

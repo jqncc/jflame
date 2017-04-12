@@ -23,6 +23,7 @@ import org.jflame.toolkit.net.IPAddressHelper;
  * <li>是否含特殊字符：*%\=><`'?&!</li>
  * <li>字符串长度</li>
  * <li>是否是字母或数字或下划线</li>
+ * <li>是否是数字</li>
  * </ul>
  * 
  * @author zyc
@@ -183,9 +184,10 @@ public final class ValidatorHelper {
     public static boolean isChinese(char ch) {
         return ChineseHelper.isChinese(ch);
     }
-    
+
     /**
-     * 判断是否是数字包括十六制
+     * 判断是否是数字包括十六制小数
+     * 
      * @param str
      * @return
      */
@@ -273,14 +275,25 @@ public final class ValidatorHelper {
     }
 
     /**
+     * 判断只有字母
+     * 
+     * @param str
+     * @return
+     */
+    public static boolean isLetter(String str) {
+        return StringUtils.isAlpha(str);
+    }
+
+    /**
      * 判断是否是ip地址字符串,ip v4 or v6
+     * 
      * @param ip
      * @return
      */
     public static boolean isIPAddress(String ip) {
         return IPAddressHelper.isIP(ip);
     }
-    
+
     private static int[] converCharToInt(char[] c) throws NumberFormatException {
         int[] a = new int[c.length];
         int k = 0;
