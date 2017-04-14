@@ -16,7 +16,13 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 /**
- * 图片缩放处理工具类.不支持背景透明图片
+ * 图片缩放处理工具类，使用java原生ImageIO操作.支持格式rgb格式的jpg,gif,png,bmp
+ * <p>
+ * <strong> 注：由于java内置ImageIO支持图片格式有限，所以会有图片失真问题，如类似CMYK格式jpg压缩后加了一层红色.解决该问题：</strong><br>
+ * 1. 试着升级到jdk1.8以上，会支持更多格式<br>
+ * 2. 使用JAI(java advanced imagi/ojava高级图片处理工具),可在系统安装JAI tools<br>
+ * 3. 修改本类使用第三方图片读取解析包读取图片，如commons imaging<br>
+ * 4. 使用第三图片处理包,如ali simpleimage工具包,thumbnails包也有该问题
  * 
  * @author zyc
  */
@@ -67,7 +73,7 @@ public final class ImageHelper {
         if (StringHelper.isEmpty(newImgName)) {
             String oldName = srcFile.getName();
             newImgName = StringHelper.insertAt(oldName, "_w" + maxWidth + "_h" + maxHeight,
-                    oldName.lastIndexOf(".") - 1);
+                    oldName.lastIndexOf("."));
         } else {
             newImgName = newImgName + FileHelper.getExtension(srcImgUrl, true);
         }
@@ -77,6 +83,7 @@ public final class ImageHelper {
         int newHeight = 0;
         try {
             imageStream = new FileInputStream(srcImgUrl);
+            // srcImage = Imaging.getBufferedImage(imageStream);使用commons imaging包读取支持更多格式
             srcImage = ImageIO.read(imageStream);
             if (null == srcImage) {
                 throw new IllegalArgumentException("文件不能以图片方式读入" + srcImgUrl);
@@ -149,6 +156,7 @@ public final class ImageHelper {
         BufferedImage srcImage = null;
         try {
             imageStream = new FileInputStream(srcImgUrl);
+
             srcImage = ImageIO.read(imageStream);
             if (null == srcImage) {
                 throw new IllegalArgumentException("文件不能以图片方式读入" + srcImgUrl);
@@ -162,11 +170,12 @@ public final class ImageHelper {
         }
     }
 
-    private static BufferedImage zoomedFixedSize(BufferedImage src, int newWidth, int newHeight) {
-        BufferedImage newImg = new BufferedImage(newWidth, newHeight, src.getType());
+    private static BufferedImage zoomedFixedSize(BufferedImage originalImage, int newWidth, int newHeight) {
+        int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+        BufferedImage newImg = new BufferedImage(newWidth, newHeight, type);
         Graphics2D g = newImg.createGraphics();
         // 根据图片尺寸压缩比得到新图的尺寸
-        g.drawImage(src.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
+        g.drawImage(originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, 0, null);
         g.dispose();
         return newImg;
     }
@@ -245,12 +254,16 @@ public final class ImageHelper {
         }
     }
 
-    /*
-     * public static void main(String args[]) throws IOException { String srcImg =
-     * "C:\\Users\\yucan.zhang\\Pictures\\5399392f729c9.jpg"; String srcImg1 =
-     * "C:\\Users\\yucan.zhang\\Downloads\\20161208164434.png"; String tarDir = "D:\\datacenter";
-     * System.out.println("固定缩放=" + zoomFixed(srcImg1, null, null, 500, 400)); System.out.println("等比缩放xxx1=" +
-     * zoomScale(srcImg, tarDir, "xxxx1", 500, 600)); System.out.println("等比缩放=" + zoomScale(srcImg, tarDir, null, 500,
-     * 600)); }
-     */
+   
+    // public static void main(String args[]) throws IOException {
+    // String srcImg = "C:\\Users\\yucan.zhang\\Documents\\3.jpg";
+    // String srcImg1 = "C:\\Users\\yucan.zhang\\Documents\\8.jpg";
+    // String srcImg2 = "C:\\Users\\yucan.zhang\\Documents\\20161208164434.png";
+    // // String tarDir = "D:\\datacenter";
+    // // System.out.println("等比缩放xxx1=" + zoomScale(srcImg, tarDir, "xxxx1", 500, 600));
+    // System.out.println("等比缩放=" + zoomScale(srcImg, null, null, 400, 600));
+    // System.out.println("固定缩放=" + zoomFixed(srcImg1, null, "xxx", 500, 500));
+    // System.out.println("固定缩放=" + zoomFixed(srcImg2, null, "xxx11", 500, 500));
+    // }
+
 }

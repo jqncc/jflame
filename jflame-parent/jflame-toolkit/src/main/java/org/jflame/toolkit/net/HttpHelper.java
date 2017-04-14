@@ -85,9 +85,9 @@ public final class HttpHelper {
         GET, POST, PUT, DELETE
     }
 
-    private static final String accept = "text/html,application/json,application/xhtml+xml, */*";
-    private static final String contentTypePost = "application/x-www-form-urlencoded";
-    private static final String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
+    private final String accept = "text/html,application/json,application/xhtml+xml, */*";
+    private final String contentTypePost = "application/x-www-form-urlencoded";
+    private final String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
 
     private int connectionTimeout = 1500 * 60;
     private int readTimeout = 1000 * 60;

@@ -45,6 +45,14 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
         this.value = value;
     }
 
+    public String name() {
+        return name;
+    }
+
+    public String value() {
+        return value;
+    }
+
     /**
      * List&lt;NameValuePair&gt;转为Map&lt;String,String&gt;,以name为key,注意相同name将会丢失值.
      * 
@@ -81,6 +89,7 @@ public class NameValuePair implements IKeyValuePair<String>, Serializable {
 
     /**
      * 转为url参数格式的字符串
+     * 
      * @param list
      * @return
      */

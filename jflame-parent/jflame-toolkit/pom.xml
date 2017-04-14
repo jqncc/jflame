@@ -10,7 +10,6 @@
 		<artifactId>jflame-parent</artifactId>
 		<version>1.0.1</version>
 	</parent>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
