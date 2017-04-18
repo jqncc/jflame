@@ -1,4 +1,4 @@
-package org.jflame.toolkit.util;
+package org.jflame.toolkit.file;
 
 import java.io.BufferedInputStream;
 import java.io.File;

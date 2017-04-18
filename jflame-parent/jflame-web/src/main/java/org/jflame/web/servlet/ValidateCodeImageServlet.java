@@ -26,6 +26,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
 import org.jflame.web.SpiFactory;
+import org.jflame.web.constants.WebConstant.MimeImages;
 import org.jflame.web.util.WebUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,13 +113,13 @@ public class ValidateCodeImageServlet extends HttpServlet {
         drawString(randomCode, g, width, height);
         // 禁止图像缓存
         WebUtil.setDisableCacheHeader(response);
-        response.setContentType("image/jpeg");
+        response.setContentType(MimeImages.jpg.getMime());
         ServletOutputStream sos = response.getOutputStream();
-        ImageIO.write(buffImg, "jpeg", sos);
+        ImageIO.write(buffImg, MimeImages.jpg.name(), sos);
+        sos.close();
         // 将验证码保存到session中
         HttpSession session = request.getSession();
         session.setAttribute(codeName, randomCode);
-        sos.close();
     }
 
     private void drawBackground(Graphics2D g, int width, int height) {
@@ -148,7 +149,7 @@ public class ValidateCodeImageServlet extends HttpServlet {
         // 计算文字居中时x,y坐标
         FontMetrics metrics = g.getFontMetrics();
         x = (width - metrics.stringWidth(randomCode)) / 2;
-        g.drawString(randomCode, x, height - 4);
+        g.drawString(randomCode, x, (height - metrics.getHeight())/2);
     }
 
     private Color getRandColor(int f, int b, Random random) {

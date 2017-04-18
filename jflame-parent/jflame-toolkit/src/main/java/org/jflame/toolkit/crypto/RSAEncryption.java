@@ -36,7 +36,7 @@ import org.jflame.toolkit.util.StringHelper;
 /**
  * RSA非对称加密算法,基于BouncyCastle加密库实现.
  */
-public class RSAEncryption extends AbstractEncryption {
+public class RSAEncryption extends BaseEncryptor {
 
     /**
      * 构造函数,ras默认填充NoPadding.
@@ -44,7 +44,7 @@ public class RSAEncryption extends AbstractEncryption {
     public RSAEncryption() {
         curAlgorithm = Algorithm.RSA;
         curEncryptMode = EncryptMode.NONE;
-        curPaddingMode = PaddingMode.NoPadding;
+        curPaddingMode = Padding.NoPadding;
         Security.addProvider(new BouncyCastleProvider());
     }
 
@@ -230,7 +230,7 @@ public class RSAEncryption extends AbstractEncryption {
     }
 
     @Override
-    public void setCurAlgorithm(Algorithm curAlgorithm) {
+    public void setAlgorithm(Algorithm curAlgorithm) {
     }
 
 }

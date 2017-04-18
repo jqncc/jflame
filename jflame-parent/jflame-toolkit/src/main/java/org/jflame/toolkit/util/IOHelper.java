@@ -122,7 +122,7 @@ public final class IOHelper {
      * @throws UnsupportedEncodingException
      * @throws IOException
      */
-    public static String readString(InputStream input, String charset) throws IOException {
+    public static String readText(InputStream input, String charset) throws IOException {
         StringWriter writer = new StringWriter();
         copy(toBufferedReader(input, charset), writer);
         return writer.toString();
@@ -179,7 +179,7 @@ public final class IOHelper {
      * @param output 输出流
      * @throws IOException 字符编码或i/o异常
      */
-    public static void writeString(String data, OutputStream output) throws IOException {
+    public static void writeText(String data, OutputStream output) throws IOException {
         if (data != null) {
             output.write(data.getBytes());
         }
@@ -193,10 +193,10 @@ public final class IOHelper {
      * @param encoding 编码
      * @throws IOException 字符编码或i/o异常
      */
-    public static void writeString(String data, OutputStream output, String encoding) throws IOException {
+    public static void writeText(String data, OutputStream output, String encoding) throws IOException {
         if (data != null) {
             if (encoding == null) {
-                writeString(data, output);
+                writeText(data, output);
             } else {
                 output.write(data.getBytes(encoding));
             }

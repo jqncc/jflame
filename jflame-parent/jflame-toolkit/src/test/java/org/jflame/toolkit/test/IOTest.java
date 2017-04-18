@@ -2,7 +2,7 @@ package org.jflame.toolkit.test;
 
 import java.io.IOException;
 
-import org.jflame.toolkit.util.FileHelper;
+import org.jflame.toolkit.file.FileHelper;
 import org.junit.Test;
 
 public class IOTest {

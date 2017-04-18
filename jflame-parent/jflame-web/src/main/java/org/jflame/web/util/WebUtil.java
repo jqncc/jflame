@@ -9,7 +9,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.util.FileHelper;
+import org.jflame.toolkit.file.FileHelper;
+import org.jflame.web.constants.WebConstant;
 
 /**
  * web环境常用工具方法
@@ -17,12 +18,6 @@ import org.jflame.toolkit.util.FileHelper;
  * @author yucan.zhang
  */
 public class WebUtil {
-
-    public static final String MIME_JSON_TYPE = "application/json";
-    public static final String MIME_EXCEL_TYPE = "application/vnd.ms-excel";
-
-    public static final String AJAX_REQ_FLAG_VALUE = "XMLHttpRequest";
-    public static final String AJAX_REQ_FLAG_NAME = "x-requested-with";
 
     /**
      * 设置让浏览器弹出下载对话框的Header.
@@ -39,7 +34,7 @@ public class WebUtil {
             encodedfileName = "download_file" + FileHelper.getExtension(fileName, true);
         }
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
-        response.setContentType("application/x-msdownload;");
+        response.setContentType(WebConstant.MIME_TYPE_STREAM);
         response.setHeader("Content-Length", String.valueOf(fileSize));
     }
 
@@ -76,9 +71,10 @@ public class WebUtil {
     public static boolean isAjaxRequest(HttpServletRequest request) {
         String headAccept = request.getHeader("accept");
         boolean yes = false;
-        if (headAccept != null && headAccept.indexOf(WebUtil.MIME_JSON_TYPE) >= 0) {
+        if (headAccept != null && headAccept.indexOf(WebConstant.MIME_TYPE_JSON) >= 0) {
             yes = true;
-        } else if (AJAX_REQ_FLAG_VALUE.equalsIgnoreCase(request.getHeader(AJAX_REQ_FLAG_NAME))) {
+        } else if (WebConstant.AJAX_REQUEST_FLAG.value()
+                .equalsIgnoreCase(request.getHeader(WebConstant.AJAX_REQUEST_FLAG.name()))) {
             yes = true;
         }
         return yes;
@@ -93,7 +89,7 @@ public class WebUtil {
      */
     public static void outJson(HttpServletResponse response, String jsonStr) throws IOException {
         setDisableCacheHeader(response);
-        response.setContentType(MIME_JSON_TYPE);
+        response.setContentType(WebConstant.MIME_TYPE_JSON);
         PrintWriter out = response.getWriter();
         out.print(jsonStr);
         out.close();

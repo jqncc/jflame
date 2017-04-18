@@ -5,8 +5,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -15,35 +13,37 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jflame.toolkit.codec.Hex;
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * 对称加密,支持算法des,3des,aes. 基于bouncyCastle加密库封装
+ * 对称加密,支持算法des,3des,aes.
  * <p>
- * 字符串默认utf-8编码. AES只支持128密钥长度
+ * 字符串默认utf-8编码. <br>
+ * AES说明:<br>
+ *   1.jdk默认只支持128位密钥长度,使用256位需下载JCE扩展包替换 <br>
+ *   2.使用PKCS7Padding实际是PKCS5Padding <br>
  * 
  * @author zyc
  */
-public class SymmetricEncryption extends AbstractEncryption {
+public class SymmetricEncryptor extends BaseEncryptor {
 
-    static {
+    /*
+     * 使用第三方架包支持更多加密方式
+     * static {
         Security.addProvider(new BouncyCastleProvider());
-    }
+    }*/
 
     /**
-     * 构造函数,使用默认加密填充方式 ecb/PKCS5Padding.
+     * 构造函数,使用默认加密填充方式.
      * 
      * @param algorithm 算法名称
      */
-    public SymmetricEncryption(Algorithm algorithm) {
+    public SymmetricEncryptor(Algorithm algorithm) {
         curAlgorithm = algorithm;
-        curEncryptMode = EncryptMode.ECB;
-        curPaddingMode = PaddingMode.PKCS5Padding;
-
+        isSupport();
     }
 
     /**
@@ -53,10 +53,11 @@ public class SymmetricEncryption extends AbstractEncryption {
      * @param encMode 加密方式
      * @param paddingMode 填充方式
      */
-    public SymmetricEncryption(Algorithm algorithm, EncryptMode encMode, PaddingMode paddingMode) {
+    public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode) {
         curAlgorithm = algorithm;
-        setCurEncryptMode(encMode);
-        setCurPaddingMode(paddingMode);
+        setOpMode(encMode);
+        setPadding(paddingMode);
+        isSupport();
     }
 
     /**
@@ -215,13 +216,14 @@ public class SymmetricEncryption extends AbstractEncryption {
         }
         Key key;
         checkKeyOrIv(keybytes, ivParam);
-        if (curEncryptMode != EncryptMode.ECB && ivParam == null) {
+        if (curOpMode != OpMode.ECB && ivParam == null) {
             ivParam = initIvParam();
         }
         try {
             key = new SecretKeySpec(keybytes, curAlgorithm.name());
-            Cipher in = Cipher.getInstance(getCurCipher(), "BC");
-            if (curEncryptMode == EncryptMode.ECB) {
+            //Cipher in = Cipher.getInstance(getCurCipher(), "BC");
+            Cipher in = Cipher.getInstance(getCipherStr());
+            if (curOpMode == OpMode.ECB) {
                 in.init(cipherMode, key);
             } else {
                 in.init(cipherMode, key, new IvParameterSpec(ivParam));
@@ -229,8 +231,7 @@ public class SymmetricEncryption extends AbstractEncryption {
             byte[] cipherText = in.doFinal(data);
             return cipherText;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
-                | NoSuchProviderException e) {
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
             throw new EncryptException(cipherMode == Cipher.ENCRYPT_MODE ? "加密异常" : "解密异常", e);
         }
     }
@@ -241,7 +242,7 @@ public class SymmetricEncryption extends AbstractEncryption {
         if (errmsg != null) {
             throw new EncryptException(errmsg);
         }
-        if (curEncryptMode != EncryptMode.ECB) {
+        if (curOpMode != OpMode.ECB) {
             errmsg = checkIvParam(ivParam);
             if (errmsg != null) {
                 throw new EncryptException(errmsg);
@@ -297,29 +298,64 @@ public class SymmetricEncryption extends AbstractEncryption {
     }
 
     @Override
-    public void setCurEncryptMode(EncryptMode curEncryptMode) {
-        if (curEncryptMode != EncryptMode.CBC && curEncryptMode != EncryptMode.ECB && curEncryptMode != EncryptMode.OFB
-                && curEncryptMode != EncryptMode.CFB) {
-            throw new EncryptException(curEncryptMode + "不适合des或aes加密算法");
+    public void setOpMode(OpMode curOpMode) {
+        if (curOpMode != OpMode.CBC && curOpMode != OpMode.ECB && curOpMode != OpMode.OFB
+                && curOpMode != OpMode.CFB) {
+            throw new EncryptException(curOpMode + "不适合des或aes加密算法");
         }
-        this.curEncryptMode = curEncryptMode;
+        this.curOpMode = curOpMode;
     }
-
+    
     @Override
-    public void setCurPaddingMode(PaddingMode curPaddingMode) {
-        if (curPaddingMode != PaddingMode.NoPadding && curPaddingMode != PaddingMode.PKCS5Padding
-                && curPaddingMode != PaddingMode.PKCS7Padding) {
+    public void setPadding(Padding curPaddingMode) {
+        if (curPaddingMode != Padding.NoPadding && curPaddingMode != Padding.PKCS5Padding) {
             throw new EncryptException(curPaddingMode + "不适合des或aes加密算法");
         }
-        this.curPaddingMode = curPaddingMode;
+        this.curPadding = curPaddingMode;
     }
 
     @Override
-    public void setCurAlgorithm(Algorithm curAlgorithm) {
+    public void setAlgorithm(Algorithm curAlgorithm) {
         if (curAlgorithm != Algorithm.AES && curAlgorithm != Algorithm.DES && curAlgorithm != Algorithm.DESede) {
             throw new EncryptException("当前类只支持des,aes,3des算法");
         }
         this.curAlgorithm = curAlgorithm;
     }
+    
+    /*
+     * AES/CBC/NoPadding (128) AES/CBC/PKCS5Padding (128) AES/ECB/NoPadding (128) AES/ECB/PKCS5Padding (128)
+     * DES/CBC/NoPadding (56) DES/CBC/PKCS5Padding (56) DES/ECB/NoPadding (56) DES/ECB/PKCS5Padding (56)
+     * DESede/CBC/NoPadding (168) DESede/CBC/PKCS5Padding (168) DESede/ECB/NoPadding (168) DESede/ECB/PKCS5Padding (168)
+     * RSA/ECB/PKCS1Padding (1024, 2048) RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
+     * RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
+     */
+    private void isSupport() throws EncryptException {
+        boolean support = true;
+        if (curAlgorithm != Algorithm.AES && curAlgorithm != Algorithm.DES && curAlgorithm != Algorithm.DESede) {
+            support = false;
+        } else {
+            if (curAlgorithm == Algorithm.AES) {
+                if (curOpMode == OpMode.NONE) {
+                    support = false;
+                } else {
+                    if (curPadding != Padding.NoPadding && curPadding != Padding.ISO10126PADDING
+                            && curPadding != Padding.PKCS5Padding) {
+                        support = false;
+                    }
+                }
+            }else if (curAlgorithm == Algorithm.DES) {
+                
+            }
+        }
 
+        if (!support) {
+            throw new EncryptException("不支持的加密算法" + getCipherStr());
+        }
+    }
+    
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException {
+        Cipher in = Cipher.getInstance("AES");
+        System.out.println(in.getParameters());
+    }
 }

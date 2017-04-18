@@ -1,4 +1,4 @@
-package org.jflame.toolkit.util;
+package org.jflame.toolkit.file;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +11,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
+
+import org.jflame.toolkit.util.IOHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 文件操作工具类.
@@ -141,7 +144,7 @@ public final class FileHelper {
      */
     public static String readText(String filePath, String charset) throws IOException {
         try (InputStream stream = Files.newInputStream(Paths.get(filePath))) {
-            return IOHelper.readString(stream, charset);
+            return IOHelper.readText(stream, charset);
         }
     }
 

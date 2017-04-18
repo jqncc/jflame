@@ -21,13 +21,14 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.30</version>
 		</dependency>
+		<!-- ftp操作 -->
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
 			<version>3.3</version>
 			<optional>true</optional>
 		</dependency>
-		<!-- excel操作需要包 start -->
+		<!-- excel操作 start -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -44,15 +45,28 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>4.3.0.Final</version>
+			<version>5.3.2.Final</version>
 			<optional>true</optional>
 		</dependency>
-		<!-- end -->
+		<!-- excel end -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk16</artifactId>
 			<version>1.46</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- 缩略图使用包  -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-imaging</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.8</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<build>

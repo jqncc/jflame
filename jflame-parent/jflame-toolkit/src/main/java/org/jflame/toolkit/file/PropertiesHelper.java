@@ -1,4 +1,4 @@
-package org.jflame.toolkit.util;
+package org.jflame.toolkit.file;
 
 import java.io.IOException;
 import java.io.InputStream;

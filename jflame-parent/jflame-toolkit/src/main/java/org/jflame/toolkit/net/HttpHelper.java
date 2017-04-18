@@ -311,7 +311,7 @@ public final class HttpHelper {
                         paramStrBuf.append(paramKv.getValue()).append(newLine);
                     }
                 }
-                IOHelper.writeString(paramStrBuf.toString(), outStream, getCharset());
+                IOHelper.writeText(paramStrBuf.toString(), outStream, getCharset());
             }
             // 提交文件域参数，上传文件
             if (!MapHelper.isEmpty(uploadFiles)) {
@@ -331,7 +331,7 @@ public final class HttpHelper {
                     paramStrBuf.append("Content-Type: application/octet-stream; charset=").append(getCharset())
                             .append(newLine);
                     paramStrBuf.append(newLine);
-                    IOHelper.writeString(paramStrBuf.toString(), outStream, getCharset());
+                    IOHelper.writeText(paramStrBuf.toString(), outStream, getCharset());
                     try (InputStream fileStream = Files.newInputStream(fileParam.getValue().toPath())) {
                         IOHelper.copy(fileStream, outStream);
                     } catch (IOException e) {
@@ -340,7 +340,7 @@ public final class HttpHelper {
                 }
             }
             // 请求结束标记--boundary--\r\n
-            IOHelper.writeString((prefix + boundary + prefix + newLine), outStream, getCharset());
+            IOHelper.writeText((prefix + boundary + prefix + newLine), outStream, getCharset());
             outStream.flush();
             // 处理返回结果,实际数据作为文本
             DefalutResponse responseHandler = new DefalutResponse(0);
@@ -382,7 +382,7 @@ public final class HttpHelper {
             if (result.isSuccess()) {
                 try (InputStream inStream = getInputStream(httpConn)) {
                     if (resultType == 0) {
-                        result.setData(IOHelper.readString(inStream,
+                        result.setData(IOHelper.readText(inStream,
                                 StringHelper.isEmpty(respCharset) ? CharsetHelper.UTF_8 : respCharset));
 
                     } else if (resultType == 1) {
@@ -394,7 +394,7 @@ public final class HttpHelper {
             } else {
                 if (null != httpConn.getErrorStream()) {
                     try (InputStream inStream = httpConn.getErrorStream()) {
-                        result.setMessage(IOHelper.readString(inStream,
+                        result.setMessage(IOHelper.readText(inStream,
                                 StringHelper.isEmpty(respCharset) ? CharsetHelper.UTF_8 : respCharset));
                     } catch (IOException e) {
                         throw e;
