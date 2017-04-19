@@ -197,10 +197,15 @@ public class WebUtil {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
+        if (ip.indexOf(",") > -1) {
+            ip = ip.split(",")[0];
+        }
         if ("0:0:0:0:0:0:0:1".equals(ip)) {
             ip = "127.0.0.1";
+        } else {
+            ip = ip.trim();
         }
-        return ip;
+        return ip.trim();
     }
 
     /**

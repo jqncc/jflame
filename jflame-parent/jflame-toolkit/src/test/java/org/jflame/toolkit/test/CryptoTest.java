@@ -1,72 +1,78 @@
 package org.jflame.toolkit.test;
 
-import org.junit.Test;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
 
-import org.jflame.toolkit.crypto.RSAEncryption;
+import org.jflame.toolkit.codec.Base64;
+import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
+import org.jflame.toolkit.crypto.BaseEncryptor.OpMode;
+import org.jflame.toolkit.crypto.BaseEncryptor.Padding;
+import org.jflame.toolkit.crypto.RSAEncryptor;
+import org.jflame.toolkit.crypto.SymmetricEncryptor;
+import org.junit.Test;
 
 public class CryptoTest {
 
     @Test
     public void testRsa() {
-        // String content = "中国字密钥谢谢合作";
-        String content = "{\"joinerId\":null,\"joinerMobile\":\"18820268067\",\"userId\":\"fch990507\","
-                + "\"eventId\":3,\"giftId\":27,\"giftQty\":1}";
-        String pkey = "d:\\public.key";
-        String priKey = "d:\\private.key";
-        RSAEncryption rsa = new RSAEncryption();
-        rsa.generateKeyPair(pkey, priKey);
-        String cihper = rsa.encryptBase64(content, pkey);
-        System.out.println("公钥加密:" + cihper);
-        String plain = rsa.dencryptBase64(cihper, priKey);
-        System.out.println("私钥解密:" + plain); //
-        System.out.println("解密成功:");
+         String content = "中国字密钥谢谢合作";
+        //String content = "{\"joinerId\":null,\"joinerMobile\":\"18820268067\",\"userId\":\"fch990507\","
+         //       + "\"eventId\":3,\"giftId\":27,\"giftQty\":1}";
+//        String pkey = "d:\\public.key";
+//        String priKey = "d:\\private.key";
+//        RSAEncryptor rsa = new RSAEncryptor();
+//        KeyPair kv=rsa.generateKeyPair(pkey, priKey);
+//        String cihper = rsa.encryptBase64(content, pkey);
+//        System.out.println("公钥加密:" + cihper);
+//        String plain = rsa.dencryptBase64(cihper, priKey);
+//        System.out.println("私钥解密:" + plain); //
+         //ECB/OAEPWITHMD5ANDMGF1PADDING
+        RSAEncryptor rsa1 = new RSAEncryptor(OpMode.ECB,Padding.OAEPWITHMD5ANDMGF1PADDING);
+        KeyPair kv1=rsa1.generateKeyPair(null, null);
+        String pubKey1=Base64.encodeBase64String(kv1.getPublic().getEncoded());
+        String priKey1=Base64.encodeBase64String(kv1.getPrivate().getEncoded());
+        String cihper1 = rsa1.encryptToHex(content, pubKey1);
+        System.out.println("公钥加密:" + cihper1);
+        String plain1 = rsa1.dencryptHex(cihper1, priKey1);
+        System.out.println("私钥解密:" + plain1);
+        
     }
 
-    
     @Test
-    public void testSymmetric(){
-        /*
-         * SymmetricEncryption encryption = new SymmetricEncryption(ALGORITHM.AES); String cSrc =
-         * "78450520e6785f6aeacb275e91e145be4693173cc8db60f5f85a6549914e9d5c978e020fe96a514a6b5e5c89df945ec7";
-         * String aespwd = "Bat2@KEN+~-=1230"; String despwd = "Bat2@KEN"; String desedepwd =
-         * "Bat2@KEN+~-=1230Bat2@KEN"; String aes_key2 = "Bat2@KEN+~-=4560";
-         * encryption.setCurEncryptMode(ENCRYPT_MODE.CBC);
-         * encryption.setCurPaddingMode(PADDING_MODE.PKCS7Padding); String desecd_p5_plain =
-         * encryption.dencryptHEX(cSrc, aes_key2, "1312093828304813"); System.out.println(
-         * "des ecd pad5 base64解密结果:" + desecd_p5_plain);
-         */
-        /*
-         * // des String desecb_p5 = encryption.encrytBase64(cSrc, despwd, null);
-         * System.out.println("des ecd pad5 base64加密结果:" + desecb_p5); String desecd_p5_plain =
-         * encryption.dencryptBase64(desecb_p5, despwd, null); System.out.println(
-         * "des ecd pad5 base64解密结果:" + desecd_p5_plain);
-         * encryption.setCurEncryptMode(ENCRYPT_MODE.CBC); String descbc_p5 =
-         * encryption.encrytBase64(cSrc, despwd, null); System.out.println(
-         * "des cbc pad5 base64加密结果:" + descbc_p5); String descbc_p5_plain =
-         * encryption.dencryptBase64(descbc_p5, despwd, null); System.out.println(
-         * "des cbc pad5 base64解密结果:" + descbc_p5_plain); // aes
-         * encryption.setCurAlgorithm(ALGORITHM.AES);
-         * encryption.setCurEncryptMode(ENCRYPT_MODE.CBC);
-         * encryption.setCurPaddingMode(PADDING_MODE.PKCS7Padding); String aesecb_p5 =
-         * encryption.encrytBase64(cSrc, aespwd, "1312093828304813"); System.out.println(
-         * "aes ecd pad7 base64加密结果:" + aesecb_p5); String aesecd_p5_plain =
-         * encryption.dencryptBase64(aesecb_p5, aespwd, "1312093828304813"); System.out.println(
-         * "aes ecd pad7 base64解密结果:" + aesecd_p5_plain);
-         * encryption.setCurEncryptMode(ENCRYPT_MODE.CBC); String aescbc_p5 =
-         * encryption.encrytBase64(cSrc, aespwd, aespwd); System.out.println(
-         * "aes cbc pad5 base64加密结果:" + aescbc_p5); String aescbc_p5_plain =
-         * encryption.dencryptBase64(aescbc_p5, aespwd, aespwd); System.out.println(
-         * "aes cbc pad5 base64解密结果:" + aescbc_p5_plain);
-         * encryption.setCurPaddingMode(PADDING_MODE.PKCS7Padding); String aescbc_p7 =
-         * encryption.encrytBase64(cSrc, aespwd, aespwd); System.out.println(
-         * "aes cbc pad7 base64加密结果:" + aescbc_p7); // 3des
-         * encryption.setCurAlgorithm(ALGORITHM.DESede);
-         * encryption.setCurEncryptMode(ENCRYPT_MODE.ECB);
-         * encryption.setCurPaddingMode(PADDING_MODE.PKCS5Padding); String desedecbc_p5 =
-         * encryption.encrytBase64(cSrc, desedepwd, desedepwd); System.out.println(
-         * "3des ecb pad5 base64加密结果:" + desedecbc_p5); String desedecbc_p5_plain =
-         * encryption.dencryptBase64(desedecbc_p5, desedepwd, desedepwd); System.out.println(
-         * "3des ecb pad5 base64解密结果:" + desedecbc_p5_plain);
-         */
+    public void testSymmetric() {
+        byte[] passwd = "0123456789123456".getBytes();
+        byte[] iv = new byte[16];
+
+        SymmetricEncryptor encryptor = new SymmetricEncryptor(Algorithm.AES);
+        String a = encryptor.encrytTextToBase64("中国人字符串envi", passwd, iv);
+        System.out.println("aes默认加密:" + a);// LH5ABqeVCIhuyGW1coZGxU9cG6JXdcdoILJWS0pVhoY
+        String pa = encryptor.decryptBase64(a, passwd, iv);
+        System.out.println("aes默认解密:" + pa);
+
+        SymmetricEncryptor encryptor1 = new SymmetricEncryptor(Algorithm.AES, OpMode.CBC, Padding.PKCS5Padding);
+        String a1 = encryptor1.encrytTextToBase64("中国人字符串envi", passwd, iv);
+        System.out.println("aes cbc pkcs5加密:" + a1);// LH5ABqeVCIhuyGW1coZGxXB5Ot9mWGsdQdbQdq3G768
+        String pa1 = encryptor1.decryptBase64(a1, passwd, iv);
+        System.out.println("aes cbc pkcs5解密:" + pa1);
+
+
+        byte[] passwd24 = "012345678901234567891234".getBytes();
+        byte[] iv24 = new byte[8];
+
+        SymmetricEncryptor encryptor2 = new SymmetricEncryptor(Algorithm.DESede, OpMode.CBC, Padding.PKCS5Padding);
+        String a2 = encryptor2.encrytTextToBase64("中国人字符串envi", passwd24, iv24);
+        System.out.println("3des cbc pkcs5加密:" + a2);
+        String pa2 = encryptor2.decryptBase64(a2, passwd24, iv24);
+        System.out.println("3des cbc pkcs5解密" + pa2);
+        //
+        byte[] passwd8 = "01234567".getBytes();
+        byte[] iv8 = new byte[8];
+
+        SymmetricEncryptor encryptor3 = new SymmetricEncryptor(Algorithm.DES, OpMode.CBC, Padding.ISO10126PADDING);
+        String a3 = encryptor3.encrytTextToBase64("中国人字符串envi", passwd8, iv8);
+        System.out.println("des cbc pkcs5加密:" + a3);
+        String pa3 = encryptor3.decryptBase64(a3, passwd8, iv8);
+        System.out.println("des cbc pkcs5解密" + pa3);
+
     }
 }

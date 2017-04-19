@@ -37,12 +37,12 @@ public abstract class BaseEncryptor {
     }
 
     /**
-     * 填充模式枚举. PKCS1PADDING,PKCS5Padding, NoPadding, ISO10126PADDING
+     * 填充模式枚举. PKCS1PADDING(RSA),PKCS5Padding, NoPadding, ISO10126PADDING,OAEPWITHMD5ANDMGF1PADDING(RSA)
      * 
      * @author zyc
      */
     public enum Padding {
-        PKCS1PADDING, PKCS5Padding, NoPadding, ISO10126PADDING
+        PKCS1PADDING, PKCS5Padding, NoPadding, ISO10126PADDING,OAEPWITHMD5ANDMGF1PADDING
     }
 
     protected Algorithm curAlgorithm;

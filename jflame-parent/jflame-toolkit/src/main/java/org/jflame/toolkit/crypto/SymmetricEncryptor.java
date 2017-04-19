@@ -21,20 +21,44 @@ import org.jflame.toolkit.util.StringHelper;
 /**
  * 对称加密,支持算法des,3des,aes.
  * <p>
- * 字符串默认utf-8编码. <br>
- * AES说明:<br>
- *   1.jdk默认只支持128位密钥长度,使用256位需下载JCE扩展包替换 <br>
- *   2.使用PKCS7Padding实际是PKCS5Padding <br>
- * 
+ * 字符串默认utf-8编码.<br> 
+ * <strong>AES说明:</strong>
+ * <ol>
+ * <li><strong>密钥16byte，向量IV 16byte(ECB无需向量)</strong>，jdk默认只支持128b位密钥长度(使用256b位需下载JCE扩展包替换 )</li>
+ * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认AES/ECB/PKCS5Padding</li>
+ * <li>使用PKCS7Padding实际是PKCS5Padding</li>
+ * <li>使用NoPadding填充，请确保明文是16的倍数</li>
+ * </ol>
+ *  <strong>3DES说明:</strong>
+ * <ol>
+ * <li><strong>密钥24byte，向量IV 8byte(ECB无需向量)</strong></li>
+ * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认DESdede/ECB/PKCS5Padding</li>
+ * <li>使用NoPadding填充，请确保明文是8的倍数</li>
+ * </ol>
+ *  *  <strong>DES说明:</strong>
+ * <ol>
+ * <li><strong>密钥8byte，向量IV 8byte(ECB无需向量)</strong></li>
+ * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认DESdede/ECB/PKCS5Padding</li>
+ * <li>使用NoPadding填充，请确保明文是8的倍数</li>
+ * </ol>
  * @author zyc
  */
 public class SymmetricEncryptor extends BaseEncryptor {
-
     /*
-     * 使用第三方架包支持更多加密方式
-     * static {
-        Security.addProvider(new BouncyCastleProvider());
-    }*/
+     * AES/CBC/NoPadding (128) AES/CBC/PKCS5Padding (128) AES/ECB/NoPadding (128) AES/ECB/PKCS5Padding (128)
+     * DES/CBC/NoPadding (56) DES/CBC/PKCS5Padding (56) DES/ECB/NoPadding (56) DES/ECB/PKCS5Padding (56)
+     * DESede/CBC/NoPadding (168) DESede/CBC/PKCS5Padding (168) DESede/ECB/NoPadding (168) DESede/ECB/PKCS5Padding (168)
+     * RSA/ECB/PKCS1Padding (1024, 2048) RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
+     * RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
+     */
+    private Cipher cipher;
+
+    
+    //使用第三方架包支持更多加密方式
+    //static { 
+    //  Security.addProvider(new BouncyCastleProvider()); 
+    //}
+    
 
     /**
      * 构造函数,使用默认加密填充方式.
@@ -43,7 +67,7 @@ public class SymmetricEncryptor extends BaseEncryptor {
      */
     public SymmetricEncryptor(Algorithm algorithm) {
         curAlgorithm = algorithm;
-        isSupport();
+        init();
     }
 
     /**
@@ -55,22 +79,22 @@ public class SymmetricEncryptor extends BaseEncryptor {
      */
     public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode) {
         curAlgorithm = algorithm;
-        setOpMode(encMode);
-        setPadding(paddingMode);
-        isSupport();
+        curOpMode = encMode;
+        curPadding = paddingMode;
+        init();
     }
 
     /**
      * 加密.
      * 
-     * @param content 明文
+     * @param data 明文
      * @param keybytes 密钥
-     * @param ivParam 向量,无需向量或使用默认向量传null
+     * @param ivParam 向量,无需向量传null
      * @return 密文byte[]
      * @throws EncryptException 加密异常
      */
-    public byte[] encrypt(final byte[] content, final byte[] keybytes, byte[] ivParam) throws EncryptException {
-        return doCompute(content, keybytes, ivParam, Cipher.ENCRYPT_MODE);
+    public byte[] encrypt(final byte[] data, final byte[] keybytes, byte[] ivParam) throws EncryptException {
+        return doCompute(data, keybytes, ivParam, Cipher.ENCRYPT_MODE);
     }
 
     /**
@@ -78,7 +102,7 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * 
      * @param data byte[]密文
      * @param keybytes byte[]密钥
-     * @param ivParam byte[]向量,无需向量或使用默认向量传null
+     * @param ivParam byte[]向量
      * @return byte[]明文
      * @throws EncryptException 解密异常
      */
@@ -91,15 +115,22 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * 
      * @param plainText 明文
      * @param password 密钥
-     * @param ivParam 向量,无需向量传null
+     * @param ivParam 向量 ,无需向量传null
      * @return 密文,base64字符串
      * @throws EncryptException 编码转换或加密异常
      */
-    public String encrytToBase64(String plainText, String password, String ivParam) throws EncryptException {
+    public String encrytTextToBase64(final String plainText, final byte[] password, final byte[] ivParam)
+            throws EncryptException {
         if (StringHelper.isEmpty(plainText)) {
             return plainText;
         }
-        return TranscodeHelper.encodeBase64String(doEncryptString(plainText, password, ivParam));
+        byte[] ciphertext;
+        try {
+            ciphertext = encrypt(plainText.getBytes(getCharset()), password, ivParam);
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException(e);
+        }
+        return TranscodeHelper.encodeBase64String(ciphertext);
     }
 
     /**
@@ -111,36 +142,28 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * @return 密文,十六进制字符串
      * @throws EncryptException 编码转换或加密异常
      */
-    public String encrytToHex(String plainText, String password, String ivParam) throws EncryptException {
+    public String encrytTextToHex(final String plainText, final byte[] password, final byte[] ivParam)
+            throws EncryptException {
         if (StringHelper.isEmpty(plainText)) {
             return plainText;
         }
-        return TranscodeHelper.encodeHexString(doEncryptString(plainText, password, ivParam));
+        byte[] ciphertext;
+        try {
+            ciphertext = encrypt(plainText.getBytes(getCharset()), password, ivParam);
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException(e);
+        }
+        return TranscodeHelper.encodeHexString(ciphertext);
     }
 
-    /**
-     * 加密字符串
-     * 
-     * @param plainText 明文
-     * @param password 密钥
-     * @param ivParam 向量
-     * @return
-     * @throws EncryptException 编码转换或解密异常
-     */
-    private byte[] doEncryptString(String plainText, String password, String ivParam) throws EncryptException {
-        byte[] contBytes = null;
-        byte[] keyBytes = null;
-        byte[] ivBytes = null;
+    private void init() throws EncryptException {
+        isSupport();
         try {
-            contBytes = plainText.getBytes(getCharset());
-            keyBytes = password.getBytes(getCharset());
-            if (ivParam != null) {
-                ivBytes = ivParam.getBytes(getCharset());
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new EncryptException("加密时,字符编码错误" + charset, e);
+            // Cipher in = Cipher.getInstance(getCurCipher(), "BC");
+            cipher = Cipher.getInstance(getCipherStr());
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new EncryptException("初始对称加密失败", e);
         }
-        return encrypt(contBytes, keyBytes, ivBytes);
     }
 
     /**
@@ -152,51 +175,46 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * @return 解密后字符串
      * @throws EncryptException 编码转换或解密异常
      */
-    public String decryptBase64(String cipherBase64Text, String password, String ivParam) throws EncryptException {
+    public String decryptBase64(String cipherBase64Text, final byte[] password, final byte[] ivParam)
+            throws EncryptException {
         if (StringHelper.isEmpty(cipherBase64Text)) {
             return cipherBase64Text;
         }
-        byte[] cipherBytes = null;
-        try {
-            cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
-            return doDencrypt(cipherBytes, password, ivParam);
-        } catch (UnsupportedEncodingException e) {
-            throw new EncryptException("解密异常", e);
-        }
+        byte[] cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
+        return doDencrypt(cipherBytes, password, ivParam);
     }
 
     /**
      * 解密字符串,密文为16进制编码.
      * 
-     * @param ciphertext 密文
+     * @param cipherHexText 密文
      * @param password 密钥
      * @param ivParam 向量
      * @return 解密后字符串
      * @throws EncryptException 字符编码转换或解密异常
      */
-    public String dencryptHex(String ciphertext, String password, String ivParam) throws EncryptException {
-        if (StringHelper.isEmpty(ciphertext)) {
-            return ciphertext;
+    public String dencryptHex(String cipherHexText, final byte[] password, final byte[] ivParam)
+            throws EncryptException {
+        if (StringHelper.isEmpty(cipherHexText)) {
+            return cipherHexText;
         }
         byte[] cipherBytes = null;
         try {
-            cipherBytes = Hex.decodeHex(ciphertext.toCharArray());
-            return doDencrypt(cipherBytes, password, ivParam);
-        } catch (TranscodeException | UnsupportedEncodingException e) {
+            cipherBytes = Hex.decodeHex(cipherHexText.toCharArray());
+        } catch (TranscodeException e) {
             throw new EncryptException("解密异常", e);
         }
+        return doDencrypt(cipherBytes, password, ivParam);
     }
 
-    private String doDencrypt(byte[] cipherBytes, String password, String ivParam) throws UnsupportedEncodingException {
-        byte[] keyBytes = null;
-        byte[] ivBytes = null;
-        keyBytes = password.getBytes(getCharset());
-        if (ivParam != null) {
-            ivBytes = ivParam.getBytes(getCharset());
+    private String doDencrypt(final byte[] cipherBytes, final byte[] password, final byte[] ivParam)
+            throws EncryptException {
+        byte[] plainBytes = decrypt(cipherBytes, password, ivParam);
+        try {
+            return new String(plainBytes, getCharset());
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException(e);
         }
-
-        byte[] plainBytes = decrypt(cipherBytes, keyBytes, ivBytes);
-        return new String(plainBytes, charset);
     }
 
     /**
@@ -215,147 +233,24 @@ public class SymmetricEncryptor extends BaseEncryptor {
             return null;
         }
         Key key;
-        checkKeyOrIv(keybytes, ivParam);
-        if (curOpMode != OpMode.ECB && ivParam == null) {
-            ivParam = initIvParam();
-        }
         try {
             key = new SecretKeySpec(keybytes, curAlgorithm.name());
-            //Cipher in = Cipher.getInstance(getCurCipher(), "BC");
-            Cipher in = Cipher.getInstance(getCipherStr());
-            if (curOpMode == OpMode.ECB) {
-                in.init(cipherMode, key);
+            if (curOpMode == null || curOpMode == OpMode.ECB) {
+                cipher.init(cipherMode, key);
             } else {
-                in.init(cipherMode, key, new IvParameterSpec(ivParam));
+                cipher.init(cipherMode, key, new IvParameterSpec(ivParam));
             }
-            byte[] cipherText = in.doFinal(data);
+            byte[] cipherText = cipher.doFinal(data);
             return cipherText;
-        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-                | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
+                | BadPaddingException e) {
             throw new EncryptException(cipherMode == Cipher.ENCRYPT_MODE ? "加密异常" : "解密异常", e);
         }
     }
 
-    private void checkKeyOrIv(final byte[] keybytes, byte[] ivParam) throws EncryptException {
-        String errmsg;
-        errmsg = checkKey(keybytes);
-        if (errmsg != null) {
-            throw new EncryptException(errmsg);
-        }
-        if (curOpMode != OpMode.ECB) {
-            errmsg = checkIvParam(ivParam);
-            if (errmsg != null) {
-                throw new EncryptException(errmsg);
-            }
-        }
-    }
-
-    String checkKey(byte[] keyBytes) {
-        if (curAlgorithm == Algorithm.DES) {
-            if (keyBytes.length != 8) {
-                return "DES密钥长度为8 bytes";
-            }
-        } else if (curAlgorithm == Algorithm.DESede) {
-            if (keyBytes.length != 24) {
-                return "3DES密钥长度为24 bytes";
-            }
-        } else if (curAlgorithm == Algorithm.AES) {
-            if (keyBytes.length != 16) {
-                return "AES密钥长度为16 bytes";
-            }
-        }
-        return null;
-    }
-
-    String checkIvParam(byte[] ivBytes) {
-        if (ivBytes != null) {
-            if (curAlgorithm == Algorithm.DES) {
-                if (ivBytes.length != 8) {
-                    return "DES向量长度为8 bytes";
-                }
-            } else if (curAlgorithm == Algorithm.DESede) {
-                if (ivBytes.length != 24) {
-                    return "3DES向量长度为24 bytes";
-                }
-            } else if (curAlgorithm == Algorithm.AES) {
-                if (ivBytes.length != 16) {
-                    return "AES向量长度为16 bytes";
-                }
-            }
-        }
-        return null;
-    }
-
-    byte[] initIvParam() {
-        if (curAlgorithm == Algorithm.DES) {
-            return new byte[8];
-        } else if (curAlgorithm == Algorithm.AES) {
-            return new byte[16];
-        } else if (curAlgorithm == Algorithm.DESede) {
-            return new byte[24];
-        }
-        return null;
-    }
-
-    @Override
-    public void setOpMode(OpMode curOpMode) {
-        if (curOpMode != OpMode.CBC && curOpMode != OpMode.ECB && curOpMode != OpMode.OFB
-                && curOpMode != OpMode.CFB) {
-            throw new EncryptException(curOpMode + "不适合des或aes加密算法");
-        }
-        this.curOpMode = curOpMode;
-    }
-    
-    @Override
-    public void setPadding(Padding curPaddingMode) {
-        if (curPaddingMode != Padding.NoPadding && curPaddingMode != Padding.PKCS5Padding) {
-            throw new EncryptException(curPaddingMode + "不适合des或aes加密算法");
-        }
-        this.curPadding = curPaddingMode;
-    }
-
-    @Override
-    public void setAlgorithm(Algorithm curAlgorithm) {
-        if (curAlgorithm != Algorithm.AES && curAlgorithm != Algorithm.DES && curAlgorithm != Algorithm.DESede) {
-            throw new EncryptException("当前类只支持des,aes,3des算法");
-        }
-        this.curAlgorithm = curAlgorithm;
-    }
-    
-    /*
-     * AES/CBC/NoPadding (128) AES/CBC/PKCS5Padding (128) AES/ECB/NoPadding (128) AES/ECB/PKCS5Padding (128)
-     * DES/CBC/NoPadding (56) DES/CBC/PKCS5Padding (56) DES/ECB/NoPadding (56) DES/ECB/PKCS5Padding (56)
-     * DESede/CBC/NoPadding (168) DESede/CBC/PKCS5Padding (168) DESede/ECB/NoPadding (168) DESede/ECB/PKCS5Padding (168)
-     * RSA/ECB/PKCS1Padding (1024, 2048) RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
-     * RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
-     */
     private void isSupport() throws EncryptException {
-        boolean support = true;
         if (curAlgorithm != Algorithm.AES && curAlgorithm != Algorithm.DES && curAlgorithm != Algorithm.DESede) {
-            support = false;
-        } else {
-            if (curAlgorithm == Algorithm.AES) {
-                if (curOpMode == OpMode.NONE) {
-                    support = false;
-                } else {
-                    if (curPadding != Padding.NoPadding && curPadding != Padding.ISO10126PADDING
-                            && curPadding != Padding.PKCS5Padding) {
-                        support = false;
-                    }
-                }
-            }else if (curAlgorithm == Algorithm.DES) {
-                
-            }
-        }
-
-        if (!support) {
             throw new EncryptException("不支持的加密算法" + getCipherStr());
         }
-    }
-    
-
-    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException {
-        Cipher in = Cipher.getInstance("AES");
-        System.out.println(in.getParameters());
     }
 }
