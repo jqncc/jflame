@@ -16,12 +16,10 @@ import org.jflame.toolkit.exception.ConvertException;
 @SuppressWarnings("rawtypes")
 public class ExcelConvertorSupport {
 
-    private Map<String,ICellValueConvertor> customConvertors = new ConcurrentHashMap<>();
-    private Map<Class,ICellValueConvertor> defaultConvertors = new HashMap<>();
+    private static Map<String,ICellValueConvertor> customConvertors = new ConcurrentHashMap<>();
+    private static Map<Class,ICellValueConvertor> defaultConvertors = new HashMap<>();
 
-    private static final ExcelConvertorSupport instance = new ExcelConvertorSupport();
-
-    private ExcelConvertorSupport() {
+    static {
         // 注册默认转换器
         defaultConvertors.put(boolean.class, new BoolConvertor());
         defaultConvertors.put(Boolean.class, new BoolConvertor());
@@ -38,16 +36,12 @@ public class ExcelConvertorSupport {
         defaultConvertors.put(java.sql.Timestamp.class, new DateConvertor(java.sql.Timestamp.class));
     }
 
-    public static ExcelConvertorSupport getInstance() {
-        return instance;
-    }
-
     /**
      * 注册自定义转换器
      * 
      * @param convertors 值转换器
      */
-    public void registerConvertor(final ICellValueConvertor... convertors) {
+    public static void registerConvertor(final ICellValueConvertor... convertors) {
         for (ICellValueConvertor c : convertors) {
             if (!EnumUtils.isValidEnum(CellConvertorEnum.class, c.getConvertorName())) {
                 if (!customConvertors.containsKey(c.getConvertorName())) {
@@ -65,7 +59,7 @@ public class ExcelConvertorSupport {
      * @param convertorName 转换器名称
      * @return ICellValueConvertor
      */
-    public ICellValueConvertor getConvertor(final String convertorName) {
+    public static ICellValueConvertor getConvertor(final String convertorName) {
         ICellValueConvertor convertor = customConvertors.get(convertorName);
         if (convertor == null) {
             for (ICellValueConvertor c : defaultConvertors.values()) {
@@ -85,7 +79,7 @@ public class ExcelConvertorSupport {
      * @param propertyClass 属性类型
      * @return ICellValueConvertor
      */
-    public ICellValueConvertor getDefaultConvertor(Class propertyClass) {
+    public static ICellValueConvertor getDefaultConvertor(Class propertyClass) {
         return defaultConvertors.get(propertyClass);
     }
 
@@ -100,10 +94,9 @@ public class ExcelConvertorSupport {
      */
     @SuppressWarnings({ "unchecked" })
     public static String convertToCellValue(final String convertorName, final Object value, final String format) {
-        ExcelConvertorSupport convertorSupport = ExcelConvertorSupport.getInstance();
         ICellValueConvertor convertor;
         if (StringUtils.isNotEmpty(convertorName)) {
-            convertor = convertorSupport.getConvertor(convertorName);
+            convertor = getConvertor(convertorName);
             if (convertor != null) {
                 return convertor.convertToExcel(value, format);
             }
@@ -114,7 +107,7 @@ public class ExcelConvertorSupport {
                 valueClazz = Date.class;
                 newValue = ((Calendar) value).getTime();
             }
-            convertor = convertorSupport.getDefaultConvertor(valueClazz);
+            convertor = getDefaultConvertor(valueClazz);
             if (convertor != null) {
                 return convertor.convertToExcel(newValue == null ? value : newValue, format);
             }
@@ -139,16 +132,15 @@ public class ExcelConvertorSupport {
             }
             return cellValue.toString();
         }
-        ExcelConvertorSupport convertorSupport = ExcelConvertorSupport.getInstance();
         ICellValueConvertor convertor;
         if (StringUtils.isNotEmpty(convertorName)) {
-            convertor = convertorSupport.getConvertor(convertorName);
+            convertor = getConvertor(convertorName);
             if (convertor != null) {
                 return convertor.convertFromExcel(cellValue, fmt);
             }
         }
         if (propertyClass != null) {
-            convertor = convertorSupport.getDefaultConvertor(propertyClass);
+            convertor = getDefaultConvertor(propertyClass);
             if (convertor != null) {
                 return convertor.convertFromExcel(cellValue, fmt);
             }

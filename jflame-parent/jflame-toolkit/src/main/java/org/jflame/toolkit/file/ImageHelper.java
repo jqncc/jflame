@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
@@ -19,6 +20,8 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 
@@ -34,6 +37,29 @@ import org.jflame.toolkit.util.StringHelper;
  * @author zyc
  */
 public final class ImageHelper {
+
+    private static boolean enableThirdparty = false;
+
+    /**
+     * 启用第三方图片包解析图片
+     * 
+     * @param enable true启用
+     */
+    public static void setEnableThirdparty(boolean enable) {
+        enableThirdparty = enable;
+    }
+
+    private static BufferedImage getBufferedImage(InputStream imgStream) throws IOException {
+        if (enableThirdparty) {
+            try {
+                return Imaging.getBufferedImage(imgStream);
+            } catch (ImageReadException e) {
+                // 格式读取失败继续使用jdk方式读
+                e.printStackTrace();
+            }
+        }
+        return ImageIO.read(imgStream);
+    }
 
     /**
      * 等比缩放图片到指定最大高宽范围内 .新文件名等于"源图名_w宽_h高"
@@ -88,8 +114,7 @@ public final class ImageHelper {
         int newHeight = 0;
         try {
             imageStream = new FileInputStream(srcImgUrl);
-            // srcImage = Imaging.getBufferedImage(imageStream);使用commons imaging包读取支持更多格式
-            srcImage = ImageIO.read(imageStream);
+            srcImage = getBufferedImage(imageStream);
             if (null == srcImage) {
                 throw new IllegalArgumentException("文件不能以图片方式读入" + srcImgUrl);
             }
@@ -161,8 +186,7 @@ public final class ImageHelper {
         BufferedImage srcImage = null;
         try {
             imageStream = new FileInputStream(srcImgUrl);
-
-            srcImage = ImageIO.read(imageStream);
+            srcImage = getBufferedImage(imageStream);
             if (null == srcImage) {
                 throw new IllegalArgumentException("文件不能以图片方式读入" + srcImgUrl);
             }
@@ -282,8 +306,10 @@ public final class ImageHelper {
         BufferedImage targetImage = null;
         BufferedImage originalImage;
         Graphics2D g = null;
+        FileInputStream imageStream=null;
         try {
-            originalImage = ImageIO.read(new File(imgPath));
+            imageStream = new FileInputStream(imgPath);
+            originalImage =getBufferedImage(imageStream);
             int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
             targetImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), type);
             g = targetImage.createGraphics();
@@ -299,6 +325,7 @@ public final class ImageHelper {
             if (g != null) {
                 g.dispose();
             }
+            IOHelper.closeQuietly(imageStream);
         }
     }
 
@@ -316,8 +343,11 @@ public final class ImageHelper {
         Graphics2D g = null;
         Font font = new Font(Font.SANS_SERIF, Font.BOLD, 18);
         float alpha = 0.3f;
+        FileInputStream imageStream=null;
         try {
-            originalImage = ImageIO.read(new File(imgPath));
+            //originalImage = ImageIO.read(new File(imgPath));
+            imageStream = new FileInputStream(imgPath);
+            originalImage =getBufferedImage(imageStream);
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
             int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
@@ -336,49 +366,51 @@ public final class ImageHelper {
             if (g != null) {
                 g.dispose();
             }
+            IOHelper.closeQuietly(imageStream);
         }
     }
 
     /**
-     * 添加图片水印操作,返回BufferedImage对象
+     * 添加图片水印操作
      * 
      * @param imgPath 待处理图片
      * @param markPath 水印图片
      * @param x 水印位于图片左上角的 x 坐标值
      * @param y 水印位于图片左上角的 y 坐标值
      * @param alpha 水印透明度 0.1f ~ 1.0f
-     * @return 处理后的图片对象
      * @throws Exception
      */
-    public static BufferedImage addWaterMark(String imgPath, String markPath, int x, int y, float alpha)
-            throws Exception {
+    public static void imageWaterMark(String imgPath, String markPath, int x, int y, float alpha)
+            throws IOException {
+        FileInputStream imageStream = null;
+        FileInputStream markStream = null;
         BufferedImage targetImage = null;
+        Graphics2D g = null;
         try {
             // 加载待处理图片文件
-            Image img = ImageIO.read(new File(imgPath));
-
+            // Image img = ImageIO.read(new File(imgPath));
+            imageStream = new FileInputStream(imgPath);
+            Image img = getBufferedImage(imageStream);
             // 创建目标图象文件
             targetImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = targetImage.createGraphics();
+            g = targetImage.createGraphics();
             g.drawImage(img, 0, 0, null);
-
             // 加载水印图片文件
-            Image markImg = ImageIO.read(new File(markPath));
+            markStream = new FileInputStream(markPath);
+            Image markImg = getBufferedImage(markStream);
+            // Image markImg = ImageIO.read(new File(markPath));
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, alpha));
             g.drawImage(markImg, x, y, null);
-            g.dispose();
-        } catch (Exception e) {
-            throw new RuntimeException("添加图片水印操作异常");
+            ImageIO.write(targetImage, FileHelper.getExtension(imgPath, false), new File(imgPath));
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (g != null) {
+                g.dispose();
+            }
+            IOHelper.closeQuietly(imageStream);
+            IOHelper.closeQuietly(markStream);
         }
-        return targetImage;
-
-    }
-
-    public static void main(String[] args) throws Exception {
-        String srcImg = "C:\\Users\\yucan.zhang\\Documents\\4.jpg";
-        // textWatermark(srcImg, "水印", new Font(Font.SERIF, Font.BOLD, 20),Color.black, 10f, 300, 0.3f);
-
-        textWatermark(srcImg, "大水印", Color.black);
     }
 
     // public static void main(String args[]) throws IOException {
