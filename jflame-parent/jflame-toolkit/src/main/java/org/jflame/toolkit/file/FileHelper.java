@@ -106,25 +106,32 @@ public final class FileHelper {
     /**
      * 在指定的文件夹下创建当前以年/月命名的子文件夹，如果存在则直接返回路径,不存在则创建.
      * <p>
-     * 如:当前时间为2011年3月,rootDir=/home/user,返回路径为/home/user/2011/3
+     * 以当前时间为2011年3月,rootDir=/home/user示例：<br>
+     * createYearDir=true createMonthDir=true,返回路径为/home/user/2011/3<br>
+     * createYearDir=true createMonthDir=false,返回路径为/home/user/2011<br>
+     * createYearDir=false createMonthDir=true,返回路径为/home/user/3<br>
      *
      * @param rootDir 指定的根目录.如果是相对路径仍然会创建，空字符串则相对于项目路径
-     * @param isCreateMonthDir 是否创建当前月份名文件夹
+     * @param createYearDir 是否创建当前年份名文件夹
+     * @param createMonthDir 是否创建当前月份名文件夹
      * @return 返回全路径
      */
-    public static String createDateDir(String rootDir, boolean isCreateMonthDir) {
+    public static String createDateDir(String rootDir, boolean createYearDir, boolean createMonthDir) {
         if (rootDir == null) {
             throw new IllegalArgumentException("参数错误 rootDir不能为null");
         }
         Calendar now = Calendar.getInstance();
         Path newPath = null;
-        if (isCreateMonthDir) {
-            newPath = Paths.get(rootDir, String.valueOf(now.get(Calendar.YEAR)),
-                    String.valueOf(now.get(Calendar.MONTH) + 1));
+        if (createYearDir) {
+            if (createMonthDir) {
+                newPath = Paths.get(rootDir, String.valueOf(now.get(Calendar.YEAR)),
+                        String.valueOf(now.get(Calendar.MONTH) + 1));
+            } else {
+                newPath = Paths.get(rootDir, String.valueOf(now.get(Calendar.YEAR)));
+            }
         } else {
-            newPath = Paths.get(rootDir, String.valueOf(now.get(Calendar.YEAR)));
+            newPath = Paths.get(rootDir, String.valueOf(now.get(Calendar.MONTH) + 1));
         }
-
         File todayFile = newPath.toFile();
         if (!todayFile.exists()) {
             todayFile.mkdirs();
@@ -183,17 +190,14 @@ public final class FileHelper {
     }
 
     /**
-     * 检测指定目录下是否已存在同名文件,如果有返回一个随机新名称
+     * 检测指定目录下是否已存在同名文件
      * 
      * @param dir 待检测目录
      * @param fileName 文件名
+     * @return true存在
      */
-    public static String detectSameNameFile(String dir, String fileName) {
-        File file = Paths.get(dir, fileName).toFile();
-        if (file.exists()) {
-            return StringHelper.uuid() + getExtension(fileName, true);
-        }
-        return null;
+    public static boolean existSameNameFile(String dir, String fileName) {
+        return Files.exists(Paths.get(dir, fileName));
     }
 
     /**

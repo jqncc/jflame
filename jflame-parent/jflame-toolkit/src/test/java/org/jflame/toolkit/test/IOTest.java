@@ -19,9 +19,9 @@ public class IOTest {
 
     @Test
     public void testCreateDateDir() {
-        System.out.println("绝对路径下创建年份文件夹:" + FileHelper.createDateDir("C:\\Users\\yucan.zhang\\Desktop", false));
-        System.out.println("绝对路径下创建年月份文件夹:" + FileHelper.createDateDir("C:\\Users\\yucan.zhang\\Desktop", true));
-        System.out.println("权限路径下创建年份文件夹:" + FileHelper.createDateDir("", false));
+        System.out.println("绝对路径下创建年份文件夹:" + FileHelper.createDateDir("C:\\Users\\yucan.zhang\\Desktop", true,false));
+        System.out.println("绝对路径下创建年月份文件夹:" + FileHelper.createDateDir("C:\\Users\\yucan.zhang\\Desktop", true,true));
+        System.out.println("权限路径下创建月份文件夹:" + FileHelper.createDateDir("",false, true));
     }
 
 }

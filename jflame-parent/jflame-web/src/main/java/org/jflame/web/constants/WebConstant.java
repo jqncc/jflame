@@ -1,6 +1,8 @@
 package org.jflame.web.constants;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.util.EnumHelper;
 
 /**
  * web项目常量定义
@@ -37,11 +39,11 @@ public final class WebConstant {
      * ajax请求头标识
      */
     public final static NameValuePair AJAX_REQUEST_FLAG = new NameValuePair("x-requested-with", "XMLHttpRequest");
-    
+
     /**
      * web支持图片格式枚举
+     * 
      * @author yucan.zhang
-     *
      */
     public enum MimeImages {
         png("image/png"), jpg("image/jpeg"), jpeg("image/jpeg"), gif("image/gif"), bmp("application/x-bmp"), ico(
@@ -65,7 +67,11 @@ public final class WebConstant {
             }
             return false;
         }
-
     }
+
+    /**
+     * web图片类型扩展名
+     */
+    public static String[] imageExts = EnumHelper.enumNames(MimeImages.class);
 
 }

@@ -27,7 +27,7 @@ import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
 import org.jflame.web.SpiFactory;
 import org.jflame.web.constants.WebConstant.MimeImages;
-import org.jflame.web.util.WebUtil;
+import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class ValidateCodeImageServlet extends HttpServlet {
         String randomCode = RandomStringUtils.random(count, true, true);
         drawString(randomCode, g, width, height);
         // 禁止图像缓存
-        WebUtil.setDisableCacheHeader(response);
+        WebUtils.setDisableCacheHeader(response);
         response.setContentType(MimeImages.jpg.getMime());
         ServletOutputStream sos = response.getOutputStream();
         ImageIO.write(buffImg, MimeImages.jpg.name(), sos);

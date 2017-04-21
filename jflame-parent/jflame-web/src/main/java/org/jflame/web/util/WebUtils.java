@@ -17,7 +17,7 @@ import org.jflame.web.constants.WebConstant;
  * 
  * @author yucan.zhang
  */
-public class WebUtil {
+public class WebUtils {
 
     /**
      * 设置让浏览器弹出下载对话框的Header.
