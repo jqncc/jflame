@@ -1,6 +1,5 @@
 package org.jflame.web.constants;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.jflame.toolkit.common.bean.NameValuePair;
 import org.jflame.toolkit.util.EnumHelper;
 

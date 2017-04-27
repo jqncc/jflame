@@ -1,21 +1,21 @@
-package org.jflame.web.util;
+package org.jflame.web.util.upload;
 /**
- * 文件上传异常
+ * 文件上传或下载异常
  * @author yucan.zhang
  *
  */
 @SuppressWarnings("serial")
-public class UploadException extends RuntimeException {
+public class UploadDownException extends RuntimeException {
 
-    public UploadException(String message) {
+    public UploadDownException(String message) {
         super(message);
     }
 
-    public UploadException(String message, Throwable error) {
+    public UploadDownException(String message, Throwable error) {
         super(message, error);
     }
 
-    public UploadException(Throwable error) {
+    public UploadDownException(Throwable error) {
         super(error);
     }
 }

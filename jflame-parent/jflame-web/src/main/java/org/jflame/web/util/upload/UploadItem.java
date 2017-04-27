@@ -1,4 +1,4 @@
-package org.jflame.web.util;
+package org.jflame.web.util.upload;
 
 /**
  * 上传文件参数
@@ -13,10 +13,9 @@ public class UploadItem {
     private int fileCount = 0; // 允许上传文件最大个数,默认0表示无限制
     private String savePath; // 保存路径
     private boolean createDateDir = false; // 是否在savePath建立当前年月的文件夹作为最终保存路径
-    private boolean forceNewName = false; // 强制重新命名
 
     /**
-     * 上传文件总大小
+     * 上传文件总大小,单位byte
      * 
      * @return
      */
@@ -25,7 +24,7 @@ public class UploadItem {
     }
 
     /**
-     * 设置上传文件的总大小
+     * 设置上传文件的总大小,单位byte
      * 
      * @param fileTotalSize
      */
@@ -38,7 +37,7 @@ public class UploadItem {
     }
 
     /**
-     * 设置单个文件最大值
+     * 设置单个文件最大值,单位byte
      * 
      * @param fileSize
      */
@@ -83,19 +82,6 @@ public class UploadItem {
      */
     public void setSavePath(String savePath) {
         this.savePath = savePath;
-    }
-
-    public boolean isForceNewName() {
-        return forceNewName;
-    }
-
-    /**
-     * 设置是否重命名文件
-     * 
-     * @param forceNewName true重命名文件,将生成一个uuid重新命名文件
-     */
-    public void setForceNewName(boolean forceNewName) {
-        this.forceNewName = forceNewName;
     }
 
     public boolean isCreateDateDir() {
