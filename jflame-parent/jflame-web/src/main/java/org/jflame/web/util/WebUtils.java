@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.file.FileHelper;
+import org.jflame.toolkit.net.IPAddressHelper;
+import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.constants.WebConstant;
 
 /**
@@ -171,41 +173,45 @@ public class WebUtils {
     }
 
     /**
-     * 获取客户端ip地址.
+     * 获取客户端ip地址，获取失败返回"unknown"
      * 
      * @param request HttpServletRequest
      * @return
      */
     public static String getRemoteClientIP(HttpServletRequest request) {
-        if (request == null) {
-            return "unknown";
-        }
+        final String unknownip = "unknown";
         String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
             ip = request.getHeader("X-Forwarded-For");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
             ip = request.getHeader("WL-Proxy-Client-IP");
         }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
             ip = request.getHeader("X-Real-IP");
         }
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
-        if (ip.indexOf(",") > -1) {
-            ip = ip.split(",")[0];
+        // 多个ip取第一个
+        if (ip.indexOf(",") >= 0) {
+            String[] ips = ip.split(",");
+            for (String addr : ips) {
+                if (!unknownip.equalsIgnoreCase(addr)) {
+                    ip = addr;
+                    break;
+                }
+            }
         }
-        if ("0:0:0:0:0:0:0:1".equals(ip)) {
-            ip = "127.0.0.1";
-        } else {
-            ip = ip.trim();
+        ip = ip.trim();
+        if ("0:0:0:0:0:0:0:1".equals(ip) || "127.0.0.1".equals(ip)) {
+            ip = IPAddressHelper.getHostIP();
         }
-        return ip.trim();
+        return ip;
     }
 
     /**
