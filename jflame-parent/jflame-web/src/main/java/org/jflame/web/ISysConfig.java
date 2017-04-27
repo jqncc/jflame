@@ -24,7 +24,7 @@ public interface ISysConfig {
      * 
      * @return
      */
-    Map<String,Object> getAllConfigParam();
+    Map<String,Object> getAllParams();
 
     /**
      * 根据参数名取得参数值
@@ -32,5 +32,11 @@ public interface ISysConfig {
      * @param paramKey 配置参数名
      * @return
      */
-    Object getConfigParam(String paramKey);
+    Object getParam(String paramKey);
+    /**
+     * 根据参数名取得参数字符串值
+     * @param paramKey 配置参数名
+     * @return
+     */
+    String getTextParam(String paramKey);
 }

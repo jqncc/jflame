@@ -4,21 +4,4 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd">
 	<display-name>jflame-web-support</display-name>
 	<name>jflamewebsupport</name>
-	<servlet>
-	   <servlet-name>loadLocalImageServlet</servlet-name>
-	   <servlet-class>org.jflame.web.servlet.LoadImageServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-	   <servlet-name>loadLocalImageServlet</servlet-name>
-	   <url-pattern>/loadimg/*</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-       <servlet-name>validateCodeServlet</servlet-name>
-       <servlet-class>org.jflame.web.servlet.ValidateCodeImageServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-       <servlet-name>validateCodeServlet</servlet-name>
-       <url-pattern>/validcode</url-pattern>
-    </servlet-mapping>
 </web-fragment>

@@ -19,16 +19,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jflame.toolkit.file.FileHelper;
+import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.web.ISysConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * csrf攻击拦截，比对请求来源referer.
  * <p>
- * 初始参数:<br>
+ * 配置参数:<br>
  * whiteFile[可选] 白名单文件名,只在classes目录下查找.<br>
  * errorPage[可选] 错误转向页面,不设置将返回400错误请求<br>
  * 
@@ -37,36 +40,45 @@ import org.slf4j.LoggerFactory;
 public class CsrfFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
-
+    private final String CSRF_WHITEFILE_CONFIGKEY = "csrf.whitefile";
+    private final String CSRF_ERRORPAGE_CONFIGKEY = "csrf.errorpage";
     // 白名单
     private List<URI> whiteUrls;
     private String errorPage;
 
     public void init(FilterConfig filterConfig) {
-        String paramWhiteFile = filterConfig.getInitParameter("whiteFile");
-        String paramErrorPage = filterConfig.getInitParameter("errorPage");
-        if (StringHelper.isNotEmpty(paramErrorPage)) {
-            errorPage = paramErrorPage.trim();
-        }
-        if (StringHelper.isNotEmpty(paramWhiteFile)) {
-            List<String> whiteUrlStrs = null;
-            try {
-                Path p = Paths.get(CsrfFilter.class.getResource("/" + paramWhiteFile.trim()).toURI());
-                whiteUrlStrs = Files.readAllLines(p, Charset.forName(CharsetHelper.UTF_8));
-            } catch (IOException | URISyntaxException e) {
-                logger.error("csrf白名单读取失败", e);
+        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
+        if (sysConfig != null) {
+            String paramWhiteFile = sysConfig.getTextParam(CSRF_WHITEFILE_CONFIGKEY);
+            String paramErrorPage = sysConfig.getTextParam(CSRF_ERRORPAGE_CONFIGKEY);
+            if (StringHelper.isNotEmpty(paramErrorPage)) {
+                errorPage = paramErrorPage.trim();
             }
-            if (CollectionHelper.isNotNullAndEmpty(whiteUrlStrs)) {
-                for (String urlStr : whiteUrlStrs) {
-                    if (StringUtils.isNotBlank(urlStr)) {
-                        try {
-                            URI.create(urlStr.trim());
-                        } catch (IllegalArgumentException e) {
-                            logger.error("不是正确的URI地址" + urlStr, e);
+            if (StringHelper.isNotEmpty(paramWhiteFile)) {
+                if (paramWhiteFile.charAt(0)!=FileHelper.UNIX_SEPARATOR) {
+                    paramWhiteFile=FileHelper.UNIX_SEPARATOR+paramWhiteFile;
+                }
+                List<String> whiteUrlStrs = null;
+                try {
+                    Path p = Paths.get(CsrfFilter.class.getResource(paramWhiteFile.trim()).toURI());
+                    whiteUrlStrs = Files.readAllLines(p, Charset.forName(CharsetHelper.UTF_8));
+                } catch (IOException | URISyntaxException e) {
+                    logger.error("csrf白名单读取失败", e);
+                }
+                if (CollectionHelper.isNotNullAndEmpty(whiteUrlStrs)) {
+                    for (String urlStr : whiteUrlStrs) {
+                        if (StringUtils.isNotBlank(urlStr)) {
+                            try {
+                                URI.create(urlStr.trim());
+                            } catch (IllegalArgumentException e) {
+                                logger.error("不是正确的URI地址" + urlStr, e);
+                            }
                         }
                     }
                 }
             }
+        } else {
+            logger.error("未找到ISysConfig实现类");
         }
     }
 

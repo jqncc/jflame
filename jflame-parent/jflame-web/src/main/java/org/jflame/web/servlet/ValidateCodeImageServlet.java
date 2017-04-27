@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +24,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
-import org.jflame.web.SpiFactory;
 import org.jflame.web.constants.WebConstant.MimeImages;
 import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
@@ -38,10 +39,10 @@ import org.slf4j.LoggerFactory;
  * w=宽度(默认80),h=高度(默认24),c=生成的字符个数(默认4),n=随机码存储名称. 示例:<br>
  * 生成宽度为120高为30字符数5个的验证图片 /valid?w=120&h30&c=5<br>
  * 2. 随机码存储名称，默认"validcode"，必须是给定配置validcode.names参数中的名称，配置文件由ISysConfig接口读取<br>
- * 3. 配置参数validcode.names,随机码可选名称,多个以英文逗号分隔
  * 
  * @author yucan.zhang
  */
+@WebServlet(value="/validcode")
 @SuppressWarnings("serial")
 public class ValidateCodeImageServlet extends HttpServlet {
     private final Logger log = LoggerFactory.getLogger(ValidateCodeImageServlet.class);
@@ -52,7 +53,8 @@ public class ValidateCodeImageServlet extends HttpServlet {
     private final String defaultCodeName = "validcode";
     private final String CODE_NAMES_CONFIGKEY = "validcode.names";
     private List<String> initCodeNames = new ArrayList<>();// 验证码限定名称，默认"validcode"
-
+    private Random random = new Random();
+    
     public ValidateCodeImageServlet() {
         super();
     }
@@ -64,8 +66,6 @@ public class ValidateCodeImageServlet extends HttpServlet {
             throws ServletException, IOException {
         doPost(request, response);
     }
-
-    Random random = new Random();
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -122,8 +122,13 @@ public class ValidateCodeImageServlet extends HttpServlet {
         session.setAttribute(codeName, randomCode);
     }
 
+    /**
+     * 画背景
+     * @param g
+     * @param width
+     * @param height
+     */
     private void drawBackground(Graphics2D g, int width, int height) {
-        // 画背景
         g.setColor(getRandColor(220, 250, random));
         g.fillRect(0, 0, width, height);
         // 画边框
@@ -141,6 +146,13 @@ public class ValidateCodeImageServlet extends HttpServlet {
         }
     }
 
+    /**
+     * 画随机码
+     * @param randomCode
+     * @param g
+     * @param width
+     * @param height
+     */
     private void drawString(String randomCode, Graphics2D g, int width, int height) {
         int x = 0;
         g.setColor(new Color(150, 80 + random.nextInt(50), 50 + random.nextInt(30)));
@@ -159,9 +171,9 @@ public class ValidateCodeImageServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         initCodeNames.add(defaultCodeName);
-        ISysConfig sysConfig = SpiFactory.loadSingleService(ISysConfig.class);
+        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
         if (sysConfig != null) {
-            String initNameParam = (String) sysConfig.getConfigParam(CODE_NAMES_CONFIGKEY);
+            String initNameParam = sysConfig.getTextParam(CODE_NAMES_CONFIGKEY);
             if (StringHelper.isNotEmpty(initNameParam)) {
                 String[] names = initNameParam.trim().split(",");
                 if (ArrayUtils.isNotEmpty(names)) {

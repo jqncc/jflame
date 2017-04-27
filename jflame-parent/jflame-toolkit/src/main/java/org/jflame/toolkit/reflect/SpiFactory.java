@@ -1,4 +1,4 @@
-package org.jflame.web;
+package org.jflame.toolkit.reflect;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class SpiFactory {
 
-    public static ConcurrentMap<String,Object> serviceMap = new ConcurrentHashMap<>();
+    private static ConcurrentMap<String,Object> serviceBeanMap = new ConcurrentHashMap<>();
 
     /**
      * 加载接口第一个实现类,如果已经加载过返回原实例,实现类单例形式存在
@@ -21,18 +21,18 @@ public class SpiFactory {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <T> T loadSingleService(Class<T> serviceClazz) {
+    public static <T> T getSingleBean(Class<T> serviceClazz) {
         String key = serviceClazz.getName();
         T instance = null;
-        if (!serviceMap.containsKey(key)) {
+        if (!serviceBeanMap.containsKey(key)) {
             ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceClazz);
             Iterator<T> it = serviceLoader.iterator();
             if (it.hasNext()) {
                 instance = it.next();
-                serviceMap.put(key, instance);
+                serviceBeanMap.put(key, instance);
             }
         } else {
-            instance = (T) serviceMap.get(key);
+            instance = (T) serviceBeanMap.get(key);
         }
 
         return instance;
@@ -44,7 +44,7 @@ public class SpiFactory {
      * @param serviceClazz 接口类型
      * @return
      */
-    public static <T> T loadService(Class<T> serviceClazz) {
+    public static <T> T getBean(Class<T> serviceClazz) {
         ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceClazz);
         Iterator<T> it = serviceLoader.iterator();
         if (it.hasNext()) {
@@ -59,7 +59,7 @@ public class SpiFactory {
      * @param serviceClazz 接口类型
      * @return
      */
-    public static <T> Iterator<T> loadServices(Class<T> serviceClazz) {
+    public static <T> Iterator<T> getBeans(Class<T> serviceClazz) {
         ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceClazz);
         return serviceLoader.iterator();
     }

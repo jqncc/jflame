@@ -8,15 +8,16 @@ import java.nio.file.Paths;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.file.FileHelper;
+import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.ISysConfig;
-import org.jflame.web.SpiFactory;
 import org.jflame.web.constants.WebConstant.MimeImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * ISysConfig实现类使用SPI方式接入
  */
 @SuppressWarnings("serial")
+@WebServlet(name="loadImage",value="/loadImg")
 public class LoadImageServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
@@ -69,9 +71,9 @@ public class LoadImageServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        ISysConfig sysConfig = SpiFactory.loadSingleService(ISysConfig.class);
+        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
         if (sysConfig != null) {
-            savePath = (String) sysConfig.getConfigParam(SAVE_PATH_IMAGE_CONFIGKEY);
+            savePath =sysConfig.getTextParam(SAVE_PATH_IMAGE_CONFIGKEY);
         } else {
             log.error("未找到ISysConfig实现类");
         }
