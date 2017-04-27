@@ -16,12 +16,17 @@ public class SysConfig implements ISysConfig {
     }
 
     @Override
-    public Map<String,Object> getAllConfigParam() {
+    public Map<String,Object> getAllParams() {
         return null;
     }
 
     @Override
-    public Object getConfigParam(String paramKey) {
+    public Object getParam(String paramKey) {
+        return null;
+    }
+
+    @Override
+    public String getTextParam(String paramKey) {
         return null;
     }
 

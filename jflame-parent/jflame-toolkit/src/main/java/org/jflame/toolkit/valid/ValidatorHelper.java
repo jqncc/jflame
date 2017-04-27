@@ -1,16 +1,26 @@
-package org.jflame.toolkit.util;
+package org.jflame.toolkit.valid;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.net.IPAddressHelper;
+import org.jflame.toolkit.util.ChineseHelper;
 
 /**
  * 常用验证方法.支持规则:
@@ -292,6 +302,26 @@ public final class ValidatorHelper {
      */
     public static boolean isIPAddress(String ip) {
         return IPAddressHelper.isIP(ip);
+    }
+    
+    /**
+     * 使用JSR303验证器验证实体对象
+     * 
+     * @param entity 待验证的实体对象
+     * @param groups 规则分组
+     * @return 错误信息Map,key=属性名 value=错误描述
+     */
+    public static <T> Map<String,String> validBean(T entity, Class<?>... groups) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<T>> errors = validator.validate(entity, groups);
+        Iterator<ConstraintViolation<T>> it = errors.iterator();
+        Map<String,String> errorMap = new HashMap<>();
+        while (it.hasNext()) {
+            ConstraintViolation<T> cv = (ConstraintViolation<T>) it.next();
+            errorMap.put(cv.getPropertyPath().toString(), cv.getMessage());
+        }
+        return errorMap;
     }
 
     private static int[] converCharToInt(char[] c) throws NumberFormatException {
