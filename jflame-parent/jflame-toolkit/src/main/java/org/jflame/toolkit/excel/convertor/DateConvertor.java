@@ -31,7 +31,7 @@ public class DateConvertor implements ICellValueConvertor<Date> {
     }
 
     @Override
-    public Date convertFromExcel(Object cellValue, String fmt) throws ConvertException {
+    public Date convertFromExcel(Object cellValue,final String fmt) throws ConvertException {
         Date resultVal = null;
         if (cellValue instanceof Date) {
             resultVal = (Date) cellValue;
@@ -59,7 +59,7 @@ public class DateConvertor implements ICellValueConvertor<Date> {
     }
 
     @Override
-    public String convertToExcel(Date value, String fmt) throws ConvertException {
+    public String convertToExcel(Date value, final String fmt) throws ConvertException {
         SimpleDateFormat datFormator = new SimpleDateFormat();
 
         if (StringUtils.isNotEmpty(fmt)) {
@@ -75,7 +75,7 @@ public class DateConvertor implements ICellValueConvertor<Date> {
     }
 
     public String getConvertorName() {
-        return CellConvertorEnum.DATE.toString();
+        return CellConvertorEnum.date.name();
     }
 
 }

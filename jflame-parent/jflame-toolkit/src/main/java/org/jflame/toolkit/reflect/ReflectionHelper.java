@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
@@ -15,9 +16,31 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 public final class ReflectionHelper {
 
     /**
-     * 反射获得Class定义中声明的父类的首个泛型参数的类型. 如无法找到,返回Object.class
+     * 获取所实现接口的首个泛型参数的类型，如无法找到返回null
      * 
-     * @param
+     * @param clazz 待查找类型
+     * @return
+     */
+    @SuppressWarnings({ "unchecked","rawtypes" })
+    public static <T> Class<T> getIntefaceGenricType(final Class clazz) {
+        try {
+            Type[] types = clazz.getGenericInterfaces();
+            for (Type type : types) {
+                if (type instanceof ParameterizedType) {
+                    Type[] params = ((ParameterizedType) type).getActualTypeArguments();
+                    return ArrayUtils.isEmpty(params) ? null : (Class) params[0];
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 获取父类的首个泛型参数的类型，如无法找到返回null
+     * 
+     * @param 待查找类型
      * @return
      */
     @SuppressWarnings({ "unchecked","rawtypes" })
@@ -26,31 +49,29 @@ public final class ReflectionHelper {
     }
 
     /**
-     * 反射获得Class定义中声明的父类的指定索引泛型参数的类型. <br>
-     * 如无法找到, 返回Object.class. 如public UserDao extends HibernateDao&lt;User,Long&gt;
+     * 反射获得Class定义中声明的父类的指定索引泛型参数的类型.无泛型或索引超出返回null <br>
      * 
      * @param clazz 待查找类型
      * @param index 多个泛型参数时的索引,0开始
      * @return 索引处的泛型参数class对象
      */
     @SuppressWarnings("rawtypes")
-    public static Class getSuperClassGenricType(final Class clazz, final int index) {
-        Type genType = clazz.getGenericSuperclass();
-
-        if (!(genType instanceof ParameterizedType)) {
-            return Object.class;
+    public static Class getSuperClassGenricType(final Class clazz, int index) {
+        if (index < 0) {
+            index = 0;
         }
-
-        Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
-
-        if (index >= params.length || index < 0) {
-            return Object.class;
+        try {
+            Type genType = clazz.getGenericSuperclass();
+            if (genType instanceof ParameterizedType) {
+                Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+                if (params.length <= index) {
+                    return (Class) params[index];
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (!(params[index] instanceof Class)) {
-            return Object.class;
-        }
-
-        return (Class) params[index];
+        return null;
     }
 
     /**
@@ -85,5 +106,4 @@ public final class ReflectionHelper {
         return FieldUtils.getField(obj.getClass(), fieldName, true);
     }
 
-   
 }

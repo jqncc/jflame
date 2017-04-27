@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.toolkit.util.ValidatorHelper;
+import org.jflame.toolkit.valid.ValidatorHelper;
 
 /**
  * ip地址工具类.

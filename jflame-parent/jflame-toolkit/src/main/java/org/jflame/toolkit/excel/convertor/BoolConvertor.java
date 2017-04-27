@@ -10,7 +10,7 @@ public class BoolConvertor implements ICellValueConvertor<Boolean> {
     private final String[] falseValues = { "否","false","0","n","no" };
 
     @Override
-    public Boolean convertFromExcel(Object cellValue, String fmt) throws ConvertException {
+    public Boolean convertFromExcel(Object cellValue, final String fmt) throws ConvertException {
         if (cellValue instanceof Boolean) {
             return (Boolean) cellValue;
         }
@@ -25,7 +25,7 @@ public class BoolConvertor implements ICellValueConvertor<Boolean> {
     }
 
     @Override
-    public String convertToExcel(Boolean value, String fmt) throws ConvertException {
+    public String convertToExcel(final Boolean value, final String fmt) throws ConvertException {
         if (Boolean.TRUE.equals(value)) {
             return trueValues[0];
         } else if (Boolean.FALSE.equals(value)) {
@@ -36,7 +36,7 @@ public class BoolConvertor implements ICellValueConvertor<Boolean> {
 
     @Override
     public String getConvertorName() {
-        return CellConvertorEnum.BOOL.toString();
+        return CellConvertorEnum.bool.name();
     }
 
 }

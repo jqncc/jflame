@@ -12,6 +12,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.excel.convertor.ICellValueConvertor.CellConvertorEnum;
 import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.toolkit.util.StringHelper;
 
 @SuppressWarnings("rawtypes")
 public class ExcelConvertorSupport {
@@ -63,7 +64,7 @@ public class ExcelConvertorSupport {
         ICellValueConvertor convertor = customConvertors.get(convertorName);
         if (convertor == null) {
             for (ICellValueConvertor c : defaultConvertors.values()) {
-                if (!c.getConvertorName().equals(CellConvertorEnum.NONE.toString())
+                if (!c.getConvertorName().equals(CellConvertorEnum.none.name())
                         && c.getConvertorName().equals(convertorName)) {
                     convertor = c;
                 }
@@ -126,11 +127,8 @@ public class ExcelConvertorSupport {
      */
     public static Object convertValueFromCellValue(final String convertorName, final Class<?> propertyClass,
             final String fmt, final Object cellValue) {
-        if (String.class.equals(propertyClass)) {
-            if (cellValue instanceof String) {
-                return cellValue;
-            }
-            return cellValue.toString();
+        if (StringHelper.isEmpty(convertorName) && propertyClass == null) {
+            throw new ConvertException("参数convertorName，propertyClass必须存在一个");
         }
         ICellValueConvertor convertor;
         if (StringUtils.isNotEmpty(convertorName)) {
@@ -145,7 +143,6 @@ public class ExcelConvertorSupport {
                 return convertor.convertFromExcel(cellValue, fmt);
             }
         }
-
-        throw new ConvertException("没有找到类型" + propertyClass.getName() + "的值转换器");
+        return String.valueOf(cellValue);
     }
 }

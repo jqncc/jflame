@@ -27,7 +27,7 @@ public interface ICellValueConvertor<T> {
      * @return 转换后字符串
      * @throws ConvertException 值转换异常
      */
-    public String convertToExcel(T value, String pattern) throws ConvertException;
+    public String convertToExcel(final T value, final String pattern) throws ConvertException;
 
     /**
      * 该转换器唯一名称
@@ -42,11 +42,6 @@ public interface ICellValueConvertor<T> {
      * @author yucan.zhang
      */
     public enum CellConvertorEnum {
-        NONE,BOOL, DATE, NUMBER, CHAR;
-
-        @Override
-        public String toString() {
-            return this.name().toLowerCase();
-        }
+        none,bool, date, number,string;
     }
 }

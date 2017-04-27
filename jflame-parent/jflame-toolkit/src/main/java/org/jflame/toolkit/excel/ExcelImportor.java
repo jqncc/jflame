@@ -235,7 +235,7 @@ public class ExcelImportor {
                 return curCell.getNumericCellValue();
             }
         } else if (curCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-            return curCell.getCellFormula();
+            return curCell.getNumericCellValue();//公式类型取计算结果
         } else {
             return curCell.getStringCellValue();
         }

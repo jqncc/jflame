@@ -10,15 +10,45 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.0.1</version>
+		<version>${project.version}</version>
 	</parent>
+	<properties>
+        <version.spring>4.2.5.RELEASE</version.spring>
+    </properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.jflame</groupId>
 			<artifactId>jflame-web</artifactId>
-			<version>${version.jflame}</version>
-			<scope>compile</scope>
+			<version>${project.version}</version>
 		</dependency>
+		<!-- spring start -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${version.spring}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${version.spring}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${version.spring}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${version.spring}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${version.fileupload}</version>
+        </dependency>
+        <!-- spring end -->
 	</dependencies>
 	<build>
 		<finalName>jflame-mvc</finalName>
@@ -27,8 +57,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>${version.jdk}</source>
+					<target>${version.jdk}</target>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
