@@ -26,11 +26,11 @@ public final class FileHelper {
     /**
      * windows系统文件路径分隔符
      */
-    public static final char WIN_PATH_SEPARATOR = '\\';
+    public static final char WIN_SEPARATOR = '\\';
     /**
      * unix系统文件路径分隔符
      */
-    public static final char UNIX_PATH_SEPARATOR = '/';
+    public static final char UNIX_SEPARATOR = '/';
 
     /**
      * 返回文件路径的目录部分. 如果指定的文件存在，使用文件属性判断<br>
@@ -54,9 +54,9 @@ public final class FileHelper {
         if (tmpFile.exists()) {
             return tmpFile.isDirectory() ? filePath : tmpFile.getParent();
         } else {
-            int i = filePath.lastIndexOf(UNIX_PATH_SEPARATOR);
+            int i = filePath.lastIndexOf(UNIX_SEPARATOR);
             if (i < 0) {
-                i = filePath.lastIndexOf(WIN_PATH_SEPARATOR);
+                i = filePath.lastIndexOf(WIN_SEPARATOR);
             }
             if (i < 0) {
                 return filePath;
@@ -307,6 +307,7 @@ public final class FileHelper {
             return false;
         }
     }
+    
 
     // public static void main(String[] args) {
     /*

@@ -1,7 +1,10 @@
 package org.jflame.toolkit.codec;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
+import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
@@ -111,6 +114,20 @@ public final class TranscodeHelper {
     public static String dencodeHexString(String hexString) throws TranscodeException {
         byte[] bytes = dencodeHex(hexString);
         return StringHelper.getUtf8String(bytes);
+    }
+
+    /**
+     * utf-8 urlencode
+     * 
+     * @param str
+     * @return
+     */
+    public static String urlencode(String str) {
+        try {
+            return URLEncoder.encode(str, CharsetHelper.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            return str;
+        }
     }
 
     /**

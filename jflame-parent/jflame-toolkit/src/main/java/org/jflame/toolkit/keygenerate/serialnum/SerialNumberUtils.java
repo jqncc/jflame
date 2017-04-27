@@ -24,7 +24,7 @@ public final class SerialNumberUtils {
      * @return
      */
     public static String millisAndRandomNo(int randomCount) {
-        return System.currentTimeMillis() + RandomStringUtils.random(randomCount);
+        return System.currentTimeMillis() + RandomStringUtils.randomNumeric(randomCount);
     }
 
     /**
@@ -34,7 +34,7 @@ public final class SerialNumberUtils {
      * @return
      */
     public static String timeAndRandomNo(int randomCount) {
-        return DateHelper.formatNow("yyMMddHHmmssSSS") + RandomStringUtils.random(randomCount);
+        return DateHelper.formatNow("yyMMddHHmmssSSS") + RandomStringUtils.randomNumeric(randomCount);
     }
 
     /**

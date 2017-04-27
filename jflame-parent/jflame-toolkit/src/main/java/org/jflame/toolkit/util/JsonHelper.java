@@ -103,8 +103,11 @@ public final class JsonHelper {
      * @return
      */
     public static <T> List<T> parseArray(String jsonStr, Class<T> elementClazz) {
-
         return JSON.parseArray(jsonStr, elementClazz);
+    }
+    
+    public static <T> List<T> parseArray(String jsonStr, TypeReference<T> type) {
+        return JSON.parseObject(jsonStr, type.getType());
     }
 
     /**

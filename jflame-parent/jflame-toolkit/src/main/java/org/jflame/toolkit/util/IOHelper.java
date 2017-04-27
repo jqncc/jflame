@@ -3,6 +3,8 @@ package org.jflame.toolkit.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -111,6 +113,21 @@ public final class IOHelper {
      */
     public static long copy(InputStream input, OutputStream output) throws IOException {
         return copy(input, output, new byte[DEFAULT_BUFFER_SIZE]);
+    }
+
+    /**
+     * 读取文件到输出流
+     * @param file 文件
+     * @param output 输出流
+     * @return
+     * @throws IOException
+     */
+    public static long copy(File file, OutputStream output) throws IOException {
+        try (FileInputStream input = new FileInputStream(file)) {
+            return copy(input, output, new byte[DEFAULT_BUFFER_SIZE]);
+        } catch (IOException e) {
+            throw e;
+        }
     }
 
     /**

@@ -158,9 +158,13 @@ public final class PropertiesHelper {
      */
     private Properties loadProperties(String... resourcesPaths) {
         Properties props = new Properties();
+        ClassLoader classLoader =Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = getClass().getClassLoader();
+        }
 
         for (String location : resourcesPaths) {
-            try (InputStream is = PropertiesHelper.class.getResourceAsStream(location)) {
+            try (InputStream is = classLoader.getResourceAsStream(location)) {
                 props.load(is);
             } catch (IOException ex) {
                 log.error("加载资源文件失败" + location, ex);

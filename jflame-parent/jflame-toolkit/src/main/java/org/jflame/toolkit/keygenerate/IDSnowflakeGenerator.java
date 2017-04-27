@@ -66,12 +66,12 @@ public final class IDSnowflakeGenerator {
      * 构造函数，默认workerid=ip%254，只适合各主机在同一局域网使用
      */
     public IDSnowflakeGenerator() {
-        InetAddress ip = IPAddressHelper.localIP4Address();
+        InetAddress ip = IPAddressHelper.getLocalIPAddress();
         if (ip != null) {
             long ipInt = TranscodeHelper.bytesToLong(ip.getAddress());
             this.workerId = ipInt % 254;
         } else {
-            this.workerId = Math.round(1);
+            this.workerId = random.nextInt(254);
         }
         this.datacenterId = 1L;
     }

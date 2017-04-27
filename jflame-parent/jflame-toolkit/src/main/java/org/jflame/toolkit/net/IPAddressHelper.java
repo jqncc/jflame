@@ -1,6 +1,5 @@
 package org.jflame.toolkit.net;
 
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -9,9 +8,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.toolkit.util.StringHelper;
 import org.jflame.toolkit.util.ValidatorHelper;
 
 /**
@@ -27,84 +25,100 @@ public final class IPAddressHelper {
      * @return List&lt;InetAddress&gt;
      * @throws SocketException
      */
-    public static List<InetAddress> getAllAddress() {
+    public static List<InetAddress> getAllIPAddress() throws SocketException {
         List<InetAddress> ips = new ArrayList<>(2);
-        try {
-            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            NetworkInterface current = null;
-            while (allNetInterfaces.hasMoreElements()) {
-                current = allNetInterfaces.nextElement();
-                if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
-                    continue;
+        Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+        NetworkInterface current = null;
+        while (allNetInterfaces.hasMoreElements()) {
+            current = allNetInterfaces.nextElement();
+            if (!current.isUp() || current.isLoopback() || current.isVirtual()) {
+                continue;
+            }
+            Enumeration<InetAddress> addresses = current.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress addr = addresses.nextElement();
+                if (!addr.isLoopbackAddress() && !addr.isLinkLocalAddress() && !addr.isAnyLocalAddress()) {
+                    ips.add(addr);
                 }
-                Enumeration<InetAddress> addresses = current.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if (!addr.isLoopbackAddress()) {
-                        ips.add(addr);
-                    }
+            }
+        }
+        return ips;
+    }
+
+    /**
+     * 返回本机ip地址，优先取外网地址，无外网地址返回局域网地址
+     * 
+     * @return
+     */
+    public static String getHostIP() {
+        List<InetAddress> allIps;
+        InetAddress realIPAddr = null;
+        try {
+            allIps = getAllIPAddress();
+            for (InetAddress inetAddress : allIps) {
+                realIPAddr = inetAddress;
+                if (!inetAddress.isSiteLocalAddress()) {
+                    break;
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return realIPAddr != null ? realIPAddr.getHostAddress() : "";
+    }
+
+    /**
+     * 获取本机局域网ip地址
+     * 
+     * @return InetAddress
+     */
+    public static InetAddress getLocalIPAddress() {
+        List<InetAddress> allIps;
+        try {
+            allIps = getAllIPAddress();
+            for (InetAddress inetAddress : allIps) {
+                if (inetAddress.isSiteLocalAddress()) {
+                    return inetAddress;
                 }
             }
         } catch (SocketException e) {
             e.printStackTrace();
         }
 
-        return ips;
-    }
-
-    /**
-     * 获取本机局域网ipv4地址
-     * 
-     * @return InetAddress
-     * @throws SocketException
-     */
-    public static InetAddress localIP4Address() {
-        List<InetAddress> allIps = getAllAddress();
-        for (InetAddress inetAddress : allIps) {
-            if (inetAddress.isSiteLocalAddress() && inetAddress instanceof Inet4Address) {
-                return inetAddress;
-            }
-        }
         return null;
     }
 
     /**
-     * 获取本机局域网ipv4地址字符串
+     * 获取本机局域网ip字符串,无法获取ip返回空字符
      * 
-     * @return ipv4地址
+     * @return
      */
-    public static String localIP4Str() {
-        return toString(localIP4Address());
+    public static String getLocalIP() {
+        InetAddress addr = getLocalIPAddress();
+        return addr != null ? addr.getHostAddress() : "";
     }
 
     /**
-     * 返回本机所有ip的字符串表示形式
+     * 返回本机所有ip字符串
      * 
      * @return 本机所有ip字符串
      */
-    public static String[] getAllAddressStr() {
-        List<InetAddress> ips = getAllAddress();
+    public static String[] getAllIPs() {
+        List<InetAddress> ips;
         String[] ipStrArray = null;
-        if (ips != null) {
-            ipStrArray = new String[ips.size()];
-            for (int i = 0; i < ipStrArray.length; i++) {
-                ipStrArray[i] = toString(ips.get(i));
+        try {
+            ips = getAllIPAddress();
+            if (ips != null) {
+                ipStrArray = new String[ips.size()];
+                for (int i = 0; i < ipStrArray.length; i++) {
+                    ipStrArray[i] = ips.get(i).getHostAddress();
+                }
             }
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
-        return ipStrArray;
-    }
 
-    /**
-     * 返回指定ip地址的字符串表示形式
-     * 
-     * @param ipAddress
-     * @return ip地址字符串
-     */
-    public static String toString(InetAddress ipAddress) {
-        if (ipAddress != null) {
-            return StringUtils.substringAfter(ipAddress.toString(), "/");
-        }
-        return "";
+        return ipStrArray;
     }
 
     /**
@@ -114,14 +128,9 @@ public final class IPAddressHelper {
      * @return
      * @throws UnknownHostException
      */
-    public static String bytesToIpstr(byte[] ipBytes) {
-        InetAddress ip;
-        try {
-            ip = InetAddress.getByAddress(ipBytes);
-        } catch (UnknownHostException e) {
-            throw new ConvertException(e);
-        }
-        return toString(ip);
+    public static String fromBytes(byte[] ipBytes) throws UnknownHostException {
+        InetAddress ip = InetAddress.getByAddress(ipBytes);
+        return ip.getHostAddress();
     }
 
     /**
@@ -129,15 +138,11 @@ public final class IPAddressHelper {
      * 
      * @param ipStr 字符串形式的ip
      * @return 字节数组形式的ip
+     * @throws UnknownHostException
      */
-    public static byte[] ipstrToBytes(String ipStr) {
+    public static byte[] toBytes(String ipStr) throws UnknownHostException {
         if (isIP(ipStr)) {
-            InetAddress ip;
-            try {
-                ip = InetAddress.getByName(ipStr);
-            } catch (UnknownHostException e) {
-                throw new ConvertException(e);
-            }
+            InetAddress ip = InetAddress.getByName(ipStr);
             return ip.getAddress();
         } else {
             throw new ConvertException("不正确的ip:" + ipStr);
@@ -166,10 +171,10 @@ public final class IPAddressHelper {
      * @return
      */
     public static boolean isIPv4(String ipv4) {
-        if (StringUtils.isEmpty(ipv4) || ipv4.length() < 7 || ipv4.length() > 15) {
+        if (StringHelper.isEmpty(ipv4)) {
             return false;
         }
-        return ValidatorHelper.regex(ipv4, REGEX_IPV4);
+        return ValidatorHelper.regex(ipv4.trim(), REGEX_IPV4);
     }
 
     /**
@@ -179,24 +184,42 @@ public final class IPAddressHelper {
      * @return
      */
     public static boolean isIPv6(String ipv6) {
-        if (StringUtils.isEmpty(ipv6)) {
+        if (StringHelper.isEmpty(ipv6)) {
             return false;
         }
+        ipv6 = ipv6.trim();
         return ValidatorHelper.regex(ipv6, REGEX_IPV6_STD) || ValidatorHelper.regex(ipv6, REGEX_IPV6_HEX_COMPRESSED);
     }
 
     /**
      * 判断字符串是否是个ip地址，支持ipv6 or ipv4
      * 
-     * @param ip
+     * @param ip ip地址字符
      * @return
      */
     public static boolean isIP(String ip) {
         return isIPv4(ip) || isIPv6(ip);
     }
 
-    /*
-     * public static void main(String[] args) throws SocketException { InetAddress op = localIP4Address();
-     * System.out.println(localIP4Str()); System.out.println(localIP4Address().toString()); }
+    /**
+     * 是否是局域网ip地址，不包括回环ip，广播ip
+     * 
+     * @param ip ip地址字符
+     * @return
      */
+    public static boolean isLanIP(String ip) {
+        if (StringHelper.isEmpty(ip)) {
+            return false;
+        }
+        try {
+            InetAddress ipAddr = InetAddress.getByName(ip.trim());
+            return ipAddr.isSiteLocalAddress();
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getHostIP());
+    }
 }
