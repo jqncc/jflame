@@ -1,4 +1,4 @@
-package org.jflame.toolkit.keygenerate.serialnum;
+package org.jflame.toolkit.key.serialnum;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;

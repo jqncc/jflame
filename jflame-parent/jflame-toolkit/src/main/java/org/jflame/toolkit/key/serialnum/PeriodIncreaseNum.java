@@ -1,4 +1,4 @@
-package org.jflame.toolkit.keygenerate.serialnum;
+package org.jflame.toolkit.key.serialnum;
 
 /**
  * 限定时间内自增数.即指定时间内自增,超过时间后重新计数.

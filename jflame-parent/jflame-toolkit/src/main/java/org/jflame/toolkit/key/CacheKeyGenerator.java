@@ -1,4 +1,4 @@
-package org.jflame.toolkit.keygenerate;
+package org.jflame.toolkit.key;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

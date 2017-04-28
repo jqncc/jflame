@@ -1,4 +1,4 @@
-package org.jflame.toolkit.keygenerate.serialnum;
+package org.jflame.toolkit.key.serialnum;
 
 /**
  * 循环递增数.原子数每次+1递增，到达最大值时重新从初始值开始递增。

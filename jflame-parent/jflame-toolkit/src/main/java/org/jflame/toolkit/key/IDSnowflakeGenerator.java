@@ -1,4 +1,4 @@
-package org.jflame.toolkit.keygenerate;
+package org.jflame.toolkit.key;
 
 import java.net.InetAddress;
 import java.util.Random;
