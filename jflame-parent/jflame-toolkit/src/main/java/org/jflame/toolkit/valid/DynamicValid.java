@@ -9,37 +9,33 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+import org.jflame.toolkit.valid.DynamicValidator.ValidRule;
+
 /**
- * 电话或手机号校验注解
- * 
+ * 动态验证注解,使用指定的内置验证规则验证
  * @author yucan.zhang
+ *
  */
-@Constraint(validatedBy = { PhoneValidator.class })
+@Constraint(validatedBy = { DynamicValidator.class })
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE,ElementType.METHOD,ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Phone {
+public @interface DynamicValid {
 
     /**
      * 错误描述
      * 
      * @return
      */
-    String message() default "{valid.telOrphone}";
+    String message();
 
     /**
-     * 测试手机号
+     * 指定验证规则
      * 
+     * @see org.jflame.toolkit.valid.DynamicValidator.ValidRule
      * @return
      */
-    boolean testMoble() default true;
-
-    /**
-     * 测试电话号
-     * 
-     * @return
-     */
-    boolean testTel() default true;
+    ValidRule rule();
 
     /**
      * 校验分组

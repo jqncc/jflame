@@ -34,6 +34,7 @@ import org.jflame.toolkit.util.ChineseHelper;
  * <li>字符串长度</li>
  * <li>是否是字母或数字或下划线</li>
  * <li>是否是数字</li>
+ * <li>是否是字母</li>
  * </ul>
  * 
  * @author zyc
@@ -206,7 +207,7 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 检查是否包含可能引起sql注入的字符
+     * 检查是否包含可能引起sql注入的字符*%\=<>`';?&!
      *
      * @param str
      * @return 不包含返回true
