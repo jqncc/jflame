@@ -13,8 +13,8 @@ import org.jflame.toolkit.valid.DynamicValidator.ValidRule;
 
 /**
  * 动态验证注解,使用指定的内置验证规则验证
+ * 
  * @author yucan.zhang
- *
  */
 @Constraint(validatedBy = { DynamicValidator.class })
 @Documented
@@ -30,12 +30,12 @@ public @interface DynamicValid {
     String message();
 
     /**
-     * 指定验证规则
+     * 指定验证规则,多条规则是and关系
      * 
      * @see org.jflame.toolkit.valid.DynamicValidator.ValidRule
      * @return
      */
-    ValidRule rule();
+    ValidRule[] rules();
 
     /**
      * 校验分组
@@ -45,6 +45,8 @@ public @interface DynamicValid {
     Class<?>[] groups() default {};
 
     /**
+     * 用于同一属性不同条件时的验证区分
+     * 
      * @return
      */
     Class<? extends Payload>[] payload() default {};

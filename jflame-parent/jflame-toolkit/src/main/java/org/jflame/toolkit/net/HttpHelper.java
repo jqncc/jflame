@@ -37,6 +37,7 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
+import org.jflame.toolkit.common.bean.KeyValuePair;
 import org.jflame.toolkit.common.bean.NameValuePair;
 import org.jflame.toolkit.exception.RemoteAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
@@ -220,7 +221,7 @@ public final class HttpHelper {
         log.debug("发起http请求:url={},方式={},参数={}", requestUrl, this.method, ArrayUtils.toString(params));
         try {
             if (CollectionHelper.isNotNullAndEmpty(params)) {
-                paramBytes = StringHelper.getBytes(NameValuePair.toUrlParam(params), getCharset());
+                paramBytes = StringHelper.getBytes(KeyValuePair.toUrlParam(params), getCharset());
             }
             response = sendRequest(paramBytes, new DefalutResponse(0));
         } catch (TranscodeException e) {

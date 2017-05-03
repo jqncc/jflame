@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
+import javax.validation.Payload;
 
 /**
  * 两个属性相等校验注解，放类型上
@@ -46,4 +47,11 @@ public @interface EqField {
      * @return
      */
     String eqField();
+
+    /**
+     * 用于同一属性不同条件时的验证区分
+     * 
+     * @return
+     */
+    Class<? extends Payload>[] payload() default {};
 }

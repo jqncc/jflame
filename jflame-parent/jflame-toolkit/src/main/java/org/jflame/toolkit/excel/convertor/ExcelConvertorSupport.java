@@ -15,7 +15,7 @@ import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.util.StringHelper;
 
 @SuppressWarnings("rawtypes")
-public class ExcelConvertorSupport {
+public final class ExcelConvertorSupport {
 
     private static Map<String,ICellValueConvertor> customConvertors = new ConcurrentHashMap<>();
     private static Map<Class,ICellValueConvertor> defaultConvertors = new HashMap<>();

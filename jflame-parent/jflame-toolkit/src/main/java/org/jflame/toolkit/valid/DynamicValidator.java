@@ -20,15 +20,15 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,Object
         /**
          * 手机
          */
-        mobile, 
+        mobile,
         /**
          * 电话号
          */
-        tel, 
+        tel,
         /**
          * 电话或手机号
          */
-        mobileOrTel, 
+        mobileOrTel,
         /**
          * 身份证验证
          */
@@ -40,54 +40,60 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,Object
         /**
          * 字母,数字或下划线
          */
-        letterNumOrline, 
+        letterNumOrline,
         /**
          * ip地址
          */
-        ip, 
+        ip,
         /**
          * 不包含特殊字符*%\=<>`';?&!
          */
         safeChar
     }
 
-    private ValidRule rule;
+    private ValidRule[] rules;
 
     @Override
     public void initialize(DynamicValid constraintAnnotation) {
-        rule = constraintAnnotation.rule();
+        rules = constraintAnnotation.rules();
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         boolean flag = false;
-        switch (rule) {
-            case mobile:
-                flag = ValidatorHelper.isMobileOrTel((String) value, 0);
+        for (ValidRule rule : rules) {
+            flag = false;
+            switch (rule) {
+                case mobile:
+                    flag = ValidatorHelper.isMobileOrTel((String) value, 0);
+                    break;
+                case tel:
+                    flag = ValidatorHelper.isMobileOrTel((String) value, 1);
+                    break;
+                case mobileOrTel:
+                    flag = ValidatorHelper.isMobileOrTel((String) value, 2);
+                    break;
+                case idcard:
+                    flag = ValidatorHelper.isIDCard((String) value);
+                    break;
+                case letter:
+                    flag = ValidatorHelper.isLetterOrNumOrUnderline((String) value);
+                    break;
+                case letterNumOrline:
+                    flag = ValidatorHelper.isLetter((String) value);
+                    break;
+                case ip:
+                    flag = ValidatorHelper.isIPAddress((String) value);
+                    break;
+                case safeChar:
+                    flag = ValidatorHelper.safeChar((String) value);
+                    break;
+                default:
+                    break;
+            }
+            if (!flag) {
                 break;
-            case tel:
-                flag = ValidatorHelper.isMobileOrTel((String) value, 1);
-                break;
-            case mobileOrTel:
-                flag = ValidatorHelper.isMobileOrTel((String) value, 2);
-                break;
-            case idcard:
-                flag = ValidatorHelper.isIDCard((String) value);
-                break;
-            case letter:
-                flag = ValidatorHelper.isLetterOrNumOrUnderline((String) value);
-                break;
-            case letterNumOrline:
-                flag = ValidatorHelper.isLetter((String) value);
-                break;
-            case ip:
-                flag = ValidatorHelper.isIPAddress((String) value);
-                break;
-            case safeChar:
-                flag = ValidatorHelper.safeChar((String) value);
-                break;
-            default:
-                break;
+            }
         }
         return flag;
     }

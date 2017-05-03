@@ -28,14 +28,25 @@ public final class IPAreaExtractor {
     private ByteBuffer dataBuffer;
     private ByteBuffer indexBuffer;
     private ReentrantLock lock = new ReentrantLock();
-    private final static IPAreaExtractor instance = new IPAreaExtractor();
+    private static IPAreaExtractor instance;
     
     private IPAreaExtractor() {
         //ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
         init();
     }
 
+    /**
+     * 返回IPAreaExtractor实例
+     * @return
+     */
     public static IPAreaExtractor getInstance() {
+        if (instance != null) {
+            synchronized (IPAreaExtractor.class) {
+                if (instance != null) {
+                    instance = new IPAreaExtractor();
+                }
+            }
+        }
         return instance;
     }
 

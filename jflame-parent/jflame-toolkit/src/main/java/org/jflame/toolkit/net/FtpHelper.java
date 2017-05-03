@@ -60,7 +60,6 @@ public final class FtpHelper {
         this.ftpServerUrl = ftpServerUrl;
         this.ftpUser = ftpUser;
         this.ftpPassword = ftpPassword;
-
     }
 
     /**
