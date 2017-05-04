@@ -17,8 +17,8 @@ import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.ISysConfig;
-import org.jflame.web.constants.WebConstant.MimeImages;
+import org.jflame.web.config.ISysConfig;
+import org.jflame.web.config.WebConstant.MimeImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class LoadImageServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
-    private final String SAVE_PATH_IMAGE_CONFIGKEY = "save.path.image";
+    private final String SAVE_PATH_IMAGE_CONFIGKEY = "image.save.path";
     private String savePath;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

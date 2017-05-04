@@ -24,7 +24,7 @@ import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.ISysConfig;
+import org.jflame.web.config.ISysConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public class CsrfFilter implements Filter {
     private boolean isWhiteReq(String referUrl, HttpServletRequest request) {
         logger.debug("crsf filter referurl:{}", referUrl);
         boolean isSafeUri = false;
-        if (StringUtils.isBlank(referUrl)) {
+        if (StringHelper.isEmpty(referUrl)) {
             isSafeUri = true;
         } else {
             URI refererUri = URI.create(referUrl);

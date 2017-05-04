@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author zyc
  */
-public class SpringContextHolder implements ApplicationContextAware {
+public final class SpringContextHolder implements ApplicationContextAware {
 
     private static ApplicationContext springContext;
 
@@ -75,4 +75,5 @@ public class SpringContextHolder implements ApplicationContextAware {
     public static String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
         return springContext.getMessage(code, args, defaultMessage, locale);
     }
+
 }

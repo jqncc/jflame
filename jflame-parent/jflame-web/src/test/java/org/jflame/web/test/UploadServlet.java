@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.util.JsonHelper;
-import org.jflame.web.constants.WebConstant;
+import org.jflame.web.config.WebConstant;
 import org.jflame.web.util.upload.UploadDownUtils;
 import org.jflame.web.util.upload.UploadItem;
 

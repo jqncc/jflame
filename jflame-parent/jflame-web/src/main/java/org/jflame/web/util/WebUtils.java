@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.constants.WebConstant;
+import org.jflame.web.config.WebConstant;
 
 /**
  * web环境常用工具方法

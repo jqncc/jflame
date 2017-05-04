@@ -1,7 +1,7 @@
 package org.jflame.test;
 
 import org.jflame.toolkit.reflect.SpiFactory;
-import org.jflame.web.ISysConfig;
+import org.jflame.web.config.ISysConfig;
 import org.junit.Test;
 
 
