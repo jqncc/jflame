@@ -2,10 +2,12 @@ package org.jflame.toolkit.file;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.jflame.toolkit.net.HttpHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +18,9 @@ import org.slf4j.LoggerFactory;
  */
 public final class PropertiesHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertiesHelper.class);
     private final Properties properties;
+    private final Pattern varPattern = Pattern.compile("\\$\\{([^\\}]+)\\}");
 
     /**
      * 构造函数.
@@ -151,6 +154,7 @@ public final class PropertiesHelper {
         return properties.containsKey(key);
     }
 
+    
     /**
      * 载入多个文件
      * 
@@ -158,7 +162,7 @@ public final class PropertiesHelper {
      */
     private Properties loadProperties(String... resourcesPaths) {
         Properties props = new Properties();
-        ClassLoader classLoader =Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
             classLoader = getClass().getClassLoader();
         }
@@ -170,6 +174,27 @@ public final class PropertiesHelper {
                 log.error("加载资源文件失败" + location, ex);
             }
         }
+        // 替换变量${}
+        StringBuffer buffer = new StringBuffer();
+        for (Entry<Object,Object> entry : props.entrySet()) {
+            String value = properties.getProperty((String) entry.getKey());
+            Matcher matcher = varPattern.matcher(value);
+            buffer.setLength(0);
+            while (matcher.find()) {
+                String matcherKey = matcher.group(1);
+                String matchervalue = properties.getProperty(matcherKey);
+                // 找系统环境变量
+                if (matchervalue == null) {
+                    matchervalue = System.getProperty(matcherKey);
+                }
+                if (matchervalue != null) {
+                    matcher.appendReplacement(buffer, matchervalue);
+                }
+            }
+            matcher.appendTail(buffer);
+            props.put(entry.getKey(), buffer.toString());
+        }
         return props;
     }
+    
 }
