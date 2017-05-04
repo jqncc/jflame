@@ -7,9 +7,9 @@ import org.jflame.toolkit.reflect.ReflectionHelper;
 
 /**
  * 属性相等比较
+ * 
  * @see EqField
  * @author yucan.zhang
- *
  */
 public class EqFieldValidator implements ConstraintValidator<EqField,Object> {
 
@@ -36,8 +36,7 @@ public class EqFieldValidator implements ConstraintValidator<EqField,Object> {
             if (!flag) {
                 String messageTemplate = context.getDefaultConstraintMessageTemplate();
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(messageTemplate).addPropertyNode(eqField)
-                        .addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(messageTemplate).addNode(eqField).addConstraintViolation();
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();

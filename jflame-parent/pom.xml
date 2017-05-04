@@ -42,17 +42,20 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${version.slf4j}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${version.logback}</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- 代码直接调用common-logging会被桥接到slf4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${version.slf4j}</version>
+            <scope>provided</scope>
         </dependency>
 	</dependencies>
 	<!-- <dependencyManagement>

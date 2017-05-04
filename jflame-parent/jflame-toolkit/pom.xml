@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>5.3.2.Final</version>
+			<version>4.3.0.Final</version>
 		</dependency>
 		<!--第三方加密组件 <dependency> <groupId>org.bouncycastle</groupId> <artifactId>bcprov-jdk16</artifactId> 
 			<version>1.46</version> </dependency> -->
