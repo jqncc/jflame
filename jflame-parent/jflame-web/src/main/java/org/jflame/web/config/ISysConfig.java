@@ -13,13 +13,15 @@ public interface ISysConfig {
 
     /**
      * 加载所有配置参数
-     * @throws BusinessException 
+     * 
+     * @throws BusinessException
      */
     void loadConfig() throws BusinessException;
 
     /**
      * 重载所有配置参数
-     * @throws BusinessException 
+     * 
+     * @throws BusinessException
      */
     void reloadConfig() throws BusinessException;
 
@@ -39,10 +41,34 @@ public interface ISysConfig {
     Object getParam(String paramKey);
 
     /**
-     * 根据参数名取得参数字符串值
+     * 取得参数文本值
      * 
      * @param paramKey 配置参数名
      * @return
      */
     String getTextParam(String paramKey);
+
+    /**
+     * 取得参数布尔值,参数不存在返回null
+     * 
+     * @param paramKey 配置参数名
+     * @return
+     */
+    Boolean getBoolParam(String paramKey);
+
+    /**
+     * 取得参数整形值
+     * 
+     * @param paramKey 配置参数名
+     * @return
+     */
+    Integer getIntParam(String paramKey);
+
+    /**
+     * 取得参数长整形值
+     * 
+     * @param paramKey 配置参数名
+     * @return
+     */
+    Long getLongParam(String paramKey);
 }

@@ -20,7 +20,7 @@ public class StringConvertor implements ICellValueConvertor<String> {
             formator.setGroupingUsed(false);// 不分组，避免科学计数等
             value = formator.format(cellValue);
         } else if (cellValue instanceof Date) {
-            value = DateHelper.format((Date) cellValue, DateHelper.DATE_YYYY_MM_DD_HH_mm_ss);
+            value = DateHelper.format((Date) cellValue, DateHelper.YYYY_MM_DD_HH_mm_ss);
         } else {
             value = String.valueOf(cellValue);
         }

@@ -17,7 +17,6 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.InvalidFileNameException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.file.FileHelper;
@@ -80,22 +79,9 @@ public class UploadDownUtils {
         Map<String,List<String>> resultMap = new HashMap<>();
         String ext;// 扩展名
         String newName;// 最终文件名
-        String savePath = null;// 最终保存路径
         Path basePath = Paths.get(props.getSavePath());// 给定的根路径
+        String savePath = props.createSavePath();// 最终保存路径
         int i = 1;
-        try {
-            if (props.isCreateDateDir()) {
-                savePath = FileHelper.createDateDir(props.getSavePath(), true, true);
-            } else {
-                savePath = props.getSavePath();
-                File saveDir = new File(savePath);
-                if (!saveDir.exists()) {
-                    saveDir.mkdirs();
-                }
-            }
-        } catch (Exception e) {
-            throw new UploadDownException("创建上传文件夹失败" + savePath, e);
-        }
         
         for (FileItem item : items) {
             if (!item.isFormField()) {
@@ -114,13 +100,12 @@ public class UploadDownUtils {
                 }catch (InvalidFileNameException e){
                     newName=e.getName();
                 }
-                //urlencode,转换汉字和特殊字符
-                newName=TranscodeHelper.urlencode(newName);
                 ext = FileHelper.getExtension(newName, true);
-                if (ArrayUtils.isNotEmpty(props.getAllowedFiles())
-                        && (ext.isEmpty() || !ArrayUtils.contains(props.getAllowedFiles(), ext.substring(1)))) {
+                if (!props.checkFileType(ext.isEmpty()?ext:ext.substring(1))) {
                     throw new UploadDownException("不允许上传的文件类型:" + ext);
                 }
+                //urlencode,转换汉字和特殊字符
+                newName=TranscodeHelper.urlencode(newName);
                 // 存在同名文件,或编码后文件名太长，重命名
                 if (FileHelper.existSameNameFile(savePath, newName)||newName.length()>50) {
                     newName =String.valueOf(newName.hashCode())+System.nanoTime() + ext;

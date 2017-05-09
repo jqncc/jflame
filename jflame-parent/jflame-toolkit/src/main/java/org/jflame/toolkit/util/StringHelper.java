@@ -41,6 +41,28 @@ public final class StringHelper {
     public static boolean isNotEmpty(CharSequence str) {
         return StringUtils.isNotEmpty(str);
     }
+    
+    /**
+     * 检查字符串中是否包含给定的任意字符
+     * @param str
+     * @param searchChars
+     * @return
+     */
+    public static boolean containsAny(CharSequence str, char... searchChars) {
+        return StringUtils.containsAny(str, searchChars);
+    }
+    
+    /**
+     * 以指定分隔符组合数组元素为字符串,示例:<br>
+     * StringHelper.join(["a", "b", "c"], ',') = "a,b,c"
+     * 
+     * @param array 数组
+     * @param separator 分隔符
+     * @return
+     */
+    public static String join(Object[] array, char separator) {
+        return StringUtils.join(array, separator);
+    }
 
     /**
      * 将url参数字符串转为Map 如:x=1&y=2转为 map.put("x","1").

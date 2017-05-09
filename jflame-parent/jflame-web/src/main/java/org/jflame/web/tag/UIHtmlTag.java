@@ -20,11 +20,10 @@ public abstract class UIHtmlTag extends TagSupport
     protected String cssStyle;//标签css style
     protected String cssClass;//标签 css class
     /**
-     * 数据源,具体类型由子类定义或实现:<br>
-     * 
+     * 设置数据源
      */
-    protected Object data;
-    
+    protected abstract void setDataSource();
+
     /**
      * 设置标签属性
      * @param strBuf
@@ -76,15 +75,6 @@ public abstract class UIHtmlTag extends TagSupport
         this.cssClass = cssClass;
     }
 
-    public Object getData()
-    {
-        return data;
-    }
-
-    public void setData(Object data)
-    {
-        this.data = data;
-    }
 
     public String getName()
     {

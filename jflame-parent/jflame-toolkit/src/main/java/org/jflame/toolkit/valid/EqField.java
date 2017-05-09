@@ -16,7 +16,7 @@ import javax.validation.Payload;
  */
 @Constraint(validatedBy = { EqFieldValidator.class })
 @Documented
-@Target({ ElementType.ANNOTATION_TYPE,ElementType.TYPE })
+@Target({ ElementType.ANNOTATION_TYPE,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EqField {
 

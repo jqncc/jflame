@@ -9,8 +9,6 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import org.jflame.toolkit.valid.DynamicValidator.ValidRule;
-
 /**
  * 动态验证注解,使用指定的内置验证规则验证
  * 
@@ -50,4 +48,45 @@ public @interface DynamicValid {
      * @return
      */
     Class<? extends Payload>[] payload() default {};
+    
+    /**
+     * 内置验证规则
+     * 
+     * @author yucan.zhang
+     */
+    public enum ValidRule {
+        /**
+         * 手机
+         */
+        mobile,
+        /**
+         * 电话号
+         */
+        tel,
+        /**
+         * 电话或手机号
+         */
+        mobileOrTel,
+        /**
+         * 身份证验证
+         */
+        idcard,
+        /**
+         * 字母
+         */
+        letter,
+        /**
+         * 字母,数字或下划线
+         */
+        letterNumOrline,
+        /**
+         * ip地址
+         */
+        ip,
+        /**
+         * 不包含特殊字符*%\=<>`';?&!
+         */
+        safeChar
+    }
+
 }

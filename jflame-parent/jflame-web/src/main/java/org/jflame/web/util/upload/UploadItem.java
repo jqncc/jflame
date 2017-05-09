@@ -1,5 +1,11 @@
 package org.jflame.web.util.upload;
 
+import java.io.File;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.jflame.toolkit.file.FileHelper;
+import org.jflame.toolkit.util.StringHelper;
+
 /**
  * 上传文件参数
  * 
@@ -76,6 +82,27 @@ public class UploadItem {
     }
 
     /**
+     * 创建保存文件夹,返回最终路径
+     * @throws UploadDownException 创建上传文件夹异常
+     * @return
+     */
+    public String createSavePath(){
+        try {
+            if (createDateDir) {
+                savePath = FileHelper.createDateDir(savePath, true, true);
+            } else {
+                File saveDir = new File(savePath);
+                if (!saveDir.exists()) {
+                    saveDir.mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            throw new UploadDownException("创建上传文件夹失败" + savePath, e);
+        }
+        return savePath;
+    }
+    
+    /**
      * 设置文件保存路径
      * 
      * @param savePath 保存路径,绝对路径
@@ -96,5 +123,46 @@ public class UploadItem {
     public void setCreateDateDir(boolean createDateDir) {
         this.createDateDir = createDateDir;
     }
-
+    
+    /**
+     * 检查单个文件是否超过大小
+     * @param fileSize 文件大小
+     * @return
+     */
+    public boolean checkSize(final long fileSize){
+        if (this.fileSize>0) {
+            return this.fileSize>=fileSize;
+        }
+        return true;
+    }
+    
+    /**
+     * 检查所有上传文件是否超过大小 
+     * @param totalFileSize
+     * @return
+     */
+    public boolean checkTotalSize(final long totalFileSize){
+        if (this.fileTotalSize>0) {
+            return this.fileTotalSize>=totalFileSize;
+        }
+        return true;
+    }
+    
+    /**
+     * 检查上传文件类型
+     * @param fileExtension 文件扩展名
+     * @return
+     */
+    public boolean checkFileType(final String fileExtension) {
+        if (StringHelper.isEmpty(fileExtension)) {
+            if (ArrayUtils.isEmpty(allowedFiles)) {
+                return true;
+            }
+        } else {
+            if (ArrayUtils.isNotEmpty(allowedFiles) && (ArrayUtils.contains(allowedFiles, fileExtension))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

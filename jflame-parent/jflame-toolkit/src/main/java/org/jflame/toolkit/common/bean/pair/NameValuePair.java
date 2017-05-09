@@ -1,4 +1,4 @@
-package org.jflame.toolkit.common.bean;
+package org.jflame.toolkit.common.bean.pair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Map.Entry;
  * 
  * @author yucan.zhang
  */
-public class NameValuePair extends KeyValuePair<String,String> implements Serializable {
+public class NameValuePair extends StrKeyPair<String> implements Serializable {
 
     private static final long serialVersionUID = -6678830111869172034L;
 
@@ -20,7 +20,7 @@ public class NameValuePair extends KeyValuePair<String,String> implements Serial
     }
 
     public String name() {
-        return getName();
+        return getKey();
     }
 
     public String value() {

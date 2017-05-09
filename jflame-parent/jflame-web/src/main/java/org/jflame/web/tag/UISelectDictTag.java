@@ -3,7 +3,8 @@ package org.jflame.web.tag;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.common.bean.pair.KeyValuePair;
+import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.util.CollectionHelper;
 /**
  * 生成select控件，数据源来自字典表
@@ -15,7 +16,7 @@ public class UISelectDictTag extends AbstractUISelectTag
     private String type;//字典类型
 
     @Override
-    protected List<NameValuePair> getBindData()
+    protected List<KeyValuePair<?,?>> getBindData()
     {
       /*  ApplicationContext ctx= WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext());
         IDictService service=(IDictService)ctx.getBean("dictServiceImpl");

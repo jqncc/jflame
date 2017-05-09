@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 import org.jflame.toolkit.valid.DynamicValid;
-import org.jflame.toolkit.valid.DynamicValidator.ValidRule;
+import org.jflame.toolkit.valid.DynamicValid.ValidRule;
 import org.jflame.toolkit.valid.EqField;
 
 @EqField(field = "password", eqField = "confirmPwd", message = "两次密码不一致")

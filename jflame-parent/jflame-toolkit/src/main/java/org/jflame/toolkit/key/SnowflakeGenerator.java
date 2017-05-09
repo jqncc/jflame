@@ -15,57 +15,44 @@ import org.jflame.toolkit.net.IPAddressHelper;
  * +41位时间戳，（当前时间戳 - 开始时间戳）<br />
  * +N位的数据机器位,数据中心位+机器位<br />
  * +M位序列，1毫秒内最多生成M位序列<br />
- * 
+ * <p><strong>注:单实例多线程安全,多实例可能产生重复id</strong>
  * @author yucan.zhang
  */
-public final class IDSnowflakeGenerator {
+public final class SnowflakeGenerator {
 
     // 开始该类生成ID的时间戳
     private final static long startTime = 1483436297001L;
-
     // 机器id所占的位数
     private final static long workerIdBits = 8L;
-
     // 数据中心标识id所占的位数
     private final static long datacenterIdBits = 2L;
-
     // 支持的最大机器id =255
     private final static long maxWorkerId = -1L ^ (-1L << workerIdBits);
-
     // 支持的最大数据标识id=3
     private final static long maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
-
     // 序列在id中占的位数,每毫秒能生成的序列
     private final static long sequenceBits = 12L;
-
     // 机器id向左移的位数
     private final static long workerIdLeftShift = sequenceBits;
-
     // 数据标识id向左移的位数
     private final static long datacenterIdLeftShift = workerIdBits + workerIdLeftShift;
-
     // 时间戳向左移的位置
     private final static long timestampLeftShift = datacenterIdBits + datacenterIdLeftShift;
-
     // 生成序列的掩码
     private final static long sequenceMask = -1 ^ (-1 << sequenceBits);
 
     private long workerId;
-
     private long datacenterId;
-
     // 同一个时间戳内生成的序列数，初始值是0，从0开始
-    private static long sequence = 0L;
-
+    private long sequence = 0L;
     // 上次生成id的时间戳
-    private static long lastTimestamp = -1L;
-
+    private long lastTimestamp = -1L;
     private Random random = new Random();
 
     /**
      * 构造函数，默认workerid=ip%254，只适合各主机在同一局域网使用
      */
-    public IDSnowflakeGenerator() {
+    public SnowflakeGenerator() {
         InetAddress ip = IPAddressHelper.getLocalIPAddress();
         if (ip != null) {
             long ipInt = TranscodeHelper.bytesToLong(ip.getAddress());
@@ -82,7 +69,7 @@ public final class IDSnowflakeGenerator {
      * @param workerId 主机id
      * @param datacenterId 机房id
      */
-    public IDSnowflakeGenerator(long workerId, long datacenterId) {
+    public SnowflakeGenerator(long workerId, long datacenterId) {
         if (workerId < 0 || workerId > maxWorkerId) {
             throw new IllegalArgumentException(String
                     .format("workerId[%d] is less than 0 or greater than maxWorkerId[%d].", workerId, maxWorkerId));
@@ -153,7 +140,7 @@ public final class IDSnowflakeGenerator {
         final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
         final Set<Long> set = new java.util.concurrent.CopyOnWriteArraySet<>();
 
-        final IDSnowflakeGenerator idWorker = new IDSnowflakeGenerator(0, 1);
+        final SnowflakeGenerator idWorker = new SnowflakeGenerator(0, 1);
 
         long l = System.currentTimeMillis();
         for (int i = 0; i < threadCount; i++) {
@@ -163,10 +150,10 @@ public final class IDSnowflakeGenerator {
                 public void run() {
                     int j = 0;
                     Long tmp;
-                    while (j < 20000) {
+                    while (j < 1000) {
                         tmp = idWorker.nextId();
                         set.add(tmp);
-                        // System.out.println(tmp);
+                        System.out.println(tmp);
                         j++;
                     }
                     countDownLatch.countDown();

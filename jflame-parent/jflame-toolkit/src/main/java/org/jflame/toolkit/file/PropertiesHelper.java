@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public final class PropertiesHelper {
 
     private static final Logger log = LoggerFactory.getLogger(PropertiesHelper.class);
-    private final Properties properties;
+    private final Properties properties=new Properties();
     private final Pattern varPattern = Pattern.compile("\\$\\{([^\\}]+)\\}");
 
     /**
@@ -29,7 +30,7 @@ public final class PropertiesHelper {
      * @throws IOException 
      */
     public PropertiesHelper(String... resourcesPaths) throws IOException {
-        properties = loadProperties(resourcesPaths);
+        loadProperties(resourcesPaths);
     }
 
     public Properties getProperties() {
@@ -162,8 +163,7 @@ public final class PropertiesHelper {
      * @param resourcesPaths 资源文件路径,路径以/开头从classpath下去，相对路径从此类所在的包下取资源
      * @throws IOException 
      */
-    private Properties loadProperties(String... resourcesPaths) throws IOException {
-        Properties props = new Properties();
+    private void loadProperties(String... resourcesPaths) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) {
             classLoader = getClass().getClassLoader();
@@ -171,33 +171,42 @@ public final class PropertiesHelper {
 
         for (String location : resourcesPaths) {
             try (InputStream is = classLoader.getResourceAsStream(location)) {
-                props.load(is);
+                if (is != null) {
+                    properties.load(is);
+                }
             } catch (IOException ex) {
                 log.error("加载资源文件失败" + location, ex);
                 throw ex;
             }
         }
         // 替换变量${}
-        StringBuffer buffer = new StringBuffer();
-        for (Entry<Object,Object> entry : props.entrySet()) {
-            String value = properties.getProperty((String) entry.getKey());
-            Matcher matcher = varPattern.matcher(value);
-            buffer.setLength(0);
-            while (matcher.find()) {
-                String matcherKey = matcher.group(1);
-                String matchervalue = properties.getProperty(matcherKey);
-                // 找系统环境变量
-                if (matchervalue == null) {
-                    matchervalue = System.getProperty(matcherKey);
+        if (!properties.isEmpty()) {
+            StringBuffer buffer = new StringBuffer();
+            for (Entry<Object,Object> entry : properties.entrySet()) {
+                String value = properties.getProperty((String) entry.getKey());
+                Matcher matcher = varPattern.matcher(value);
+                buffer.setLength(0);
+                while (matcher.find()) {
+                    String matcherKey = matcher.group(1);
+                    String matchervalue = properties.getProperty(matcherKey);
+                    // 找系统环境变量
+                    if (matchervalue == null) {
+                        matchervalue = System.getProperty(matcherKey);
+                    }
+                    if (matchervalue != null) {
+                        //替换特殊字符\$
+                        if (StringHelper.containsAny(matchervalue, '\\', '$')) {
+                            matcher.appendReplacement(buffer,
+                                    matchervalue.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$"));
+                        } else {
+                            matcher.appendReplacement(buffer, matchervalue);
+                        }
+                    }
                 }
-                if (matchervalue != null) {
-                    matcher.appendReplacement(buffer, matchervalue);
-                }
+                matcher.appendTail(buffer);
+                properties.put(entry.getKey(), buffer.toString());
             }
-            matcher.appendTail(buffer);
-            props.put(entry.getKey(), buffer.toString());
         }
-        return props;
     }
     
 }

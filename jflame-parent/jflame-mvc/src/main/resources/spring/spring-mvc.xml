@@ -6,7 +6,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
-
 	<context:component-scan base-package="com.ghgcn.xxx.action" use-default-filters="false">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
@@ -22,6 +21,7 @@
 					<list>
 						<value>application/json;charset=UTF-8</value>
 						<value>text/html;charset=UTF-8</value>
+						<value>text/plain;charset=UTF-8</value>
 					</list>
 				</property>
 				<property name="fastJsonConfig">
@@ -29,8 +29,12 @@
 						<property name="serializerFeatures">
 							<list><!--设置null值也要输出，fastjson默认是关闭的 -->
 								<value>WriteMapNullValue</value>
-								<!--设置使用文本方式输出日期，fastjson默认是long -->
+								<!-- 设置使用文本方式输出日期，fastjson默认是long -->
 								<value>WriteDateUseDateFormat</value>
+								<!-- 关闭循环引用检测 -->
+								<value>DisableCircularReferenceDetect</value>
+								<!-- 兼容浏览器  -->
+								<value>BrowserCompatible</value>
 							</list>
 						</property>
 						<property name="charset" value="UTF-8" />
@@ -43,7 +47,7 @@
 	
     <mvc:default-servlet-handler />
 	<!-- 统一异常处理 -->
-	<bean id="exceptionResolver" class="com.ghgcn.activity.exception.MyExceptionResolver">
+	<bean id="exceptionResolver" class="org.jflame.mvc.support.MyExceptionResolver">
 		<property name="defaultErrorView" value="common/error" />
 		<property name="exceptionMappings">
 			<props>
@@ -78,7 +82,7 @@
 		</property>
 		<property name="useCodeAsDefaultMessage" value="false"/>
 		<property name="defaultEncoding" value="UTF-8" />
-		<property name="cacheSeconds" value="60" />
+		<property name="cacheSeconds" value="3600" />
     </bean> 
     <!--默认使用classpath下的 ValidationMessages.properties的多语言文件 -->
 	<bean id="validator"

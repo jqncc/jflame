@@ -6,8 +6,10 @@ import java.util.List;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.common.bean.pair.IKeyValuePair;
+import org.jflame.toolkit.common.bean.pair.KeyValuePair;
 import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * select标签抽象类
@@ -28,7 +30,7 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
         setAttributes(strBuf);
         strBuf.append(">");
         // 添加默认选项
-        if (defaultText != null || defaultValue != null)
+        if (StringHelper.isNotEmpty(defaultText) ||StringHelper.isNotEmpty(defaultValue))
         {
             if (defaultText == null)
                 defaultText = "-请选择-";
@@ -38,16 +40,16 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
             strBuf.append("\">").append(defaultText).append("</option>");
         }
 
-        List<NameValuePair> dataSource = getBindData();
+        List<? extends KeyValuePair<?,?>> dataSource = getBindData();
         if (!CollectionHelper.isNullOrEmpty(dataSource))
         {
-            for (NameValuePair nvPair : dataSource)
+            for (IKeyValuePair<?,?> nvPair : dataSource)
             {
-                strBuf.append("<option value=\"").append(nvPair.getValue());
+                strBuf.append("<option value=\"").append(nvPair.getKey());
                 strBuf.append("\"");
-                if (value != null && value.equals(nvPair.getValue()))
+                if (value != null && value.equals(nvPair.getKey()))
                     strBuf.append(" selected=\"selected\"");
-                strBuf.append(">").append(nvPair.getName()).append("</option>");
+                strBuf.append(">").append(nvPair.getValue()).append("</option>");
             }
         }
         strBuf.append("</select>");
@@ -61,12 +63,14 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
         return TagSupport.SKIP_BODY;
     }
 
+    @Override
+    protected void setDataSource() {};
     /**
      * 获取绑定的数据源
      * 
      * @return
      */
-    protected abstract List<NameValuePair> getBindData();
+    protected abstract List<? extends KeyValuePair<?,?>> getBindData();
 
     public String getValue()
     {

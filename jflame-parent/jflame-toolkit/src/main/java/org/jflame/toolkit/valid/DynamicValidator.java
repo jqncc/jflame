@@ -3,6 +3,8 @@ package org.jflame.toolkit.valid;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.jflame.toolkit.valid.DynamicValid.ValidRule;
+
 /**
  * 使用指定的内置验证规则验证
  * 
@@ -10,46 +12,6 @@ import javax.validation.ConstraintValidatorContext;
  * @author yucan.zhang
  */
 public class DynamicValidator implements ConstraintValidator<DynamicValid,Object> {
-
-    /**
-     * 内置验证规则
-     * 
-     * @author yucan.zhang
-     */
-    public enum ValidRule {
-        /**
-         * 手机
-         */
-        mobile,
-        /**
-         * 电话号
-         */
-        tel,
-        /**
-         * 电话或手机号
-         */
-        mobileOrTel,
-        /**
-         * 身份证验证
-         */
-        idcard,
-        /**
-         * 字母
-         */
-        letter,
-        /**
-         * 字母,数字或下划线
-         */
-        letterNumOrline,
-        /**
-         * ip地址
-         */
-        ip,
-        /**
-         * 不包含特殊字符*%\=<>`';?&!
-         */
-        safeChar
-    }
 
     private ValidRule[] rules;
 

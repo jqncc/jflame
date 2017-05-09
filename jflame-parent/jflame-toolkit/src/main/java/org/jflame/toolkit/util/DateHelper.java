@@ -22,27 +22,29 @@ public final class DateHelper {
     /**
      * 时间格式yyyy-MM-dd
      */
-    public static final String DATE_YYYY_MM_DD = "yyyy-MM-dd";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
     /**
      * 时间格式yyyy-MM-dd HH:mm:ss
      */
-    public static final String DATE_YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
     /**
      * 中文日期格式yyyy年MM月dd日
      */
-    public static final String CN_DATE_YYYY_MM_DD = "yyyy年MM月dd日";
+    public static final String CN_YYYY_MM_DD = "yyyy年MM月dd日";
     /**
      * 中文时间格式HH时mm分ss秒
      */
-    public static final String CN_TIME_HH_mm_ss = "HH时mm分ss秒";
+    public static final String CN_HH_mm_ss = "HH时mm分ss秒";
     /**
      * 时间格式yyyyMMddHHmmss
      */
-    public static final String DATE_yyyyMMddHHmmss = "yyyyMMddHHmmss";
+    public static final String yyyyMMddHHmmss = "yyyyMMddHHmmss";
     /**
      * 时间格式yyyyMMddHHmmssSSS
      */
-    public static final String DATE_yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
+    public static final String yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
+
+    public static final String[] formats = { YYYY_MM_DD,CN_YYYY_MM_DD,YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss };
 
     /**
      * 格式化时间
@@ -87,7 +89,7 @@ public final class DateHelper {
      * @return
      */
     public static String fullNow() {
-        return formatNow(DATE_YYYY_MM_DD_HH_mm_ss);
+        return formatNow(YYYY_MM_DD_HH_mm_ss);
     }
 
     /**
@@ -96,7 +98,7 @@ public final class DateHelper {
      * @return
      */
     public static String shortNow() {
-        return formatNow(DATE_YYYY_MM_DD);
+        return formatNow(YYYY_MM_DD);
     }
 
     /**
@@ -267,5 +269,5 @@ public final class DateHelper {
     public static boolean isSameDay(Date date1, Date date2) {
         return DateUtils.isSameDay(date1, date2);
     }
-    
+
 }

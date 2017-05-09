@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.file.PropertiesHelper;
+import org.jflame.toolkit.util.NumberHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,4 +101,63 @@ public class BaseSysConfig implements ISysConfig {
     }
   
     protected void loadFromDb(){}
+    
+    /**
+     * 设置参数
+     * @param paramKey 参数名
+     * @param value 参数值
+     */
+    protected void setParam(String paramKey,Object value){
+        paramMap.put(paramKey, value);
+    }
+    
+    /**
+     * 设置多个参数
+     * @param m 参数map
+     */
+    protected void setParams(Map<? extends String, ? extends Object> m){
+        paramMap.putAll(m);
+    }
+
+    @Override
+    public Boolean getBoolParam(String paramKey) {
+        Object value=getParam(paramKey);
+        if (value!=null) {
+            if (value instanceof Boolean) {
+                return (Boolean)value;
+            }else{
+                String valueText=String.valueOf(value);
+                return "1".equals(valueText)||"true".equalsIgnoreCase(valueText);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Integer getIntParam(String paramKey) {
+        Object value = getParam(paramKey);
+        if (value != null) {
+            if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        } else {
+            String valueText = String.valueOf(value);
+            return NumberHelper.parseNumber(valueText, Integer.class);
+        }
+        return null;
+    }
+
+    @Override
+    public Long getLongParam(String paramKey) {
+        Object value = getParam(paramKey);
+        if (value != null) {
+            if (value instanceof Integer) {
+                return (Long) value;
+            }
+        } else {
+            String valueText = String.valueOf(value);
+            return NumberHelper.parseNumber(valueText, Long.class);
+        }
+        return null;
+    }
 }

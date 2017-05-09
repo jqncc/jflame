@@ -26,25 +26,29 @@
         <property name="testWhileIdle" value="true" />
         <property name="testOnBorrow" value="false" />
         <property name="testOnReturn" value="false" />
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="1800"/>
+        <property name="logAbandoned" value="true"/>
         <!-- 配置监控统计拦截的filters，stat统计监控,wall防注入,log4j,slf4j sql日志 -->
-        <property name="filters" value="wall" />
+        <!-- <property name="filters" value="wall" />-->
     </bean>
     <!-- mybatis-plus -->
     <bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <!-- 自动扫描Mapping.xml文件 -->
-        <property name="mapperLocations" value="classpath:mybatis/mapper/**/*.xml"/>
+        <property name="mapperLocations" value="classpath:mybatis/mapper/*.xml"/>
         <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
         <!-- 配置包别名 -->
-        <property name="typeAliasesPackage" value="com.ghgcn.xxx.model.*"/>
+        <property name="typeAliasesPackage" value="com.ghgcn.xxx.entity"/>
         <property name="plugins">
             <array>
                 <!-- 分页插件 -->
                 <bean id="paginationInterceptor" class="com.baomidou.mybatisplus.plugins.PaginationInterceptor">
                     <property name="dialectType" value="mysql"/>
+                    <property name="optimizeType" value="default" />
                 </bean>
                 <!-- 乐观锁插件 -->
-                <bean class="com.baomidou.mybatisplus.plugins.OptimisticLockerInterceptor" />
+                <!-- <bean class="com.baomidou.mybatisplus.plugins.OptimisticLockerInterceptor" /> -->
             </array>
         </property>
         <!-- 全局配置注入 -->
@@ -58,46 +62,31 @@
             UUID->`3`("全局唯一ID")
         -->
         <property name="idType" value="0" />
-        <!--
-            MYSQL->`mysql`
-            ORACLE->`oracle`
-            DB2->`db2`
-            H2->`h2`
-            HSQL->`hsql`
-            SQLITE->`sqlite`
-            POSTGRE->`postgresql`
-            SQLSERVER2005->`sqlserver2005`
-            SQLSERVER->`sqlserver`
-        -->
         <property name="dbType" value="mysql"/>
         <!-- 全局表为下划线命名设置 true -->
         <property name="dbColumnUnderline" value="true" />
         <!-- 公共字段填充处理器 -->
         <property name="metaObjectHandler" ref="myMetaObjectHandler" />
     </bean>
-    <bean id="myMetaObjectHandler" class="org.jflame.mvc.support.OptLogMetaHandler" />
-    <!-- MyBatis 动态扫描  -->
+    <bean id="myMetaObjectHandler" class="org.jflame.mvc.support.mybatis.OptLogMetaHandler" />
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.ghgcn.xxx.mapper"/>
     </bean>
-
+    
     <!-- 配置事务管理 -->
     <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
     <!-- 事务管理 属性 -->
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="add*" propagation="REQUIRED"/>
-            <tx:method name="append*" propagation="REQUIRED"/>
             <tx:method name="save*" propagation="REQUIRED"/>
             <tx:method name="update*" propagation="REQUIRED"/>
             <tx:method name="edit*" propagation="REQUIRED"/>
             <tx:method name="insert*" propagation="REQUIRED"/>
             <tx:method name="delete*" propagation="REQUIRED"/>
             <tx:method name="remove*" propagation="REQUIRED"/>
-            <tx:method name="repair" propagation="REQUIRED"/>
             <tx:method name="batch*" propagation="REQUIRED"/>
 
             <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
@@ -109,6 +98,6 @@
      <!--aop配置  -->
     <aop:config>
  		 <!-- 事务切入点通知 -->
-       <aop:advisor advice-ref="txAdvice" pointcut="execution(* *..*Service.*(..))"/>
+       <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.ghgcn.xxx.service..*.*(..))"/>
     </aop:config>
 </beans>

@@ -41,8 +41,8 @@ public class DateConvertor implements ICellValueConvertor<Date> {
                 if (StringUtils.isNotEmpty(fmt)) {
                     resultVal = DateHelper.parseDate(text, fmt);
                 } else {
-                    resultVal = DateHelper.parseDate(String.valueOf(cellValue), DateHelper.DATE_YYYY_MM_DD_HH_mm_ss,
-                            DateHelper.DATE_YYYY_MM_DD, DateHelper.CN_DATE_YYYY_MM_DD, DateHelper.DATE_yyyyMMddHHmmss,
+                    resultVal = DateHelper.parseDate(String.valueOf(cellValue), DateHelper.YYYY_MM_DD_HH_mm_ss,
+                            DateHelper.YYYY_MM_DD, DateHelper.CN_YYYY_MM_DD, DateHelper.yyyyMMddHHmmss,
                             "yyyy/MM/dd");
                 }
             }
@@ -69,7 +69,7 @@ public class DateConvertor implements ICellValueConvertor<Date> {
                 throw new ConvertException(e);
             }
         } else {
-            datFormator.applyPattern(DateHelper.DATE_YYYY_MM_DD_HH_mm_ss);
+            datFormator.applyPattern(DateHelper.YYYY_MM_DD_HH_mm_ss);
         }
         return datFormator.format(value);
     }

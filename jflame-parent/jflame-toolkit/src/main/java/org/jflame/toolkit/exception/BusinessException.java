@@ -6,7 +6,7 @@ package org.jflame.toolkit.exception;
  * @author zyc
  * @version 1.0
  */
-public class BusinessException extends Exception {
+public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 8128513200524494718L;
 

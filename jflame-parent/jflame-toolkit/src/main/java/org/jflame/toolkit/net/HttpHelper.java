@@ -37,8 +37,8 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
-import org.jflame.toolkit.common.bean.KeyValuePair;
-import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.common.bean.pair.KeyValuePair;
+import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.exception.RemoteAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
@@ -304,9 +304,9 @@ public final class HttpHelper {
             // 提交普通参数
             if (CollectionHelper.isNotNullAndEmpty(params)) {
                 for (NameValuePair paramKv : params) {
-                    if (StringHelper.isNotEmpty(paramKv.getName())) {
+                    if (StringHelper.isNotEmpty(paramKv.getKey())) {
                         paramStrBuf.append(prefix).append(boundary).append(newLine);
-                        paramStrBuf.append("Content-Disposition: form-data; name=\"").append(paramKv.getName())
+                        paramStrBuf.append("Content-Disposition: form-data; name=\"").append(paramKv.getKey())
                                 .append("\"").append(newLine);
                         paramStrBuf.append(newLine);
                         paramStrBuf.append(paramKv.getValue()).append(newLine);

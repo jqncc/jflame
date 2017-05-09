@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.net.HttpHelper;
 import org.jflame.toolkit.net.HttpHelper.HttpMethod;
 import org.jflame.toolkit.net.HttpResponse;

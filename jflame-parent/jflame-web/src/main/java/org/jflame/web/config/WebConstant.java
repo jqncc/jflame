@@ -1,6 +1,6 @@
 package org.jflame.web.config;
 
-import org.jflame.toolkit.common.bean.NameValuePair;
+import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.util.EnumHelper;
 
 /**
@@ -71,6 +71,11 @@ public final class WebConstant {
     /**
      * web图片类型扩展名
      */
-    public static String[] imageExts = EnumHelper.enumNames(MimeImages.class);
+    public final static String[] imageExts = EnumHelper.enumNames(MimeImages.class);
+    
+    /**
+     * 当前登录用户在session中的key
+     */
+    public final static String SESSION_USER_KEY="current_user";
 
 }
