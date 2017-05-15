@@ -1,4 +1,4 @@
-package org.jflame.web.util.upload;
+package org.jflame.web.util.webfile;
 /**
  * 文件上传或下载异常
  * @author yucan.zhang

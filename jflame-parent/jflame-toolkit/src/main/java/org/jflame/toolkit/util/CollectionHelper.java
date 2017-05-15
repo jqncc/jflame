@@ -1,9 +1,7 @@
 package org.jflame.toolkit.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -32,18 +30,15 @@ public final class CollectionHelper {
     }
 
     /**
-     * 枚举集合转数组,数组元素类型必须与集合元素相同或是其实现类
+     * 集合转数组
      * 
-     * @param enumeration 枚举集合
-     * @param array 目标数组    
+     * @param collection 枚举集合
      * @return
      */
-    public static <A,E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
-        ArrayList<A> elements = new ArrayList<A>();
-        while (enumeration.hasMoreElements()) {
-            elements.add(enumeration.nextElement());
-        }
-        return elements.toArray(array);
+    @SuppressWarnings("unchecked")
+    public static <E> E[] toArray(Collection<E> collection) {
+        E[] arr = (E[]) Array.newInstance(collection.iterator().next().getClass(), collection.size());
+        return collection.toArray(arr);
     }
     
 

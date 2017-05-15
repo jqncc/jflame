@@ -16,7 +16,7 @@ import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * 文件操作工具类.
+ * 文件和文件名操作工具类.
  * 
  * @see java.nio.Files
  * @author zyc
@@ -35,6 +35,7 @@ public final class FileHelper {
     /**
      * 返回文件路径的目录部分. 如果指定的文件存在，使用文件属性判断<br>
      * 如果文件不存在,则以路径结构判断,有扩展名视为文件，没有视为目录. 示例：
+     * 
      * <pre>
      * 文件存在：
      * e:\\a\\b.txt -->  e:\\a\\
@@ -77,6 +78,7 @@ public final class FileHelper {
      * a.txt --> a.txt
      * e:\\a\\b.txt --> b.txt
      * </pre>
+     * 
      * @param filePath 文件路径
      * @return
      */
@@ -140,6 +142,19 @@ public final class FileHelper {
         return newPath.toString();
     }
 
+    /**
+     * 转换所有路径分隔符为unix分隔符/
+     * @param path 文件路径
+     * @return
+     */
+    public static String separatorsToUnix(String path) {
+        if (path == null || path.indexOf(WIN_SEPARATOR) == -1) {
+            return path;
+        }
+        return path.replace(WIN_SEPARATOR, UNIX_SEPARATOR);
+    }
+    
+    
     /**
      * 一次性读取文件内容作为字符串返回
      * 
@@ -307,7 +322,6 @@ public final class FileHelper {
             return false;
         }
     }
-    
 
     // public static void main(String[] args) {
     /*

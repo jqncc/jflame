@@ -1,4 +1,4 @@
-package org.jflame.web.util.upload;
+package org.jflame.web.util.webfile;
 
 import java.io.File;
 

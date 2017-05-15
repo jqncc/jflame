@@ -63,6 +63,10 @@ public final class StringHelper {
     public static String join(Object[] array, char separator) {
         return StringUtils.join(array, separator);
     }
+    
+    public static String join(Object[] array, String separator) {
+        return StringUtils.join(array, separator);
+    }
 
     /**
      * 将url参数字符串转为Map 如:x=1&y=2转为 map.put("x","1").

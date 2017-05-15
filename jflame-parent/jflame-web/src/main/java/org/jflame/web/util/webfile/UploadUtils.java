@@ -1,16 +1,14 @@
-package org.jflame.web.util.upload;
+package org.jflame.web.util.webfile;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -20,15 +18,13 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.util.IOHelper;
-import org.jflame.web.util.WebUtils;
 
 /**
  * 文件上传下载工具类.
  * 
  * @author yucan.zhang
  */
-public class UploadDownUtils {
+public class UploadUtils {
 
     /**
      * 上传文件,文件名使用URL编码,如果存在同名文件或文件名太长将重命名.基于apache-commons-upload包
@@ -118,8 +114,7 @@ public class UploadDownUtils {
                     throw new UploadDownException("上传保存出错" + item.getFieldName(), e);
                 }
                 //计算相对路径,统一分隔符为/
-                String relativelyPath = basePath.relativize(finalPath).toString().replace(FileHelper.WIN_SEPARATOR,
-                        FileHelper.UNIX_SEPARATOR);
+                String relativelyPath = FileHelper.separatorsToUnix(basePath.relativize(finalPath).toString());
                 if (resultMap.containsKey(item.getFieldName())) {
                     resultMap.get(item.getFieldName()).add(relativelyPath);
                 } else {
@@ -133,32 +128,6 @@ public class UploadDownUtils {
             }
         }
         return resultMap;
-    }
-
-    /**
-     * 文件下载,下载完成关闭response输出流
-     * 
-     * @param response HttpServletResponse
-     * @param filePath 等下载文件
-     * @throws UploadDownException 文件不存在或I/O异常
-     */
-    public static void download(HttpServletResponse response, String filePath) throws UploadDownException {
-        ServletOutputStream out=null;
-        try {
-            File downFile = new File(filePath);
-            if (downFile.exists() && downFile.isFile()) {
-                WebUtils.setFileDownloadHeader(response, filePath, downFile.length());
-                out=response.getOutputStream();
-                IOHelper.copy(downFile, out);
-                out.flush();
-                return;
-            }
-        } catch (Exception e) {
-            throw new UploadDownException(e);
-        }finally {
-            IOHelper.closeQuietly(out);
-        }
-        throw new UploadDownException("下载文件不存在或不是可下载文件" + filePath);
     }
 
 }

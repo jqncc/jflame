@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.util.JsonHelper;
 import org.jflame.web.config.WebConstant;
-import org.jflame.web.util.upload.UploadDownUtils;
-import org.jflame.web.util.upload.UploadItem;
+import org.jflame.web.util.webfile.UploadUtils;
+import org.jflame.web.util.webfile.UploadItem;
 
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = "/upload")
@@ -30,7 +30,7 @@ public class UploadServlet extends HttpServlet {
         uploadItem.setFileTotalSize(90000);
         uploadItem.setCreateDateDir(true);
         uploadItem.setAllowedFiles(WebConstant.imageExts);
-        Map<String,List<String>> mp = UploadDownUtils.upload(req, uploadItem);
+        Map<String,List<String>> mp = UploadUtils.upload(req, uploadItem);
         for (Entry<String,List<String>> kv : mp.entrySet()) {
             System.out.println(kv.getKey() + ":" + JsonHelper.toJson(kv.getValue()));
         }
