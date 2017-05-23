@@ -1,4 +1,4 @@
-package cn.huaxunchina.common.datasouce;
+package org.jflame.db.datasource;
 
 public class DynamicDataSourceHolder
 {

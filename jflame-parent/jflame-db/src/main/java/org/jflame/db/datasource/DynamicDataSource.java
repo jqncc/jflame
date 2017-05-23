@@ -1,4 +1,4 @@
-package cn.huaxunchina.common.datasouce;
+package org.jflame.db.datasource;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
