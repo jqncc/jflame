@@ -146,7 +146,7 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
      * @return
      */
     public static <E extends KeyValuePair<T,R>,T, R> String toUrlParam(List<E> list) {
-        if (CollectionHelper.isNotNullAndEmpty(list)) {
+        if (CollectionHelper.isNotEmpty(list)) {
             StringBuilder strBuf = new StringBuilder(20);
             for (IKeyValuePair<T,R> kv : list) {
                 strBuf.append('&').append(kv.getKey()).append('=').append(kv.getValue());

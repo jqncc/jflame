@@ -220,7 +220,7 @@ public final class HttpHelper {
         HttpResponse response = null;
         log.debug("发起http请求:url={},方式={},参数={}", requestUrl, this.method, ArrayUtils.toString(params));
         try {
-            if (CollectionHelper.isNotNullAndEmpty(params)) {
+            if (CollectionHelper.isNotEmpty(params)) {
                 paramBytes = StringHelper.getBytes(KeyValuePair.toUrlParam(params), getCharset());
             }
             response = sendRequest(paramBytes, new DefalutResponse(0));
@@ -302,7 +302,7 @@ public final class HttpHelper {
             conn.connect();
             outStream = new DataOutputStream(conn.getOutputStream());
             // 提交普通参数
-            if (CollectionHelper.isNotNullAndEmpty(params)) {
+            if (CollectionHelper.isNotEmpty(params)) {
                 for (NameValuePair paramKv : params) {
                     if (StringHelper.isNotEmpty(paramKv.getKey())) {
                         paramStrBuf.append(prefix).append(boundary).append(newLine);

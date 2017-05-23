@@ -46,25 +46,32 @@
     </filter-mapping>
     
 	<servlet>
-		<servlet-name>springmvc</servlet-name>
+		<servlet-name>jflumespringmvc</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<!-- 配置初始配置化文件,前面contextConfigLocation看情况二选一 -->
-		<!-- 或者将此文件命名为springDispatcherServlet-servlet放在WEB-INF下就不用配置下面语句 -->
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>classpath*:spring/spring-mvc.xml</param-value>
+			<param-value>classpath:spring/spring-mvc.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
+		<multipart-config>
+            <max-file-size>5242880</max-file-size><!-- 5MB -->
+            <max-request-size>20971520</max-request-size><!-- 20MB -->
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
 	</servlet>
 	<!--为DispatcherServlet建立映射 -->
 	<servlet-mapping>
-		<servlet-name>springmvc</servlet-name>
+		<servlet-name>jflumespringmvc</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
+	<error-page>
+        <error-code>404</error-code>
+        <location>/webpage/common/404.htm</location>
+    </error-page>
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>

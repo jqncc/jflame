@@ -1,8 +1,10 @@
 package com.ghgcn.xxx.entity;
 
+import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.enums.IdType;
-import java.io.Serializable;
 
 /**
  * <p>
@@ -12,7 +14,7 @@ import java.io.Serializable;
  * @author yucan.zhang
  * @since 2017-05-08
  */
-public class SysFunction implements Serializable {
+public class SysFunction extends BaseModel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,17 +35,18 @@ public class SysFunction implements Serializable {
     /**
      * 直接父功能id
      */
-	private Integer parentId;
+	private int parentId=0;
     /**
-     * 所父级功能id,以逗号分隔
+     * 所有父级功能id
      */
-	private String parentIds;
+	@TableField(value="parent_ids",el="parentIds,typeHandler=org.jflame.mvc.support.mybatis.IdsTypeHandler")
+	private Integer[] parentIds;
 	private String funUrl;
 	private String funDesc;
     /**
      * 排序
      */
-	private Integer orderNum;
+	private int orderNum;
     /**
      * 指定图标名称，作为菜单时，可以有不同图标
      */
@@ -82,19 +85,19 @@ public class SysFunction implements Serializable {
 		this.funType = funType;
 	}
 
-	public Integer getParentId() {
+	public int getParentId() {
 		return parentId;
 	}
 
-	public void setParentId(Integer parentId) {
+	public void setParentId(int parentId) {
 		this.parentId = parentId;
 	}
 
-	public String getParentIds() {
+	public Integer[] getParentIds() {
 		return parentIds;
 	}
 
-	public void setParentIds(String parentIds) {
+	public void setParentIds(Integer[] parentIds) {
 		this.parentIds = parentIds;
 	}
 
@@ -114,11 +117,11 @@ public class SysFunction implements Serializable {
 		this.funDesc = funDesc;
 	}
 
-	public Integer getOrderNum() {
+	public int getOrderNum() {
 		return orderNum;
 	}
 
-	public void setOrderNum(Integer orderNum) {
+	public void setOrderNum(int orderNum) {
 		this.orderNum = orderNum;
 	}
 

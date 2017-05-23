@@ -18,6 +18,7 @@ import org.jflame.toolkit.codec.TranscodeException;
  * 
  * @see org.apache.commons.lang3.StringUtils
  * @see org.apache.commons.lang3.RandomStringUtils
+ * @see org.apache.commons.lang3.StringEscapeUtils
  * @author zyc
  */
 public final class StringHelper {
@@ -50,6 +51,16 @@ public final class StringHelper {
      */
     public static boolean containsAny(CharSequence str, char... searchChars) {
         return StringUtils.containsAny(str, searchChars);
+    }
+    
+    /**
+     * 以逗号,组合数组元素为字符串,示例:<br>
+     * StringHelper.join(["a", "b", "c"]) = "a,b,c"
+     * @param array 数组
+     * @return
+     */
+    public static String join(Object[] array) {
+        return StringUtils.join(array, ',');
     }
     
     /**

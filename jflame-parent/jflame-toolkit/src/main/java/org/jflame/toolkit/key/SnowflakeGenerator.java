@@ -1,9 +1,7 @@
 package org.jflame.toolkit.key;
 
 import java.net.InetAddress;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.net.IPAddressHelper;
@@ -47,7 +45,7 @@ public final class SnowflakeGenerator {
     private long sequence = 0L;
     // 上次生成id的时间戳
     private long lastTimestamp = -1L;
-    private Random random = new Random();
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
      * 构造函数，默认workerid=ip%254，只适合各主机在同一局域网使用
@@ -135,39 +133,39 @@ public final class SnowflakeGenerator {
     }
 
     // 测试
-    public static void main(String[] args) {
-        final int threadCount = 3;
-        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-        final Set<Long> set = new java.util.concurrent.CopyOnWriteArraySet<>();
-
-        final SnowflakeGenerator idWorker = new SnowflakeGenerator(0, 1);
-
-        long l = System.currentTimeMillis();
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    int j = 0;
-                    Long tmp;
-                    while (j < 1000) {
-                        tmp = idWorker.nextId();
-                        set.add(tmp);
-                        System.out.println(tmp);
-                        j++;
-                    }
-                    countDownLatch.countDown();
-                }
-            }).start();
-        }
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(System.currentTimeMillis() - l);
-        System.out.println(set.size());
-        // for (Long long1 : set) { System.out.println(long1); }
-    }
+    //    public static void main(String[] args) {
+    //        final int threadCount = 3;
+    //        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+    //        final Set<Long> set = new java.util.concurrent.CopyOnWriteArraySet<>();
+    //
+    //        final SnowflakeGenerator idWorker = new SnowflakeGenerator(0, 1);
+    //
+    //        long l = System.currentTimeMillis();
+    //        for (int i = 0; i < threadCount; i++) {
+    //            new Thread(new Runnable() {
+    //
+    //                @Override
+    //                public void run() {
+    //                    int j = 0;
+    //                    Long tmp;
+    //                    while (j < 1000) {
+    //                        tmp = idWorker.nextId();
+    //                        set.add(tmp);
+    //                        System.out.println(tmp);
+    //                        j++;
+    //                    }
+    //                    countDownLatch.countDown();
+    //                }
+    //            }).start();
+    //        }
+    //        try {
+    //            countDownLatch.await();
+    //        } catch (InterruptedException e) {
+    //            e.printStackTrace();
+    //        }
+    //        System.out.println(System.currentTimeMillis() - l);
+    //        System.out.println(set.size());
+    //        // for (Long long1 : set) { System.out.println(long1); }
+    //    }
 
 }

@@ -10,11 +10,11 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 
 /**
  * service基接口,继承ICrudService,IBaseQueryService接口
+ * 
  * @author yucan.zhang
- *
  * @param <T>
  */
-public interface IBaseService<T> extends ICrudService<T>,IBaseQueryService<T> {
+public interface IBaseService<T> extends ICrudService<T>, IBaseQueryService<T> {
 
     /**
      * 插入对象,忽略null值
@@ -31,17 +31,7 @@ public interface IBaseService<T> extends ICrudService<T>,IBaseQueryService<T> {
      * @return
      * @throws BusinessException 批处理异常
      */
-    void saveBatch(List<T> entityList);
-
-    /**
-     * 批量插入
-     *
-     * @param entityList
-     * @param batchSize
-     * @return
-     * @throws BusinessException 批处理异常
-     */
-    void saveBatch(List<T> entityList, int batchSize);
+    void batchSave(List<T> entityList);
 
     /**
      * 插入或更新,主键值存在则更新,否则插入
@@ -58,17 +48,7 @@ public interface IBaseService<T> extends ICrudService<T>,IBaseQueryService<T> {
      * @param entityList
      * @return
      */
-    void saveOrUpdateBatch(List<T> entityList);
-
-    /**
-     * 批量插入或更新
-     * 
-     * @param entityList
-     * @param batchSize
-     * @return
-     * @throws BusinessException 批处理异常
-     */
-    void saveOrUpdateBatch(List<T> entityList, int batchSize);
+    void batchSaveOrUpdate(List<T> entityList);
 
     /**
      * 按条件删除
@@ -92,7 +72,7 @@ public interface IBaseService<T> extends ICrudService<T>,IBaseQueryService<T> {
      * @param idList id列表
      * @return
      */
-    boolean deleteBatchIds(List<? extends Serializable> idList);
+    boolean deleteByIds(List<? extends Serializable> idList);
 
     /**
      * 按主键更新,忽略空值
@@ -117,15 +97,5 @@ public interface IBaseService<T> extends ICrudService<T>,IBaseQueryService<T> {
      * @param entityList 待更新实体对象列表
      * @return
      */
-    void updateBatchById(List<T> entityList);
-
-    /**
-     * 按主键批量更新.
-     * 
-     * @param entityList 待更新实体对象列表
-     * @param batchSize 每批次元素个数
-     * @return
-     */
-    void updateBatchById(List<T> entityList, int batchSize);
-
+    void updateByIds(List<T> entityList);
 }

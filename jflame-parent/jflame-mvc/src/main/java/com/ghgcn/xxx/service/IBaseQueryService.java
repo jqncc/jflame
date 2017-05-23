@@ -22,7 +22,7 @@ public interface IBaseQueryService<T> {
      * @param id
      * @return
      */
-    T selectById(Serializable id);
+    T getById(Serializable id);
 
     /**
      * 按id列表查询
@@ -30,7 +30,7 @@ public interface IBaseQueryService<T> {
      * @param idList id列表
      * @return
      */
-    List<T> selectBatchIds(List<? extends Serializable> idList);
+    List<T> getByIds(List<? extends Serializable> idList);
 
     /**
      * 按条件查询

@@ -1,6 +1,7 @@
 package org.jflame.mvc.support;
 
 import org.jflame.toolkit.reflect.SpiFactory;
+import org.jflame.web.config.BaseSysConfig.DefaultParamKey;
 import org.jflame.web.config.ISysConfig;
 
 public final class SysParam {
@@ -13,9 +14,7 @@ public final class SysParam {
      * @author yucan.zhang
      */
     public interface ParamKey {
-        String savePath = "save.path";
-        String imageSavePath = "image.save.path";
-        String imageServer = "image.server";
+      
     }
 
     /**
@@ -24,7 +23,7 @@ public final class SysParam {
      * @return
      */
     public static String getSavePath() {
-        return config.getTextParam(ParamKey.savePath);
+        return config.getTextParam(DefaultParamKey.savePath);
     }
 
     /**
@@ -33,7 +32,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgSavePath() {
-        return config.getTextParam(ParamKey.imageSavePath);
+        return config.getTextParam(DefaultParamKey.imageSavePath);
     }
 
     /**
@@ -42,7 +41,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgServer() {
-        return config.getTextParam(ParamKey.imageServer);
+        return config.getTextParam(DefaultParamKey.imageServer);
     }
     
 }

@@ -1,7 +1,6 @@
 package com.ghgcn.xxx.service;
 
 import com.ghgcn.xxx.entity.SysFunction;
-import com.baomidou.mybatisplus.service.IService;
 
 /**
  * <p>
@@ -11,6 +10,6 @@ import com.baomidou.mybatisplus.service.IService;
  * @author yucan.zhang
  * @since 2017-05-08
  */
-public interface ISysFunctionService extends IService<SysFunction> {
+public interface ISysFunctionService extends ICrudService<SysFunction> {
 	
 }

@@ -16,7 +16,7 @@ import com.ghgcn.xxx.common.enums.UserStatusEnum;
  * @author yucan.zhang
  * @since 2017-05-08
  */
-public class UserInfo implements Serializable {
+public class UserInfo extends BaseModel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

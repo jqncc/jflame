@@ -65,7 +65,7 @@ public class CsrfFilter implements Filter {
                 } catch (IOException | URISyntaxException e) {
                     logger.error("csrf白名单读取失败", e);
                 }
-                if (CollectionHelper.isNotNullAndEmpty(whiteUrlStrs)) {
+                if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
                     for (String urlStr : whiteUrlStrs) {
                         if (StringUtils.isNotBlank(urlStr)) {
                             try {

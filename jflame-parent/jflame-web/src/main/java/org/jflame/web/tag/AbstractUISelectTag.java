@@ -17,21 +17,19 @@ import org.jflame.toolkit.util.StringHelper;
  * @author zyc
  */
 @SuppressWarnings("serial")
-public abstract class AbstractUISelectTag extends UIHtmlTag
-{
+public abstract class AbstractUISelectTag extends UIHtmlTag {
+
     private String value;// 传入值,即选择值
     private String defaultValue;// 默认选项值
     private String defaultText;// 默认选项文本
 
-    public int doStartTag() throws JspException
-    {
+    public int doStartTag() throws JspException {
         StringBuilder strBuf = new StringBuilder(50);
         strBuf.append("<select");
         setAttributes(strBuf);
         strBuf.append(">");
         // 添加默认选项
-        if (StringHelper.isNotEmpty(defaultText) ||StringHelper.isNotEmpty(defaultValue))
-        {
+        if (StringHelper.isNotEmpty(defaultText) || StringHelper.isNotEmpty(defaultValue)) {
             if (defaultText == null)
                 defaultText = "-请选择-";
             if (defaultValue == null)
@@ -41,10 +39,8 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
         }
 
         List<? extends KeyValuePair<?,?>> dataSource = getBindData();
-        if (!CollectionHelper.isNullOrEmpty(dataSource))
-        {
-            for (IKeyValuePair<?,?> nvPair : dataSource)
-            {
+        if (!CollectionHelper.isEmpty(dataSource)) {
+            for (IKeyValuePair<?,?> nvPair : dataSource) {
                 strBuf.append("<option value=\"").append(nvPair.getKey());
                 strBuf.append("\"");
                 if (value != null && value.equals(nvPair.getKey()))
@@ -53,18 +49,18 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
             }
         }
         strBuf.append("</select>");
-        try
-        {
+        try {
             pageContext.getOut().print(strBuf);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             logger.error("ui:selectEnum error", e);
         }
         return TagSupport.SKIP_BODY;
     }
 
     @Override
-    protected void setDataSource() {};
+    protected void setDataSource() {
+    };
+
     /**
      * 获取绑定的数据源
      * 
@@ -72,33 +68,27 @@ public abstract class AbstractUISelectTag extends UIHtmlTag
      */
     protected abstract List<? extends KeyValuePair<?,?>> getBindData();
 
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
 
-    public String getDefaultValue()
-    {
+    public String getDefaultValue() {
         return defaultValue;
     }
 
-    public void setDefaultValue(String defaultValue)
-    {
+    public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-    public String getDefaultText()
-    {
+    public String getDefaultText() {
         return defaultText;
     }
 
-    public void setDefaultText(String defaultText)
-    {
+    public void setDefaultText(String defaultText) {
         this.defaultText = defaultText;
     }
 

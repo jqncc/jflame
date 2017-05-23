@@ -9,7 +9,7 @@ import java.nio.charset.IllegalCharsetNameException;
  * @author yucan.zhang
  */
 public class CharsetHelper {
-
+    
     /**
      * gbk编码名
      */

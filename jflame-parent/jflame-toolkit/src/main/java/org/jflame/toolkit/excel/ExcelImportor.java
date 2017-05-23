@@ -126,7 +126,7 @@ public class ExcelImportor {
         } else {
             lstDescriptors = getColumnDescriptorsByName(properties, propertyNames);
         }
-        if (CollectionHelper.isNullOrEmpty(lstDescriptors)) {
+        if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new ExcelAccessException("没有找到要转换的属性");
         }
         Row curRow;

@@ -20,19 +20,25 @@ public class OptLogMetaHandler extends MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject arg0) {
-        Date now=new Date();
-        if(arg0.getValue(fillCreateDate)==null){
-            arg0.setValue(fillCreateDate, now);
+        Date now = new Date();
+        if (arg0.hasGetter(fillCreateDate)) {
+            if (arg0.getValue(fillCreateDate) == null) {
+                arg0.setValue(fillCreateDate, now);
+            }
         }
-        if(arg0.getValue(fillUpdateDate)==null){
-            arg0.setValue(fillUpdateDate, now);
+        if (arg0.hasGetter(fillUpdateDate)) {
+            if (arg0.getValue(fillUpdateDate) == null) {
+                arg0.setValue(fillUpdateDate, now);
+            }
         }
     }
 
     @Override
     public void updateFill(MetaObject arg0) {
-        if(arg0.getValue(fillUpdateDate)==null){
-            arg0.setValue(fillUpdateDate, new Date());
+        if (arg0.hasGetter(fillUpdateDate)) {
+            if (arg0.getValue(fillUpdateDate) == null) {
+                arg0.setValue(fillUpdateDate, new Date());
+            }
         }
     }
 

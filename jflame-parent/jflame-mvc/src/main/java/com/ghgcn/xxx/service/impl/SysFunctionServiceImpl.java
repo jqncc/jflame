@@ -1,10 +1,10 @@
 package com.ghgcn.xxx.service.impl;
 
+import org.springframework.stereotype.Service;
+
 import com.ghgcn.xxx.entity.SysFunction;
 import com.ghgcn.xxx.mapper.SysFunctionMapper;
 import com.ghgcn.xxx.service.ISysFunctionService;
-import com.baomidou.mybatisplus.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  * @since 2017-05-08
  */
 @Service
-public class SysFunctionServiceImpl extends ServiceImpl<SysFunctionMapper, SysFunction> implements ISysFunctionService {
+public class SysFunctionServiceImpl extends BaseServiceImpl<SysFunctionMapper, SysFunction> implements ISysFunctionService {
 	
 }

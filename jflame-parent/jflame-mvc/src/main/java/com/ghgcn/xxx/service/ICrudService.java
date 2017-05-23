@@ -37,5 +37,5 @@ public interface ICrudService<T> {
      * @param id
      * @return
      */
-    T selectById(Serializable id);
+    T getById(Serializable id);
 }

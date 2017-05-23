@@ -28,6 +28,17 @@ public final class MapHelper {
     }
 
     /**
+     * 判断Map是否不为null且至少有一个元素
+     * 
+     * @param map Map
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static boolean isNotEmpty(Map map) {
+        return map != null && !map.isEmpty();
+    }
+
+    /**
      * 将map转为javabean对象
      * 
      * @param map Map

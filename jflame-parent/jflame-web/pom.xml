@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>${project.version}</version>
+		<version>1.0.1-beta</version>
 	</parent>
 	<artifactId>jflame-web</artifactId>
 	<name>jflame-web</name>
@@ -14,7 +14,6 @@
 			<groupId>org.jflame</groupId>
 			<artifactId>jflame-toolkit</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

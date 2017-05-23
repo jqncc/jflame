@@ -36,7 +36,7 @@ public class CodeGenerator {
         gc.setActiveRecord(false);// 开启 activeRecord 模式
         gc.setEnableCache(false);// XML 二级缓存
         gc.setBaseResultMap(true);// XML ResultMap
-        gc.setBaseColumnList(false);// XML columList
+        gc.setBaseColumnList(true);// XML columList
         gc.setAuthor("yucan.zhang");
 
         // 自定义文件命名，注意 %s 会自动填充表实体属性！
@@ -71,7 +71,7 @@ public class CodeGenerator {
         //strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
         // strategy.setInclude(new String[] { "user" }); // 需要生成的表
-        // strategy.setExclude(new String[]{"test"}); // 排除生成的表
+         strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
         // 自定义实体父类
         // strategy.setSuperEntityClass("com.baomidou.demo.TestEntity");
         // 自定义实体，公共字段
@@ -79,11 +79,11 @@ public class CodeGenerator {
         // 自定义 mapper 父类
         // strategy.setSuperMapperClass("com.baomidou.demo.TestMapper");
         // 自定义 service 父类
-         strategy.setSuperServiceClass("com.ghgcn.xxx.service.ICrudService");
+         strategy.setSuperServiceClass("com.ghgcn.cigarbox.service.ICrudService");
         // 自定义 service 实现类父类
-         strategy.setSuperServiceImplClass("com.ghgcn.xxx.service.impl.BaseServiceImpl");
+         strategy.setSuperServiceImplClass("com.ghgcn.cigarbox.service.impl.BaseServiceImpl");
         // 自定义 controller 父类
-        strategy.setSuperControllerClass("com.ghgcn.xxx.action.BaseController");
+        strategy.setSuperControllerClass("com.ghgcn.cigarbox.support.web.BaseController");
         // 【实体】是否生成字段常量（默认 false）
         // public static final String ID = "test_id";
         // strategy.setEntityColumnConstant(true);
@@ -94,7 +94,7 @@ public class CodeGenerator {
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setModuleName("xxx");
+        pc.setModuleName("cigarbox");
         pc.setParent("com.ghgcn");// 自定义包路径
         pc.setController("action");// 这里是控制器包名，默认 web
         mpg.setPackageInfo(pc);
@@ -120,9 +120,9 @@ public class CodeGenerator {
         mpg.setCfg(cfg);
 
         // 关闭默认 xml 生成，调整生成 至 根目录
-        TemplateConfig tc = new TemplateConfig();
-        tc.setXml(null);
-        mpg.setTemplate(tc);
+       // TemplateConfig tc = new TemplateConfig();
+        //tc.setXml(null);
+        //mpg.setTemplate(tc);
 
         // 自定义模板配置，模板可以参考源码 /mybatis-plus/src/main/resources/template 使用 copy
         // 至您项目 src/main/resources/template 目录下，模板名称也可自定义如下配置：
@@ -139,7 +139,7 @@ public class CodeGenerator {
         mpg.execute();
 
         // 打印注入设置
-        System.err.println(mpg.getCfg().getMap().get("abc"));
+        //System.err.println(mpg.getCfg().getMap().get("abc"));
     }
 
 }

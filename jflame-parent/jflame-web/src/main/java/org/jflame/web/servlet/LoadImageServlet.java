@@ -14,11 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.ISysConfig;
 import org.jflame.web.config.WebConstant.MimeImages;
+import org.jflame.web.util.FunctionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,17 +28,16 @@ import org.slf4j.LoggerFactory;
  * ISysConfig实现类使用SPI方式接入
  */
 @SuppressWarnings("serial")
-@WebServlet(name="loadImage",value="/loadImg")
+@WebServlet(name = "loadImage", value = "/loadImg/*")
 public class LoadImageServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
-    private final String SAVE_PATH_IMAGE_CONFIGKEY = "image.save.path";
     private String savePath;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // 从URL读取文件路径,拼接本地路径,读取文件流输出到客户端
         String imgRelativePath = request.getPathInfo();
-        boolean isNotFound = false;
+        boolean isNotFound = true;
         if (StringHelper.isNotEmpty(imgRelativePath)) {
             Path imgPath = Paths.get(savePath, request.getPathInfo());
             File file = imgPath.toFile();
@@ -50,19 +48,15 @@ public class LoadImageServlet extends HttpServlet {
                     try (FileInputStream imgStream = new FileInputStream(file);
                             ServletOutputStream servletOutStream = response.getOutputStream();) {
                         IOHelper.copy(imgStream, servletOutStream);
+                        isNotFound = false;
                     } catch (IOException e) {
                         log.error("输出图片失败:" + imgPath, e);
-                        throw e;
+                        isNotFound = true;
                     }
                 } else {
-                    isNotFound = true;
                     log.error("不支持的图片格式{}", imgRelativePath);
                 }
-            } else {
-                isNotFound = true;
             }
-        } else {
-            isNotFound = true;
         }
         if (isNotFound) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -71,12 +65,7 @@ public class LoadImageServlet extends HttpServlet {
     }
 
     public void init() throws ServletException {
-        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
-        if (sysConfig != null) {
-            savePath =sysConfig.getTextParam(SAVE_PATH_IMAGE_CONFIGKEY);
-        } else {
-            log.error("未找到ISysConfig实现类");
-        }
+        savePath = FunctionUtils.getImgSavePath();
         if (StringHelper.isEmpty(savePath)) {
             savePath = this.getServletContext().getRealPath("/upload/images");
         }
@@ -84,7 +73,7 @@ public class LoadImageServlet extends HttpServlet {
     }
 
     String getMediaType(String fileExtName) {
-        MimeImages mime=MimeImages.valueOf(fileExtName);
+        MimeImages mime = MimeImages.valueOf(fileExtName);
         return mime.getMime();
     }
 

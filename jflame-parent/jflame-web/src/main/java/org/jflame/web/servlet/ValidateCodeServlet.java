@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
@@ -53,7 +54,7 @@ public class ValidateCodeServlet extends HttpServlet {
     private final String defaultCodeName = "validcode";
     private final String CODE_NAMES_CONFIGKEY = "validcode.names";
     private List<String> initCodeNames = new ArrayList<>();// 验证码限定名称，默认"validcode"
-    private Random random = new Random();
+    private ThreadLocalRandom random = ThreadLocalRandom.current();
     
     public ValidateCodeServlet() {
         super();
@@ -156,12 +157,15 @@ public class ValidateCodeServlet extends HttpServlet {
     private void drawString(String randomCode, Graphics2D g, int width, int height) {
         int x = 0;
         g.setColor(new Color(150, 80 + random.nextInt(50), 50 + random.nextInt(30)));
-        Font font = new Font(Font.SANS_SERIF, Font.CENTER_BASELINE, height - 4);
+        Font font = new Font(Font.SANS_SERIF, Font.BOLD, height - 4);
         g.setFont(font);
         // 计算文字居中时x,y坐标
-        FontMetrics metrics = g.getFontMetrics();
+        FontMetrics metrics = g.getFontMetrics(font);
         x = (width - metrics.stringWidth(randomCode)) / 2;
-        g.drawString(randomCode, x, (height - metrics.getHeight())/2);
+        int ascent = metrics.getAscent();
+        int descent = metrics.getDescent();
+        int y = (height - (ascent + descent)) / 2 + ascent;
+        g.drawString(randomCode, x, y);
     }
 
     private Color getRandColor(int f, int b, Random random) {

@@ -153,13 +153,4 @@ public final strictfp class MathHelper {
         BigDecimal result = createBigDecimal(num).divide(createBigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP);
         return result.doubleValue();
     }
-
-    
-    /*
-     * public static final void main(String[] args) { System.out.println("float直接相加：" + (1.000001f + 2.10f));
-     * System.out.println("float精度相加：" + add(1.000001f, 2.10f)); System.out.println("double直接相加：" +
-     * (111110000000.000001d + 211.10d)); System.out.println("double精度相加：" + add(1.000001d, 2.10d));
-     * System.out.println(subtract(1.54526f, 0.4f)); System.out.println(multiply(1201201d, 11.6d));
-     * System.out.println(multiply(12f, 2.23514f)); System.out.println(divide(4, 2)); }
-     */
 }

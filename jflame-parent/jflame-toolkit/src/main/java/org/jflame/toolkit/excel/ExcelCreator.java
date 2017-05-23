@@ -177,10 +177,10 @@ public class ExcelCreator {
      * @param sheetRowHandler 自定义单行数据转换器,缺省使用{@link DefaultEntitySheetRowHandler}
      * @exception ExcelAccessException
      */
-    public void fillEntityData(Sheet sheet, final List<IExcelEntity> dataList, final String[] propertyNames,
+    public void fillEntityData(Sheet sheet, final List<? extends IExcelEntity> dataList, final String[] propertyNames,
             final BaseEntitySheetRowHandler<IExcelEntity> sheetRowHandler) {
         BaseEntitySheetRowHandler<IExcelEntity> rowHandler;
-        if (CollectionHelper.isNullOrEmpty(dataList)) {
+        if (CollectionHelper.isEmpty(dataList)) {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
@@ -226,7 +226,7 @@ public class ExcelCreator {
      * @param <T> 含相关excel注解的实体bean类型
      * @param propertyNames 数据对象的属性名,顺序应与标题对应
      */
-    public <T> void fillEntityData(final List<IExcelEntity> data, String[] propertyNames) {
+    public <T> void fillEntityData(final List<? extends IExcelEntity> data, String[] propertyNames) {
         fillEntityData(getSheet(0), data, propertyNames, null);
     }
 
@@ -235,7 +235,7 @@ public class ExcelCreator {
      * 
      * @param data 数据集
      */
-    public void fillEntityData(final List<IExcelEntity> data) {
+    public void fillEntityData(final List<? extends IExcelEntity> data) {
         fillEntityData(getSheet(0), data, null, null);
     }
 
@@ -245,7 +245,7 @@ public class ExcelCreator {
      * @param sheet 指定工作表sheet
      * @param data 数据集
      */
-    public void fillEntityData(Sheet sheet, final List<IExcelEntity> data) {
+    public void fillEntityData(Sheet sheet, final List<? extends IExcelEntity> data) {
         fillEntityData(sheet, data, null, null);
     }
 
@@ -370,7 +370,7 @@ public class ExcelCreator {
      * @param out 文件输出流,请自行关闭方法类不做处理
      * @throws IOException IOException
      */
-    public static void export(final List<IExcelEntity> data, OutputStream out) throws IOException {
+    public static void export(final List<? extends IExcelEntity> data, OutputStream out) throws IOException {
         ExcelCreator creator = new ExcelCreator();
         creator.createSheet();
         creator.fillEntityData(data);

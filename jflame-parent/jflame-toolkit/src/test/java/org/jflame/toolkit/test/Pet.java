@@ -52,7 +52,7 @@ public class Pet implements IExcelEntity {
         this.skin = skin;
     }
 
-    @ExcelColumn(name = "生日", order = 4)
+    @ExcelColumn(name = "生日", order = 4,fmt="yyyy/MM/dd")
     public Date getBirthday() {
         return birthday;
     }

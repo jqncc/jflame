@@ -18,7 +18,7 @@ import com.ghgcn.xxx.common.enums.StatusEnum;
 import com.ghgcn.xxx.common.enums.UserStatusEnum;
 
 /**
- * 实现继承IIntKeyPair的枚举类型与数据库int类型转换
+ * 实现继承IIntKeyPair的枚举类型与数据库int类型转换,具体类型必须在注解@MappedTypes上指定
  * 
  * @author yucan.zhang
  * @param <E>
@@ -53,30 +53,18 @@ public class IntKeyPairTypeHandler<E extends Enum & IIntKeyPair> extends BaseTyp
     @Override
     public E getNullableResult(ResultSet rs, String columnName) throws SQLException {
         int i = rs.getInt(columnName);
-        if (rs.wasNull()) {
-            return null;
-        } else {
-            return objs.get(i);
-        }
+        return objs.get(i);
     }
 
     @Override
     public E getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         int i = rs.getInt(columnIndex);
-        if (rs.wasNull()) {
-            return null;
-        } else {
-            return objs.get(i);
-        }
+        return objs.get(i);
     }
 
     @Override
     public E getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         int i = cs.getInt(columnIndex);
-        if (cs.wasNull()) {
-            return null;
-        } else {
-            return objs.get(i);
-        }
+        return objs.get(i);
     }
 }

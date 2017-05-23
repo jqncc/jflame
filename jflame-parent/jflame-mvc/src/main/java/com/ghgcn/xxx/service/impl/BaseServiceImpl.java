@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.jflame.toolkit.exception.BusinessException;
+import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,8 +107,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
      * @throws BusinessException 批处理异常
      */
     @Override
-    public void saveBatch(List<T> entityList) {
-        saveBatch(entityList, 30);
+    public void batchSave(List<T> entityList) {
+        batchSave(entityList, 30);
     }
 
     /**
@@ -119,11 +119,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
      * @return
      * @throws BusinessException 批处理异常
      */
-    @Override
-    public void saveBatch(List<T> entityList, int batchSize) {
-        if (CollectionUtils.isNotEmpty(entityList)) {
-            if (batchSize<5) {
-                batchSize=30;
+    public void batchSave(List<T> entityList, int batchSize) {
+        if (CollectionHelper.isNotEmpty(entityList)) {
+            if (batchSize < 5) {
+                batchSize = 30;
             }
             try (SqlSession batchSqlSession = sqlSessionBatch()) {
                 int size = entityList.size();
@@ -138,13 +137,13 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
             } catch (Exception e) {
                 throw new BusinessException(e);
             }
-        }else{
+        } else {
             logger.warn("batch insert list is empty");
         }
     }
 
     /**
-     * 插入或更新,主键值存在则更新,否则插入
+     * 插入或更新,判断主键值存在则更新,否则插入
      *
      * @param entity 实体对象
      * @return boolean
@@ -158,7 +157,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
             TableInfo tableInfo = TableInfoHelper.getTableInfo(cls);
             if (null != tableInfo && StringUtils.isNotEmpty(tableInfo.getKeyProperty())) {
                 Object idVal = ReflectionKit.getMethodValue(cls, entity, tableInfo.getKeyProperty());
-                if (idVal == null||"".equals(idVal)) {
+                if (idVal == null || "".equals(idVal)) {
                     return save(entity);
                 } else {
                     return updateById(entity);
@@ -169,29 +168,30 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
         }
         return false;
     }
-    
+
     /**
-     * 批量插入或更新,batch size=30
+     * 批量插入或更新,batch size=30,判断主键值存在则更新,否则插入
+     * 
      * @param entityList
      * @return
      */
     @Override
-    public void saveOrUpdateBatch(List<T> entityList) {
-        saveOrUpdateBatch(entityList, 30);
+    public void batchSaveOrUpdate(List<T> entityList) {
+        batchSaveOrUpdate(entityList, 30);
     }
 
     /**
-     * 批量插入或更新
+     * 批量插入或更新,判断主键值存在则更新,否则插入
+     * 
      * @param entityList
      * @param batchSize
      * @return
      * @throws BusinessException 批处理异常
      */
-    @Override
-    public void saveOrUpdateBatch(List<T> entityList, int batchSize) {
-        if (CollectionUtils.isNotEmpty(entityList)) {
-            if (batchSize<5) {
-                batchSize=30;
+    public void batchSaveOrUpdate(List<T> entityList, int batchSize) {
+        if (CollectionHelper.isNotEmpty(entityList)) {
+            if (batchSize < 5) {
+                batchSize = 30;
             }
             try (SqlSession batchSqlSession = sqlSessionBatch()) {
                 int size = entityList.size();
@@ -205,13 +205,14 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
             } catch (Exception e) {
                 throw new BusinessException(e);
             }
-        }else{
+        } else {
             logger.warn("batch insertOrUpdate list is empty");
         }
     }
 
     /**
      * 按主键删除
+     * 
      * @param id 主键
      * @return
      */
@@ -219,9 +220,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
     public boolean deleteById(Serializable id) {
         return retBool(baseMapper.deleteById(id));
     }
-    
+
     /**
      * 按条件删除
+     * 
      * @param columnMap 表字段 map 对象
      * @return
      */
@@ -232,9 +234,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
         }
         return retBool(baseMapper.deleteByMap(columnMap));
     }
-    
+
     /**
      * 按条件删除
+     * 
      * @param wrapper 条件对象封装
      * @return
      */
@@ -245,16 +248,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
 
     /**
      * 按主键id批量删除
+     * 
      * @param idList id列表
      * @return
      */
     @Override
-    public boolean deleteBatchIds(List<? extends Serializable> idList) {
+    public boolean deleteByIds(List<? extends Serializable> idList) {
         return retBool(baseMapper.deleteBatchIds(idList));
     }
-    
+
     /**
      * 按主键更新
+     * 
      * @param entity 待更新实体对象
      * @return
      */
@@ -262,9 +267,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
     public boolean updateById(T entity) {
         return retBool(baseMapper.updateAllColumnById(entity));
     }
-    
+
     /**
      * 按主键更新,忽略空值
+     * 
      * @param entity 待更新实体对象
      * @return
      */
@@ -275,6 +281,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
 
     /**
      * 按条件更新
+     * 
      * @param entity 待更新实体对象
      * @param wrapper 条件对象封装
      * @return
@@ -283,28 +290,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
     public boolean update(T entity, Wrapper<T> wrapper) {
         return retBool(baseMapper.update(entity, wrapper));
     }
-    
-    /**
-     * 按主键批量更新.batch size=30
-     * @param entityList 待更新实体对象列表
-     * @return
-     */
-    @Override
-    public void updateBatchById(List<T> entityList) {
-        updateBatchById(entityList, 30);
-    }
 
     /**
      * 按主键批量更新.
+     * 
      * @param entityList 待更新实体对象列表
      * @param batchSize 每批次元素个数
      * @return
      */
-    @Override
     public void updateBatchById(List<T> entityList, int batchSize) {
-        if (CollectionUtils.isNotEmpty(entityList)) {
-            if (batchSize<5) {
-                batchSize=30;
+        if (CollectionHelper.isNotEmpty(entityList)) {
+            if (batchSize < 5) {
+                batchSize = 30;
             }
             try (SqlSession batchSqlSession = sqlSessionBatch()) {
                 int size = entityList.size();
@@ -319,33 +316,36 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
             } catch (Exception e) {
                 throw new BusinessException(e);
             }
-        }else{
+        } else {
             logger.warn("batch update list is empty");
         }
     }
 
     /**
      * 按id查询
+     * 
      * @param id
      * @return
      */
     @Override
-    public T selectById(Serializable id) {
+    public T getById(Serializable id) {
         return baseMapper.selectById(id);
     }
-    
+
     /**
      * 按id列表查询
+     * 
      * @param idList id列表
      * @return
      */
     @Override
-    public List<T> selectBatchIds(List<? extends Serializable> idList) {
+    public List<T> getByIds(List<? extends Serializable> idList) {
         return baseMapper.selectBatchIds(idList);
     }
-    
+
     /**
      * 按条件查询
+     * 
      * @param columnMap 表字段 map 对象
      * @return
      */
@@ -356,6 +356,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
 
     /**
      * 按条件查询单一对象
+     * 
      * @param wrapper 条件对象封装
      * @return
      */
@@ -413,6 +414,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>,T> implements IBaseService<
         SqlHelper.fillWrapper(page, wrapper);
         page.setRecords(baseMapper.selectPage(page, wrapper));
         return page;
+    }
+
+    @Override
+    public void updateByIds(List<T> entityList) {
+        updateBatchById(entityList, 30);
     }
 
 }

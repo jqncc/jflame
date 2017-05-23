@@ -8,7 +8,7 @@ import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * 转码工具类,支持base64,hex转码,int与byte[4]转换
+ * 转码工具类,支持base64,hex转码,int与byte[4]转换,url编码,byte与Long转换
  * 
  * @author zyc
  */
