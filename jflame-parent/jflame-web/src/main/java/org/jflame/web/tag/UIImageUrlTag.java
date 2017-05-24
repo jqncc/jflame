@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.FunctionUtils;
@@ -17,18 +16,16 @@ import org.jflame.web.util.WebUtils;
  * 
  * @author yucan.zhang
  */
-public class UIImageUrlTag extends UIHtmlTag {
+public class UIImageUrlTag extends UIHtmlTag{
 
-    private static final long serialVersionUID = 1L;
     private final String attrName = "baseImgUrl";
     private String src;
 
     @Override
-    public int doStartTag() throws JspException {
+    public void doTag() throws JspException, IOException {
         StringBuilder strBuf = new StringBuilder(50);
         strBuf.append("<img src=\"");
         if (StringHelper.isNotEmpty(src)) {
-
             /* 绝对路径图片直接输出,相对路径合并图片服务器根地址 */
             if (WebUtils.isAbsoluteUrl(src)) {
                 strBuf.append(src);
@@ -39,12 +36,7 @@ public class UIImageUrlTag extends UIHtmlTag {
         strBuf.append("\"");
         setAttributes(strBuf);
         strBuf.append(">");
-        try {
-            pageContext.getOut().print(strBuf);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return TagSupport.SKIP_BODY;
+        getOut().print(strBuf);
     }
 
     /**
@@ -80,5 +72,4 @@ public class UIImageUrlTag extends UIHtmlTag {
     @Override
     protected void setDataSource() {
     }
-
 }

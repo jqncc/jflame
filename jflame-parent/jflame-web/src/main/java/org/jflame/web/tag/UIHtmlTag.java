@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
  * 
  * @author zyc
  */
-@SuppressWarnings("serial")
 public abstract class UIHtmlTag extends BaseTag {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());

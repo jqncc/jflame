@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.jflame.toolkit.common.bean.pair.IKeyValuePair;
 import org.jflame.toolkit.common.bean.pair.KeyValuePair;
@@ -16,14 +15,14 @@ import org.jflame.toolkit.util.StringHelper;
  * 
  * @author zyc
  */
-@SuppressWarnings("serial")
 public abstract class AbstractUISelectTag extends UIHtmlTag {
 
     private String value;// 传入值,即选择值
     private String defaultValue;// 默认选项值
     private String defaultText;// 默认选项文本
 
-    public int doStartTag() throws JspException {
+    @Override
+    public void doTag() throws JspException, IOException {
         StringBuilder strBuf = new StringBuilder(50);
         strBuf.append("<select");
         setAttributes(strBuf);
@@ -49,12 +48,9 @@ public abstract class AbstractUISelectTag extends UIHtmlTag {
             }
         }
         strBuf.append("</select>");
-        try {
-            pageContext.getOut().print(strBuf);
-        } catch (IOException e) {
-            logger.error("ui:selectEnum error", e);
-        }
-        return TagSupport.SKIP_BODY;
+
+        getOut().print(strBuf);
+
     }
 
     @Override

@@ -3,23 +3,22 @@ package org.jflame.web.tag;
 import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
 
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * 图片验证码生成标签.
- * 示例:
+ * 图片验证码生成标签. 示例:
+ * 
  * <pre>
  * &lt;jf:validcode width="100" height="40" codeCount="4" codeName="regcode" id="validcode" /&gt;
  * &lt;jf:validcode codeName="logincode" /&gt;
  * &lt;jf:validcode /&gt;
  * </pre>
+ * 
  * @author yucan.zhang
  */
 public class ValidateCodeTag extends UIHtmlTag {
 
-    private static final long serialVersionUID = 1L;
     private Integer width;
     private Integer height;
     private Integer codeCount;
@@ -27,7 +26,7 @@ public class ValidateCodeTag extends UIHtmlTag {
     private final String tagFmt = "<img src=\"%2$s/validcode?rn=1%1$s\" title=\"点击刷新\" onclick=\"this.src='%2$s/validcode?rn=1%1$s&r='+Math.random()\"";
 
     @Override
-    public int doStartTag() throws JspException {
+    public void doTag() throws JspException, IOException {
         String paramStr = "";
         if (width != null) {
             paramStr = paramStr + "&w=" + width;
@@ -42,15 +41,12 @@ public class ValidateCodeTag extends UIHtmlTag {
             paramStr = paramStr + "&n=" + codeName;
         }
         StringBuilder strBuilder = new StringBuilder(100);
-        strBuilder.append(String.format(tagFmt, paramStr,getContextPath()));
+        strBuilder.append(String.format(tagFmt, paramStr, getContextPath()));
         setAttributes(strBuilder);
         strBuilder.append(" >");
-        try {
-            pageContext.getOut().print(strBuilder);
-        } catch (IOException e) {
-            logger.error("ui:selectEnum error", e);
-        }
-        return TagSupport.SKIP_BODY;
+
+        getOut().print(strBuilder);
+
     }
 
     @Override
