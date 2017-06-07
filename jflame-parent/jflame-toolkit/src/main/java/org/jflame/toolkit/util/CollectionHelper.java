@@ -5,6 +5,12 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * 集合工具
+ * @see java.util.Collections
+ * @author yucan.zhang
+ *
+ */
 public final class CollectionHelper {
 
     /**

@@ -20,7 +20,7 @@ public class HttpTest {
         HttpResponse result = HttpHelper.get("https://ww.baidu.com/s?wd=keyword");
         System.out.println("请求状态：" + result.getStatus());
         System.out.println("返回消息描述：" + result.getMessage());
-        System.out.println("返回数据：" + result.getData());
+        System.out.println("返回数据：" + result.getDataAsText());
     }
 
     @Test

@@ -1,4 +1,4 @@
-package cn.huaxunchina.common.jdbcsupport;
+package org.jflame.db;
 
 import java.beans.PropertyDescriptor;
 import java.sql.ResultSet;
@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jflame.db.metadata.IMetaDataProvider;
+import org.jflame.db.metadata.DefaultMetaDataProvider;
+import org.jflame.db.metadata.TableMetaData;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -17,7 +20,7 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
 {
     private Class<T> mappedClass;
     private Map<String, PropertyDescriptor> mappedFields;
-    private TableEntityMetaData metaData;
+    private TableMetaData metaData;
 
     public AnnonBeanPropertyRowMapper()
     {
@@ -36,8 +39,8 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
     protected void initialize(Class<T> mappedClass)
     {
         this.mappedClass = mappedClass;
-        IMetaDataProvider metaDataProvider = new TEMetaDataProvider();
-        metaData = metaDataProvider.extractTableEntityMetaData(mappedClass);
+        IMetaDataProvider metaDataProvider = new DefaultMetaDataProvider();
+        metaData = metaDataProvider.extractTableMetaData(mappedClass);
         this.mappedFields = new HashMap<String, PropertyDescriptor>();
         PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(mappedClass);
         String tmpColumn;

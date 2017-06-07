@@ -1,4 +1,4 @@
-package cn.huaxunchina.common.jdbcsupport;
+package org.jflame.db;
 
 /**
  * 生成sql时的异常

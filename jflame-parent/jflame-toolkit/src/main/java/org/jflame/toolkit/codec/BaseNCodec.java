@@ -1,6 +1,5 @@
 package org.jflame.toolkit.codec;
 
-import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.binary.StringUtils;
 
 public abstract class BaseNCodec {
@@ -219,15 +218,15 @@ public abstract class BaseNCodec {
 
     /**
      * Encodes an Object using the Base-N algorithm. This method is provided in order to satisfy the requirements of the
-     * Encoder interface, and will throw an EncoderException if the supplied object is not of type byte[].
+     * Encoder interface, and will throw an TranscodeException if the supplied object is not of type byte[].
      *
      * @param pobject Object to encode
      * @return An object (of type byte[]) containing the Base-N encoded data which corresponds to the byte[] supplied.
-     * @throws EncoderException if the parameter supplied is not of type byte[]
+     * @throws TranscodeException if the parameter supplied is not of type byte[]
      */
-    public Object encode(Object pobject) throws EncoderException {
+    public Object encode(Object pobject) throws TranscodeException {
         if (!(pobject instanceof byte[])) {
-            throw new EncoderException("Parameter supplied to Base-N encode is not a byte[]");
+            throw new TranscodeException("Parameter supplied to Base-N encode is not a byte[]");
         }
         return encode((byte[]) pobject);
     }
