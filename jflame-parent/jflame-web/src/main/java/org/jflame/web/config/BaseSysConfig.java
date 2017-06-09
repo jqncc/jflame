@@ -148,42 +148,41 @@ public class BaseSysConfig implements ISysConfig {
     @Override
     public Boolean getBoolParam(String paramKey) {
         Object value = getParam(paramKey);
-        if (value != null) {
-            if (value instanceof Boolean) {
-                return (Boolean) value;
-            } else {
-                String valueText = String.valueOf(value);
-                return "1".equals(valueText) || "true".equalsIgnoreCase(valueText);
-            }
+        if (value == null) {
+            return null;
         }
-        return null;
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        String valueText = String.valueOf(value);
+        return "1".equals(valueText) || "true".equalsIgnoreCase(valueText);
     }
 
     @Override
     public Integer getIntParam(String paramKey) {
         Object value = getParam(paramKey);
-        if (value != null) {
-            if (value instanceof Integer) {
-                return (Integer) value;
-            }
-        } else {
-            String valueText = String.valueOf(value);
-            return NumberHelper.parseNumber(valueText, Integer.class);
+        if (value==null) {
+            return null;
         }
-        return null;
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        String valueText = String.valueOf(value);
+        return NumberHelper.parseNumber(valueText, Integer.class);
+
     }
 
     @Override
     public Long getLongParam(String paramKey) {
         Object value = getParam(paramKey);
-        if (value != null) {
-            if (value instanceof Integer) {
-                return (Long) value;
-            }
-        } else {
-            String valueText = String.valueOf(value);
-            return NumberHelper.parseNumber(valueText, Long.class);
+        if (value == null) {
+            return null;
         }
-        return null;
+        if (value instanceof Integer) {
+            return (Long) value;
+        }
+
+        String valueText = String.valueOf(value);
+        return NumberHelper.parseNumber(valueText, Long.class);
     }
 }
