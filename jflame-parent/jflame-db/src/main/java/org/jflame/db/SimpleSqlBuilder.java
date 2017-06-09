@@ -17,7 +17,7 @@ public class SimpleSqlBuilder
     public final static String SQL_QERUY_BY_WHERE = "select * from {0}";
     public final static String SQL_DEL_BY_ACOLUMN = "delete from {0} where {1}=?";
     
-    public final static String SQL_QERUY_BY_ACOLUMN = "select * from where {0}=?";
+    public final static String SQL_QERUY_BY_ACOLUMN = "select * from {0} where {1}=?";
     /**
      * 分页SQL
      */
@@ -28,7 +28,7 @@ public class SimpleSqlBuilder
     
     
     public static String selectSimple(TableMetaData metaData, String whereColumn,SingleOrder order){
-        String selectSQL = MessageFormat.format(SQL_QERUY_BY_WHERE, metaData.getTableName());
+        String selectSQL = MessageFormat.format(SQL_QERUY_BY_ACOLUMN, metaData.getTableName(),whereColumn);
         if (order!=null) {
             selectSQL+=" order by "+order.toString();
         }

@@ -37,8 +37,7 @@ public class CamelMetaNameConverter implements IMetaNameConverter {
         if (StringHelper.isEmpty(propertyName)) {
             throw new IllegalArgumentException("propertyName name can't be blank");
         }
-        return upperCase ? StringHelper.camelToUnderline(propertyName)
-                : StringHelper.camelToUnderline(propertyName).toUpperCase();
+        return upperCase?StringHelper.camelToUnderline(propertyName).toUpperCase():StringHelper.camelToUnderline(propertyName);
     }
 
 }

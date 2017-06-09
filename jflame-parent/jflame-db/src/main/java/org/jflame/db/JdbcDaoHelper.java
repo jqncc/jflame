@@ -17,7 +17,6 @@ import org.jflame.db.metadata.DefaultMetaDataProvider;
 import org.jflame.db.metadata.IMetaDataProvider;
 import org.jflame.db.metadata.TableMetaData;
 import org.jflame.toolkit.common.bean.PageBean;
-import org.jflame.toolkit.reflect.ReflectionHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
@@ -61,14 +60,14 @@ public class JdbcDaoHelper implements DbEnvironment, IBaseDao {
     /**
      * 根据id查询
      * 
-     * @param entityClazz
-     * @param id
+     * @param entityClazz 对象类型
+     * @param id 主键id
      * @return
      */
     @Override
     public <T> T getById(final Class<T> entityClazz, Object id) {
         TableMetaData metaData = metaDataProvider.extractTableMetaData(entityClazz);
-        String sqlString = SimpleSqlBuilder.selectSql(metaData, metaData.getKey().getColumnName(), null);
+        String sqlString = SimpleSqlBuilder.selectSimple(metaData, metaData.getKey().getColumnName(), null);
         return get(sqlString, entityClazz, id);
     }
 
@@ -111,6 +110,7 @@ public class JdbcDaoHelper implements DbEnvironment, IBaseDao {
      */
     @Override
     public <T> List<T> query(final String sql, final Class<T> elementType, final Object... params) {
+        logger.debug(sql);
         if (BeanUtils.isSimpleValueType(elementType))
             return jdbcTemplate.getJdbcOperations().queryForList(sql, elementType, params);
         else

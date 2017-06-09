@@ -21,7 +21,9 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
     private Class<T> mappedClass;
     private Map<String, PropertyDescriptor> mappedFields;
     private TableMetaData metaData;
-
+    private IMetaDataProvider metaDataProvider = new DefaultMetaDataProvider();
+    
+    
     public AnnonBeanPropertyRowMapper()
     {
     }
@@ -39,7 +41,7 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
     protected void initialize(Class<T> mappedClass)
     {
         this.mappedClass = mappedClass;
-        IMetaDataProvider metaDataProvider = new DefaultMetaDataProvider();
+        
         metaData = metaDataProvider.extractTableMetaData(mappedClass);
         this.mappedFields = new HashMap<String, PropertyDescriptor>();
         PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(mappedClass);
@@ -64,8 +66,8 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
         int columnCount = rsmd.getColumnCount();
         for (int index = 1; index <= columnCount; index++)
         {
-            String column = JdbcUtils.lookupColumnName(rsmd, index).toUpperCase();// 获取列名
-            PropertyDescriptor pd = this.mappedFields.get(column);// 获取列对应的属性
+            String column = JdbcUtils.lookupColumnName(rsmd, index);// 获取列名
+            PropertyDescriptor pd = this.mappedFields.get(column.toLowerCase());// 获取列对应的属性
             if (pd != null)
             {
                 Object value = JdbcUtils.getResultSetValue(rs, index, pd.getPropertyType());
@@ -81,4 +83,5 @@ public class AnnonBeanPropertyRowMapper<T> implements RowMapper<T>
         newInstance.setMappedClass(mappedClass);
         return newInstance;
     }
+
 }

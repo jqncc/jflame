@@ -13,6 +13,7 @@ import org.jflame.db.IMetaNameConverter;
 import org.jflame.db.annotations.Column;
 import org.jflame.db.annotations.Id;
 import org.jflame.db.annotations.Table;
+import org.jflame.toolkit.util.StringHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 
@@ -34,13 +35,18 @@ public class DefaultMetaDataProvider implements IMetaDataProvider {
         if (metaData == null) {
             metaData = new TableMetaData();
             // 查找是否有table注解,如果没有注解将实体类名转为下划线分隔方式的表名
+            String tableName=null;
             if (entityClazz.isAnnotationPresent(Table.class)) {
                 Table table = entityClazz.getAnnotation(Table.class);
-                metaData.setTableName(table.name());
-            } else {
+                tableName=table.name();
+            }
+            //注解未设置表名
+            if (StringHelper.isEmpty(tableName)) {
                 metaData.setTableName(tableConvertor.propertyToDbname(entityClazz.getSimpleName()));
             }
+            metaData.setTableName(tableName);
             PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(entityClazz);
+            //提取列与属性元数据
             setColumMetaData(metaData, pds);
             metaDataCache.put(entityClazz, metaData);
         }
