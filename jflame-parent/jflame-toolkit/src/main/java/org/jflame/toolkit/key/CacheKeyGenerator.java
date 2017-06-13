@@ -3,6 +3,11 @@ package org.jflame.toolkit.key;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.SerializationUtils;
+import org.jflame.toolkit.codec.Base64;
+import org.jflame.toolkit.reflect.BeanHelper;
+import org.jflame.toolkit.util.JsonHelper;
+
 /**
  * 缓存key生成
  * 
@@ -11,10 +16,10 @@ import java.util.Arrays;
 public class CacheKeyGenerator {
 
     private final static int NO_PARAM_KEY = 0;
-    private String keyPrefix = "jflame";// key前缀，用于区分不同项目的缓存，建议每个项目单独设置
+    private String keyPrefix = "jf";// key前缀，用于区分不同项目的缓存，建议每个项目单独设置
 
     /**
-     * 对指定方法签名生成key,生成规则:对象类型名:前缀:方法名:参数hashcode
+     * 对指定方法签名生成key,生成规则:对象类型名:前缀:类名:方法名:参数(string/hashcode)
      * 
      * @param target 对象
      * @param method 方法
@@ -23,7 +28,7 @@ public class CacheKeyGenerator {
      */
     public Object generate(Object target, Method method, Object... params) {
         char sp = ':';
-        StringBuilder strBuilder = new StringBuilder(20);
+        StringBuilder strBuilder = new StringBuilder(30);
         strBuilder.append(keyPrefix);
         strBuilder.append(sp);
         // 类名
@@ -34,7 +39,13 @@ public class CacheKeyGenerator {
         strBuilder.append(sp);
         if (params.length > 0) {
             // 参数值
-            strBuilder.append(Arrays.hashCode(params));
+            for (Object object : params) {
+                if (BeanHelper.isSimpleValueType(object.getClass())) {
+                    strBuilder.append(object);
+                } else {
+                    strBuilder.append(JsonHelper.toJson(object).hashCode());
+                }
+            }
         } else {
             strBuilder.append(NO_PARAM_KEY);
         }

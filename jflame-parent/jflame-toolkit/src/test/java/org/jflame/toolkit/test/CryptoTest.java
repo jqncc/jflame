@@ -37,7 +37,7 @@ public class CryptoTest {
         System.out.println("私钥解密:" + plain1);
         
     }
-
+ 
     @Test
     public void testSymmetric() {
         byte[] passwd = "0123456789123456".getBytes();
@@ -74,5 +74,18 @@ public class CryptoTest {
         String pa3 = encryptor3.decryptBase64(a3, passwd8, iv8);
         System.out.println("des cbc pkcs5解密" + pa3);
 
+    }
+    
+    @Test
+    public void testSymmetric2() {
+        
+        byte[] passwd = "0123456789123456".getBytes();
+        byte[] iv = new byte[16];
+
+        SymmetricEncryptor encryptor = new SymmetricEncryptor(Algorithm.AES);
+        String a = encryptor.encrytTextToBase64("中国人字符串envi", passwd,null);
+        System.out.println("aes默认加密:" + a);// LH5ABqeVCIhuyGW1coZGxU9cG6JXdcdoILJWS0pVhoY
+        String pa = encryptor.decryptBase64(a, passwd, iv);
+        System.out.println("aes默认解密:" + pa);
     }
 }

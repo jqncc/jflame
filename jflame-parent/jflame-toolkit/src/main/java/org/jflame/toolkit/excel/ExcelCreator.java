@@ -180,7 +180,7 @@ public class ExcelCreator {
     public void fillEntityData(Sheet sheet, final List<? extends IExcelEntity> dataList, final String[] propertyNames,
             final BaseEntitySheetRowHandler<IExcelEntity> sheetRowHandler) {
         BaseEntitySheetRowHandler<IExcelEntity> rowHandler;
-        if (CollectionHelper.isEmpty(dataList)) {
+        if (CollectionHelper.isNotEmpty(dataList)) {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;

@@ -2,9 +2,8 @@ package org.jflame.toolkit.codec;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.binary.StringUtils;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * Hex 十六进制编码工具类.取自apapche-commons-codec包
@@ -203,7 +202,11 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
      * @see #encodeHex(byte[])
      */
     public byte[] encode(byte[] array) {
-        return StringUtils.getBytesUnchecked(encodeHexString(array), getCharsetName());
+        try {
+            return StringHelper.getBytes(encodeHexString(array), getCharsetName());
+        } catch (TranscodeException e) {
+            throw new IllegalStateException(getCharsetName() + ": " + e);
+        }
     }
 
     /**
@@ -217,18 +220,18 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
      * 
      * @param object a String, or byte[] to convert to Hex characters
      * @return A char[] containing hexadecimal characters
-     * @throws EncoderException Thrown if the given object is not a String or byte[]
+     * @throws TranscodeException Thrown if the given object is not a String or byte[]
      * @see #encodeHex(byte[])
      */
-    public Object encode(Object object) throws EncoderException {
+    public Object encode(Object object) throws TranscodeException {
         try {
             byte[] byteArray = object instanceof String ? ((String) object).getBytes(getCharsetName())
                     : (byte[]) object;
             return encodeHex(byteArray);
         } catch (ClassCastException e) {
-            throw new EncoderException(e.getMessage(), e);
+            throw new TranscodeException(e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
-            throw new EncoderException(e.getMessage(), e);
+            throw new TranscodeException(e.getMessage(), e);
         }
     }
 

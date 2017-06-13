@@ -173,4 +173,16 @@ public final class TranscodeHelper {
         return num;
     }
 
+    /**
+     * long转byte数组
+     * @param num
+     * @return
+     */
+    public static byte[] longToBytes(long num) {
+        byte[] b = new byte[8];
+        for (int i = 0; i < 8; i++) {
+            b[i] = (byte) (num >>> (56 - i * 8));
+        }
+        return b;
+    }
 }

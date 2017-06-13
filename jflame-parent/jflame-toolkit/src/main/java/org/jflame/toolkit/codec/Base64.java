@@ -2,7 +2,6 @@ package org.jflame.toolkit.codec;
 
 import java.math.BigInteger;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.jflame.toolkit.util.StringHelper;
 
 public class Base64 extends BaseNCodec {
@@ -203,7 +202,7 @@ public class Base64 extends BaseNCodec {
         // @see test case Base64Test.testConstructors()
         if (lineSeparator != null) {
             if (containsAlphabetOrPad(lineSeparator)) {
-                String sep = StringUtils.newStringUtf8(lineSeparator);
+                String sep = StringHelper.getUtf8String(lineSeparator);
                 throw new IllegalArgumentException("lineSeparator must not contain base64 characters: [" + sep + "]");
             }
             if (lineLength > 0) { // null line-sep forces no chunking rather than throwing IAE

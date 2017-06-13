@@ -13,7 +13,9 @@ import org.jflame.toolkit.net.IPAddressHelper;
  * +41位时间戳，（当前时间戳 - 开始时间戳）<br />
  * +N位的数据机器位,数据中心位+机器位<br />
  * +M位序列，1毫秒内最多生成M位序列<br />
- * <p><strong>注:单实例多线程安全,多实例可能产生重复id</strong>
+ * <p>
+ * <strong>注:单实例多线程安全,多实例可能产生重复id</strong>
+ * 
  * @author yucan.zhang
  */
 public final class SnowflakeGenerator {
@@ -21,9 +23,9 @@ public final class SnowflakeGenerator {
     // 开始该类生成ID的时间戳
     private final static long startTime = 1483436297001L;
     // 机器id所占的位数
-    private final static long workerIdBits = 8L;
+    private final static long workerIdBits = 7L;
     // 数据中心标识id所占的位数
-    private final static long datacenterIdBits = 2L;
+    private final static long datacenterIdBits = 3L;
     // 支持的最大机器id =255
     private final static long maxWorkerId = -1L ^ (-1L << workerIdBits);
     // 支持的最大数据标识id=3
@@ -48,17 +50,17 @@ public final class SnowflakeGenerator {
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
-     * 构造函数，默认workerid=ip%254，只适合各主机在同一局域网使用
+     * 构造函数
      */
     public SnowflakeGenerator() {
         InetAddress ip = IPAddressHelper.getLocalIPAddress();
         if (ip != null) {
-            long ipInt = TranscodeHelper.bytesToLong(ip.getAddress());
-            this.workerId = ipInt % 254;
+            int ipInt = TranscodeHelper.bytesToInt(ip.getAddress());
+            this.datacenterId = ipInt % 254;
         } else {
-            this.workerId = random.nextInt(254);
+            this.datacenterId = random.nextInt(254);
         }
-        this.datacenterId = 1L;
+        this.workerId = Thread.currentThread().getId();
     }
 
     /**
@@ -133,39 +135,39 @@ public final class SnowflakeGenerator {
     }
 
     // 测试
-    //    public static void main(String[] args) {
-    //        final int threadCount = 3;
-    //        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
-    //        final Set<Long> set = new java.util.concurrent.CopyOnWriteArraySet<>();
+    // public static void main(String[] args) {
+    // final int threadCount = 3;
+    // final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+    // final Set<Long> set = new java.util.concurrent.CopyOnWriteArraySet<>();
     //
-    //        final SnowflakeGenerator idWorker = new SnowflakeGenerator(0, 1);
+    // final SnowflakeGenerator idWorker = new SnowflakeGenerator(0, 1);
     //
-    //        long l = System.currentTimeMillis();
-    //        for (int i = 0; i < threadCount; i++) {
-    //            new Thread(new Runnable() {
+    // long l = System.currentTimeMillis();
+    // for (int i = 0; i < threadCount; i++) {
+    // new Thread(new Runnable() {
     //
-    //                @Override
-    //                public void run() {
-    //                    int j = 0;
-    //                    Long tmp;
-    //                    while (j < 1000) {
-    //                        tmp = idWorker.nextId();
-    //                        set.add(tmp);
-    //                        System.out.println(tmp);
-    //                        j++;
-    //                    }
-    //                    countDownLatch.countDown();
-    //                }
-    //            }).start();
-    //        }
-    //        try {
-    //            countDownLatch.await();
-    //        } catch (InterruptedException e) {
-    //            e.printStackTrace();
-    //        }
-    //        System.out.println(System.currentTimeMillis() - l);
-    //        System.out.println(set.size());
-    //        // for (Long long1 : set) { System.out.println(long1); }
-    //    }
+    // @Override
+    // public void run() {
+    // int j = 0;
+    // Long tmp;
+    // while (j < 1000) {
+    // tmp = idWorker.nextId();
+    // set.add(tmp);
+    // System.out.println(tmp);
+    // j++;
+    // }
+    // countDownLatch.countDown();
+    // }
+    // }).start();
+    // }
+    // try {
+    // countDownLatch.await();
+    // } catch (InterruptedException e) {
+    // e.printStackTrace();
+    // }
+    // System.out.println(System.currentTimeMillis() - l);
+    // System.out.println(set.size());
+    // // for (Long long1 : set) { System.out.println(long1); }
+    // }
 
 }

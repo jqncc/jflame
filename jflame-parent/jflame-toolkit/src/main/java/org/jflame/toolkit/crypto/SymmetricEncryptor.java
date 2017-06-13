@@ -61,12 +61,14 @@ public class SymmetricEncryptor extends BaseEncryptor {
     
 
     /**
-     * 构造函数,使用默认加密填充方式.
+     * 构造函数,使用默认加密填充方式ECB/PKCS5Padding.
      * 
      * @param algorithm 算法名称
      */
     public SymmetricEncryptor(Algorithm algorithm) {
         curAlgorithm = algorithm;
+        curOpMode=OpMode.ECB;
+        curPadding=Padding.PKCS5Padding;
         init();
     }
 
