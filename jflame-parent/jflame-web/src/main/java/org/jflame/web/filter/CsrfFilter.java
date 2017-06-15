@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -55,8 +56,8 @@ public class CsrfFilter implements Filter {
                 errorPage = paramErrorPage.trim();
             }
             if (StringHelper.isNotEmpty(paramWhiteFile)) {
-                if (paramWhiteFile.charAt(0)!=FileHelper.UNIX_SEPARATOR) {
-                    paramWhiteFile=FileHelper.UNIX_SEPARATOR+paramWhiteFile;
+                if (paramWhiteFile.charAt(0) != FileHelper.UNIX_SEPARATOR) {
+                    paramWhiteFile = FileHelper.UNIX_SEPARATOR + paramWhiteFile;
                 }
                 List<String> whiteUrlStrs = null;
                 try {
@@ -66,10 +67,11 @@ public class CsrfFilter implements Filter {
                     logger.error("csrf白名单读取失败", e);
                 }
                 if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
+                    whiteUrls=new ArrayList<>();
                     for (String urlStr : whiteUrlStrs) {
                         if (StringUtils.isNotBlank(urlStr)) {
                             try {
-                                URI.create(urlStr.trim());
+                                whiteUrls.add(URI.create(urlStr.trim()));
                             } catch (IllegalArgumentException e) {
                                 logger.error("不是正确的URI地址" + urlStr, e);
                             }
@@ -120,11 +122,13 @@ public class CsrfFilter implements Filter {
                     && refererUri.getPort() == request.getServerPort()) {
                 isSafeUri = true;
             } else {
-                for (URI uri : whiteUrls) {
-                    if (uri.getScheme().equals(refererUri.getScheme())
-                            && uri.getAuthority().equals(refererUri.getAuthority())) {
-                        isSafeUri = true;
-                        break;
+                if (CollectionHelper.isNotEmpty(whiteUrls)) {
+                    for (URI uri : whiteUrls) {
+                        if (refererUri.getScheme().equals(uri.getScheme())
+                                && uri.getAuthority().equals(refererUri.getAuthority())) {
+                            isSafeUri = true;
+                            break;
+                        }
                     }
                 }
             }
