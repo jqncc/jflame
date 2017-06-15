@@ -39,10 +39,10 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,Object
                     flag = ValidatorHelper.isIDCard((String) value);
                     break;
                 case letter:
-                    flag = ValidatorHelper.isLetterOrNumOrUnderline((String) value);
+                    flag = ValidatorHelper.isLetter((String) value);
                     break;
                 case letterNumOrline:
-                    flag = ValidatorHelper.isLetter((String) value);
+                    flag = ValidatorHelper.isLetterOrNumOrUnderline((String) value);
                     break;
                 case ip:
                     flag = ValidatorHelper.isIPAddress((String) value);

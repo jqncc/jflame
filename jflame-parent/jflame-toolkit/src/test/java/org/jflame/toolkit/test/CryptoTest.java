@@ -1,8 +1,10 @@
 package org.jflame.toolkit.test;
 
 import java.security.KeyPair;
+import java.security.Security;
 import java.security.interfaces.RSAPrivateKey;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jflame.toolkit.codec.Base64;
 import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
 import org.jflame.toolkit.crypto.BaseEncryptor.OpMode;
@@ -10,6 +12,8 @@ import org.jflame.toolkit.crypto.BaseEncryptor.Padding;
 import org.jflame.toolkit.crypto.RSAEncryptor;
 import org.jflame.toolkit.crypto.SymmetricEncryptor;
 import org.junit.Test;
+
+import com.sun.tools.classfile.Opcode;
 
 public class CryptoTest {
 
@@ -83,6 +87,19 @@ public class CryptoTest {
         byte[] iv = new byte[16];
 
         SymmetricEncryptor encryptor = new SymmetricEncryptor(Algorithm.AES);
+        String a = encryptor.encrytTextToBase64("中国人字符串envi", passwd,null);
+        System.out.println("aes默认加密:" + a);// LH5ABqeVCIhuyGW1coZGxU9cG6JXdcdoILJWS0pVhoY
+        String pa = encryptor.decryptBase64(a, passwd, iv);
+        System.out.println("aes默认解密:" + pa);
+    }
+    
+    @Test
+    public void testBCProvider() {
+        
+        byte[] passwd = "0123456789123456".getBytes();
+        byte[] iv = new byte[16];
+        
+        SymmetricEncryptor encryptor = new SymmetricEncryptor(Algorithm.AES,OpMode.ECB,Padding.PKCS7Padding,new BouncyCastleProvider(), "BC");
         String a = encryptor.encrytTextToBase64("中国人字符串envi", passwd,null);
         System.out.println("aes默认加密:" + a);// LH5ABqeVCIhuyGW1coZGxU9cG6JXdcdoILJWS0pVhoY
         String pa = encryptor.decryptBase64(a, passwd, iv);

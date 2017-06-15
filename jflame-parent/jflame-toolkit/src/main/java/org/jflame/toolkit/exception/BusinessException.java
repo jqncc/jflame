@@ -9,6 +9,15 @@ package org.jflame.toolkit.exception;
 public class BusinessException extends RuntimeException {
 
     private static final long serialVersionUID = 8128513200524494718L;
+    private int statusCode;// 异常状态码
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
 
     public BusinessException(String message) {
         super(message);
@@ -22,4 +31,18 @@ public class BusinessException extends RuntimeException {
         super(error);
     }
 
+    public BusinessException(String message, int statusCode) {
+        super(message + " status code:" + statusCode);
+        this.statusCode = statusCode;
+    }
+
+    public BusinessException(int statusCode, Throwable exception) {
+        super("", exception);
+        this.statusCode = statusCode;
+    }
+
+    public BusinessException(String message, int statusCode, Throwable exception) {
+        super(message + " status code:" + statusCode, exception);
+        this.statusCode = statusCode;
+    }
 }

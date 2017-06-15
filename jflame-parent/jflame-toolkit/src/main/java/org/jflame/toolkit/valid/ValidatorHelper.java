@@ -56,7 +56,7 @@ public final class ValidatorHelper {
     /**
      * sql特殊字符
      */
-    public final static char[] UNSAFE_SQLCHARS = { '*','%','\'','=','<','>','`',';','?','&','!' };
+    public final static char[] UNSAFE_SQLCHARS = { '*','%','\'','=','<','>','`',';','?','&','!','#' };
 
     /**
      * 检验指定字符串是否符合指定的正则表达式

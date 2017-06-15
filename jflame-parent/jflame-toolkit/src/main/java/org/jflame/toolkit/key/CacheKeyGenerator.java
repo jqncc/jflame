@@ -1,10 +1,7 @@
 package org.jflame.toolkit.key;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
-import org.apache.commons.lang3.SerializationUtils;
-import org.jflame.toolkit.codec.Base64;
 import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.JsonHelper;
 

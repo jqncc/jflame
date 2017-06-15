@@ -380,7 +380,7 @@ public final class HttpHelper {
             log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
             result.setHeaders(httpConn.getHeaderFields());
             String respCharset = detectCharset(httpConn.getContentType());
-            if (result.isSuccess()) {
+            if (result.success()) {
                 try (InputStream inStream = getInputStream(httpConn)) {
                     if (resultType == 0) {
                         result.setData(IOHelper.readText(inStream,

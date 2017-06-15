@@ -16,6 +16,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -44,8 +45,8 @@ public class RSAEncryptor extends BaseEncryptor {
      * 构造函数,ras默认
      */
     public RSAEncryptor() {
-        curAlgorithm = Algorithm.RSA;// OpMode.ECB,Padding.PKCS1PADDING
-        // Security.addProvider(new BouncyCastleProvider());
+        super(Algorithm.RSA, OpMode.ECB, Padding.PKCS1PADDING);
+        // curAlgorithm = Algorithm.RSA; OpMode.ECB,Padding.PKCS1PADDING
     }
 
     /**
@@ -55,9 +56,7 @@ public class RSAEncryptor extends BaseEncryptor {
      * @param paddingMode 填充模式
      */
     public RSAEncryptor(OpMode encMode, Padding paddingMode) {
-        this();
-        curOpMode = encMode;
-        curPadding = paddingMode;
+        super(Algorithm.RSA, encMode, paddingMode);
     }
 
     /**
@@ -72,7 +71,6 @@ public class RSAEncryptor extends BaseEncryptor {
         SecureRandom sr = new SecureRandom();
         KeyPairGenerator kpg = null;
         try {
-            // kpg = KeyPairGenerator.getInstance(curAlgorithm.name(), "BC");
             kpg = KeyPairGenerator.getInstance(Algorithm.RSA.name());
         } catch (NoSuchAlgorithmException e) {
             throw new EncryptException(e);
@@ -255,16 +253,27 @@ public class RSAEncryptor extends BaseEncryptor {
 
     private byte[] docrypt(Key decryptKey, byte[] cryptBytes, int cipherMode) {
         byte[] resultBytes;
+        Cipher cipher = null;
         try {
-            // Cipher cipher = Cipher.getInstance(getCurCipher(), "BC");// RSA/ECB/PKCS1Padding
-            Cipher cipher = Cipher.getInstance(getCipherStr());// RSA/ECB/PKCS1Padding
+            if (StringHelper.isNotEmpty(providerName)) {
+                cipher = Cipher.getInstance(getCipherStr(), providerName);
+            } else {
+                cipher = Cipher.getInstance(getCipherStr());// RSA/ECB/PKCS1Padding
+            }
             cipher.init(cipherMode, decryptKey);
             resultBytes = cipher.doFinal(cryptBytes);
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
             throw new EncryptException(e);
+        } catch (NoSuchProviderException e) {
+            throw new EncryptException("未找到名为" + providerName + "的Provider", e);
         }
         return resultBytes;
+    }
+
+    @Override
+    public boolean isSupport() {
+        return curAlgorithm == Algorithm.RSA;
     }
 
 }

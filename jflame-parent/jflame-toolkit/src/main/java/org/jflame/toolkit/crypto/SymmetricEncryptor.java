@@ -4,12 +4,11 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -21,44 +20,30 @@ import org.jflame.toolkit.util.StringHelper;
 /**
  * 对称加密,支持算法des,3des,aes.
  * <p>
- * 字符串默认utf-8编码.<br> 
+ * 字符串默认utf-8编码.<br>
  * <strong>AES说明:</strong>
  * <ol>
- * <li><strong>密钥16byte，向量IV 16byte(ECB无需向量)</strong>，jdk默认只支持128b位密钥长度(使用256b位需下载JCE扩展包替换 )</li>
+ * <li><strong>密钥16byte，向量IV 16byte(ECB无需向量)</strong>，jdk默认只支持128bit密钥长度(使用256bit需下载JCE扩展包替换 )</li>
  * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认AES/ECB/PKCS5Padding</li>
  * <li>使用PKCS7Padding实际是PKCS5Padding</li>
  * <li>使用NoPadding填充，请确保明文是16的倍数</li>
  * </ol>
- *  <strong>3DES说明:</strong>
+ * <strong>3DES说明:</strong>
  * <ol>
  * <li><strong>密钥24byte，向量IV 8byte(ECB无需向量)</strong></li>
  * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认DESdede/ECB/PKCS5Padding</li>
  * <li>使用NoPadding填充，请确保明文是8的倍数</li>
  * </ol>
- *  *  <strong>DES说明:</strong>
+ * * <strong>DES说明:</strong>
  * <ol>
  * <li><strong>密钥8byte，向量IV 8byte(ECB无需向量)</strong></li>
  * <li>支持填充方式PKCS5Padding/NoPadding/ISO10126PADDING,不设置填充模式jdk1.7默认DESdede/ECB/PKCS5Padding</li>
  * <li>使用NoPadding填充，请确保明文是8的倍数</li>
  * </ol>
+ * 
  * @author zyc
  */
 public class SymmetricEncryptor extends BaseEncryptor {
-    /*
-     * AES/CBC/NoPadding (128) AES/CBC/PKCS5Padding (128) AES/ECB/NoPadding (128) AES/ECB/PKCS5Padding (128)
-     * DES/CBC/NoPadding (56) DES/CBC/PKCS5Padding (56) DES/ECB/NoPadding (56) DES/ECB/PKCS5Padding (56)
-     * DESede/CBC/NoPadding (168) DESede/CBC/PKCS5Padding (168) DESede/ECB/NoPadding (168) DESede/ECB/PKCS5Padding (168)
-     * RSA/ECB/PKCS1Padding (1024, 2048) RSA/ECB/OAEPWithSHA-1AndMGF1Padding (1024, 2048)
-     * RSA/ECB/OAEPWithSHA-256AndMGF1Padding (1024, 2048)
-     */
-    private Cipher cipher;
-
-    
-    //使用第三方架包支持更多加密方式
-    //static { 
-    //  Security.addProvider(new BouncyCastleProvider()); 
-    //}
-    
 
     /**
      * 构造函数,使用默认加密填充方式ECB/PKCS5Padding.
@@ -66,12 +51,9 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * @param algorithm 算法名称
      */
     public SymmetricEncryptor(Algorithm algorithm) {
-        curAlgorithm = algorithm;
-        curOpMode=OpMode.ECB;
-        curPadding=Padding.PKCS5Padding;
-        init();
+        super(algorithm, OpMode.ECB, Padding.PKCS5Padding);
     }
-
+    
     /**
      * 构造函数,指定加密算法,填充模式.
      * 
@@ -80,10 +62,33 @@ public class SymmetricEncryptor extends BaseEncryptor {
      * @param paddingMode 填充方式
      */
     public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode) {
-        curAlgorithm = algorithm;
-        curOpMode = encMode;
-        curPadding = paddingMode;
-        init();
+        super(algorithm, encMode, paddingMode);
+    }
+    
+    /**
+     * 构造函数,使用默认加密填充方式ECB/PKCS5Padding,同时指定加密提供器provider
+     * 
+     * @param algorithm 算法名称
+     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
+     */
+    public SymmetricEncryptor(Algorithm algorithm, Provider provider,
+            String providerName) {
+        super(algorithm, OpMode.ECB, Padding.PKCS5Padding,provider,providerName);
+    }
+    
+    /**
+     * 构造函数,指定加密算法,填充模式,同时指定加密提供器provider
+     * 
+     * @param algorithm 算法名
+     * @param encMode 加密方式
+     * @param paddingMode 填充方式
+     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
+     */
+    public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode,Provider provider,
+            String providerName) {
+        super(algorithm, encMode, paddingMode,provider,providerName);
     }
 
     /**
@@ -156,16 +161,6 @@ public class SymmetricEncryptor extends BaseEncryptor {
             throw new EncryptException(e);
         }
         return TranscodeHelper.encodeHexString(ciphertext);
-    }
-
-    private void init() throws EncryptException {
-        isSupport();
-        try {
-            // Cipher in = Cipher.getInstance(getCurCipher(), "BC");
-            cipher = Cipher.getInstance(getCipherStr());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new EncryptException("初始对称加密失败", e);
-        }
     }
 
     /**
@@ -250,9 +245,11 @@ public class SymmetricEncryptor extends BaseEncryptor {
         }
     }
 
-    private void isSupport() throws EncryptException {
+    @Override
+    public boolean isSupport() {
         if (curAlgorithm != Algorithm.AES && curAlgorithm != Algorithm.DES && curAlgorithm != Algorithm.DESede) {
-            throw new EncryptException("不支持的加密算法" + getCipherStr());
+            return false;
         }
+        return true;
     }
 }

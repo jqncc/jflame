@@ -74,7 +74,7 @@ public class CallResult implements Serializable {
      * 
      * @return boolean
      */
-    public boolean isSuccess() {
+    public boolean success() {
         return status == ResultEnum.SUCCESS.getStatus();
     }
 

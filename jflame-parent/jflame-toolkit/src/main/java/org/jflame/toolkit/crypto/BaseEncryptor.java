@@ -1,6 +1,15 @@
 package org.jflame.toolkit.crypto;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Security;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 加密抽象父类 {@link http://docs.oracle.com/javase/7/docs/technotes/guides/security/crypto/CryptoSpec.html}
@@ -17,6 +26,50 @@ import org.jflame.toolkit.util.CharsetHelper;
  */
 public abstract class BaseEncryptor {
 
+    protected String providerName;
+    protected Algorithm curAlgorithm;
+    protected OpMode curOpMode;
+    protected Padding curPadding;
+    protected String curCipherStr;
+    protected String charset;
+    protected Cipher cipher;
+    
+    /**
+     * 构造函数,指定加密算法,填充模式.
+     * 
+     * @param algorithm 算法名
+     * @param encMode 加密方式
+     * @param paddingMode 填充方式
+     */
+    public BaseEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode) {
+        curAlgorithm = algorithm;
+        curOpMode = encMode;
+        curPadding = paddingMode;
+        initCipher();
+    }
+    
+    /**
+     * 构造函数,指定加密算法,填充模式.
+     * @param algorithm 算法名
+     * @param encMode 加密方式
+     * @param paddingMode 填充方式
+     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
+     */
+    public BaseEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode, Provider provider,
+            String providerName) {
+        curAlgorithm = algorithm;
+        curOpMode = encMode;
+        curPadding = paddingMode;
+        if (provider != null) {
+            Security.addProvider(provider);
+            if (StringHelper.isEmpty(providerName)) {
+                throw new IllegalArgumentException("参数providerName不能为null");
+            }
+            this.providerName = providerName;
+        }
+        initCipher();
+    }
 
     /**
      * 加密算法名称枚举.DES, DESede, AES, RSA
@@ -42,22 +95,16 @@ public abstract class BaseEncryptor {
      * @author zyc
      */
     public enum Padding {
-        PKCS1PADDING, PKCS5Padding, NoPadding, ISO10126PADDING,OAEPWITHMD5ANDMGF1PADDING
+        PKCS1PADDING, PKCS5Padding,PKCS7Padding, NoPadding, ISO10126PADDING, OAEPWITHMD5ANDMGF1PADDING
     }
-
-    protected Algorithm curAlgorithm;
-    protected OpMode curOpMode;
-    protected Padding curPadding;
-    protected String curCipher;
-    protected String charset;
 
     public Algorithm getAlgorithm() {
         return curAlgorithm;
     }
 
-    protected void setAlgorithm(Algorithm curAlgorithm) {
-        this.curAlgorithm = curAlgorithm;
-    }
+    /*
+     * protected void setAlgorithm(Algorithm curAlgorithm) { this.curAlgorithm = curAlgorithm; }
+     */
 
     public String getCharset() {
         return charset == null ? CharsetHelper.UTF_8 : charset;
@@ -67,13 +114,10 @@ public abstract class BaseEncryptor {
         this.charset = charset;
     }
 
-    protected void setOpMode(OpMode curOpMode) {
-        this.curOpMode = curOpMode;
-    }
-
-    protected void setPadding(Padding curPaddingMode) {
-        this.curPadding = curPaddingMode;
-    }
+    /*
+     * protected void setOpMode(OpMode curOpMode) { this.curOpMode = curOpMode; } protected void setPadding(Padding
+     * curPaddingMode) { this.curPadding = curPaddingMode; }
+     */
 
     protected String getCipherStr() {
         String tram = curAlgorithm.name();
@@ -82,5 +126,27 @@ public abstract class BaseEncryptor {
         }
         return tram;
     }
-    
+
+    protected void initCipher() throws EncryptException {
+        if (!isSupport()) {
+            throw new EncryptException("不支持的加密算法" + curAlgorithm.name());
+        }
+        curCipherStr = getCipherStr();
+        try {
+            if (StringHelper.isNotEmpty(providerName)) {
+                cipher = Cipher.getInstance(curCipherStr, providerName);
+            } else {
+                cipher = Cipher.getInstance(curCipherStr);
+            }
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new EncryptException("初始加密算法失败" + curCipherStr, e);
+        } catch (NoSuchProviderException e) {
+            throw new EncryptException("未找到名为" + providerName + "的Provider", e);
+        }
+    }
+
+    /**
+     * 是否支持的算法
+     */
+    public abstract boolean isSupport();
 }
