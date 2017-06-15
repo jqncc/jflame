@@ -80,10 +80,10 @@ public final class StringHelper {
     }
 
     /**
-     * 将url参数字符串转为Map 如:x=1&y=2转为 map.put("x","1").
+     * 将url参数字符串转为Map 如:x=1&amp;y=2转为 map.put("x","1").
      * 
      * @see #buildUrlParamFromMap(Map)
-     * @param paramStr url参数字符串, 如:x=1&y=2
+     * @param paramStr url参数字符串, 如:x=1&amp;y=2
      * @return Map&lt;String, String&gt;
      */
     public static Map<String,String> buildMapFromUrlParam(String paramStr) {
@@ -108,11 +108,11 @@ public final class StringHelper {
     }
 
     /**
-     * 将map转为url参数字符串 如:key=value&key1=value1
+     * 将map转为url参数字符串 如:key=value&amp;key1=value1
      * 
      * @param paramMap Map&lt;String, String&gt;
      * @see #buildMapFromUrlParam(String)
-     * @return url参数字符串, 如:x=1&y=2
+     * @return url参数字符串, 如:x=1&amp;y=2
      */
     public static String buildUrlParamFromMap(Map<String,String> paramMap) {
         if (paramMap == null || paramMap.isEmpty()) {
@@ -174,7 +174,7 @@ public final class StringHelper {
     }
 
     /**
-     * 替换html文本中的特殊符号为html实体 如:<html></html> 转换后 "&lt;html&gt;&lt;/html&gt;
+     * 替换html文本中的特殊符号为html实体
      * 
      * @param htmlText html文本
      * @see #unescapeHTML(String)
@@ -303,7 +303,7 @@ public final class StringHelper {
     }
 
     /**
-     * 将字符串插入到另一字符串的指定位置处.如果索引大于字符长度将直接加到最后.如果索引<1加在最前
+     * 将字符串插入到另一字符串的指定位置处.如果索引大于字符长度将直接加到最后.如果索引&lt;1加在最前
      * 
      * @param str 被插入字符串
      * @param insertStr 要插入的字符串

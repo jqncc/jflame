@@ -64,7 +64,7 @@ public class TreeNode<T> implements Serializable {
      * 删除子节点
      * 
      * @param node 子节点
-     * @returnv 如存在相等子节点删除并返回true,否则返回false
+     * @return 如存在相等子节点删除并返回true,否则返回false
      */
     public boolean removeNode(TreeNode<T> node) {
         if (childNodes.remove(node)) {
@@ -77,7 +77,7 @@ public class TreeNode<T> implements Serializable {
     /**
      * 返回所有子节点的迭代器
      * 
-     * @return
+     * @return 子节点的迭代器
      */
     public Iterator<TreeNode<T>> nodeIterator() {
         return childNodes.iterator();

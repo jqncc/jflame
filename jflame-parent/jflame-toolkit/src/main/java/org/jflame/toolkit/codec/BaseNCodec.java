@@ -84,7 +84,7 @@ public abstract class BaseNCodec {
 
     /**
      * Variable tracks how many characters have been written to the current line. Only used when encoding. We use it to
-     * make sure each encoded line never goes beyond lineLength (if lineLength > 0).
+     * make sure each encoded line never goes beyond lineLength (if lineLength &gt; 0).
      */
     protected int currentLinePos;
 
@@ -138,7 +138,7 @@ public abstract class BaseNCodec {
         return DEFAULT_BUFFER_SIZE;
     }
 
-    /** 
+    /**
      * Increases our buffer by the {@link #DEFAULT_BUFFER_RESIZE_FACTOR}.
      */
     private void resizeBuffer() {
@@ -383,8 +383,8 @@ public abstract class BaseNCodec {
      * Calculates the amount of space needed to encode the supplied array.
      *
      * @param parray byte[] array which will later be encoded
-     * @return amount of space needed to encoded the supplied array. Returns a long since a max-len array will require >
-     *         Integer.MAX_VALUE
+     * @return amount of space needed to encoded the supplied array. Returns a long since a max-len array will require
+     *         &gt; Integer.MAX_VALUE
      */
     public long getEncodedLength(byte[] parray) {
         // Calculate non-chunked size - rounded up to allow for padding

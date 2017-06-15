@@ -30,7 +30,7 @@ import org.jflame.toolkit.util.ChineseHelper;
  * <li>电话号</li>
  * <li>中国身份证(15或18位)</li>
  * <li>邮箱</li>
- * <li>是否含特殊字符：*%\=><`'?&!</li>
+ * <li>是否含特殊字符：*%#\=&lt;&gt;`';?&amp;!</li>
  * <li>字符串长度</li>
  * <li>是否是字母或数字或下划线</li>
  * <li>是否是数字</li>
@@ -207,7 +207,7 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 检查是否包含可能引起sql注入的字符*%\=<>`';?&!
+     * 检查是否包含可能引起sql注入的字符*%#\=&lt;&gt;`';?&amp;!
      *
      * @param str
      * @return 不包含返回true

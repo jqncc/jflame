@@ -40,7 +40,7 @@ public final class ReflectionHelper {
     /**
      * 获取父类的首个泛型参数的类型，如无法找到返回null
      * 
-     * @param 待查找类型
+     * @param clazz 待查找类型
      * @return
      */
     @SuppressWarnings({ "unchecked","rawtypes" })

@@ -108,7 +108,7 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
     }
 
     /**
-     * List&lt;KeyValuePair&lt;T,R&gt&gt;转为Map&lt;T,R&gt;注意相同key将会丢失值.
+     * List&lt;KeyValuePair&lt;T,R&gt;&gt;转为Map&lt;T,R&gt;注意相同key将会丢失值.
      * @param <R>
      * 
      * @param list KeyValuePair列表
@@ -125,7 +125,7 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
     }
     
     /**
-     * Map&lt;T,R&gt;List&lt;转为KeyValuePair&lt;T,R&gt&gt;
+     * Map&lt;T,R&gt;List&lt;转为KeyValuePair&lt;T,R&gt;&gt;
      * @param map
      * @return
      */

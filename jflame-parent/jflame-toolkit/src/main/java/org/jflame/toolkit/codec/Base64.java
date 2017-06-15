@@ -141,7 +141,7 @@ public class Base64 extends BaseNCodec {
      * </p>
      * 
      * @param lineLength Each line of encoded data will be at most of the given length (rounded down to nearest multiple
-     *            of 4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            of 4). If lineLength &lt;= 0, then the output will not be divided into lines (chunks). Ignored when
      *            decoding.
      * @since 1.4
      */
@@ -163,7 +163,7 @@ public class Base64 extends BaseNCodec {
      * </p>
      * 
      * @param lineLength Each line of encoded data will be at most of the given length (rounded down to nearest multiple
-     *            of 4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            of 4). If lineLength &lt;= 0, then the output will not be divided into lines (chunks). Ignored when
      *            decoding.
      * @param lineSeparator Each line of encoded data will end with this sequence of bytes.
      * @throws IllegalArgumentException Thrown when the provided lineSeparator included some base64 characters.
@@ -187,7 +187,7 @@ public class Base64 extends BaseNCodec {
      * </p>
      * 
      * @param lineLength Each line of encoded data will be at most of the given length (rounded down to nearest multiple
-     *            of 4). If lineLength <= 0, then the output will not be divided into lines (chunks). Ignored when
+     *            of 4). If lineLength &lt;= 0, then the output will not be divided into lines (chunks). Ignored when
      *            decoding.
      * @param lineSeparator Each line of encoded data will end with this sequence of bytes.
      * @param urlSafe Instead of emitting '+' and '/' we emit '-' and '_' respectively. urlSafe is only applied to

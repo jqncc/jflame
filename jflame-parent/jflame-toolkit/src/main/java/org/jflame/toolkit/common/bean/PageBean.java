@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 分页数据封装.
+ * 分页数据封装.<br>
+ * CreateDate:2014年12月17日下午2:58:06
  * 
- * @author zyc CreateDate:2014年12月17日下午2:58:06
+ * @author zyc
  */
 public class PageBean implements Serializable {
+
     private static final long serialVersionUID = 2539874794729839977L;
 
     /**
@@ -86,11 +88,6 @@ public class PageBean implements Serializable {
         pageNo = startIndex / pageSize + 1;
     }
 
-    /**
-     * 分页数据.
-     * 
-     * @return List<?>
-     */
     public List<?> getPageData() {
         return pageData == null ? new ArrayList<>(0) : pageData;
     }
@@ -133,6 +130,7 @@ public class PageBean implements Serializable {
 
     /**
      * 是否有下一页.
+     * @return true=有下一页
      */
     public boolean hasNextPage() {
         return this.getPageNo() < this.getMaxPage() - 1;
@@ -140,6 +138,7 @@ public class PageBean implements Serializable {
 
     /**
      * 是否有上一页.
+     * @return true=有上一页
      */
     public boolean hasPreviousPage() {
         return this.getPageNo() > 1;

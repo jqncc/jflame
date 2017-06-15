@@ -50,7 +50,7 @@ public final class IOHelper {
     }
 
     /**
-     * 从指定的<code>Reader</code>复制字符到<code>Writer</code>. 提供复制的buffer.<br />
+     * 从指定的<code>Reader</code>复制字符到<code>Writer</code>. 提供复制的buffer.<br>
      * <strong>注：请手动关闭输入流</strong>
      * 
      * @param input Reader字符输入流
@@ -70,7 +70,7 @@ public final class IOHelper {
     }
 
     /**
-     * 从指定的<code>Reader</code>复制字符到<code>Writer</code>. 默认buffer大小为4096.<br />
+     * 从指定的<code>Reader</code>复制字符到<code>Writer</code>. 默认buffer大小为4096.<br>
      * <strong>注：请手动关闭输入流</strong>
      * 
      * @param input
@@ -83,7 +83,7 @@ public final class IOHelper {
     }
 
     /**
-     * 从指定的InputStream复制字节到OutputStream.提供复制的buffer.<br />
+     * 从指定的InputStream复制字节到OutputStream.提供复制的buffer.<br>
      * <strong>注：请手动关闭输入流</strong>
      * 
      * @param input InputStream字节输入流
@@ -103,7 +103,7 @@ public final class IOHelper {
     }
 
     /**
-     * 从指定的InputStream复制字节到OutputStream.默认buffer大小为4096.<br />
+     * 从指定的InputStream复制字节到OutputStream.默认buffer大小为4096.<br>
      * <strong>注：请手动关闭输入流</strong>
      * 
      * @param input InputStream字节输入流

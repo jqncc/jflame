@@ -27,7 +27,7 @@ public class DigestHelper {
      * 
      * @param algorithm 算法名.具体请看
      *            <a href="http://java.sun.com/j2se/1.3/docs/guide/security/CryptoSpec.html#AppA">Appendix A in the Java
-     *            Cryptography Architecture API Specification & Reference</a>
+     *            Cryptography Architecture API Specification Reference</a>
      * @throws RuntimeException 算法名不支持时异常 {@link java.security.NoSuchAlgorithmException}
      * @return
      */
@@ -122,9 +122,9 @@ public class DigestHelper {
     /**
      * MD5算法计算输入流消息摘要
      * 
-     * @param data InputStream
-     * @return byte[]
-     * @throws IOException
+     * @param data InputStream 待计算输入流
+     * @return byte[] 计算后摘要byte[]
+     * @throws IOException 输入流读取异常
      */
     public static byte[] md5(InputStream data) throws IOException {
         return digest(getDigest("MD5"), data);
@@ -206,8 +206,4 @@ public class DigestHelper {
         return digest.digest();
     }
 
-    /*
-     * public static void main(String[] args) { System.out.println("hmacMD5:"+hmacMD5Hex("中国人", "123"));
-     * System.out.println(md5("中国人")); System.out.println(sha("中国人")); }
-     */
 }

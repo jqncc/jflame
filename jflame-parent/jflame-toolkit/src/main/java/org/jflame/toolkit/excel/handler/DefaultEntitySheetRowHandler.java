@@ -16,7 +16,6 @@ import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
  * excel单行数据与实体bean转换处理器.
  * 
  * @author yucan.zhang
- * @param <T>
  */
 public class DefaultEntitySheetRowHandler extends BaseEntitySheetRowHandler<IExcelEntity> {
 

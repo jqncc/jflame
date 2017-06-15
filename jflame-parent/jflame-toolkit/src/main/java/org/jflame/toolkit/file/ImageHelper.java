@@ -378,7 +378,7 @@ public final class ImageHelper {
      * @param x 水印位于图片左上角的 x 坐标值
      * @param y 水印位于图片左上角的 y 坐标值
      * @param alpha 水印透明度 0.1f ~ 1.0f
-     * @throws Exception
+     * @throws IOException
      */
     public static void imageWaterMark(String imgPath, String markPath, int x, int y, float alpha)
             throws IOException {

@@ -10,7 +10,6 @@ import java.text.MessageFormat;
  * 
  * @see ResultEnum
  * @author zyc
- * @since
  */
 public class CallResult implements Serializable {
 

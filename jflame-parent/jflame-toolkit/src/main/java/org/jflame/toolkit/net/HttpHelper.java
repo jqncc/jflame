@@ -57,12 +57,14 @@ import org.slf4j.LoggerFactory;
  * HttpHelper.get(url)<br>
  * HttpHelper.post(url,param)
  * <p>
- * 示例:<br />
- * <code><pre>
+ * 示例:<br>
+ * 
+ * <pre>
+ * <code>
  *  HttpHelper helper=new HttpHelper();
  *  helper.setCharset("gbk");
  *  boolean inited=helper.initConnect("http://www.qq.com",HttpMethod.POST);
- *  List&lt;NameValuePair&gt; params=new ArrayList<>();
+ *  List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt();
  *  params.add(new NameValuePair("paramName","paramValue"));
  *  if(inited){
  *      HttpResponse result=helper.sendRequest(params);
@@ -70,8 +72,8 @@ import org.slf4j.LoggerFactory;
  *          System.out.print(result.getData());
  *      }
  *  }
- *  </pre>
  * </code>
+ * </pre>
  * 
  * @author zyc
  */
@@ -510,6 +512,7 @@ public final class HttpHelper {
 
     /**
      * 设置cookie
+     * 
      * @param cookieName cookie name
      * @param cookieValue cookie value
      */

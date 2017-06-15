@@ -30,7 +30,6 @@ public @interface DynamicValid {
     /**
      * 指定验证规则,多条规则是and关系
      * 
-     * @see org.jflame.toolkit.valid.DynamicValidator.ValidRule
      * @return
      */
     ValidRule[] rules();
@@ -48,7 +47,7 @@ public @interface DynamicValid {
      * @return
      */
     Class<? extends Payload>[] payload() default {};
-    
+
     /**
      * 内置验证规则
      * 
@@ -84,7 +83,7 @@ public @interface DynamicValid {
          */
         ip,
         /**
-         * 不包含特殊字符*%\=<>`';?&!
+         * 不包含特殊字符*%#\=&lt;&gt;`';?&amp;!
          */
         safeChar
     }

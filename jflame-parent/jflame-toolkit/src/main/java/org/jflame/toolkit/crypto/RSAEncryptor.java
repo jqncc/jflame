@@ -34,9 +34,9 @@ import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * RSA非对称加密算法.<br />
- * RSA, ECB, NOPADDING/PKCS1PADDING/OAEPWITHMD5ANDMGF1PADDING<br />
- * <br />
+ * RSA非对称加密算法.<br>
+ * RSA, ECB, NOPADDING/PKCS1PADDING/OAEPWITHMD5ANDMGF1PADDING<br>
+ * <br>
  * JDK1.7默认ECB/PKCS1PADDING
  */
 public class RSAEncryptor extends BaseEncryptor {
@@ -46,13 +46,12 @@ public class RSAEncryptor extends BaseEncryptor {
      */
     public RSAEncryptor() {
         super(Algorithm.RSA, OpMode.ECB, Padding.PKCS1PADDING);
-        // curAlgorithm = Algorithm.RSA; OpMode.ECB,Padding.PKCS1PADDING
     }
 
     /**
      * 构造函数
      * 
-     * @param encMode
+     * @param encMode 加密方试
      * @param paddingMode 填充模式
      */
     public RSAEncryptor(OpMode encMode, Padding paddingMode) {

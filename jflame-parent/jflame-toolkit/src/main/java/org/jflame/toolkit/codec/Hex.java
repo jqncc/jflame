@@ -131,7 +131,7 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
     private final String charsetName;
 
     /**
-     * Creates a new codec with the default charset name {@link #DEFAULT_CHARSET_NAME}
+     * Creates a new codec with the default charset name
      */
     public Hex() {
         // use default encoding

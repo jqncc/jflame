@@ -80,7 +80,7 @@ public final class FtpHelper {
     /**
      * 连接并登录到ftp服务器
      * 
-     * @throws IOException
+     * @throws RemoteAccessException
      */
     public boolean login() throws RemoteAccessException {
         boolean isSuccess = false;

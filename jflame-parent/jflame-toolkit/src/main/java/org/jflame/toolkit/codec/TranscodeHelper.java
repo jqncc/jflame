@@ -17,7 +17,7 @@ public final class TranscodeHelper {
     /**
      * 使用Base64编码字节数组,返回字符串
      * 
-     * @param base64Data
+     * @param base64Data base64 byte[]
      * @return 返回字符串
      */
     public static String encodeBase64String(byte[] base64Data) {
@@ -27,7 +27,7 @@ public final class TranscodeHelper {
     /**
      * 使用base64编码字符串，指定字符编码
      * 
-     * @param str
+     * @param str base64字符串
      * @param charset 字符编码，为null默认使用utf-8
      * @return
      */
@@ -44,7 +44,7 @@ public final class TranscodeHelper {
     /**
      * 使用Base64编码字节数组,返回字节数组
      * 
-     * @param base64Data
+     * @param base64Data base64 byte[]
      * @return
      */
     public static byte[] encodeBase64(byte[] base64Data) {
@@ -54,7 +54,7 @@ public final class TranscodeHelper {
     /**
      * 解码base64字符串,字符串默认使用utf-8解码
      * 
-     * @param base64String
+     * @param base64String base64字符串
      * @return
      */
     public static byte[] dencodeBase64(String base64String) {
@@ -64,7 +64,7 @@ public final class TranscodeHelper {
     /**
      * 解码base64字节数组,返回字节数组
      * 
-     * @param base64Data
+     * @param base64Data base64 byte[]
      * @return
      */
     public static byte[] dencodeBase64(byte[] base64Data) {
@@ -74,8 +74,8 @@ public final class TranscodeHelper {
     /**
      * 转码为16进制字符串
      * 
-     * @param strBytes
-     * @return
+     * @param strBytes string byte[]
+     * @return 16进制字符串
      */
     public static String encodeHexString(byte[] strBytes) {
         return Hex.encodeHexString(strBytes);
@@ -95,7 +95,7 @@ public final class TranscodeHelper {
      * 将16进制字符串解码为普通字节数组
      * 
      * @param hexString 16进制字符串
-     * @return
+     * @return byte[]
      * @throws TranscodeException
      */
     public static byte[] dencodeHex(String hexString) throws TranscodeException {
@@ -109,7 +109,7 @@ public final class TranscodeHelper {
      * 将16进制字符串解码为普通字符串，默认以utf-8编码
      * 
      * @param hexString 16进制字符串
-     * @return
+     * @return utf-8编码字符串
      */
     public static String dencodeHexString(String hexString) throws TranscodeException {
         byte[] bytes = dencodeHex(hexString);
@@ -119,8 +119,8 @@ public final class TranscodeHelper {
     /**
      * utf-8 urlencode
      * 
-     * @param str
-     * @return
+     * @param str string
+     * @return urlencode string
      */
     public static String urlencode(String str) {
         try {
@@ -133,8 +133,8 @@ public final class TranscodeHelper {
     /**
      * 转换int到4位byte数组
      * 
-     * @param res
-     * @return
+     * @param res int
+     * @return byte[]
      */
     public static byte[] intTo4Bytes(int res) {
         byte[] targets = new byte[4];
@@ -148,8 +148,8 @@ public final class TranscodeHelper {
     /**
      * 4位byte数组转int
      * 
-     * @param bytes
-     * @return
+     * @param bytes 4位byte数组
+     * @return int
      */
     public static int bytesToInt(byte[] bytes) {
         int value;
@@ -161,8 +161,8 @@ public final class TranscodeHelper {
     /**
      * 8位byte数组转long
      * 
-     * @param bytes
-     * @return
+     * @param bytes 8位byte数组
+     * @return long
      */
     public static long bytesToLong(byte[] bytes) {
         long num = 0;
@@ -175,8 +175,9 @@ public final class TranscodeHelper {
 
     /**
      * long转byte数组
-     * @param num
-     * @return
+     * 
+     * @param num long
+     * @return byte数组
      */
     public static byte[] longToBytes(long num) {
         byte[] b = new byte[8];

@@ -12,7 +12,7 @@ import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
- * 加密抽象父类 {@link http://docs.oracle.com/javase/7/docs/technotes/guides/security/crypto/CryptoSpec.html}
+ * 加密抽象父类 .
  * <p>
  * jdk加密算法块模式和填充方式说明：
  * <ul>
@@ -22,6 +22,7 @@ import org.jflame.toolkit.util.StringHelper;
  * <li>PBEWithMD5AndDES,CBC,PKCS5Padding</li>
  * </ul>
  * 
+ * http://docs.oracle.com/javase/7/docs/technotes/guides/security/crypto/CryptoSpec.html
  * @author zyc
  */
 public abstract class BaseEncryptor {
