@@ -44,7 +44,7 @@ public class BaseSysConfig implements ISysConfig {
      * 构造函数,使用一个默认配置文件名system.properties实例化
      */
     public BaseSysConfig() {
-        propertiesFiles = new String[]{ "/system.properties" };
+        propertiesFiles = new String[]{ "system.properties" };
     }
 
     /**
@@ -107,6 +107,7 @@ public class BaseSysConfig implements ISysConfig {
      */
     protected void loadFromConfigFile() throws IOException {
         if (ArrayUtils.isNotEmpty(propertiesFiles)) {
+            log.info("从属性文件加载参数:" + Arrays.toString(propertiesFiles));
             PropertiesHelper loader = new PropertiesHelper(propertiesFiles);
             if (loader != null) {
                 Properties properties = loader.getProperties();
@@ -117,7 +118,6 @@ public class BaseSysConfig implements ISysConfig {
                 }
             }
 
-            log.info("从属性文件加载参数:" + Arrays.toString(propertiesFiles));
         } else {
             log.warn("未设置参数配置文件");
         }

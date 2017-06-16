@@ -26,7 +26,7 @@ public final class PropertiesHelper {
     /**
      * 构造函数.
      * 
-     * @param resourcesPaths 路径以/开头从classpath下去，相对路径从此类所在的包下取资源
+     * @param resourcesPaths 相对于classpath的文件路径
      * @throws IOException 
      */
     public PropertiesHelper(String... resourcesPaths) throws IOException {
@@ -168,15 +168,20 @@ public final class PropertiesHelper {
         if (classLoader == null) {
             classLoader = getClass().getClassLoader();
         }
-
         for (String location : resourcesPaths) {
-            try (InputStream is = classLoader.getResourceAsStream(location)) {
-                if (is != null) {
-                    properties.load(is);
+            if (StringHelper.isNotEmpty(location)) {
+                //修正下路径,classLoader不以/开头
+                if (location.charAt(0) == '/') {
+                    location = location.substring(1);
                 }
-            } catch (IOException ex) {
-                log.error("加载资源文件失败" + location, ex);
-                throw ex;
+                try (InputStream is = classLoader.getResourceAsStream(location)) {
+                    if (is != null) {
+                        properties.load(is);
+                    }
+                } catch (IOException ex) {
+                    log.error("加载资源文件失败" + location, ex);
+                    throw ex;
+                }
             }
         }
         // 替换变量${}
@@ -206,6 +211,8 @@ public final class PropertiesHelper {
                 matcher.appendTail(buffer);
                 properties.put(entry.getKey(), buffer.toString());
             }
+        } else {
+            log.warn("未加载到任何属性");
         }
     }
     
