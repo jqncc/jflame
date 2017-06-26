@@ -1,5 +1,6 @@
 package org.jflame.web.config;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.util.EnumHelper;
 
@@ -72,10 +73,13 @@ public final class WebConstant {
      * web图片类型扩展名
      */
     public final static String[] imageExts = EnumHelper.enumNames(MimeImages.class);
-    
+    /**
+     * web静态资源扩展名
+     */
+    public final static String[] webStaticExts = ArrayUtils.addAll(WebConstant.imageExts, "js", "css","ttf","tiff", "font");
     /**
      * 当前登录用户在session中的key
      */
-    public final static String SESSION_USER_KEY="current_user";
-    
+    public final static String SESSION_USER_KEY = "current_user";
+
 }

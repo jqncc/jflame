@@ -146,10 +146,10 @@ public final class IOHelper {
     }
 
     /**
-     * 从输入流读取，返回字节数组byte[]
+     * 从输入流读取，返回字节数组byte[],<strong>请显式关闭输入流</strong>
      * 
      * @param input 输入字节流
-     * @return
+     * @return byte[]
      * @throws IOException
      */
     public static byte[] readBytes(InputStream input) throws IOException {

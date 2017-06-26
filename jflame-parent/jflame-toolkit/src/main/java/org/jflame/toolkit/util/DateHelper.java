@@ -193,8 +193,8 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔小时数.startTime小于endTime时返回负数
-     * 
+     * 计算两个日期间隔小时数.startTime小于endTime时返回负数<br>
+     * 注:整数计算,如55分钟内为0小时,79分钟为1小时
      * @param startTime 时间1
      * @param endTime 时间2
      * @return

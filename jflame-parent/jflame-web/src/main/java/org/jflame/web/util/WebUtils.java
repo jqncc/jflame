@@ -72,11 +72,14 @@ public class WebUtils {
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
         String headAccept = request.getHeader("accept");
+        
         boolean yes = false;
         if (headAccept != null && headAccept.indexOf(WebConstant.MIME_TYPE_JSON) >= 0) {
             yes = true;
         } else if (WebConstant.AJAX_REQUEST_FLAG.value()
                 .equalsIgnoreCase(request.getHeader(WebConstant.AJAX_REQUEST_FLAG.name()))) {
+            yes = true;
+        }else if("json".equals(request.getServletPath())){
             yes = true;
         }
         return yes;
@@ -213,7 +216,7 @@ public class WebUtils {
         }
         return ip;
     }
-
+    
     /**
      * 获取指定名称的cookie值
      * 

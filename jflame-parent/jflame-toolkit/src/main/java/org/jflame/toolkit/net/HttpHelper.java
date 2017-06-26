@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  *  HttpHelper helper=new HttpHelper();
  *  helper.setCharset("gbk");
  *  boolean inited=helper.initConnect("http://www.qq.com",HttpMethod.POST);
- *  List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt();
+ *  List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt;();
  *  params.add(new NameValuePair("paramName","paramValue"));
  *  if(inited){
  *      HttpResponse result=helper.sendRequest(params);
@@ -244,7 +244,7 @@ public final class HttpHelper {
      * 发起请求,参数是byte[],注：请求必须是POST方式
      * 
      * @param params byte[]请求参数
-     * @return
+     * @return 返回byte[]内容,未编码
      */
     public HttpResponse sendRequest(byte[] params) {
         HttpResponse response = null;

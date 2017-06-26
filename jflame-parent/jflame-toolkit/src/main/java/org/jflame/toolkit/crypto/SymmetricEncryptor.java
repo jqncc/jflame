@@ -53,7 +53,7 @@ public class SymmetricEncryptor extends BaseEncryptor {
     public SymmetricEncryptor(Algorithm algorithm) {
         super(algorithm, OpMode.ECB, Padding.PKCS5Padding);
     }
-    
+
     /**
      * 构造函数,指定加密算法,填充模式.
      * 
@@ -64,31 +64,30 @@ public class SymmetricEncryptor extends BaseEncryptor {
     public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode) {
         super(algorithm, encMode, paddingMode);
     }
-    
+
     /**
      * 构造函数,使用默认加密填充方式ECB/PKCS5Padding,同时指定加密提供器provider
      * 
      * @param algorithm 算法名称
-     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param provider 加密提供器,如:BouncyCastleProvider
      * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
      */
-    public SymmetricEncryptor(Algorithm algorithm, Provider provider,
-            String providerName) {
-        super(algorithm, OpMode.ECB, Padding.PKCS5Padding,provider,providerName);
+    public SymmetricEncryptor(Algorithm algorithm, Provider provider, String providerName) {
+        super(algorithm, OpMode.ECB, Padding.PKCS5Padding, provider, providerName);
     }
-    
+
     /**
      * 构造函数,指定加密算法,填充模式,同时指定加密提供器provider
      * 
      * @param algorithm 算法名
      * @param encMode 加密方式
      * @param paddingMode 填充方式
-     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param provider 加密提供器,如:BouncyCastleProvider
      * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
      */
-    public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode,Provider provider,
+    public SymmetricEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode, Provider provider,
             String providerName) {
-        super(algorithm, encMode, paddingMode,provider,providerName);
+        super(algorithm, encMode, paddingMode, provider, providerName);
     }
 
     /**
@@ -251,5 +250,68 @@ public class SymmetricEncryptor extends BaseEncryptor {
             return false;
         }
         return true;
+    }
+
+    /**
+     * aes/ecb/pck5padding加密文本
+     * 
+     * @param plainText 明文
+     * @param passwdBytes 密钥
+     * @return base64密文
+     * @throws EncryptException 加密失败
+     */
+    public static String aesEncrypt(String plainText, byte[] passwdBytes) throws EncryptException {
+        SymmetricEncryptor aes = new SymmetricEncryptor(Algorithm.AES);
+        return aes.encrytTextToBase64(plainText, passwdBytes, null);
+    }
+
+    /**
+     * 指定加密和填充模式aes加密
+     * 
+     * @param encMode 加密方式
+     * @param paddingMode 填充模式
+     * @param plainText 明文
+     * @param passwdBytes 密钥
+     * @param ivBytes 向量
+     * @return base64密文
+     * @throws EncryptException 加密失败
+     */
+    public static String aesEncrypt(OpMode encMode, Padding paddingMode, String plainText, byte[] passwdBytes,
+            byte[] ivBytes) throws EncryptException {
+        if (encMode == null || paddingMode == null) {
+            throw new IllegalArgumentException("参数encMode,paddingMode不能为空");
+        }
+        SymmetricEncryptor aes = new SymmetricEncryptor(Algorithm.AES, encMode, paddingMode);
+        return aes.encrytTextToBase64(plainText, passwdBytes, ivBytes);
+    }
+
+    /**
+     * aes/ecb/pck5padding解密base64密文
+     * 
+     * @param cipherBase64text base64密文
+     * @param passwdBytes 密钥
+     * @return 明文
+     * @throws EncryptException 解密失败
+     */
+    public static String aesDencrypt(String cipherBase64text, byte[] passwdBytes) throws EncryptException {
+        SymmetricEncryptor aes = new SymmetricEncryptor(Algorithm.AES);
+        return aes.decryptBase64(cipherBase64text, passwdBytes, null);
+    }
+
+    /**
+     * 指定加密和填充模式aes解密base64密文
+     * 
+     * @param encMode 加密方式
+     * @param paddingMode 填充模式
+     * @param cipherBase64text base64密文
+     * @param passwdBytes 密钥
+     * @param ivBytes 向量
+     * @return 明文
+     * @throws EncryptException 解密失败
+     */
+    public static String aesDencrypt(OpMode encMode, Padding paddingMode, String cipherBase64text, byte[] passwdBytes,
+            byte[] ivBytes) throws EncryptException {
+        SymmetricEncryptor aes = new SymmetricEncryptor(Algorithm.AES, encMode, paddingMode);
+        return aes.decryptBase64(cipherBase64text, passwdBytes, ivBytes);
     }
 }

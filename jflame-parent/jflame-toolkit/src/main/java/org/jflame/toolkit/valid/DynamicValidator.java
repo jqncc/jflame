@@ -14,15 +14,20 @@ import org.jflame.toolkit.valid.DynamicValid.ValidRule;
 public class DynamicValidator implements ConstraintValidator<DynamicValid,Object> {
 
     private ValidRule[] rules;
+    private boolean nullable;
 
     @Override
     public void initialize(DynamicValid constraintAnnotation) {
         rules = constraintAnnotation.rules();
+        nullable = constraintAnnotation.nullable();
     }
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         boolean flag = false;
+        if (nullable && value == null) {
+            return true;
+        }
         for (ValidRule rule : rules) {
             flag = false;
             switch (rule) {

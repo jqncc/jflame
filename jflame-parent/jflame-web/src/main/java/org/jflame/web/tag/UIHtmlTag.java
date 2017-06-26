@@ -26,11 +26,6 @@ public abstract class UIHtmlTag extends BaseTag {
     protected Map<String,Object> attrMap=new HashMap<>();
 
     /**
-     * 设置数据源
-     */
-    protected abstract void setDataSource();
-
-    /**
      * 设置标签属性
      * 
      * @param strBuf

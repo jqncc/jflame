@@ -53,10 +53,6 @@ public abstract class AbstractUISelectTag extends UIHtmlTag {
 
     }
 
-    @Override
-    protected void setDataSource() {
-    };
-
     /**
      * 获取绑定的数据源
      * 

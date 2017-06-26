@@ -49,9 +49,6 @@ public class ValidateCodeTag extends UIHtmlTag {
 
     }
 
-    @Override
-    protected void setDataSource() {
-    }
 
     public void setWidth(Integer width) {
         this.width = width;

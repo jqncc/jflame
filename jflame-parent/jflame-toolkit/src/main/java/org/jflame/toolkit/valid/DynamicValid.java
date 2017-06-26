@@ -49,6 +49,13 @@ public @interface DynamicValid {
     Class<? extends Payload>[] payload() default {};
 
     /**
+     * 是否可用null 默认false
+     * 
+     * @return
+     */
+    boolean nullable() default false;
+
+    /**
      * 内置验证规则
      * 
      * @author yucan.zhang

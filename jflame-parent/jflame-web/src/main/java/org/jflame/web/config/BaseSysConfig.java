@@ -27,17 +27,18 @@ public class BaseSysConfig implements ISysConfig {
     private String[] propertiesFiles;
     private static final Map<String,Object> paramMap = new HashMap<>();
     private static AtomicBoolean isLoaded = new AtomicBoolean(false);
-    
+
     /**
      * 默认常用的参数键名定义接口
      * 
      * @author yucan.zhang
      */
     public interface DefaultParamKey {
+
         String savePath = "save.path";
         String imageSavePath = "image.save.path";
         String imageServer = "image.server";
-        String isDebugMode="debugmode";
+        String isDebugMode = "debugmode";
     }
 
     /**
@@ -93,7 +94,8 @@ public class BaseSysConfig implements ISysConfig {
 
     @Override
     public String getTextParam(String paramKey) {
-        return String.valueOf(paramMap.get(paramKey));
+        Object value = paramMap.get(paramKey);
+        return value == null ? null : String.valueOf(value);
     }
 
     public void setPropertiesFiles(String[] propertiesFiles) {
@@ -161,7 +163,7 @@ public class BaseSysConfig implements ISysConfig {
     @Override
     public Integer getIntParam(String paramKey) {
         Object value = getParam(paramKey);
-        if (value==null) {
+        if (value == null) {
             return null;
         }
         if (value instanceof Integer) {

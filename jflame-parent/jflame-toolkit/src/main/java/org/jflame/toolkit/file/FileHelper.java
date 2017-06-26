@@ -76,7 +76,7 @@ public final class FileHelper {
      * <pre>
      * <code>
      * a/b/c.txt --&gt; c.txt
-     * a.txt --> a.txt
+     * a.txt --&gt; a.txt
      * e:\\a\\b.txt --&gt; b.txt
      * </code>
      * </pre>
@@ -323,6 +323,23 @@ public final class FileHelper {
         }
     }
 
+    /**
+     * 读取classpath相对路径文件
+     * @param filePath classpath相对路径文件,不以/开头
+     * @return 返回文件流InputStream
+     */
+    public static InputStream readFileFromClassPath(String filePath) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = FileHelper.class.getClassLoader();
+        }
+        // 修正下路径,classLoader不以/开头
+        if (filePath.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+            filePath = filePath.substring(1);
+        }
+        return classLoader.getResourceAsStream(filePath);
+    }
+    
     // public static void main(String[] args) {
     /*
      * System.out.println(getDir("E:\\abc")); System.out.println(getDir("E:\\abc\\ab.jpg"));

@@ -11,7 +11,7 @@ public class SysConfigLoader extends BaseSysConfig {
     
 
     public SysConfigLoader() throws BusinessException {
-        super("/system.properties");
+        super("system.properties");
     }
 
     

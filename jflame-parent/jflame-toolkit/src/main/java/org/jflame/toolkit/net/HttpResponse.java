@@ -1,9 +1,11 @@
 package org.jflame.toolkit.net;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
 import org.jflame.toolkit.common.bean.CallResult;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * http请求返回结果
@@ -14,6 +16,7 @@ public class HttpResponse extends CallResult {
 
     private static final long serialVersionUID = -8303137663872800766L;
     private Map<String,List<String>> headers;// http headers
+    private String charset;
 
     public HttpResponse() {
     }
@@ -41,7 +44,19 @@ public class HttpResponse extends CallResult {
      */
     public String getDataAsText() {
         if (getData() != null) {
-            return (String) getData();
+            if (getData() instanceof String) {
+                return (String) getData();
+            } else {
+                byte[] resultBytes = getDataAsBytes();
+                if (resultBytes != null) {
+                    try {
+                        return StringHelper.isNotEmpty(charset) ? new String(resultBytes, charset)
+                                : StringHelper.getUtf8String(resultBytes);
+                    } catch (UnsupportedEncodingException e) {
+                        throw new ClassCastException("不能使用指定编码" + charset + "转为字符串");
+                    }
+                }
+            }
         }
         return null;
     }

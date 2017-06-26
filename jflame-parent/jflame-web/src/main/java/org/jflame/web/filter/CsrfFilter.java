@@ -3,6 +3,7 @@ package org.jflame.web.filter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,13 +20,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.ISysConfig;
+import org.jflame.web.config.WebConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,54 +35,64 @@ import org.slf4j.LoggerFactory;
  * <p>
  * 配置参数:<br>
  * whiteFile[可选] 白名单文件名,只在classes目录下查找.<br>
- * errorPage[可选] 错误转向页面,不设置将返回400错误请求<br>
+ * errorPage[可选] 错误转向页面,默认返回400错误请求<br>
+ * ignoreStatic[可选] 是否忽略静态资源文件,默认为true<br>
  * 
  * @author yucan.zhang
  */
 public class CsrfFilter implements Filter {
 
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
-    private final String CSRF_WHITEFILE_CONFIGKEY = "csrf.whitefile";
-    private final String CSRF_ERRORPAGE_CONFIGKEY = "csrf.errorpage";
-    // 白名单
-    private List<URI> whiteUrls;
-    private String errorPage;
+
+    private List<URI> whiteUrls; // 白名单
+    private String errorPage;//错误转向页面
+    private boolean isIgnoreStatic=true;//是否忽略静态资源文件
 
     public void init(FilterConfig filterConfig) {
-        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
-        if (sysConfig != null) {
-            String paramWhiteFile = sysConfig.getTextParam(CSRF_WHITEFILE_CONFIGKEY);
-            String paramErrorPage = sysConfig.getTextParam(CSRF_ERRORPAGE_CONFIGKEY);
-            if (StringHelper.isNotEmpty(paramErrorPage)) {
-                errorPage = paramErrorPage.trim();
+        final String WHITEFILE_PARAM = "whitefile";
+        final String ERRORPAGE_PARAM = "errorpage";
+        final String IGNORE_PARAM = "ignoreStatic";
+
+        String whiteFile = filterConfig.getInitParameter(WHITEFILE_PARAM);
+        String errPage = filterConfig.getInitParameter(ERRORPAGE_PARAM);
+        
+        if(StringHelper.isNotEmpty(filterConfig.getInitParameter(IGNORE_PARAM))){
+            isIgnoreStatic =Boolean.parseBoolean(filterConfig.getInitParameter(IGNORE_PARAM).trim());
+        }
+        if (StringHelper.isNotEmpty(errPage)) {
+            errorPage = errPage.trim();
+        }
+        if (StringHelper.isNotEmpty(whiteFile)) {
+            List<String> whiteUrlStrs = null;
+            try {
+                URL url = CsrfFilter.class.getResource(whiteFile.trim());
+                if (url != null) {
+                    Path whiteFilePath = Paths.get(url.toURI());
+                    if (Files.exists(whiteFilePath)) {
+                        whiteUrlStrs = Files.readAllLines(whiteFilePath, Charset.forName(CharsetHelper.UTF_8));
+                    } else {
+                        logger.error("csrf白名单文件路径不存在或不可读{}", whiteFile);
+                    }
+                } else {
+                    logger.error("csrf白名单文件路径不正确{}", whiteFile);
+                }
+            } catch (IOException | URISyntaxException e) {
+                logger.error("csrf白名单读取失败", e);
             }
-            if (StringHelper.isNotEmpty(paramWhiteFile)) {
-                if (paramWhiteFile.charAt(0) != FileHelper.UNIX_SEPARATOR) {
-                    paramWhiteFile = FileHelper.UNIX_SEPARATOR + paramWhiteFile;
-                }
-                List<String> whiteUrlStrs = null;
-                try {
-                    Path p = Paths.get(CsrfFilter.class.getResource(paramWhiteFile.trim()).toURI());
-                    whiteUrlStrs = Files.readAllLines(p, Charset.forName(CharsetHelper.UTF_8));
-                } catch (IOException | URISyntaxException e) {
-                    logger.error("csrf白名单读取失败", e);
-                }
-                if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
-                    whiteUrls=new ArrayList<>();
-                    for (String urlStr : whiteUrlStrs) {
-                        if (StringUtils.isNotBlank(urlStr)) {
-                            try {
-                                whiteUrls.add(URI.create(urlStr.trim()));
-                            } catch (IllegalArgumentException e) {
-                                logger.error("不是正确的URI地址" + urlStr, e);
-                            }
+            if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
+                whiteUrls = new ArrayList<>();
+                for (String urlStr : whiteUrlStrs) {
+                    if (StringUtils.isNotBlank(urlStr)) {
+                        try {
+                            whiteUrls.add(URI.create(urlStr.trim()));
+                        } catch (IllegalArgumentException e) {
+                            logger.error("不是正确的URI地址" + urlStr, e);
                         }
                     }
                 }
             }
-        } else {
-            logger.error("未找到ISysConfig实现类");
         }
+
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -89,6 +100,10 @@ public class CsrfFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
+        //忽略静态文件地址
+        if (isIgnoreStatic&&isWebStatic(request.getPathInfo())) {
+            return;
+        }
         // 获取请求url地址
         String referurl = request.getHeader("Referer");
         logger.debug("crsf check referurl:{}", referurl);
@@ -110,7 +125,6 @@ public class CsrfFilter implements Filter {
      * 判断是否是白名单
      */
     private boolean isWhiteReq(String referUrl, HttpServletRequest request) {
-        logger.debug("crsf filter referurl:{}", referUrl);
         boolean isSafeUri = false;
         if (StringHelper.isEmpty(referUrl)) {
             isSafeUri = true;
@@ -136,7 +150,20 @@ public class CsrfFilter implements Filter {
 
         return isSafeUri;
     }
-
+    
+    /**
+     * 判断是否是web静态文件
+     * @param requestUrl 请求路径
+     * @return
+     */
+    private boolean isWebStatic(String requestUrl){
+        if (requestUrl==null) {
+            return false;
+        }
+        String ext=FileHelper.getExtension(requestUrl,false);
+        return ArrayUtils.contains(WebConstant.webStaticExts,ext);
+    }
+    
     public void destroy() {
     }
 

@@ -164,17 +164,13 @@ public final class PropertiesHelper {
      * @throws IOException 
      */
     private void loadProperties(String... resourcesPaths) throws IOException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = getClass().getClassLoader();
-        }
         for (String location : resourcesPaths) {
             if (StringHelper.isNotEmpty(location)) {
                 //修正下路径,classLoader不以/开头
-                if (location.charAt(0) == '/') {
+                if (location.charAt(0) == FileHelper.UNIX_SEPARATOR) {
                     location = location.substring(1);
                 }
-                try (InputStream is = classLoader.getResourceAsStream(location)) {
+                try (InputStream is = FileHelper.readFileFromClassPath(location)) {
                     if (is != null) {
                         properties.load(is);
                     }

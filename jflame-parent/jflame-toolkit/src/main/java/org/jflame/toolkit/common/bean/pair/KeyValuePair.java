@@ -90,7 +90,8 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
      * 
      * @param enumClazz 实现IKeyValuePair接口的枚举类型
      * @param key 属性key值
-     * @return
+     * @throws IllegalArgumentException 传入类型未实现IKeyValuePair接口
+     * @return 返回实现IKeyValuePair接口的枚举,如果没有对应值将返回null
      */
     public static <E extends Enum<E> & IKeyValuePair<K,V>,K,V> E getEnumByKey(Class<E> enumClazz, K key) {
         if (IKeyValuePair.class.isAssignableFrom(enumClazz)) {
@@ -156,4 +157,5 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
         }
         return "";
     }
+    
 }

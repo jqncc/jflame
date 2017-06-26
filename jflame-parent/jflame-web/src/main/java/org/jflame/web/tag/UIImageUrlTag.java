@@ -68,8 +68,4 @@ public class UIImageUrlTag extends UIHtmlTag{
     public void setAlt(String alt) {
         attrMap.put("alt", alt);
     }
-
-    @Override
-    protected void setDataSource() {
-    }
 }

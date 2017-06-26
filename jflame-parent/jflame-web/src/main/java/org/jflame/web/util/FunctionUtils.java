@@ -1,8 +1,8 @@
 package org.jflame.web.util;
 
 import org.jflame.toolkit.reflect.SpiFactory;
-import org.jflame.web.config.ISysConfig;
 import org.jflame.web.config.BaseSysConfig.DefaultParamKey;
+import org.jflame.web.config.ISysConfig;
 
 /**
  * 通用静态方法供页面使用
@@ -29,4 +29,5 @@ public final class FunctionUtils {
     public static String getImgServer() {
         return config.getTextParam(DefaultParamKey.imageServer);
     }
+    
 }
