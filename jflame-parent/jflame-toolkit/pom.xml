@@ -48,12 +48,13 @@
 			<version>3.10-FINAL</version>
 			<optional>true</optional>
 		</dependency>
-		<!-- excel end第三方加密组件 -->
+		<!-- excel end -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>4.3.0.Final</version>
 		</dependency>
+		<!-- 第三方加密组件 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk16</artifactId>

@@ -184,7 +184,7 @@ public class ExcelCreator {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
-                Class<?> dataClass=dataList.iterator().next().getClass();
+                Class<?> dataClass = dataList.iterator().next().getClass();
                 PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
                 if (properties == null) {
                     throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
@@ -378,7 +378,7 @@ public class ExcelCreator {
     }
 
     /**
-     * 导出map键值对集体数据到单表的便捷方法.<br>
+     * 导出map键值对集合数据到单表的便捷方法.<br>
      * 注:请自行关闭方法输出流
      * 
      * @param data 要导出数据集
@@ -386,6 +386,7 @@ public class ExcelCreator {
      * @param out 文件输出流,请自行关闭方法类不做处理
      * @throws IOException IOException
      */
+    @Deprecated
     public static void export(final List<LinkedHashMap<String,Object>> data, String[] propertyNames, OutputStream out)
             throws IOException {
         ExcelCreator creator = new ExcelCreator();
@@ -393,4 +394,24 @@ public class ExcelCreator {
         creator.fillMapData(data, propertyNames);
         creator.write(out);
     }
+
+    /**
+     * 导出map键值对集合数据到单表的便捷方法.<br>
+     * 注:请自行关闭方法输出流
+     * 
+     * @param data 要导出数据集
+     * @param propertyNames 需要填充的键名
+     * @param titles 标题
+     * @param out 输出流,请自行关闭方法类不做处理
+     * @throws IOException
+     */
+    public static void export(final List<LinkedHashMap<String,Object>> data, String[] propertyNames, String[] titles,
+            OutputStream out) throws IOException {
+        ExcelCreator creator = new ExcelCreator();
+        creator.createSheet();
+        creator.createTitleRow(titles);
+        creator.fillMapData(data, propertyNames);
+        creator.write(out);
+    }
+
 }

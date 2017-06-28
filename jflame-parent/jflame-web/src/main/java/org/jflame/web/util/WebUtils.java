@@ -1,14 +1,19 @@
 package org.jflame.web.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jflame.toolkit.excel.ExcelCreator;
+import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.StringHelper;
@@ -215,6 +220,38 @@ public class WebUtils {
             ip = IPAddressHelper.getHostIP();
         }
         return ip;
+    }
+    
+    /**
+     * 导出excel文件到客户端
+     * @param data 数据集Map
+     * @param propertyNames 要导出的Key
+     * @param titles 标题名与propertyNames key顺序对应
+     * @param fileName 文件名,浏览器要显示的文件名
+     * @param response
+     * @throws IOException
+     */
+    public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] propertyNames,
+            String[] titles, String fileName, HttpServletResponse response) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ExcelCreator.export(data, propertyNames, titles, out);
+        setFileDownloadHeader(response, fileName, out.size());
+        out.writeTo(response.getOutputStream());
+    }
+    
+    /**
+     * 导出excel文件到客户端
+     * @param data 数据集
+     * @param fileName 文件名,浏览器要显示的文件名
+     * @param response
+     * @throws IOException
+     */
+    public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
+            HttpServletResponse response) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ExcelCreator.export(data, out);
+        setFileDownloadHeader(response, fileName, out.size());
+        out.writeTo(response.getOutputStream());
     }
     
     /**
