@@ -427,7 +427,7 @@ public final class HttpHelper {
     private final String charsetRegex = "charset=\"?([\\w\\d-]+)\"?;?";
 
     private String detectCharset(String input) {
-        if (StringHelper.isEmpty(input)) {
+        if (StringHelper.isNotEmpty(input)) {
             Pattern pattern = Pattern.compile(charsetRegex, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(input);
             if (matcher.find()) {
