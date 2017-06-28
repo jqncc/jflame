@@ -43,6 +43,7 @@ import org.jflame.toolkit.exception.RemoteAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
+import org.jflame.toolkit.util.JsonHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
@@ -224,6 +225,36 @@ public final class HttpHelper {
         try {
             if (CollectionHelper.isNotEmpty(params)) {
                 paramBytes = StringHelper.getBytes(KeyValuePair.toUrlParam(params), getCharset());
+            }
+            response = sendRequest(paramBytes, new DefalutResponse(0));
+        } catch (TranscodeException e) {
+            response = new HttpResponse(ResultEnum.PARAM_ERROR.getStatus(), "编码错误:" + getCharset());
+            log.error("", e);
+        } catch (RemoteAccessException e) {
+            if (response == null) {
+                response = new HttpResponse();
+            }
+            response.setStatus(e.getStatusCode() > 0 ? e.getStatusCode() : ResultEnum.SERVER_ERROR.getStatus());
+            response.setMessage(e.getMessage());
+            log.error("", e);
+        }
+        return response;
+    }
+
+    /**
+     * 发起请求,http body参数
+     * 
+     * @param bodyParam http body参数字符串
+     * @return
+     */
+    public HttpResponse sendRequest(String bodyParam) {
+        byte[] paramBytes = null;
+        HttpResponse response = null;
+        log.debug("发起http请求:url={},方式={},body参数={}", requestUrl, "post", this.method, bodyParam);
+        try {
+            this.method = HttpMethod.POST;
+            if (StringHelper.isNotEmpty(bodyParam)) {
+                paramBytes = StringHelper.getBytes(bodyParam, getCharset());
             }
             response = sendRequest(paramBytes, new DefalutResponse(0));
         } catch (TranscodeException e) {
@@ -465,6 +496,23 @@ public final class HttpHelper {
         boolean inited = helper.initConnect(url, HttpMethod.POST, null);
         if (inited) {
             return helper.sendRequest(params);
+        } else {
+            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
+        }
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性,提交json内容
+     * 
+     * @param url 请求地址
+     * @param entity 提交对象
+     * @return
+     */
+    public static <T> HttpResponse postJson(String url, T entity) {
+        HttpHelper helper = new HttpHelper();
+        boolean inited = helper.initConnect(url, HttpMethod.POST, null);
+        if (inited) {
+            return helper.sendRequest(JsonHelper.toJson(entity));
         } else {
             return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
         }
