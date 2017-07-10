@@ -16,6 +16,8 @@ public class SpiTest {
         ISysConfig s3=SpiFactory.getSingleBean(ISysConfig.class);
         ISysConfig s4=SpiFactory.getSingleBean(ISysConfig.class);
         System.out.println(s3==s4);//true加载的为新实例
+        
+        System.out.println(s3.getTextParam("image.server"));
     }
 
 }

@@ -102,7 +102,7 @@ public class CsrfFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         //忽略静态文件地址
         if (isIgnoreStatic&&isWebStatic(request.getPathInfo())) {
-            return;
+            chain.doFilter(request, response);
         }
         // 获取请求url地址
         String referurl = request.getHeader("Referer");
@@ -130,6 +130,7 @@ public class CsrfFilter implements Filter {
             isSafeUri = true;
         } else {
             URI refererUri = URI.create(referUrl);
+            //logger.debug(refererUri.getHost()+"="+request.getServerName());
             // 与当前应用和白名单地址比较协议主机端口
             if (refererUri.getScheme().equals(request.getScheme())
                     && refererUri.getHost().equals(request.getServerName())

@@ -31,7 +31,7 @@ public class CodeGenerator {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("d:/datecenter/code/");
+        gc.setOutputDir("d:/datecenter/bsscode/");
         gc.setFileOverride(true);
         gc.setActiveRecord(false);// 开启 activeRecord 模式
         gc.setEnableCache(false);// XML 二级缓存
@@ -61,7 +61,7 @@ public class CodeGenerator {
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("dbuser");
         dsc.setPassword("321321");
-        dsc.setUrl("jdbc:mysql://10.18.200.52:3306/smokebox?characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_bss?characterEncoding=utf8");
         mpg.setDataSource(dsc);
 
         // 策略配置
@@ -70,8 +70,8 @@ public class CodeGenerator {
         strategy.setDbColumnUnderline(true);//全局下划线命名
         //strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-        // strategy.setInclude(new String[] { "user" }); // 需要生成的表
-         strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
+         //strategy.setInclude(new String[] { "ref_box_cigar" }); // 需要生成的表
+        // strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
         // 自定义实体父类
         // strategy.setSuperEntityClass("com.baomidou.demo.TestEntity");
         // 自定义实体，公共字段
@@ -79,11 +79,11 @@ public class CodeGenerator {
         // 自定义 mapper 父类
         // strategy.setSuperMapperClass("com.baomidou.demo.TestMapper");
         // 自定义 service 父类
-         strategy.setSuperServiceClass("com.ghgcn.cigarbox.service.ICrudService");
+         strategy.setSuperServiceClass("com.ghgcn.bss.service.ICrudService");
         // 自定义 service 实现类父类
-         strategy.setSuperServiceImplClass("com.ghgcn.cigarbox.service.impl.BaseServiceImpl");
+         strategy.setSuperServiceImplClass("com.ghgcn.bss.service.impl.BaseServiceImpl");
         // 自定义 controller 父类
-        strategy.setSuperControllerClass("com.ghgcn.cigarbox.support.web.BaseController");
+        strategy.setSuperControllerClass("com.ghgcn.bss.support.web.BaseController");
         // 【实体】是否生成字段常量（默认 false）
         // public static final String ID = "test_id";
         // strategy.setEntityColumnConstant(true);
@@ -94,7 +94,7 @@ public class CodeGenerator {
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setModuleName("cigarbox");
+        pc.setModuleName("bss");
         pc.setParent("com.ghgcn");// 自定义包路径
         pc.setController("action");// 这里是控制器包名，默认 web
         mpg.setPackageInfo(pc);
@@ -112,7 +112,7 @@ public class CodeGenerator {
         focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
             @Override
             public String outputFile(TableInfo tableInfo) {
-                return "d:/datecenter/code/xml/" + tableInfo.getEntityName() + ".xml";
+                return "d:/datecenter/bsscode/xml/" + tableInfo.getEntityName() + ".xml";
             }
 
         });

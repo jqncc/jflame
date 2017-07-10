@@ -60,14 +60,14 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
     }
 
     boolean jsonResult(HttpServletRequest request, Object handler) {
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        if (handlerMethod.getMethodAnnotation(ResponseBody.class) != null
+                || handlerMethod.getBeanType().getAnnotation(RestController.class) != null) {
+            return true;
+        }
         if (WebUtils.isAjaxRequest(request)) {
             return true;
         } else {
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.getMethodAnnotation(ResponseBody.class) != null
-                    || handlerMethod.getBeanType().getAnnotation(RestController.class) != null) {
-                return true;
-            }
         }
         return false;
     }

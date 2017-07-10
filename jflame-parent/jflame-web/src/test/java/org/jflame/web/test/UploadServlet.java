@@ -21,7 +21,7 @@ import org.jflame.web.util.webfile.UploadItem;
 //@MultipartConfig(maxFileSize=1024*1024*10,location="d:\\")
 public class UploadServlet extends HttpServlet {
 
-    @Override
+    //@Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UploadItem uploadItem = new UploadItem();
         uploadItem.setSavePath("d:\\datacenter");

@@ -22,4 +22,8 @@ public class PermissionException extends RuntimeException {
         super(error);
     }
 
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }

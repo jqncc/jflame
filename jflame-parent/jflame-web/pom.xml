@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.0.3-beta</version>
+		<version>1.0.4-beta</version>
 	</parent>
 	<artifactId>jflame-web</artifactId>
 	<name>jflame-web</name>

@@ -21,7 +21,7 @@ import javax.validation.Payload;
 public @interface DynamicValid {
 
     /**
-     * 错误描述
+     * 错误描述,如需引用params中的动态参数,使用{0},{1}占用符
      * 
      * @return
      */
@@ -54,6 +54,15 @@ public @interface DynamicValid {
      * @return
      */
     boolean nullable() default false;
+
+    /**
+     * 规则所需参数,格式说明:<br>
+     * 规则名1:参数,规则名:参数. 如:rules={ValidRule.min,ValidRule.max} param="min:1,max:2";
+     * 参数类型:数字1,字符串:"1",数组:[1,2]
+     * 
+     * @return
+     */
+    String params() default "";
 
     /**
      * 内置验证规则
@@ -92,7 +101,8 @@ public @interface DynamicValid {
         /**
          * 不包含特殊字符*%#\=&lt;&gt;`';?&amp;!
          */
-        safeChar
+        safeChar,
+        noContain
     }
 
 }

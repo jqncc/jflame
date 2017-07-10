@@ -42,27 +42,55 @@ public final class StringHelper {
     public static boolean isNotEmpty(CharSequence str) {
         return StringUtils.isNotEmpty(str);
     }
-    
+
     /**
      * 检查字符串中是否包含给定的任意字符
-     * @param str
-     * @param searchChars
-     * @return
+     * 
+     * @param str 被搜索字符串
+     * @param searchChars 要查找的字符
+     * @return 包含返回true,否则false
      */
     public static boolean containsAny(CharSequence str, char... searchChars) {
         return StringUtils.containsAny(str, searchChars);
     }
-    
+
+    /**
+     * 检查字符串中是否包含给定的任意字符串
+     * 
+     * @param str 被搜索字符串
+     * @param searchStrs 要查找的字符串
+     * @return 包含返回true,否则false
+     */
+    public static boolean containsAny(CharSequence str, String... searchStrs) {
+        for (String search : searchStrs) {
+            if (StringUtils.containsAny(str, search)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 使用用英文逗号","拆分字符串为数组
+     * 
+     * @param str 待拆分字符串
+     * @return 字符串数组
+     */
+    public static String[] split(String str) {
+        return StringUtils.split(str, ',');
+    }
+
     /**
      * 以逗号,组合数组元素为字符串,示例:<br>
      * StringHelper.join(["a", "b", "c"]) = "a,b,c"
+     * 
      * @param array 数组
      * @return
      */
     public static String join(Object[] array) {
         return StringUtils.join(array, ',');
     }
-    
+
     /**
      * 以指定分隔符组合数组元素为字符串,示例:<br>
      * StringHelper.join(["a", "b", "c"], ',') = "a,b,c"
@@ -74,7 +102,7 @@ public final class StringHelper {
     public static String join(Object[] array, char separator) {
         return StringUtils.join(array, separator);
     }
-    
+
     public static String join(Object[] array, String separator) {
         return StringUtils.join(array, separator);
     }

@@ -32,17 +32,17 @@ public class BusinessException extends RuntimeException {
     }
 
     public BusinessException(String message, int statusCode) {
-        super(message + " status code:" + statusCode);
+        super(message);
         this.statusCode = statusCode;
     }
 
     public BusinessException(int statusCode, Throwable exception) {
-        super("", exception);
+        super(exception);
         this.statusCode = statusCode;
     }
 
     public BusinessException(String message, int statusCode, Throwable exception) {
-        super(message + " status code:" + statusCode, exception);
+        super(message, exception);
         this.statusCode = statusCode;
     }
 }

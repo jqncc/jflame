@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jflame</groupId>
 	<artifactId>jflame-parent</artifactId>
-	<version>1.0.3-beta</version>
+	<version>1.0.4-beta</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -82,6 +82,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.2</version>
 				<configuration>
 					<aggregate>true</aggregate>
 					<charset>${project.build.sourceEncoding}</charset>
@@ -119,11 +120,11 @@
 					</configuration>
 				</plugin>
 				<!-- javadoc源码包插件 -->
-				<plugin>
+				<!-- <plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.10.2</version>
-				</plugin>
+				</plugin> -->
 			</plugins>
 		</pluginManagement>
 	</build>

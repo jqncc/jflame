@@ -68,23 +68,34 @@ public class WebUtils {
     }
 
     /**
-     * 判断请求是否是一个ajax请求或返回要求是json数据.
+     * 判断请求是否是一个ajax请求
      * <p>
-     * 判断规则:1,请求头accepty含application/json 2,请求头x-requested-with=XMLHttpRequest.3,含参数mediaType=json
+     * 请求头含x-requested-with=XMLHttpRequest
      * 
      * @param request HttpServletRequest
      * @return
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
-        String headAccept = request.getHeader("accept");
-        
-        boolean yes = false;
-        if (headAccept != null && headAccept.indexOf(WebConstant.MIME_TYPE_JSON) >= 0) {
-            yes = true;
-        } else if (WebConstant.AJAX_REQUEST_FLAG.value()
+        if (WebConstant.AJAX_REQUEST_FLAG.value()
                 .equalsIgnoreCase(request.getHeader(WebConstant.AJAX_REQUEST_FLAG.name()))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否请求json格式数据,header accept带json或请求路径以json结尾
+     * 
+     * @param request
+     * @return
+     */
+    public static boolean isJsonRequest(HttpServletRequest request) {
+        String headAccept = request.getHeader("accept");
+        String flag = "json";
+        boolean yes = false;
+        if (headAccept != null && headAccept.indexOf(flag) >= 0) {
             yes = true;
-        }else if("json".equals(request.getServletPath())){
+        } else if (request.getServletPath().endsWith(flag)) {
             yes = true;
         }
         return yes;
@@ -221,9 +232,10 @@ public class WebUtils {
         }
         return ip;
     }
-    
+
     /**
      * 导出excel文件到客户端
+     * 
      * @param data 数据集Map
      * @param propertyNames 要导出的Key
      * @param titles 标题名与propertyNames key顺序对应
@@ -237,10 +249,12 @@ public class WebUtils {
         ExcelCreator.export(data, propertyNames, titles, out);
         setFileDownloadHeader(response, fileName, out.size());
         out.writeTo(response.getOutputStream());
+        out.close();
     }
-    
+
     /**
      * 导出excel文件到客户端
+     * 
      * @param data 数据集
      * @param fileName 文件名,浏览器要显示的文件名
      * @param response
@@ -253,7 +267,7 @@ public class WebUtils {
         setFileDownloadHeader(response, fileName, out.size());
         out.writeTo(response.getOutputStream());
     }
-    
+
     /**
      * 获取指定名称的cookie值
      * 
