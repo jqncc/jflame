@@ -45,8 +45,8 @@ public class CsrfFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
 
     private List<URI> whiteUrls; // 白名单
-    private String errorPage;//错误转向页面
-    private boolean isIgnoreStatic=true;//是否忽略静态资源文件
+    private String errorPage;// 错误转向页面
+    private boolean isIgnoreStatic = true;// 是否忽略静态资源文件
 
     public void init(FilterConfig filterConfig) {
         final String WHITEFILE_PARAM = "whitefile";
@@ -55,9 +55,9 @@ public class CsrfFilter implements Filter {
 
         String whiteFile = filterConfig.getInitParameter(WHITEFILE_PARAM);
         String errPage = filterConfig.getInitParameter(ERRORPAGE_PARAM);
-        
-        if(StringHelper.isNotEmpty(filterConfig.getInitParameter(IGNORE_PARAM))){
-            isIgnoreStatic =Boolean.parseBoolean(filterConfig.getInitParameter(IGNORE_PARAM).trim());
+
+        if (StringHelper.isNotEmpty(filterConfig.getInitParameter(IGNORE_PARAM))) {
+            isIgnoreStatic = Boolean.parseBoolean(filterConfig.getInitParameter(IGNORE_PARAM).trim());
         }
         if (StringHelper.isNotEmpty(errPage)) {
             errorPage = errPage.trim();
@@ -100,24 +100,25 @@ public class CsrfFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-        //忽略静态文件地址
-        if (isIgnoreStatic&&isWebStatic(request.getPathInfo())) {
-            chain.doFilter(request, response);
-        }
-        // 获取请求url地址
-        String referurl = request.getHeader("Referer");
-        logger.debug("crsf check referurl:{}", referurl);
-        if (isWhiteReq(referurl, request)) {
+        // 忽略静态文件地址
+        if (isIgnoreStatic && isWebStatic(request.getPathInfo())) {
             chain.doFilter(request, response);
         } else {
-            String url = request.getRequestURL().toString();
-            logger.warn("非法请求来源:url={},referer={}", url, referurl);
-            if (StringHelper.isNotEmpty(errorPage)) {
-                request.getRequestDispatcher(errorPage).forward(request, response);
+            // 获取请求url地址
+            String referurl = request.getHeader("Referer");
+            logger.debug("crsf check referurl:{}", referurl);
+            if (isWhiteReq(referurl, request)) {
+                chain.doFilter(request, response);
             } else {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "非法请求来源");
+                String url = request.getRequestURL().toString();
+                logger.warn("非法请求来源:url={},referer={}", url, referurl);
+                if (StringHelper.isNotEmpty(errorPage)) {
+                    request.getRequestDispatcher(errorPage).forward(request, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "非法请求来源");
+                }
+                return;
             }
-            return;
         }
     }
 
@@ -130,13 +131,13 @@ public class CsrfFilter implements Filter {
             isSafeUri = true;
         } else {
             URI refererUri = URI.create(referUrl);
-            //logger.debug(refererUri.getHost()+"="+request.getServerName());
             // 与当前应用和白名单地址比较协议主机端口
             if (refererUri.getScheme().equals(request.getScheme())
-                    && refererUri.getHost().equals(request.getServerName())
-                    && refererUri.getPort() == request.getServerPort()) {
+                    && refererUri.getHost().equals(request.getServerName())) {
                 isSafeUri = true;
             } else {
+                logger.debug("referer uri,scheme={},host={},port={}",refererUri.getScheme(),refererUri.getHost(),refererUri.getPort());
+                logger.debug("request uri,scheme={},host={},port={}",request.getScheme(),request.getServerName(),request.getServerPort());
                 if (CollectionHelper.isNotEmpty(whiteUrls)) {
                     for (URI uri : whiteUrls) {
                         if (refererUri.getScheme().equals(uri.getScheme())
@@ -151,20 +152,21 @@ public class CsrfFilter implements Filter {
 
         return isSafeUri;
     }
-    
+
     /**
      * 判断是否是web静态文件
+     * 
      * @param requestUrl 请求路径
      * @return
      */
-    private boolean isWebStatic(String requestUrl){
-        if (requestUrl==null) {
+    private boolean isWebStatic(String requestUrl) {
+        if (requestUrl == null) {
             return false;
         }
-        String ext=FileHelper.getExtension(requestUrl,false);
-        return ArrayUtils.contains(WebConstant.webStaticExts,ext);
+        String ext = FileHelper.getExtension(requestUrl, false);
+        return ArrayUtils.contains(WebConstant.webStaticExts, ext);
     }
-    
+
     public void destroy() {
     }
 
