@@ -1,4 +1,4 @@
-package org.jflame.toolkit.test;
+package org.jflame.toolkit.test.entity;
 
 import java.io.Serializable;
 import java.util.Date;

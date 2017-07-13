@@ -12,6 +12,8 @@ import javax.validation.ValidatorFactory;
 
 import org.jflame.toolkit.test.Payserver.Adult;
 import org.jflame.toolkit.test.Payserver.Child;
+import org.jflame.toolkit.test.entity.Person;
+import org.jflame.toolkit.test.entity.UserInfo;
 import org.jflame.toolkit.valid.ValidatorHelper;
 import org.junit.Test;
 

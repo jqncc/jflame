@@ -105,7 +105,7 @@ public final class JsonHelper {
     public static <T> List<T> parseArray(String jsonStr, Class<T> elementClazz) {
         return JSON.parseArray(jsonStr, elementClazz);
     }
-    
+
     public static <T> List<T> parseArray(String jsonStr, TypeReference<T> type) {
         return JSON.parseObject(jsonStr, type.getType());
     }
@@ -122,6 +122,29 @@ public final class JsonHelper {
         Type type = new TypeReference<Map<K,V>>() {
         }.getType();
         return JSON.parseObject(jsonStr, type);
+    }
+
+    /**
+     * 构造一个泛型Map的TypeReference
+     * 
+     * @param keyClazz map key的类型
+     * @param valueClazz map value的类型
+     * @return
+     */
+    public static <K,V> TypeReference<Map<K,V>> buildMapType(Class<K> keyClazz, Class<V> valueClazz) {
+        return new TypeReference<Map<K,V>>(keyClazz, valueClazz) {
+        };
+    }
+
+    /**
+     * 构造一个泛型List的TypeReference
+     * 
+     * @param elementClazz 元素类型
+     * @return
+     */
+    public static <E> TypeReference<List<E>> buildListType(Class<E> elementClazz) {
+        return new TypeReference<List<E>>(elementClazz) {
+        };
     }
 
     // public static void main(String[] args) {

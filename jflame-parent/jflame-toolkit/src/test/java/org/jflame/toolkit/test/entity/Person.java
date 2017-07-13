@@ -1,4 +1,4 @@
-package org.jflame.toolkit.test;
+package org.jflame.toolkit.test.entity;
 
 import java.io.Serializable;
 
@@ -6,6 +6,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.jflame.toolkit.test.Payserver;
 import org.jflame.toolkit.test.Payserver.Adult;
 import org.jflame.toolkit.test.Payserver.Child;
 import org.jflame.toolkit.valid.DynamicValid;

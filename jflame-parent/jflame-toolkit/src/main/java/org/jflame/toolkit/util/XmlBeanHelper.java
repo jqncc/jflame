@@ -20,12 +20,11 @@ public final class XmlBeanHelper {
     /**
      * JavaBean转换成xml 默认编码UTF-8
      * 
-     * @param obj
-     * @param writer
-     * @return
+     * @param bean javabean
+     * @return xml格式字符串
      */
-    public static String convertToXml(Object obj) {
-        return toXml(obj, CharsetHelper.UTF_8);
+    public static <T> String toXml(T bean) {
+        return toXml(bean, CharsetHelper.UTF_8);
     }
 
     /**

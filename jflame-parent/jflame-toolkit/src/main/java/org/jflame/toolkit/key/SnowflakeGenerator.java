@@ -1,10 +1,6 @@
 package org.jflame.toolkit.key;
 
-import java.net.InetAddress;
 import java.util.concurrent.ThreadLocalRandom;
-
-import org.jflame.toolkit.codec.TranscodeHelper;
-import org.jflame.toolkit.net.IPAddressHelper;
 
 /**
  * snowflake唯一id生成算法实现.
@@ -23,9 +19,9 @@ public final class SnowflakeGenerator {
     // 开始该类生成ID的时间戳
     private final static long startTime = 1483436297001L;
     // 机器id所占的位数
-    private final static long workerIdBits = 7L;
+    private final static long workerIdBits = 5L;
     // 数据中心标识id所占的位数
-    private final static long datacenterIdBits = 3L;
+    private final static long datacenterIdBits = 5L;
     // 支持的最大机器id =255
     private final static long maxWorkerId = -1L ^ (-1L << workerIdBits);
     // 支持的最大数据标识id=3
@@ -50,17 +46,11 @@ public final class SnowflakeGenerator {
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
-     * 构造函数
+     * 构造函数,默认使用机器MAC地址和进程号作为数据中心位和机器位
      */
     public SnowflakeGenerator() {
-        InetAddress ip = IPAddressHelper.getLocalIPAddress();
-        if (ip != null) {
-            int ipInt = TranscodeHelper.bytesToInt(ip.getAddress());
-            this.datacenterId = ipInt % 254;
-        } else {
-            this.datacenterId = random.nextInt(254);
-        }
-        this.workerId = Thread.currentThread().getId();
+        this.datacenterId = ObjectId.createMachineIdentifier();
+        this.workerId = ObjectId.createProcessIdentifier();
     }
 
     /**
@@ -111,6 +101,15 @@ public final class SnowflakeGenerator {
                 | (datacenterId << datacenterIdLeftShift) // 数据标识id部分
                 | (workerId << workerIdLeftShift) // 机器id部分
                 | sequence; // 序列部分
+    }
+
+    /**
+     * 生成新id,返回16进制字符串
+     * 
+     * @return 新id的16进制表示
+     */
+    public synchronized String nextHexId() {
+        return Long.toHexString(nextId());
     }
 
     /**

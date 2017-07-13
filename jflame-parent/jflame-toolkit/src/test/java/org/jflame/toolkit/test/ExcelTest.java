@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.ExcelImportor;
+import org.jflame.toolkit.test.entity.Pet;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
