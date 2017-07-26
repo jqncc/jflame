@@ -1,12 +1,16 @@
 package org.jflame.mvc.support;
 
-import org.jflame.toolkit.reflect.SpiFactory;
-import org.jflame.web.config.BaseSysConfig.DefaultParamKey;
-import org.jflame.web.config.ISysConfig;
+import org.jflame.web.config.DefaultConfigKeys;
+import org.jflame.web.config.PropertiesConfig;
 
 public final class SysParam {
 
-    private static ISysConfig config = SpiFactory.getSingleBean(ISysConfig.class);
+    //private static ISysConfig config = SpiFactory.getSingleBean(ISysConfig.class);
+    
+    private static PropertiesConfig config;
+    static {
+        config=new PropertiesConfig("system.properties");
+    }
 
     /**
      * 参数键名定义接口
@@ -23,7 +27,7 @@ public final class SysParam {
      * @return
      */
     public static String getSavePath() {
-        return config.getTextParam(DefaultParamKey.savePath);
+        return config.getString(DefaultConfigKeys.SAVE_PATH);
     }
 
     /**
@@ -32,7 +36,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgSavePath() {
-        return config.getTextParam(DefaultParamKey.imageSavePath);
+        return config.getString(DefaultConfigKeys.IMAGE_SAVE_PATH);
     }
 
     /**
@@ -41,7 +45,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgServer() {
-        return config.getTextParam(DefaultParamKey.imageServer);
+        return config.getString(DefaultConfigKeys.IMAGE_SERVER);
     }
     
 }

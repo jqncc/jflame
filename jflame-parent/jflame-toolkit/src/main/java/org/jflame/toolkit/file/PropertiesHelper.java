@@ -1,13 +1,18 @@
 package org.jflame.toolkit.file;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.SystemUtils;
+import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +25,19 @@ import org.slf4j.LoggerFactory;
 public final class PropertiesHelper {
 
     private static final Logger log = LoggerFactory.getLogger(PropertiesHelper.class);
-    private final Properties properties=new Properties();
+    private final Properties properties = new Properties();
     private final Pattern varPattern = Pattern.compile("\\$\\{([^\\}]+)\\}");
 
     /**
      * 构造函数.
+     * <p>
+     * 文件路径以"classpath:"开头或是相对路径则从当前classpath查找,否则作为绝对路径.示例:<br/>
+     * 相对路径:"classpath:jdbc.properties","config/jdbc.properties";<br/>
+     * 绝对路径:"d:/jdbc.properties","/home/user/jdbc.properties";
+     * </p>
      * 
-     * @param resourcesPaths 相对于classpath的文件路径
-     * @throws IOException 
+     * @param resourcesPaths 资源文件路径
+     * @throws IOException
      */
     public PropertiesHelper(String... resourcesPaths) throws IOException {
         loadProperties(resourcesPaths);
@@ -156,27 +166,37 @@ public final class PropertiesHelper {
         return properties.containsKey(key);
     }
 
-    
     /**
-     * 载入多个文件
+     * 读取多个资源文件.
+     * <p>
+     * 文件路径以"classpath:"开头或是相对路径则从当前classpath查找,否则作为绝对路径.示例:<br/>
+     * 相对路径:"classpath:jdbc.properties","config/jdbc.properties"<br/>
+     * 绝对路径:"d:/jdbc.properties","/home/user/jdbc.properties"
+     * </p>
      * 
-     * @param resourcesPaths 资源文件路径,路径以/开头从classpath下去，相对路径从此类所在的包下取资源
-     * @throws IOException 
+     * @param resourcesPaths 资源文件路径
+     * @throws IOException
      */
     private void loadProperties(String... resourcesPaths) throws IOException {
         for (String location : resourcesPaths) {
             if (StringHelper.isNotEmpty(location)) {
-                //修正下路径,classLoader不以/开头
-                if (location.charAt(0) == FileHelper.UNIX_SEPARATOR) {
-                    location = location.substring(1);
+                log.debug("加载资源文件{}", location);
+                InputStream inStream = null;
+                // 非绝对路径从classpath读取
+                if (isAbsolute(location)) {
+                    inStream = new FileInputStream(location);
+                } else {
+                    inStream = FileHelper.readFileFromClassPath(location);
                 }
-                try (InputStream is = FileHelper.readFileFromClassPath(location)) {
-                    if (is != null) {
-                        properties.load(is);
+                try {
+                    if (inStream != null) {
+                        properties.load(inStream);
                     }
                 } catch (IOException ex) {
                     log.error("加载资源文件失败" + location, ex);
                     throw ex;
+                } finally {
+                    IOHelper.closeQuietly(inStream);
                 }
             }
         }
@@ -195,7 +215,7 @@ public final class PropertiesHelper {
                         matchervalue = System.getProperty(matcherKey);
                     }
                     if (matchervalue != null) {
-                        //替换特殊字符\$
+                        // 替换特殊字符\$
                         if (StringHelper.containsAny(matchervalue, '\\', '$')) {
                             matcher.appendReplacement(buffer,
                                     matchervalue.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$"));
@@ -211,5 +231,17 @@ public final class PropertiesHelper {
             log.warn("未加载到任何属性");
         }
     }
-    
+
+    boolean isAbsolute(String path) {
+        Path p = Paths.get(path);
+        if (p.isAbsolute()) {
+            return true;
+        }
+        // 非windows系统,/开头视为绝对路径
+        if (!SystemUtils.IS_OS_WINDOWS && path.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+            return true;
+        }
+        return false;
+    }
+
 }

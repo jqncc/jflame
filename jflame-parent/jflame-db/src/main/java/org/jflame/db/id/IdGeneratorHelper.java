@@ -94,7 +94,6 @@ public final class IdGeneratorHelper {
         }
 
         public void bind(PreparedStatement preparedStatement, int position) throws SQLException {
-            // TODO : bind it as 'exact type'? Not sure if that gains us anything...
             preparedStatement.setLong(position, value);
         }
 
@@ -172,7 +171,6 @@ public final class IdGeneratorHelper {
         }
 
         public Number makeValue() {
-            // TODO : should we check for truncation?
             checkInitialized();
             if (exactType == Long.class) {
                 return value;
@@ -219,6 +217,7 @@ public final class IdGeneratorHelper {
 
     public static class BigIntegerHolder implements IntegralDataTypeHolder {
 
+        private static final long serialVersionUID = 1L;
         private BigInteger value;
 
         public IntegralDataTypeHolder initialize(long value) {
@@ -357,7 +356,7 @@ public final class IdGeneratorHelper {
     }
 
     public static class BigDecimalHolder implements IntegralDataTypeHolder {
-
+        private static final long serialVersionUID = 1L;
         private BigDecimal value;
 
         public IntegralDataTypeHolder initialize(long value) {

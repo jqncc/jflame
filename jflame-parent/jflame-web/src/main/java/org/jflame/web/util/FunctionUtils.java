@@ -1,11 +1,12 @@
 package org.jflame.web.util;
 
 import org.jflame.toolkit.reflect.SpiFactory;
-import org.jflame.web.config.BaseSysConfig.DefaultParamKey;
+import org.jflame.web.config.DefaultConfigKeys;
 import org.jflame.web.config.ISysConfig;
 
 /**
  * 通用静态方法供页面使用
+ * 
  * @author yucan.zhang
  */
 public final class FunctionUtils {
@@ -18,7 +19,7 @@ public final class FunctionUtils {
      * @return
      */
     public static String getImgSavePath() {
-        return config.getTextParam(DefaultParamKey.imageSavePath);
+        return config.getTextParam(DefaultConfigKeys.IMAGE_SAVE_PATH.getName());
     }
 
     /**
@@ -27,7 +28,7 @@ public final class FunctionUtils {
      * @return
      */
     public static String getImgServer() {
-        return config.getTextParam(DefaultParamKey.imageServer);
+        return config.getTextParam(DefaultConfigKeys.IMAGE_SERVER.getName());
     }
-    
+
 }

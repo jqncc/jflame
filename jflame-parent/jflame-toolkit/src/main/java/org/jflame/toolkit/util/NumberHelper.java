@@ -13,14 +13,67 @@ import org.apache.commons.lang3.StringUtils;
 public final class NumberHelper {
 
     /**
+     * 字符串转int
+     * 
+     * @param text 待转换字符串
+     * @return Integer
+     */
+    public static Integer parseInt(String text) {
+        return parseNumber(text, Integer.class);
+    }
+
+    /**
+     * 字符串转long
+     * 
+     * @param text 待转换字符串
+     * @return Long
+     */
+    public static Long parseLong(String text) {
+        return parseNumber(text, Long.class);
+    }
+
+    /**
+     * 字符串转Double
+     * 
+     * @param text 待转换字符串
+     * @return Double
+     */
+    public static Double parseDouble(String text) {
+        return parseNumber(text, Double.class);
+    }
+
+    /**
+     * 字符串转Float
+     * 
+     * @param text 待转换字符串
+     * @return Float
+     */
+    public static Float parseFloat(String text) {
+        return parseNumber(text, Float.class);
+    }
+
+    /**
+     * 字符串转Short
+     * 
+     * @param text 待转换字符串
+     * @return Short
+     */
+    public static Short parseShort(String text) {
+        return parseNumber(text, Short.class);
+    }
+
+    /**
      * 转换字符串到相应的数字类型
      * 
      * @param text 待转换字符串
      * @param targetClass 数字类型
-     * @return
+     * @return 相应的数字类型
      */
     @SuppressWarnings("unchecked")
     public static <T extends Number> T parseNumber(String text, Class<T> targetClass) {
+        if (text == null) {
+            return null;
+        }
         String trimmed = StringUtils.trim(text);
 
         if (Byte.class == targetClass) {

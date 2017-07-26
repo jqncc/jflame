@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.0.1-beta</version>
+		<version>1.1.0-beta</version>
 	</parent>
 	<artifactId>jflame-db</artifactId>
 	<name>jflame-db</name>
@@ -45,7 +45,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration><skip>true</skip></configuration>
 			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>

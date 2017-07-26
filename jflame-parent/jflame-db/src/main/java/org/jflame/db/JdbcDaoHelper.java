@@ -12,7 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.db.id.IdGenerator;
 import org.jflame.db.id.IdType;
-import org.jflame.db.id.factory.DefaultIdGeneratorFactory;
+import org.jflame.db.id.factory.IdGeneratorFactory;
 import org.jflame.db.metadata.DefaultMetaDataProvider;
 import org.jflame.db.metadata.IMetaDataProvider;
 import org.jflame.db.metadata.TableMetaData;
@@ -55,7 +55,7 @@ public class JdbcDaoHelper implements DbEnvironment, IBaseDao {
     private int batchSize = 30;// 批处理数量
     private Dialect curDbType = Dialect.MySql;
     private PlatformTransactionManager transactionManager;
-    private DefaultIdGeneratorFactory idGeneratorFactory=new DefaultIdGeneratorFactory();
+    private IdGeneratorFactory idGeneratorFactory=new IdGeneratorFactory();
 
     /**
      * 根据id查询

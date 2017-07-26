@@ -198,7 +198,7 @@ public class ExcelCreator {
                 if (columnPropertys == null || columnPropertys.isEmpty()) {
                     throw new ExcelAccessException("没有找到要导入的属性");
                 }
-                rowHandler = new DefaultEntitySheetRowHandler(properties, columnPropertys);
+                rowHandler = new DefaultEntitySheetRowHandler<>(properties, columnPropertys);
             } else {
                 rowHandler = sheetRowHandler;
             }

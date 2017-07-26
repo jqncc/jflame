@@ -10,16 +10,19 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.web.config.DefaultConfigKeys;
+import org.jflame.web.config.ServletParamConfig;
 import org.jflame.web.util.WebUtils;
 
 @SuppressWarnings("serial")
 public class LogoutServlet extends HttpServlet {
 
-    private String logoutPage = "/login.jsp";
+    private String logoutPage;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        logoutPage = config.getInitParameter("logoutPage");
+        ServletParamConfig servletParam = new ServletParamConfig(config);
+        logoutPage = servletParam.getString(DefaultConfigKeys.LOGOUT_PAGE);
         if (StringHelper.isNotEmpty(logoutPage)) {
             logoutPage = logoutPage.trim();
         }
@@ -32,14 +35,18 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
+        forward(request,resp);
+    }
+
+    protected void beforeLogout(HttpServletRequest request, HttpServletResponse resp)throws ServletException, IOException  {
+
+    }
+
+    protected void forward(HttpServletRequest request, HttpServletResponse resp)throws ServletException, IOException  {
         if (WebUtils.isAbsoluteUrl(logoutPage)) {
             resp.sendRedirect(logoutPage);
         } else {
             resp.sendRedirect(WebUtils.mergeUrl(request.getContextPath(), logoutPage));
         }
-    }
-
-    protected void beforeLogout(HttpServletRequest request, HttpServletResponse resp) {
-
     }
 }

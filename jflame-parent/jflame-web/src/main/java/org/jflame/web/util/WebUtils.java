@@ -4,9 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -116,8 +116,6 @@ public class WebUtils {
         out.close();
     }
 
-    volatile transient static String contextRootPath;
-
     /**
      * 获取应用的绝对url
      * <p>
@@ -127,20 +125,23 @@ public class WebUtils {
      * @return
      */
     public static String getApplicationPath(HttpServletRequest request) {
-        if (contextRootPath == null) {
-            contextRootPath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-                    + request.getContextPath();
-        }
-        return contextRootPath;
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                + request.getContextPath();
+
     }
 
     /**
-     * 返回应用的绝对url,该值返回的是方法{@link #getApplicationPath(HttpServletRequest)}保存的静态变量，使用前请确保执行过此方法.
+     * 返回请求路径,不包含应用路径和查询参数
      * 
+     * @param request HttpServletRequest
      * @return
      */
-    public static String getApplicationPath() {
-        return contextRootPath;
+    public static String getRequestPath(HttpServletRequest request) {
+        String url = request.getServletPath();
+        if (request.getPathInfo() != null) {
+            url += request.getPathInfo();
+        }
+        return url;
     }
 
     /**
@@ -187,8 +188,7 @@ public class WebUtils {
      * @return
      */
     public static boolean isAbsoluteUrl(String url) {
-        Pattern absouteUrlRegex = Pattern.compile("\\A[a-z0-9.+-]+://.*", Pattern.CASE_INSENSITIVE);
-        return absouteUrlRegex.matcher(url).matches();
+        return URI.create(url).isAbsolute();
     }
 
     /**

@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+
 import org.jflame.toolkit.common.bean.CallResult;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.crypto.DigestHelper;
 import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.toolkit.net.CertX509TrustManager;
 import org.jflame.toolkit.net.HttpHelper;
 import org.jflame.toolkit.net.HttpHelper.HttpMethod;
 import org.jflame.toolkit.net.http.HttpResponse;
@@ -48,16 +52,16 @@ public class HttpTest {
     public void testJsonResponse() {
         HttpResponse result = HttpHelper.post("http://127.0.0.1:88/user/1", null);
         if (result.success()) {
-            CallResult info=result.getResponse(new JsonResponseHandler<>(CallResult.class));
+            CallResult info = result.getResponse(new JsonResponseHandler<>(CallResult.class));
         }
         //
-        //result.getResponseAsJson(CallResult.class);
-        //result.getResponseAsXml(CallResult.class);xml解析为bean
-        //构造JSON反序列复合对象list
-        //TypeReference<List<MemberInfo>> type=JsonHelper.buildListType(MemberInfo.class);
-        //List<MemberInfo> list=result.getResponse(new JsonResponseHandler<>(type));
+        // result.getResponseAsJson(CallResult.class);
+        // result.getResponseAsXml(CallResult.class);xml解析为bean
+        // 构造JSON反序列复合对象list
+        // TypeReference<List<MemberInfo>> type=JsonHelper.buildListType(MemberInfo.class);
+        // List<MemberInfo> list=result.getResponse(new JsonResponseHandler<>(type));
     }
-    
+
     /**
      * 模拟登录
      */
@@ -65,11 +69,11 @@ public class HttpTest {
     public void testFull() {
         HttpHelper httpHelper = new HttpHelper();
         httpHelper.setCharset(CharsetHelper.GBK);
-        //保持cookie,必须是同一httpHelper实例
-        //登录 请求
+        // 保持cookie,必须是同一httpHelper实例
+        // 登录 请求
         // Map<String,String> header=new HashMap<>();
-        //header.put("accept","*/*");带header
-        //boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/login", HttpMethod.POST,header);
+        // header.put("accept","*/*");带header
+        // boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/login", HttpMethod.POST,header);
         boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/login", HttpMethod.POST);
         if (isOk) {
             List<NameValuePair> pairs = new ArrayList<>();
@@ -77,13 +81,31 @@ public class HttpTest {
             pairs.add(new NameValuePair("password", "123456"));
             HttpResponse result = httpHelper.sendRequest(pairs);
             System.out.println(result.getResponseAsJson(CallResult.class));
-            //登录成功后请求有身份证验证的页面
+            // 登录成功后请求有身份证验证的页面
             httpHelper.initConnect("http://localhost:9090/zp-admin/topMenu", HttpMethod.GET);
-            result=httpHelper.sendRequest();
+            result = httpHelper.sendRequest();
             System.out.println(result.getResponseAsText());
-            
+
         } else {
             System.out.println("建立连接失败，请确认请求url可用");
+        }
+    }
+
+    /**
+     * 自定义SSL证书验证
+     */
+    @Test
+    public void testSSl() {
+        HttpHelper httpHelper = new HttpHelper();
+        httpHelper.setCharset(CharsetHelper.GBK);
+        SSLSocketFactory mySSLFactory;
+        try {
+            mySSLFactory = HttpHelper.initSSLSocketFactory("TLS",
+                    new TrustManager[]{ new CertX509TrustManager("d://x.p12", "passwd", "PKCS12") });
+            httpHelper.setSslSocketFactory(mySSLFactory);
+            boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/xxx", HttpMethod.POST);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

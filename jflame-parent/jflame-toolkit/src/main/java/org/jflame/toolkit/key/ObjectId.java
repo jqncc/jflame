@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 24位16进制唯一id生成,摘自mongodb objectid.<br>
- * 规则:4字节unix时间戳+3字节机器号+2字节进程号+9字节序列号
+ * 规则:4字节unix时间戳+3字节机器号+2字节进程号+3字节序列号
  * 
  * @author yucan.zhang
  */

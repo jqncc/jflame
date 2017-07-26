@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * +N位的数据机器位,数据中心位+机器位<br>
  * +M位序列，1毫秒内最多生成M位序列<br>
  * <p>
- * <strong>注:单实例多线程安全,多实例可能产生重复id</strong>
+ * <strong>注:单实例多线程安全</strong>
  * 
  * @author yucan.zhang
  */

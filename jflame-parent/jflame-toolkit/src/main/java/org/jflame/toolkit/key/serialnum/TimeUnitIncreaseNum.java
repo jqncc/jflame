@@ -49,7 +49,7 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
         if (curTime > lastTimestamp.get()) {
             sequence.set(initSeq);
             setNextTimestamp();
-            System.out.println("reset..");
+            //System.out.println("reset..");
         }
         return sequence.getAndIncrement();
     }
@@ -70,7 +70,7 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
     private void isSupportUnit() {
         if (timeUnit != TimeUnit.DAYS && timeUnit != TimeUnit.HOURS && timeUnit != TimeUnit.MINUTES
                 && timeUnit != TimeUnit.SECONDS) {
-            throw new IllegalArgumentException("只支持\"天->秒\"时间单元");
+            throw new IllegalArgumentException("只支持\"天->秒\"时间单位");
         }
     }
 

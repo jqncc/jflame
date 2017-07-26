@@ -28,10 +28,6 @@ public final class WebConstant {
      */
     public final static String MIME_TYPE_POST = "application/x-www-form-urlencoded";
     /**
-     * 文件上传请求的content-type
-     */
-    public final static String MIME_TYPE_UPLOAD = "multipart/form-data";
-    /**
      * http mine,二进制,常用于下载文件
      */
     public final static String MIME_TYPE_STREAM = "applicatoin/octet-stream";
@@ -76,7 +72,8 @@ public final class WebConstant {
     /**
      * web静态资源扩展名
      */
-    public final static String[] webStaticExts = ArrayUtils.addAll(WebConstant.imageExts, "js", "css","ttf","tiff", "font");
+    public final static String[] webStaticExts = ArrayUtils.addAll(WebConstant.imageExts, "js", "css", "ttf", "tiff",
+            "font");
     /**
      * 当前登录用户在session中的key
      */

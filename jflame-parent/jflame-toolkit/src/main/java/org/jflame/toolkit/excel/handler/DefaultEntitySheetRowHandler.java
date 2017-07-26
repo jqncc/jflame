@@ -17,7 +17,7 @@ import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
  * 
  * @author yucan.zhang
  */
-public class DefaultEntitySheetRowHandler extends BaseEntitySheetRowHandler<IExcelEntity> {
+public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEntitySheetRowHandler<T> {
 
     PropertyDescriptor[] properties = null;
     List<ExcelColumnProperty> columnPropertys = null;
@@ -28,7 +28,7 @@ public class DefaultEntitySheetRowHandler extends BaseEntitySheetRowHandler<IExc
     }
 
     @Override
-    public void fillRow(IExcelEntity rowData, Row excelSheetRow) {
+    public void fillRow(T rowData, Row excelSheetRow) {
         Cell cell = null;
         int cellIndex = 0;
         int size = columnPropertys.size();
@@ -39,11 +39,21 @@ public class DefaultEntitySheetRowHandler extends BaseEntitySheetRowHandler<IExc
     }
 
     @Override
-    public IExcelEntity extractRow(Row excelSheetRow) {
+    public PropertyDescriptor[] getProperties() {
+        return properties;
+    }
+
+    @Override
+    public List<ExcelColumnProperty> getColumnPropertys() {
+        return columnPropertys;
+    }
+
+    @Override
+    public T extractRow(Row excelSheetRow) {
         return null;
     }
 
-    private void setPropertyToCell(PropertyDescriptor[] properties, IExcelEntity object, ExcelColumnProperty cproperty,
+    private void setPropertyToCell(PropertyDescriptor[] properties, T object, ExcelColumnProperty cproperty,
             Cell cell) {
         Method methodGetX;
         Object propertyValue;
@@ -62,16 +72,6 @@ public class DefaultEntitySheetRowHandler extends BaseEntitySheetRowHandler<IExc
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new ExcelAccessException(e);
         }
-    }
-
-    @Override
-    public PropertyDescriptor[] getProperties() {
-        return properties;
-    }
-
-    @Override
-    public List<ExcelColumnProperty> getColumnPropertys() {
-        return columnPropertys;
     }
 
 }

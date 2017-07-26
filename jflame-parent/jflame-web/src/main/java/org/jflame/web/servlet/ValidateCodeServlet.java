@@ -6,9 +6,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -16,7 +13,6 @@ import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,9 +21,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jflame.toolkit.reflect.SpiFactory;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.ISysConfig;
+import org.jflame.web.config.DefaultConfigKeys;
+import org.jflame.web.config.ServletParamConfig;
 import org.jflame.web.config.WebConstant.MimeImages;
 import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
@@ -36,42 +32,37 @@ import org.slf4j.LoggerFactory;
 /**
  * 生成随机验证码图片servlet.
  * <p>
- * 1. 可使用请求参数定制生成: <br>
- * w=宽度(默认80),h=高度(默认24),c=生成的字符个数(默认4),n=随机码存储名称. 示例:<br>
- * 生成宽度为120高为30字符数5个的验证图片 /valid?w=120&h30&c=5<br>
- * 2. 随机码存储名称，默认"validcode"，必须是给定配置validcode.names参数中的名称，配置文件由ISysConfig接口读取<br>
+ * 配置参数:<br>
+ * width[可选] 图片宽度,默认80;<br>
+ * heigth[可选] 图片高度,默认24;<br>
+ * count[可选] 生成字符个数,默认4;<br>
+ * names[可选] 随机码存储名称，多个以逗号分隔,默认"validcode";
+ * </p>
+ * 以上属性可使用请求参数修改,对应参数如下:w=宽度,h=高度,c=字符个数,n=随机码存储名称(该名称必须在names指定的名称内). 示例:<br>
+ * <br>
+ * 生成宽度为120 高为30 字符数5个的验证图片 /validcode?w=120&h=30&c=5
  * 
  * @author yucan.zhang
  */
-@WebServlet(value="/validcode")
 @SuppressWarnings("serial")
 public class ValidateCodeServlet extends HttpServlet {
+
     private final Logger log = LoggerFactory.getLogger(ValidateCodeServlet.class);
 
-    private final int defaultWidth = 80;// 缺省图片宽
-    private final int defaultHeight = 24;// 缺省图片高
-    private final int defaultCount = 4;// 缺省字符个数
-    private final String defaultCodeName = "validcode";
-    private final String CODE_NAMES_CONFIGKEY = "validcode.names";
-    private List<String> initCodeNames = new ArrayList<>();// 验证码限定名称，默认"validcode"
+    private int defaultWidth;// 缺省图片宽
+    private int defaultHeight;// 缺省图片高
+    private int defaultCount;// 缺省字符个数
+    private String[] codeRestrictNames = new String[]{ "validcode" };// 验证码限定名称，默认"validcode"
     private ThreadLocalRandom random = ThreadLocalRandom.current();
-    
+
     public ValidateCodeServlet() {
         super();
     }
 
     /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doPost(request, response);
-    }
-
-    /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int width;
         int height;
@@ -82,14 +73,14 @@ public class ValidateCodeServlet extends HttpServlet {
         String paramCount = request.getParameter("c");
         String paramCodeName = request.getParameter("n");
         if (StringHelper.isNotEmpty(paramCodeName)) {
-            if (initCodeNames.contains(paramCodeName)) {
+            if (ArrayUtils.contains(codeRestrictNames, paramCodeName)) {
                 codeName = paramCodeName;
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 return;
             }
         } else {
-            codeName = initCodeNames.get(0);// 默认第一个
+            codeName = codeRestrictNames[0];// 默认第一个
         }
         count = NumberUtils.toInt(paramCount, defaultCount);
         width = NumberUtils.toInt(paramWidth, defaultWidth);
@@ -112,19 +103,21 @@ public class ValidateCodeServlet extends HttpServlet {
         // 绘制随机字符
         String randomCode = RandomStringUtils.random(count, true, true);
         drawString(randomCode, g, width, height);
+        // 将验证码保存到session中
+        HttpSession session = request.getSession();
+        session.setAttribute(codeName, randomCode);
+        log.debug("生成图片验证码:{]", randomCode);
         // 禁止图像缓存
         WebUtils.setDisableCacheHeader(response);
         response.setContentType(MimeImages.jpg.getMime());
         ServletOutputStream sos = response.getOutputStream();
         ImageIO.write(buffImg, MimeImages.jpg.name(), sos);
         sos.close();
-        // 将验证码保存到session中
-        HttpSession session = request.getSession();
-        session.setAttribute(codeName, randomCode);
     }
 
     /**
      * 画背景
+     * 
      * @param g
      * @param width
      * @param height
@@ -149,6 +142,7 @@ public class ValidateCodeServlet extends HttpServlet {
 
     /**
      * 画随机码
+     * 
      * @param randomCode
      * @param g
      * @param width
@@ -174,18 +168,13 @@ public class ValidateCodeServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        initCodeNames.add(defaultCodeName);
-        ISysConfig sysConfig = SpiFactory.getSingleBean(ISysConfig.class);
-        if (sysConfig != null) {
-            String initNameParam = sysConfig.getTextParam(CODE_NAMES_CONFIGKEY);
-            if (StringHelper.isNotEmpty(initNameParam)) {
-                String[] names = initNameParam.trim().split(",");
-                if (ArrayUtils.isNotEmpty(names)) {
-                    Collections.addAll(initCodeNames, names);
-                }
-            }
-        }else {
-            log.error("未找到ISysConfig实现类");
+        ServletParamConfig servletParam = new ServletParamConfig(config);
+        String[] initNames = servletParam.getStringArray(DefaultConfigKeys.VALIDCODE_NAMES);
+        if (initNames != null) {
+            codeRestrictNames = ArrayUtils.addAll(codeRestrictNames, initNames);
         }
+        defaultWidth = servletParam.getInt(DefaultConfigKeys.VALIDCODE_WIDTH);
+        defaultHeight = servletParam.getInt(DefaultConfigKeys.VALIDCODE_HEIGTH);
+        defaultCount = servletParam.getInt(DefaultConfigKeys.VALIDCODE_COUNT);
     }
 }

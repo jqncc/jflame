@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -20,13 +19,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.WebConstant;
+import org.jflame.web.config.DefaultConfigKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,34 +31,77 @@ import org.slf4j.LoggerFactory;
  * csrf攻击拦截，比对请求来源referer.
  * <p>
  * 配置参数:<br>
- * whiteFile[可选] 白名单文件名,只在classes目录下查找.<br>
- * errorPage[可选] 错误转向页面,默认返回400错误请求<br>
- * ignoreStatic[可选] 是否忽略静态资源文件,默认为true<br>
+ * 1.whiteFile[可选] 白名单文件名,只在classpath目录下查找.<br>
+ * 2.errorPage[可选] 错误转向页面,默认返回400错误请求<br>
  * 
  * @author yucan.zhang
  */
-public class CsrfFilter implements Filter {
+public class CsrfFilter extends IgnoreUrlMatchFilter {
 
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
 
     private List<URI> whiteUrls; // 白名单
     private String errorPage;// 错误转向页面
-    private boolean isIgnoreStatic = true;// 是否忽略静态资源文件
 
-    public void init(FilterConfig filterConfig) {
-        final String WHITEFILE_PARAM = "whitefile";
-        final String ERRORPAGE_PARAM = "errorpage";
-        final String IGNORE_PARAM = "ignoreStatic";
+    protected final void doInternalFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws ServletException, IOException {
 
-        String whiteFile = filterConfig.getInitParameter(WHITEFILE_PARAM);
-        String errPage = filterConfig.getInitParameter(ERRORPAGE_PARAM);
-
-        if (StringHelper.isNotEmpty(filterConfig.getInitParameter(IGNORE_PARAM))) {
-            isIgnoreStatic = Boolean.parseBoolean(filterConfig.getInitParameter(IGNORE_PARAM).trim());
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+        // 获取请求url地址
+        String referurl = request.getHeader("Referer");
+        if (isWhiteReq(referurl, request)) {
+            chain.doFilter(request, response);
+        } else {
+            String url = request.getRequestURL().toString();
+            logger.warn("非法请求来源:url={},referer={}", url, referurl);
+            if (StringHelper.isNotEmpty(errorPage)) {
+                request.getRequestDispatcher(errorPage).forward(request, response);
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "非法请求来源");
+            }
+            return;
         }
-        if (StringHelper.isNotEmpty(errPage)) {
-            errorPage = errPage.trim();
+    }
+
+    /*
+     * 判断是否是白名单
+     */
+    private boolean isWhiteReq(String referUrl, HttpServletRequest request) {
+        boolean isSafeUri = false;
+        if (StringHelper.isEmpty(referUrl)) {
+            isSafeUri = true;
+        } else {
+            URI refererUri = URI.create(referUrl);
+            // 与当前应用和白名单地址比较协议主机端口
+            if (refererUri.getScheme().equals(request.getScheme())
+                    && refererUri.getHost().equals(request.getServerName())) {
+                isSafeUri = true;
+            } else {
+                logger.debug("referer uri,scheme={},host={},port={}", refererUri.getScheme(), refererUri.getHost(),
+                        refererUri.getPort());
+                logger.debug("request uri,scheme={},host={},port={}", request.getScheme(), request.getServerName(),
+                        request.getServerPort());
+                if (CollectionHelper.isNotEmpty(whiteUrls)) {
+                    for (URI uri : whiteUrls) {
+                        if (refererUri.getScheme().equals(uri.getScheme())
+                                && uri.getAuthority().equals(refererUri.getAuthority())) {
+                            isSafeUri = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
+        return isSafeUri;
+    }
+
+    @Override
+    protected void doInternalInit(FilterConfig filterConfig) {
+        String whiteFile = filterParam.getString(DefaultConfigKeys.CSRF_WHITE_FILE);
+        errorPage = filterParam.getString(DefaultConfigKeys.CSRF_ERROR_PAGE);
+
         if (StringHelper.isNotEmpty(whiteFile)) {
             List<String> whiteUrlStrs = null;
             try {
@@ -92,81 +132,9 @@ public class CsrfFilter implements Filter {
                 }
             }
         }
-
     }
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
-        // 忽略静态文件地址
-        if (isIgnoreStatic && isWebStatic(request.getPathInfo())) {
-            chain.doFilter(request, response);
-        } else {
-            // 获取请求url地址
-            String referurl = request.getHeader("Referer");
-            logger.debug("crsf check referurl:{}", referurl);
-            if (isWhiteReq(referurl, request)) {
-                chain.doFilter(request, response);
-            } else {
-                String url = request.getRequestURL().toString();
-                logger.warn("非法请求来源:url={},referer={}", url, referurl);
-                if (StringHelper.isNotEmpty(errorPage)) {
-                    request.getRequestDispatcher(errorPage).forward(request, response);
-                } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "非法请求来源");
-                }
-                return;
-            }
-        }
-    }
-
-    /*
-     * 判断是否是白名单
-     */
-    private boolean isWhiteReq(String referUrl, HttpServletRequest request) {
-        boolean isSafeUri = false;
-        if (StringHelper.isEmpty(referUrl)) {
-            isSafeUri = true;
-        } else {
-            URI refererUri = URI.create(referUrl);
-            // 与当前应用和白名单地址比较协议主机端口
-            if (refererUri.getScheme().equals(request.getScheme())
-                    && refererUri.getHost().equals(request.getServerName())) {
-                isSafeUri = true;
-            } else {
-                logger.debug("referer uri,scheme={},host={},port={}",refererUri.getScheme(),refererUri.getHost(),refererUri.getPort());
-                logger.debug("request uri,scheme={},host={},port={}",request.getScheme(),request.getServerName(),request.getServerPort());
-                if (CollectionHelper.isNotEmpty(whiteUrls)) {
-                    for (URI uri : whiteUrls) {
-                        if (refererUri.getScheme().equals(uri.getScheme())
-                                && uri.getAuthority().equals(refererUri.getAuthority())) {
-                            isSafeUri = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        return isSafeUri;
-    }
-
-    /**
-     * 判断是否是web静态文件
-     * 
-     * @param requestUrl 请求路径
-     * @return
-     */
-    private boolean isWebStatic(String requestUrl) {
-        if (requestUrl == null) {
-            return false;
-        }
-        String ext = FileHelper.getExtension(requestUrl, false);
-        return ArrayUtils.contains(WebConstant.webStaticExts, ext);
-    }
-
+    @Override
     public void destroy() {
     }
 

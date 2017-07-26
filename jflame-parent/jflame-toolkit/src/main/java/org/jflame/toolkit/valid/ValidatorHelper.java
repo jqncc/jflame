@@ -131,6 +131,7 @@ public final class ValidatorHelper {
         if (idcard == null) {
             return false;
         }
+        idcard=idcard.toLowerCase();
         int len = idcard.length();
         if (len != 15 && len != 18) {
             return false;
