@@ -24,6 +24,7 @@ import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.DefaultConfigKeys;
+import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,19 +74,15 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
             isSafeUri = true;
         } else {
             URI refererUri = URI.create(referUrl);
-            // 与当前应用和白名单地址比较协议主机端口
-            if (refererUri.getScheme().equals(request.getScheme())
-                    && refererUri.getHost().equals(request.getServerName())) {
+            // 只比较域名
+            if (refererUri.getHost().equals(request.getServerName())) {
                 isSafeUri = true;
             } else {
-                logger.debug("referer uri,scheme={},host={},port={}", refererUri.getScheme(), refererUri.getHost(),
-                        refererUri.getPort());
-                logger.debug("request uri,scheme={},host={},port={}", request.getScheme(), request.getServerName(),
-                        request.getServerPort());
+                logger.debug("referer uri,host={},port={}", refererUri.getHost(), refererUri.getPort());
+                logger.debug("request uri,host={},port={}", request.getServerName(), request.getServerPort());
                 if (CollectionHelper.isNotEmpty(whiteUrls)) {
                     for (URI uri : whiteUrls) {
-                        if (refererUri.getScheme().equals(uri.getScheme())
-                                && uri.getAuthority().equals(refererUri.getAuthority())) {
+                        if (uri.getHost().equals(refererUri.getHost())) {
                             isSafeUri = true;
                             break;
                         }
@@ -123,6 +120,9 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
                 whiteUrls = new ArrayList<>();
                 for (String urlStr : whiteUrlStrs) {
                     if (StringUtils.isNotBlank(urlStr)) {
+                        if(!WebUtils.isAbsoluteUrl(urlStr)) {
+                            urlStr="http://"+urlStr;
+                        }
                         try {
                             whiteUrls.add(URI.create(urlStr.trim()));
                         } catch (IllegalArgumentException e) {

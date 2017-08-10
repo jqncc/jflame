@@ -20,6 +20,7 @@ public class CallResult implements Serializable {
     private Object data; // 返回数据
 
     public CallResult() {
+        this(ResultEnum.SUCCESS);
     }
 
     public CallResult(ResultEnum result) {

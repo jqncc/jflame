@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -62,6 +63,45 @@ public final class ImageHelper {
     }
 
     /**
+     * 等比缩放图片流,返回新图片byte[]
+     * 
+     * @param imgStream 图片输入流
+     * @param formatName 图片格式名,即扩展名
+     * @param maxWidth 最大宽度
+     * @param maxHeight 最大高度
+     * @return
+     * @throws IOException
+     */
+    public static byte[] scale(InputStream imgStream, String formatName, int maxWidth, int maxHeight)
+            throws IOException {
+        BufferedImage srcImage = null;
+        // zoomedFixedSize
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            srcImage = getBufferedImage(imgStream);
+            if (null == srcImage) {
+                throw new IllegalArgumentException("图片流读取失败");
+            }
+            int oldWidth = srcImage.getWidth();// 原宽
+            int oldHeight = srcImage.getHeight();// 原长
+            if (oldWidth > maxWidth || oldHeight > maxHeight) {
+                int[] newWh = calculateNewWidthAndHeight(oldWidth, oldHeight, maxWidth, maxHeight);
+                // 缩放生成新图
+                BufferedImage newImageBuf = zoomedFixedSize(srcImage, newWh[0], newWh[1]);
+                ImageIO.write(newImageBuf, formatName, outputStream);
+            } else {
+                // 原图输出
+                ImageIO.write(srcImage, formatName, outputStream);
+            }
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOHelper.closeQuietly(imgStream);
+        }
+    }
+
+    /**
      * 等比缩放图片到指定最大高宽范围内 .新文件名等于"源图名_w宽_h高"
      * 
      * @param srcImgUrl 源图片全路径
@@ -110,8 +150,6 @@ public final class ImageHelper {
         }
         FileInputStream imageStream = null;
         BufferedImage srcImage = null;
-        int newWidth = 0;
-        int newHeight = 0;
         try {
             imageStream = new FileInputStream(srcImgUrl);
             srcImage = getBufferedImage(imageStream);
@@ -122,21 +160,16 @@ public final class ImageHelper {
             int oldHeight = srcImage.getHeight();// 原长
 
             if (oldWidth > maxWidth || oldHeight > maxHeight) {
-                if (((float) maxHeight / oldHeight) < ((float) maxWidth / oldWidth)) {
-                    newHeight = maxHeight > oldHeight ? oldHeight : maxHeight;
-                    newWidth = (int) Math.round(((float) maxHeight / oldHeight) * oldWidth);
-                    if (newWidth > maxWidth) {
-                        newWidth = maxWidth;
-                    }
-                } else {
-                    newWidth = maxWidth > oldWidth ? oldWidth : maxWidth;
-                    newHeight = (int) Math.round(((float) maxWidth / oldWidth) * oldHeight);
-                    if (newHeight > maxHeight) {
-                        newHeight = maxHeight;
-                    }
-                }
+                /*
+                 * if (((float) maxHeight / oldHeight) < ((float) maxWidth / oldWidth)) { newHeight = maxHeight >
+                 * oldHeight ? oldHeight : maxHeight; newWidth = (int) Math.round(((float) maxHeight / oldHeight) *
+                 * oldWidth); if (newWidth > maxWidth) { newWidth = maxWidth; } } else { newWidth = maxWidth > oldWidth
+                 * ? oldWidth : maxWidth; newHeight = (int) Math.round(((float) maxWidth / oldWidth) * oldHeight); if
+                 * (newHeight > maxHeight) { newHeight = maxHeight; } }
+                 */
+                int[] newWh = calculateNewWidthAndHeight(oldWidth, oldHeight, maxWidth, maxHeight);
                 // 缩放生成新图
-                BufferedImage newImageBuf = zoomedFixedSize(srcImage, newWidth, newHeight);
+                BufferedImage newImageBuf = zoomedFixedSize(srcImage, newWh[0], newWh[1]);
                 return saveImage(newImgPath, newImgName, newImageBuf);
             } else {
                 // 如果不需要缩放.直接复制文件
@@ -149,6 +182,24 @@ public final class ImageHelper {
         } finally {
             IOHelper.closeQuietly(imageStream);
         }
+    }
+
+    private static int[] calculateNewWidthAndHeight(int oldWidth, int oldHeight, int maxWidth, int maxHeight) {
+        int[] wh = new int[2];
+        if (((float) maxHeight / oldHeight) < ((float) maxWidth / oldWidth)) {
+            wh[1] = maxHeight > oldHeight ? oldHeight : maxHeight;
+            wh[0] = (int) Math.round(((float) maxHeight / oldHeight) * oldWidth);
+            if (wh[0] > maxWidth) {
+                wh[0] = maxWidth;
+            }
+        } else {
+            wh[0] = maxWidth > oldWidth ? oldWidth : maxWidth;
+            wh[1] = (int) Math.round(((float) maxWidth / oldWidth) * oldHeight);
+            if (wh[1] > maxHeight) {
+                wh[1] = maxHeight;
+            }
+        }
+        return wh;
     }
 
     /**
@@ -306,10 +357,10 @@ public final class ImageHelper {
         BufferedImage targetImage = null;
         BufferedImage originalImage;
         Graphics2D g = null;
-        FileInputStream imageStream=null;
+        FileInputStream imageStream = null;
         try {
             imageStream = new FileInputStream(imgPath);
-            originalImage =getBufferedImage(imageStream);
+            originalImage = getBufferedImage(imageStream);
             int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
             targetImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), type);
             g = targetImage.createGraphics();
@@ -343,11 +394,11 @@ public final class ImageHelper {
         Graphics2D g = null;
         Font font = new Font(Font.SANS_SERIF, Font.BOLD, 18);
         float alpha = 0.3f;
-        FileInputStream imageStream=null;
+        FileInputStream imageStream = null;
         try {
-            //originalImage = ImageIO.read(new File(imgPath));
+            // originalImage = ImageIO.read(new File(imgPath));
             imageStream = new FileInputStream(imgPath);
-            originalImage =getBufferedImage(imageStream);
+            originalImage = getBufferedImage(imageStream);
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
             int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
@@ -380,8 +431,7 @@ public final class ImageHelper {
      * @param alpha 水印透明度 0.1f ~ 1.0f
      * @throws IOException
      */
-    public static void imageWaterMark(String imgPath, String markPath, int x, int y, float alpha)
-            throws IOException {
+    public static void imageWaterMark(String imgPath, String markPath, int x, int y, float alpha) throws IOException {
         FileInputStream imageStream = null;
         FileInputStream markStream = null;
         BufferedImage targetImage = null;

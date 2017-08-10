@@ -152,6 +152,9 @@ public class WebUtils {
      * @return
      */
     public static String mergeUrl(final String firstUrl, final String... relativeUrls) {
+        if (StringHelper.isEmpty(firstUrl)) {
+            throw new IllegalArgumentException("argument 'firstUrl' must not be null");
+        }
         String fullUrl = "";
         final char urlSplit = '/';
         if (relativeUrls.length == 0) {
@@ -188,6 +191,9 @@ public class WebUtils {
      * @return
      */
     public static boolean isAbsoluteUrl(String url) {
+        if (StringHelper.isEmpty(url)) {
+            return false;
+        }
         return URI.create(url).isAbsolute();
     }
 

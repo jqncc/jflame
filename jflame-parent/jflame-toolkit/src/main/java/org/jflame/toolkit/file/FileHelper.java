@@ -84,7 +84,7 @@ public final class FileHelper {
      * @param filePath 文件路径
      * @return
      */
-    public static String getFilename(String filePath) {
+    public static String getFilename(final String filePath) {
         Path p = Paths.get(filePath);
         return p.getFileName().toString();
     }
@@ -96,7 +96,7 @@ public final class FileHelper {
      * @param includePoint 返回的扩展名是否包含.号
      * @return 无扩展名将返回空字符串
      */
-    public static String getExtension(String filename, boolean includePoint) {
+    public static String getExtension(final String filename, final boolean includePoint) {
         if (StringHelper.isNotEmpty(filename)) {
             int i = filename.lastIndexOf('.');
 
@@ -301,7 +301,7 @@ public final class FileHelper {
      * 静默删除文件,不抛出异常. 如果文件是目录同时删除下面的文件.
      * 
      * @param file file or directory to delete, can be <code>null</code>
-     * @return <code>true</code> 成功删除, 否则 <code>false</code>
+     * @return true成功删除, 否则false
      */
     public static boolean deleteQuietly(File file) {
         if (file == null) {
@@ -324,7 +324,22 @@ public final class FileHelper {
     }
 
     /**
+     * 静默删除文件,不抛出异常
+     * 
+     * @see #deleteDirectory(File)
+     * @param filePath 文件路径
+     * @return true成功删除, 否则false
+     */
+    public static boolean deleteQuietly(String filePath) {
+        if (StringHelper.isNotEmpty(filePath)) {
+            return deleteQuietly(new File(filePath));
+        }
+        return false;
+    }
+
+    /**
      * 读取classpath相对路径文件
+     * 
      * @param filePath classpath相对路径文件,不以/开头
      * @return 返回文件流InputStream
      */
@@ -339,7 +354,7 @@ public final class FileHelper {
         }
         return classLoader.getResourceAsStream(filePath);
     }
-    
+
     // public static void main(String[] args) {
     /*
      * System.out.println(getDir("E:\\abc")); System.out.println(getDir("E:\\abc\\ab.jpg"));

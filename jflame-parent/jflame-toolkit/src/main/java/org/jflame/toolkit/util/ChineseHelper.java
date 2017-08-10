@@ -43,7 +43,7 @@ public final class ChineseHelper {
     /**
      * 取得给定汉字串的首字母串,即声母串
      * 
-     * @param str 给汉字串
+     * @param str 汉字
      * @return 声母
      * @throws UnsupportedEncodingException 不支持的编码异常
      */
