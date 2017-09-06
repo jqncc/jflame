@@ -141,7 +141,7 @@ public final class DateHelper {
      */
     public static Date setDate(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, dayOfMonth);
+        calendar.set(year, month - 1, dayOfMonth);
         return calendar.getTime();
     }
 
@@ -158,7 +158,7 @@ public final class DateHelper {
      */
     public static Date setDate(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, dayOfMonth, hour, minute, second);
+        calendar.set(year, month, dayOfMonth - 1, hour, minute, second);
         return calendar.getTime();
     }
 
@@ -195,6 +195,7 @@ public final class DateHelper {
     /**
      * 计算两个日期间隔小时数.startTime小于endTime时返回负数<br>
      * 注:整数计算,如55分钟内为0小时,79分钟为1小时
+     * 
      * @param startTime 时间1
      * @param endTime 时间2
      * @return
