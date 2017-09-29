@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 默认实现 从properties文件加载配置参数.<br>
- * 子类实现属性值的转换请设置属性valueConvert=true,并重写{@link #convertProperty(String, Object)}方法
  * 
  * @author yucan.zhang
  */
@@ -26,7 +25,7 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
     private String[] propertiesFiles;
     private Properties properties;
     private static AtomicBoolean isLoaded = new AtomicBoolean(false);
-    private boolean valueConvert;// 是否对属性值做转换
+    private boolean valueConvert = false;// 是否对属性值做转换,
 
     /**
      * 构造函数,指定配置文件

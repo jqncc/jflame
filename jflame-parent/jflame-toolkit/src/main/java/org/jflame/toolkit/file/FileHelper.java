@@ -307,20 +307,23 @@ public final class FileHelper {
         if (file == null) {
             return false;
         }
-        try {
-            if (file.isDirectory()) {
-                cleanDirectory(file);
+        if (file.exists()) {
+            try {
+                if (file.isDirectory()) {
+                    cleanDirectory(file);
+                }
+            } catch (Exception ignored) {
+                // 忽略异常
+                ignored.printStackTrace();
             }
-        } catch (Exception ignored) {
-            // 忽略异常
-            ignored.printStackTrace();
-        }
 
-        try {
-            return file.delete();
-        } catch (Exception ignored) {
-            return false;
+            try {
+                return file.delete();
+            } catch (Exception ignored) {
+                return false;
+            }
         }
+        return false;
     }
 
     /**

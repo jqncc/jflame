@@ -1,6 +1,7 @@
 package org.jflame.toolkit.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -443,10 +444,6 @@ public final class StringHelper {
      * @return
      */
     public static String getUtf8String(byte[] bytes) {
-        try {
-            return new String(bytes, CharsetHelper.UTF_8);
-        } catch (UnsupportedEncodingException e) {
-            return null;// 该异常不会出现
-        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

@@ -408,7 +408,8 @@ public final class HttpHelper {
         } else if (StringHelper.isNotEmpty(getCharset())) {
             result.setCharset(getCharset());
         }
-        if (result.success()) {
+        // <300算成功处理
+        if (result.getStatus() < HttpURLConnection.HTTP_MULT_CHOICE) {
             try (InputStream inStream = getInputStream(httpConn)) {
                 result.setData(IOHelper.readBytes(inStream));
             } catch (IOException e) {
@@ -627,7 +628,7 @@ public final class HttpHelper {
     }
 
     String getCookies(URI uri) {
-        List<HttpCookie> cookiess = cookieManager.getCookieStore().getCookies();
+        // List<HttpCookie> cookiess = cookieManager.getCookieStore().getCookies();
         List<HttpCookie> cookies = cookieManager.getCookieStore().get(uri);
         if (cookies != null) {
             StringBuilder strBuf = new StringBuilder();
