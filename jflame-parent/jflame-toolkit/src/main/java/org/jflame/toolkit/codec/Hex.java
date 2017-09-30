@@ -1,14 +1,12 @@
 package org.jflame.toolkit.codec;
 
 import java.io.UnsupportedEncodingException;
-
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.StringHelper;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Hex 十六进制编码工具类.取自apapche-commons-codec包
+ * 
  * @author yucan.zhang
- *
  */
 public class Hex implements BinaryDecoder, BinaryEncoder {
 
@@ -135,7 +133,7 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
      */
     public Hex() {
         // use default encoding
-        this.charsetName = CharsetHelper.UTF_8;
+        this.charsetName = StandardCharsets.UTF_8.name();
     }
 
     /**
@@ -203,8 +201,8 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
      */
     public byte[] encode(byte[] array) {
         try {
-            return StringHelper.getBytes(encodeHexString(array), getCharsetName());
-        } catch (TranscodeException e) {
+            return encodeHexString(array).getBytes(getCharsetName());
+        } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(getCharsetName() + ": " + e);
         }
     }

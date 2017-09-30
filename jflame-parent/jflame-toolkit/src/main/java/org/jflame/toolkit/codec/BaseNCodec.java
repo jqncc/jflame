@@ -1,6 +1,6 @@
 package org.jflame.toolkit.codec;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 
 public abstract class BaseNCodec {
 
@@ -238,7 +238,7 @@ public abstract class BaseNCodec {
      * @return A String containing only Base-N character data
      */
     public String encodeToString(byte[] parray) {
-        return StringHelper.getUtf8String(encode(parray));
+        return CharsetHelper.getUtf8String(encode(parray));
     }
 
     /**
@@ -266,7 +266,7 @@ public abstract class BaseNCodec {
      * @return a byte array containing binary data
      */
     public byte[] decode(String parray) {
-        return decode(StringHelper.getUtf8Bytes(parray));
+        return decode(CharsetHelper.getUtf8Bytes(parray));
     }
 
     /**
@@ -313,7 +313,7 @@ public abstract class BaseNCodec {
      * @return String containing only character data in the appropriate alphabet.
      */
     public String encodeAsString(byte[] parray) {
-        return StringHelper.getUtf8String(encode(parray));
+        return CharsetHelper.getUtf8String(encode(parray));
     }
 
     abstract void encode(byte[] parray, int i, int length); // package protected for access from I/O streams
@@ -357,7 +357,7 @@ public abstract class BaseNCodec {
      * @see #isInAlphabet(byte[], boolean)
      */
     public boolean isInAlphabet(String basen) {
-        return isInAlphabet(StringHelper.getUtf8Bytes(basen), true);
+        return isInAlphabet(CharsetHelper.getUtf8Bytes(basen), true);
     }
 
     /**

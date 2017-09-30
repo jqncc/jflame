@@ -4,9 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 转码工具类,支持base64,hex转码,int与byte[4]转换,url编码,byte与Long转换
@@ -35,7 +35,7 @@ public final class TranscodeHelper {
     public static String encodeBase64String(String str, Charset charset) {
         byte[] bytes = null;
         if (charset == null) {
-            bytes = StringHelper.getUtf8Bytes(str);
+            bytes = CharsetHelper.getUtf8Bytes(str);
         } else {
             bytes = str.getBytes(charset);
         }
@@ -89,7 +89,7 @@ public final class TranscodeHelper {
      * @return 16进制字符串
      */
     public static String encodeHexString(String str) {
-        return Hex.encodeHexString(StringHelper.getUtf8Bytes(str));
+        return Hex.encodeHexString(CharsetHelper.getUtf8Bytes(str));
     }
 
     /**
@@ -114,7 +114,7 @@ public final class TranscodeHelper {
      */
     public static String dencodeHexString(String hexString) throws TranscodeException {
         byte[] bytes = dencodeHex(hexString);
-        return StringHelper.getUtf8String(bytes);
+        return CharsetHelper.getUtf8String(bytes);
     }
 
     /**
@@ -125,7 +125,7 @@ public final class TranscodeHelper {
      */
     public static String urlencode(String str) {
         try {
-            return URLEncoder.encode(str, CharsetHelper.UTF_8);
+            return URLEncoder.encode(str, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             return str;
         }
@@ -139,7 +139,7 @@ public final class TranscodeHelper {
      */
     public static String urldecode(String str) {
         try {
-            return URLDecoder.decode(str, CharsetHelper.UTF_8);
+            return URLDecoder.decode(str, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             return str;
         }

@@ -72,9 +72,10 @@ public class HttpResponse extends CallResult {
         ResponseBodyHandler<T> responseHandler = new JsonResponseHandler<>(entityClass);
         return getResponse(responseHandler);
     }
-    
+
     /**
      * 请求结果作为XML字符串反序列化为java对象
+     * 
      * @param entityClass
      * @return
      */
@@ -98,6 +99,12 @@ public class HttpResponse extends CallResult {
      */
     public <T> T getResponse(ResponseBodyHandler<T> handler) {
         return handler.handle(this);
+    }
+
+    @Override
+    public String toString() {
+        return "HttpResponse [headers=" + headers + ", charset=" + charset + ", status()=" + getStatus()
+                + ", message()=" + getMessage() + ", data()=" + getData() + "]";
     }
 
 }

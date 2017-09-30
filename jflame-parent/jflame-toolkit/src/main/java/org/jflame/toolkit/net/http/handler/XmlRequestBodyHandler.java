@@ -1,9 +1,9 @@
 package org.jflame.toolkit.net.http.handler;
 
-import org.jflame.toolkit.codec.TranscodeException;
+import java.io.UnsupportedEncodingException;
+
 import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.net.http.RequestProperty;
-import org.jflame.toolkit.util.StringHelper;
 import org.jflame.toolkit.util.XmlBeanHelper;
 
 public class XmlRequestBodyHandler implements RequestBodyHandler<Object> {
@@ -13,8 +13,8 @@ public class XmlRequestBodyHandler implements RequestBodyHandler<Object> {
         if (requestData != null) {
             String xml = XmlBeanHelper.toXml(requestData, requestProperty.getCharset());
             try {
-                return StringHelper.getBytes(xml, requestProperty.getCharset());
-            } catch (TranscodeException e) {
+                return xml.getBytes(requestProperty.getCharset());
+            } catch (UnsupportedEncodingException e) {
                 throw new ConvertException(e);
             }
         }

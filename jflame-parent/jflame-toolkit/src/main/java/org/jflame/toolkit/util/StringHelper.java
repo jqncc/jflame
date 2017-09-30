@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.CharSetUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.codec.TranscodeException;
@@ -396,6 +397,22 @@ public final class StringHelper {
     }
 
     /**
+     * 删除字符串str中在set出现过的任意字符
+     * 
+     * <pre>
+     * StringHelper.remove("hello", "hl") = "eo"
+     * StringHelper.remove(null, *) = null
+     * </pre>
+     * 
+     * @param str String 待删除字符串
+     * @param set String[] 要查找的字符串集合
+     * @return
+     */
+    public static String removeAny(String str, String... set) {
+        return CharSetUtils.delete(str, set);
+    }
+
+    /**
      * 返回一个没有-号的uuid字符串
      * 
      * @return
@@ -405,13 +422,15 @@ public final class StringHelper {
     }
 
     /**
-     * 使用指定编码解码字符串
+     * 使用指定编码解码字符串<br>
+     * 废除,请使用CharsetHelper
      * 
      * @param string 字符串
      * @param charsetName 编码集
      * @return
      * @throws TranscodeException 不支持的编码集
      */
+    @Deprecated
     public static byte[] getBytes(String string, String charsetName) throws TranscodeException {
         if (string == null) {
             return null;
@@ -424,25 +443,25 @@ public final class StringHelper {
     }
 
     /**
-     * 使用utf-8解码字符串
+     * 使用utf-8解码字符串 <br>
+     * 废除,请使用CharsetHelper
      * 
      * @param string
      * @return
      */
+    @Deprecated
     public static byte[] getUtf8Bytes(String string) {
-        try {
-            return getBytes(string, CharsetHelper.UTF_8);
-        } catch (TranscodeException e) {
-            return null;// 不会发生
-        }
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
-     * 将byte[]使用utf-8编码为字符串
+     * 将byte[]使用utf-8编码为字符串 <br>
+     * 废除,请使用CharsetHelper
      * 
      * @param bytes byte[]
      * @return
      */
+    @Deprecated
     public static String getUtf8String(byte[] bytes) {
         return new String(bytes, StandardCharsets.UTF_8);
     }

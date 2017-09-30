@@ -1,10 +1,10 @@
 package org.jflame.toolkit.net.http.handler;
 
-import org.jflame.toolkit.codec.TranscodeException;
+import java.io.UnsupportedEncodingException;
+
 import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.net.http.RequestProperty;
 import org.jflame.toolkit.util.JsonHelper;
-import org.jflame.toolkit.util.StringHelper;
 
 public class JsonRequestBodyHandler implements RequestBodyHandler<Object> {
 
@@ -13,8 +13,8 @@ public class JsonRequestBodyHandler implements RequestBodyHandler<Object> {
         if (requestData != null) {
             String json = JsonHelper.toJson(requestData);
             try {
-                return StringHelper.getBytes(json, requestProperty.getCharset());
-            } catch (TranscodeException e) {
+                return json.getBytes(requestProperty.getCharset());
+            } catch (UnsupportedEncodingException e) {
                 throw new ConvertException(e);
             }
         }

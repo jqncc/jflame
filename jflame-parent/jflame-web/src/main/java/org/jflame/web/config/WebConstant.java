@@ -77,7 +77,6 @@ public final class WebConstant {
     /**
      * 当前登录用户在session中的key
      */
-    @Deprecated
     public final static String SESSION_USER_KEY = "current_user";
 
 }

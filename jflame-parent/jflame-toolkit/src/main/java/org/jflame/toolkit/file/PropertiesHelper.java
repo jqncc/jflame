@@ -31,8 +31,8 @@ public final class PropertiesHelper {
     /**
      * 构造函数.
      * <p>
-     * 文件路径以"classpath:"开头或是相对路径则从当前classpath查找,否则作为绝对路径.示例:<br/>
-     * 相对路径:"classpath:jdbc.properties","config/jdbc.properties";<br/>
+     * 文件路径以"classpath:"开头或是相对路径则从当前classpath查找,否则作为绝对路径.示例:<br>
+     * 相对路径:"classpath:jdbc.properties","config/jdbc.properties";<br>
      * 绝对路径:"d:/jdbc.properties","/home/user/jdbc.properties";
      * </p>
      * 

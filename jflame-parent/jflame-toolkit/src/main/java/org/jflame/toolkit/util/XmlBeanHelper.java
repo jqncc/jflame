@@ -2,6 +2,7 @@ package org.jflame.toolkit.util;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,7 +25,7 @@ public final class XmlBeanHelper {
      * @return xml格式字符串
      */
     public static <T> String toXml(T bean) {
-        return toXml(bean, CharsetHelper.UTF_8);
+        return toXml(bean, StandardCharsets.UTF_8.name());
     }
 
     /**

@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.net.http.HttpResponse;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 
 public class TextResponseHandler implements ResponseBodyHandler<String> {
 
@@ -21,7 +21,7 @@ public class TextResponseHandler implements ResponseBodyHandler<String> {
                 }
 
             } else {
-                return StringHelper.getUtf8String(data);
+                return CharsetHelper.getUtf8String(data);
             }
         }
         return StringUtils.EMPTY;

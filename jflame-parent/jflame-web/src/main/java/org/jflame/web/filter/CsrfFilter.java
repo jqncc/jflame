@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.DefaultConfigKeys;
@@ -43,6 +42,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
 
     private List<URI> whiteUrls; // 白名单
     private String errorPage;// 错误转向页面
+    private final String headerReferer = "Referer";
 
     protected final void doInternalFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws ServletException, IOException {
@@ -50,7 +50,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
         // 获取请求url地址
-        String referurl = request.getHeader("Referer");
+        String referurl = request.getHeader(headerReferer);
         if (isWhiteReq(referurl, request)) {
             chain.doFilter(request, response);
         } else {
@@ -106,7 +106,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
                 if (url != null) {
                     Path whiteFilePath = Paths.get(url.toURI());
                     if (Files.exists(whiteFilePath)) {
-                        whiteUrlStrs = Files.readAllLines(whiteFilePath, Charset.forName(CharsetHelper.UTF_8));
+                        whiteUrlStrs = Files.readAllLines(whiteFilePath, StandardCharsets.UTF_8);
                     } else {
                         logger.error("csrf白名单文件路径不存在或不可读{}", whiteFile);
                     }
@@ -120,8 +120,8 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
                 whiteUrls = new ArrayList<>();
                 for (String urlStr : whiteUrlStrs) {
                     if (StringUtils.isNotBlank(urlStr)) {
-                        if(!WebUtils.isAbsoluteUrl(urlStr)) {
-                            urlStr="http://"+urlStr;
+                        if (!WebUtils.isAbsoluteUrl(urlStr)) {
+                            urlStr = "http://" + urlStr;
                         }
                         try {
                             whiteUrls.add(URI.create(urlStr.trim()));

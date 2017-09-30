@@ -1,10 +1,8 @@
 package org.jflame.toolkit.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
-
-import org.apache.commons.lang3.CharEncoding;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * 汉字工具类.
@@ -17,8 +15,6 @@ public final class ChineseHelper {
             3730,3858,4027,4086,4390,4558,4684,4925,5249,5590 };
     private final static char[] lc_FirstLetter = { 'a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r',
             's','t','w','x','y','z' };
-
-   
 
     /**
      * 判断是否是汉字
@@ -72,7 +68,7 @@ public final class ChineseHelper {
             throw new IllegalArgumentException("请传入中文字符");
         }
         char f = ' ';
-        chinese = new String(chinese.getBytes(CharsetHelper.GBK), CharEncoding.ISO_8859_1);
+        chinese = CharsetHelper.reEncode(chinese, CharsetHelper.GBK, StandardCharsets.ISO_8859_1);
         // 判断是不是汉字
         if (chinese.length() > 1) {
             int liSectorCode = (int) chinese.charAt(0); // 汉字区码
@@ -89,7 +85,7 @@ public final class ChineseHelper {
                 }
             } else {
                 // 非汉字字符,如图形符号或ASCII码
-                chinese = new String(chinese.getBytes(CharEncoding.ISO_8859_1), CharsetHelper.GBK);
+                chinese = CharsetHelper.reEncode(chinese, StandardCharsets.ISO_8859_1, CharsetHelper.GBK);
                 f = chinese.charAt(0);
             }
         }
@@ -104,7 +100,7 @@ public final class ChineseHelper {
      * @return
      */
     public static String randomChinese(int count) {
-        String ret = StringUtils.EMPTY;
+        String ret = "";
         Random random = new Random();
         byte[] b = new byte[2];
         int hightPos;
@@ -114,11 +110,7 @@ public final class ChineseHelper {
             lowPos = (161 + Math.abs(random.nextInt(93))); // 获取低位值
             b[0] = (new Integer(hightPos).byteValue());
             b[1] = (new Integer(lowPos).byteValue());
-            try {
-                ret += new String(b, CharsetHelper.GBK);
-            } catch (UnsupportedEncodingException ex) {
-                ex.printStackTrace();
-            }
+            ret += new String(b, CharsetHelper.GBK);
         }
         return ret;
     }

@@ -16,6 +16,8 @@ import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -45,7 +47,6 @@ import org.jflame.toolkit.net.http.handler.JsonRequestBodyHandler;
 import org.jflame.toolkit.net.http.handler.RequestBodyHandler;
 import org.jflame.toolkit.net.http.handler.TextRequestBodyHandler;
 import org.jflame.toolkit.net.http.handler.XmlRequestBodyHandler;
-import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.MapHelper;
@@ -96,7 +97,7 @@ public final class HttpHelper {
     public final static String accept = "text/html,application/json,application/xhtml+xml, */*";
     public final static String contentTypePost = "application/x-www-form-urlencoded";
     public final static String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
-    public final static String headContentType = "Content-Type";
+    private final String headContentType = "Content-Type";
     private final static int defaultConnTimeout = 1500 * 60;
     private final static int defaultReadTimeout = 1000 * 60;
     private URL requestUrl;
@@ -111,7 +112,7 @@ public final class HttpHelper {
      * 构造函数.设置缺省请求属性,默认编码为utf-8
      */
     public HttpHelper() {
-        requestProperty = new RequestProperty(defaultConnTimeout, defaultReadTimeout, CharsetHelper.UTF_8);
+        requestProperty = new RequestProperty(defaultConnTimeout, defaultReadTimeout, StandardCharsets.UTF_8.name());
         cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
@@ -142,7 +143,7 @@ public final class HttpHelper {
                 setMethod(HttpMethod.POST);
             }
             if (getCharset() == null) {
-                setCharset(CharsetHelper.UTF_8);
+                setCharset(StandardCharsets.UTF_8.name());
             }
             isOpened = true;
         } catch (IOException e) {
@@ -376,7 +377,25 @@ public final class HttpHelper {
      */
     public <T extends Serializable> HttpResponse sendJsonRequest(T entity) {
         addHeader(headContentType, "application/json;charset=" + getCharset());
+        if (getMethod() == HttpMethod.GET) {
+            setMethod(HttpMethod.POST);
+        }
         return sendRequest(entity, new JsonRequestBodyHandler());
+    }
+
+    /**
+     * 发送请求,将java对象转为JSON字符串提交,结果json反序列化为java对象
+     * 
+     * @param entity 要提交的java对象
+     * @param resultClazz 结果类型
+     * @return
+     */
+    public <T extends Serializable,E> E sendJsonRequest(T entity, Class<E> resultClazz) {
+        HttpResponse response = sendJsonRequest(entity);
+        if (response.success()) {
+            return response.getResponseAsJson(resultClazz);
+        }
+        throw new RuntimeException(response.toString());
     }
 
     /**
@@ -386,7 +405,10 @@ public final class HttpHelper {
      * @return
      */
     public <T> HttpResponse sendXmlRequest(T entity) {
-        conn.setRequestProperty(headContentType, "application/xml");
+        conn.setRequestProperty(headContentType, "application/xml;charset=" + getCharset());
+        if (getMethod() == HttpMethod.GET) {
+            setMethod(HttpMethod.POST);
+        }
         return sendRequest(entity, new XmlRequestBodyHandler());
     }
 
@@ -507,7 +529,7 @@ public final class HttpHelper {
     }
 
     /**
-     * 执行一个post请求,使用默认属性,提交json内容
+     * 执行一个post请求,使用默认属性,提交xml内容
      * 
      * @param url 请求地址
      * @param entity 提交对象
@@ -687,10 +709,8 @@ public final class HttpHelper {
      * @throws IllegalArgumentException 不支持字符集
      */
     public void setCharset(String charset) {
-        if (CharsetHelper.isSupported(charset)) {
+        if (Charset.isSupported(charset)) {
             this.requestProperty.setCharset(charset);
-        } else {
-            throw new IllegalArgumentException("不支持的字符集" + charset);
         }
     }
 

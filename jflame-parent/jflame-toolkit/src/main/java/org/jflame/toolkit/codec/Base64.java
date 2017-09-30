@@ -2,7 +2,7 @@ package org.jflame.toolkit.codec;
 
 import java.math.BigInteger;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 
 public class Base64 extends BaseNCodec {
 
@@ -202,7 +202,7 @@ public class Base64 extends BaseNCodec {
         // @see test case Base64Test.testConstructors()
         if (lineSeparator != null) {
             if (containsAlphabetOrPad(lineSeparator)) {
-                String sep = StringHelper.getUtf8String(lineSeparator);
+                String sep = CharsetHelper.getUtf8String(lineSeparator);
                 throw new IllegalArgumentException("lineSeparator must not contain base64 characters: [" + sep + "]");
             }
             if (lineLength > 0) { // null line-sep forces no chunking rather than throwing IAE
@@ -406,7 +406,7 @@ public class Base64 extends BaseNCodec {
      * @since 1.5
      */
     public static boolean isBase64(String base64) {
-        return isBase64(StringHelper.getUtf8Bytes(base64));
+        return isBase64(CharsetHelper.getUtf8Bytes(base64));
     }
 
     /**
@@ -492,7 +492,7 @@ public class Base64 extends BaseNCodec {
 
         return b64.encode(binaryData);
     }
-    
+
     /**
      * Encodes binary data using the base64 algorithm but does not chunk the output. NOTE: We changed the behaviour of
      * 
@@ -500,7 +500,7 @@ public class Base64 extends BaseNCodec {
      * @return String containing Base64 characters.
      */
     public static String encodeBase64String(byte[] binaryData) {
-        return StringHelper.getUtf8String(encodeBase64(binaryData, false));
+        return CharsetHelper.getUtf8String(encodeBase64(binaryData, false));
     }
 
     /**
@@ -524,7 +524,7 @@ public class Base64 extends BaseNCodec {
      * @since 1.4
      */
     public static String encodeBase64URLSafeString(byte[] binaryData) {
-        return StringHelper.getUtf8String(encodeBase64(binaryData, false, true));
+        return CharsetHelper.getUtf8String(encodeBase64(binaryData, false, true));
     }
 
     /**

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,14 +28,15 @@ public final class IPAreaExtractor {
     private ByteBuffer indexBuffer;
     private ReentrantLock lock = new ReentrantLock();
     private static IPAreaExtractor instance;
-    
+
     private IPAreaExtractor() {
-        //ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
+        // ipFile = new File(IPAreaExtractor.class.getResource("/ipdb.dat").toString().substring(5));
         init();
     }
 
     /**
      * 返回IPAreaExtractor实例
+     * 
      * @return
      */
     public static IPAreaExtractor getInstance() {
@@ -84,14 +84,13 @@ public final class IPAreaExtractor {
         } finally {
             lock.unlock();
         }
-        return new String(areaBytes, Charset.forName(CharsetHelper.UTF_8)).split("\t", -1);
+        return CharsetHelper.getUtf8String(areaBytes).split("\t", -1);
     }
-
 
     private void init() {
         FileInputStream fileInputStream = null;
         try {
-            File ipFile= Paths.get(IPAreaExtractor.class.getResource("/ipdb.dat").toURI()).toFile();
+            File ipFile = Paths.get(IPAreaExtractor.class.getResource("/ipdb.dat").toURI()).toFile();
             dataBuffer = ByteBuffer.allocate(Long.valueOf(ipFile.length()).intValue());
             fileInputStream = new FileInputStream(ipFile);
             int readBytesLength;

@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.commons.net.ftp.FTP;
@@ -18,7 +18,6 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.commons.net.ftp.FTPReply;
 import org.jflame.toolkit.exception.RemoteAccessException;
-import org.jflame.toolkit.util.CharsetHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +90,7 @@ public final class FtpHelper {
         while (loginCount >= 0) {
             try {
                 ftpClient.connect(ftpServerUrl, ftpPort);
-                ftpClient.setControlEncoding(charset == null ? CharsetHelper.UTF_8 : charset);
+                ftpClient.setControlEncoding(charset == null ? StandardCharsets.UTF_8.name() : charset);
                 if (passiveMode) {
                     ftpClient.enterLocalPassiveMode();
                 }
@@ -353,14 +352,9 @@ public final class FtpHelper {
      * @param charset 字符编码集名称
      */
     public void setCharset(String charset) {
-        try {
-            if (Charset.isSupported(charset)) {
-                this.charset = charset;
-            }
-        } catch (IllegalCharsetNameException e) {
-            // TODO: handle exception
+        if (Charset.isSupported(charset)) {
+            this.charset = charset;
         }
-        throw new IllegalArgumentException("不支持的编码：" + charset);
     }
 
     /**

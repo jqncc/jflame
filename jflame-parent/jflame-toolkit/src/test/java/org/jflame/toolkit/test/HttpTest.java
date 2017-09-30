@@ -11,21 +11,13 @@ import javax.net.ssl.TrustManager;
 
 import org.jflame.toolkit.common.bean.CallResult;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
-import org.jflame.toolkit.crypto.DigestHelper;
-import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.net.CertX509TrustManager;
 import org.jflame.toolkit.net.HttpHelper;
 import org.jflame.toolkit.net.HttpHelper.HttpMethod;
 import org.jflame.toolkit.net.http.HttpResponse;
-import org.jflame.toolkit.net.http.handler.JsonRequestBodyHandler;
 import org.jflame.toolkit.net.http.handler.JsonResponseHandler;
-import org.jflame.toolkit.net.http.handler.ResponseBodyHandler;
-import org.jflame.toolkit.test.entity.MemberInfo;
 import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.JsonHelper;
 import org.junit.Test;
-
-import com.alibaba.fastjson.TypeReference;
 
 public class HttpTest {
 
@@ -55,7 +47,7 @@ public class HttpTest {
             CallResult info = result.getResponse(new JsonResponseHandler<>(CallResult.class));
         }
         //
-        // result.getResponseAsJson(CallResult.class);
+        // result.getResponseAsJson(CallResult.class);//结果json解析为bean
         // result.getResponseAsXml(CallResult.class);xml解析为bean
         // 构造JSON反序列复合对象list
         // TypeReference<List<MemberInfo>> type=JsonHelper.buildListType(MemberInfo.class);
@@ -68,7 +60,7 @@ public class HttpTest {
     @Test
     public void testFull() {
         HttpHelper httpHelper = new HttpHelper();
-        httpHelper.setCharset(CharsetHelper.GBK);
+        httpHelper.setCharset(CharsetHelper.GBK.name());
         // 保持cookie,必须是同一httpHelper实例
         // 登录 请求
         // Map<String,String> header=new HashMap<>();
@@ -80,7 +72,8 @@ public class HttpTest {
             pairs.add(new NameValuePair("user", "jq@163.com"));
             pairs.add(new NameValuePair("password", "123456"));
             HttpResponse result = httpHelper.sendRequest(pairs);
-            System.out.println(result.getResponseAsJson(CallResult.class));
+            System.out.println(result.getResponseAsJson(CallResult.class));// 结果json转为bean
+            // httpHelper.sendJsonRequest(null, null)
             // 登录成功后请求有身份证验证的页面
             httpHelper.initConnect("http://localhost:9090/zp-admin/topMenu", HttpMethod.GET);
             result = httpHelper.sendRequest();
@@ -97,7 +90,7 @@ public class HttpTest {
     @Test
     public void testSSl() {
         HttpHelper httpHelper = new HttpHelper();
-        httpHelper.setCharset(CharsetHelper.GBK);
+        httpHelper.setCharset(CharsetHelper.GBK.name());
         SSLSocketFactory mySSLFactory;
         try {
             mySSLFactory = HttpHelper.initSSLSocketFactory("TLS",

@@ -1,5 +1,6 @@
 package org.jflame.toolkit.crypto;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
@@ -8,7 +9,6 @@ import java.security.Security;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 
-import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.StringHelper;
 
 /**
@@ -21,8 +21,8 @@ import org.jflame.toolkit.util.StringHelper;
  * <li>RSA, ECB, NOPADDING/PKCS1PADDING/OAEPWITHMD5ANDMGF1PADDING...</li>
  * <li>PBEWithMD5AndDES,CBC,PKCS5Padding</li>
  * </ul>
- * 
  * http://docs.oracle.com/javase/7/docs/technotes/guides/security/crypto/CryptoSpec.html
+ * 
  * @author zyc
  */
 public abstract class BaseEncryptor {
@@ -34,7 +34,7 @@ public abstract class BaseEncryptor {
     protected String curCipherStr;
     protected String charset;
     protected Cipher cipher;
-    
+
     /**
      * 构造函数,指定加密算法,填充模式.
      * 
@@ -48,13 +48,14 @@ public abstract class BaseEncryptor {
         curPadding = paddingMode;
         initCipher();
     }
-    
+
     /**
      * 构造函数,指定加密算法,填充模式.
+     * 
      * @param algorithm 算法名
      * @param encMode 加密方式
      * @param paddingMode 填充方式
-     * @param provider 加密提供器,如:BouncyCastleProvider 
+     * @param provider 加密提供器,如:BouncyCastleProvider
      * @param providerName 加密提供器名称 ,如:BouncyCastleProvider的叫"BC"
      */
     public BaseEncryptor(Algorithm algorithm, OpMode encMode, Padding paddingMode, Provider provider,
@@ -96,7 +97,7 @@ public abstract class BaseEncryptor {
      * @author zyc
      */
     public enum Padding {
-        PKCS1PADDING, PKCS5Padding,PKCS7Padding, NoPadding, ISO10126PADDING, OAEPWITHMD5ANDMGF1PADDING
+        PKCS1PADDING, PKCS5Padding, PKCS7Padding, NoPadding, ISO10126PADDING, OAEPWITHMD5ANDMGF1PADDING
     }
 
     public Algorithm getAlgorithm() {
@@ -108,7 +109,7 @@ public abstract class BaseEncryptor {
      */
 
     public String getCharset() {
-        return charset == null ? CharsetHelper.UTF_8 : charset;
+        return charset == null ? StandardCharsets.UTF_8.name() : charset;
     }
 
     public void setCharset(String charset) {
