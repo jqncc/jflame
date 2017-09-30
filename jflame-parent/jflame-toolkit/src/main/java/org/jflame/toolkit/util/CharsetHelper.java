@@ -61,7 +61,7 @@ public class CharsetHelper {
     }
 
     /**
-     * 重新编码字符串
+     * 使用指定编码重新编码字符串
      * 
      * @param str 字符串
      * @param decodeCharset 原字符编码
@@ -70,6 +70,16 @@ public class CharsetHelper {
      */
     public static String reEncode(final String str, Charset decodeCharset, Charset encodeCharset) {
         return new String(str.getBytes(decodeCharset), encodeCharset);
+    }
+
+    /**
+     * 解码GBK汉字编码为ISO88591
+     * 
+     * @param str
+     * @return
+     */
+    public static String reEncodeGBK(final String str) {
+        return reEncode(str, GBK, StandardCharsets.ISO_8859_1);
     }
 
 }

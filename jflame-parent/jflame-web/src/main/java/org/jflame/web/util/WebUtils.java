@@ -3,7 +3,6 @@ package org.jflame.web.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.IExcelEntity;
-import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.net.IPAddressHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.WebConstant;
 
@@ -34,12 +33,7 @@ public class WebUtils {
      * @param fileSize 文件大小
      */
     public static void setFileDownloadHeader(HttpServletResponse response, String fileName, long fileSize) {
-        String encodedfileName;
-        try {
-            encodedfileName = new String(fileName.getBytes("gbk"), "ISO8859-1");
-        } catch (UnsupportedEncodingException e) {
-            encodedfileName = "download_file" + FileHelper.getExtension(fileName, true);
-        }
+        String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType(WebConstant.MIME_TYPE_STREAM);
         response.setHeader("Content-Length", String.valueOf(fileSize));
@@ -73,7 +67,7 @@ public class WebUtils {
      * 请求头含x-requested-with=XMLHttpRequest
      * 
      * @param request HttpServletRequest
-     * @return
+     * @return true=是ajax请求
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
         if (WebConstant.AJAX_REQUEST_FLAG.value()
@@ -87,7 +81,7 @@ public class WebUtils {
      * 判断是否请求json格式数据,header accept带json或请求路径以json结尾
      * 
      * @param request
-     * @return
+     * @return true=是json请求
      */
     public static boolean isJsonRequest(HttpServletRequest request) {
         String headAccept = request.getHeader("accept");
@@ -106,7 +100,7 @@ public class WebUtils {
      * 
      * @param response HttpServletResponse
      * @param jsonStr json字符串
-     * @throws IOException IOException
+     * @throws IOException
      */
     public static void outJson(HttpServletResponse response, String jsonStr) throws IOException {
         setDisableCacheHeader(response);
@@ -126,6 +120,7 @@ public class WebUtils {
      */
     public static String getApplicationPath(HttpServletRequest request) {
         String tmpPath = request.getScheme() + "://" + request.getServerName();
+        // 80,443不显示端口号
         if (request.getServerPort() != 80 && !(request.getServerPort() == 443 && "https".equals(request.getScheme()))) {
             tmpPath = tmpPath + ":" + request.getServerPort();
         }
@@ -148,7 +143,6 @@ public class WebUtils {
 
     /**
      * 合并url，自动补充url分隔符/和纠正url.<b>不适合文件系统路径合并</b>
-     * 
      * 
      * @param firstUrl 首个url，可以是绝对或相对路径,如果不以协议或/开头将补充/
      * @param relativeUrls 要合并的url，相对路径
@@ -243,7 +237,7 @@ public class WebUtils {
     }
 
     /**
-     * 导出excel文件到客户端
+     * 导出excel文件到浏览器
      * 
      * @param data 数据集Map
      * @param propertyNames 要导出的Key
@@ -262,7 +256,7 @@ public class WebUtils {
     }
 
     /**
-     * 导出excel文件到客户端
+     * 导出excel文件到浏览器
      * 
      * @param data 数据集
      * @param fileName 文件名,浏览器要显示的文件名

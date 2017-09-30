@@ -1,10 +1,13 @@
 package org.jflame.toolkit.excel;
 
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -20,6 +23,7 @@ import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
 import org.jflame.toolkit.reflect.BeanHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
@@ -375,6 +379,48 @@ public class ExcelCreator {
         creator.createSheet();
         creator.fillEntityData(data);
         creator.write(out);
+    }
+
+    /**
+     * Map数据生成excel文件,并输出到HttpServletResponse
+     * 
+     * @param data 数据集Map
+     * @param propertyNames 要导出的Key
+     * @param titles 标题名与propertyNames key顺序对应
+     * @param fileName 文件名,浏览器要显示的文件名
+     * @param response HttpServletResponse
+     * @throws IOException
+     */
+    public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] propertyNames,
+            String[] titles, String fileName, HttpServletResponse response) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ExcelCreator.export(data, propertyNames, titles, out);
+        setFileDownloadHeader(response, fileName, out.size());
+        out.writeTo(response.getOutputStream());
+        out.close();
+    }
+
+    /**
+     * 实体数据生成excel文件,并输出到HttpServletResponse
+     * 
+     * @param data List&lt;? extends IExcelEntity&gt;实体数据集
+     * @param fileName 文件名,浏览器要显示的文件名
+     * @param response HttpServletResponse
+     * @throws IOException
+     */
+    public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
+            HttpServletResponse response) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ExcelCreator.export(data, out);
+        setFileDownloadHeader(response, fileName, out.size());
+        out.writeTo(response.getOutputStream());
+    }
+
+    private static void setFileDownloadHeader(HttpServletResponse response, String fileName, long fileSize) {
+        String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
+        response.setContentType("applicatoin/octet-stream");
+        response.setHeader("Content-Length", String.valueOf(fileSize));
     }
 
     /**
