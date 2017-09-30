@@ -246,6 +246,7 @@ public class WebUtils {
      * @param response
      * @throws IOException
      */
+    @Deprecated
     public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] propertyNames,
             String[] titles, String fileName, HttpServletResponse response) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -263,6 +264,7 @@ public class WebUtils {
      * @param response
      * @throws IOException
      */
+    @Deprecated
     public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
             HttpServletResponse response) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

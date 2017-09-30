@@ -7,7 +7,7 @@ import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
 import org.jflame.toolkit.crypto.BaseEncryptor.OpMode;
 import org.jflame.toolkit.crypto.BaseEncryptor.Padding;
 import org.jflame.toolkit.crypto.SymmetricEncryptor;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 
 /**
  * 支持加密属性值的属性文件加载,内置加密aes/ecb/pkcs5padding
@@ -44,7 +44,7 @@ public final class EncryptPropertiesConfig extends PropertiesConfig {
     }
 
     public void setPassword(String password) {
-        byte[] pwdBytes = StringHelper.getUtf8Bytes(password);
+        byte[] pwdBytes = CharsetHelper.getUtf8Bytes(password);
         if (pwdBytes.length < 16) {
             throw new IllegalArgumentException("密钥必须是大于16 byte");
         } else if (pwdBytes.length == 16) {

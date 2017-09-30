@@ -132,12 +132,12 @@
 		<repository>
 			<id>ghg-mvn</id>
 			<name>ghgcn</name>
-			<url>http://10.18.200.52:8081/nexus/content/repositories/ghgcn</url>
+			<url>http://10.18.3.175:8081/nexus/content/repositories/ghgcn</url>
 		</repository>
 		<snapshotRepository>
 			<id>ghg-mvn</id>
 			<name>Snapshots</name>
-			<url>http://10.18.200.52:8081/nexus/content/repositories/snapshots</url>
+			<url>http://10.18.3.175:8081/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 </project>
