@@ -60,28 +60,25 @@ public class HttpTest {
     @Test
     public void testFull() {
         HttpHelper httpHelper = new HttpHelper();
-        httpHelper.setCharset(CharsetHelper.GBK.name());
+        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/login").setCharset(CharsetHelper.GBK.name())
+                .setMethod(HttpMethod.POST);
         // 保持cookie,必须是同一httpHelper实例
         // 登录 请求
         // Map<String,String> header=new HashMap<>();
         // header.put("accept","*/*");带header
-        // boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/login", HttpMethod.POST,header);
-        boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/login", HttpMethod.POST);
-        if (isOk) {
-            List<NameValuePair> pairs = new ArrayList<>();
-            pairs.add(new NameValuePair("user", "jq@163.com"));
-            pairs.add(new NameValuePair("password", "123456"));
-            HttpResponse result = httpHelper.sendRequest(pairs);
-            System.out.println(result.getResponseAsJson(CallResult.class));// 结果json转为bean
-            // httpHelper.sendJsonRequest(null, null)
-            // 登录成功后请求有身份证验证的页面
-            httpHelper.initConnect("http://localhost:9090/zp-admin/topMenu", HttpMethod.GET);
-            result = httpHelper.sendRequest();
-            System.out.println(result.getResponseAsText());
 
-        } else {
-            System.out.println("建立连接失败，请确认请求url可用");
-        }
+        List<NameValuePair> pairs = new ArrayList<>();
+        pairs.add(new NameValuePair("user", "jq@163.com"));
+        pairs.add(new NameValuePair("password", "123456"));
+        HttpResponse result = httpHelper.sendRequest(pairs);
+        // 返回结果,反序列化json
+        System.out.println(result.getResponseAsJson(CallResult.class));// 结果json转为bean
+        // httpHelper.sendJsonRequest(null, null)
+        // 登录成功后请求有身份证验证的页面
+        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/topMenu").setMethod(HttpMethod.GET);
+        result = httpHelper.sendRequest();
+        System.out.println(result.getResponseAsText());
+
     }
 
     /**
@@ -96,7 +93,6 @@ public class HttpTest {
             mySSLFactory = HttpHelper.initSSLSocketFactory("TLS",
                     new TrustManager[]{ new CertX509TrustManager("d://x.p12", "passwd", "PKCS12") });
             httpHelper.setSslSocketFactory(mySSLFactory);
-            boolean isOk = httpHelper.initConnect("http://localhost:9090/zp-admin/xxx", HttpMethod.POST);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,10 +109,8 @@ public class HttpTest {
         pairs.add(new NameValuePair("username", "jq@163.com"));
         Map<String,File> upl = new HashMap<>();
         upl.put("uploadZip", new File("D:\\电脑软件\\Notepad++\\readme.txt"));
-        boolean isOk = httpHelper.initConnect(shopAdminUrl, HttpMethod.POST);
-        if (isOk) {
-            HttpResponse result = httpHelper.sendRequest(pairs, upl);
-            System.out.println(result);
-        }
+        httpHelper.setRequestUrl(shopAdminUrl);
+        HttpResponse result = httpHelper.sendRequest(pairs, upl);
+        System.out.println(result);
     }
 }

@@ -1,5 +1,8 @@
 package org.jflame.toolkit.common.bean.pair;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +43,7 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
     public void setValue(V value) {
         this.value = value;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -84,7 +87,7 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
     public String toString() {
         return "[key=" + key + ", value=" + value + "]";
     }
-    
+
     /**
      * 根据属性key的值获取对应枚举
      * 
@@ -110,13 +113,13 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
 
     /**
      * List&lt;KeyValuePair&lt;T,R&gt;&gt;转为Map&lt;T,R&gt;注意相同key将会丢失值.
-     * @param <R>
      * 
+     * @param <R>
      * @param list KeyValuePair列表
      * @return Map
      */
-    public static <E extends KeyValuePair<T,R>,T, R> Map<T,R> toMap(List<E> list) {
-        Map<T, R> map = new HashMap<>();
+    public static <E extends KeyValuePair<T,R>,T,R> Map<T,R> toMap(List<E> list) {
+        Map<T,R> map = new HashMap<>();
         if (list != null) {
             for (IKeyValuePair<T,R> nvp : list) {
                 map.put(nvp.getKey(), nvp.getValue());
@@ -124,17 +127,18 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
         }
         return map;
     }
-    
+
     /**
      * Map&lt;T,R&gt;List&lt;转为KeyValuePair&lt;T,R&gt;&gt;
+     * 
      * @param map
      * @return
      */
     public static <K,V> List<KeyValuePair<K,V>> fromMap(Map<K,V> map) {
-        List<KeyValuePair<K,V>> results=new ArrayList<>();
+        List<KeyValuePair<K,V>> results = new ArrayList<>();
         KeyValuePair<K,V> pair;
-        for (Entry<K,V> item: map.entrySet()) {
-            pair=new KeyValuePair<K,V>(item.getKey(),item.getValue());
+        for (Entry<K,V> item : map.entrySet()) {
+            pair = new KeyValuePair<K,V>(item.getKey(), item.getValue());
             results.add(pair);
         }
         return results;
@@ -146,16 +150,22 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
      * @param list
      * @return
      */
-    public static <E extends KeyValuePair<T,R>,T, R> String toUrlParam(List<E> list) {
+    @Deprecated
+    public static <E extends KeyValuePair<T,R>,T,R> String toUrlParam(List<E> list) {
         if (CollectionHelper.isNotEmpty(list)) {
             StringBuilder strBuf = new StringBuilder(20);
-            for (IKeyValuePair<T,R> kv : list) {
-                strBuf.append('&').append(kv.getKey()).append('=').append(kv.getValue());
+            try {
+                for (IKeyValuePair<T,R> kv : list) {
+                    strBuf.append('&').append(kv.getKey()).append('=')
+                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // ignore
             }
             strBuf.deleteCharAt(0);
             return strBuf.toString();
         }
         return "";
     }
-    
+
 }

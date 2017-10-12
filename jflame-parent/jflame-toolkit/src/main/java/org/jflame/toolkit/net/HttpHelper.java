@@ -7,15 +7,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,7 +42,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
-import org.jflame.toolkit.common.bean.pair.KeyValuePair;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.net.http.HttpResponse;
 import org.jflame.toolkit.net.http.RequestProperty;
@@ -100,7 +102,8 @@ public final class HttpHelper {
     private final String headContentType = "Content-Type";
     private final static int defaultConnTimeout = 1500 * 60;
     private final static int defaultReadTimeout = 1000 * 60;
-    private URL requestUrl;
+
+    private String requestUrl;
     private HttpURLConnection conn;
     private RequestProperty requestProperty;
     // cookie管理器
@@ -118,17 +121,15 @@ public final class HttpHelper {
         CookieHandler.setDefault(cookieManager);
     }
 
-    /**
-     * 使用默认属性初始一个连接
-     * 
-     * @param url 连接地址
-     * @return
-     */
-    public boolean initConnect(String url) {
-        boolean isOpened = false;
+    public HttpHelper(String url) {
+        this();
+        requestUrl = url;
+    }
+
+    private void initConnect() throws IOException {
         try {
-            requestUrl = new URL(url);
-            conn = (HttpURLConnection) requestUrl.openConnection();
+            URL url = new URL(requestUrl);
+            conn = (HttpURLConnection) url.openConnection();
             if (conn instanceof HttpsURLConnection) {
                 if (trustVerifier == null) {
                     trustVerifier = new HttpHelper().new TrustAnyHostnameVerifier();
@@ -145,16 +146,13 @@ public final class HttpHelper {
             if (getCharset() == null) {
                 setCharset(StandardCharsets.UTF_8.name());
             }
-            isOpened = true;
         } catch (IOException e) {
-            isOpened = false;
             if (conn != null) {
                 conn = null;
             }
-            log.error("建立http连接失败,url:" + url, e);
+            throw e;
         }
 
-        return isOpened;
     }
 
     /**
@@ -164,10 +162,10 @@ public final class HttpHelper {
      * @param requestProperty 请求属性
      * @return
      */
-    public boolean initConnect(String url, RequestProperty requestProperty) {
+    /* boolean initConnect(String url, RequestProperty requestProperty) {
         this.requestProperty = requestProperty;
         return initConnect(url);
-    }
+    }*/
 
     /**
      * 初始一个http连接
@@ -176,10 +174,10 @@ public final class HttpHelper {
      * @param method 请求方法.HttpMethod
      * @return true初始成功,false失败
      */
-    public boolean initConnect(String url, HttpMethod method) {
+    /*   boolean initConnect(String url, HttpMethod method) {
         setMethod(method);
         return initConnect(url);
-    }
+    }*/
 
     /**
      * 初始一个http连接,设置请求头,cookie,请求方式等
@@ -188,12 +186,12 @@ public final class HttpHelper {
      * @param method 请求方法.HttpMethod
      * @param httpHeaders http请求头
      * @return true初始成功,false失败
-     */
-    public boolean initConnect(String url, HttpMethod method, Map<String,String> httpHeaders) {
-        setMethod(method);
-        setHeaders(httpHeaders);
-        return initConnect(url);
-    }
+     *//*
+      boolean initConnect(String url, HttpMethod method, Map<String,String> httpHeaders) {
+      setMethod(method);
+      setHeaders(httpHeaders);
+      return initConnect(url);
+      }*/
 
     /**
      * 发起请求,参数使用body发送
@@ -206,6 +204,7 @@ public final class HttpHelper {
         OutputStream outStream = null;
         HttpResponse response = new HttpResponse();
         try {
+            initConnect();
             setConnectionProperty();
             conn.connect();
             // post请求时提交参数
@@ -237,7 +236,7 @@ public final class HttpHelper {
      * @return HttpResponse
      */
     public HttpResponse sendRequest() {
-        return sendRequest((String) null);
+        return sendTextRequest((String) null);
     }
 
     /**
@@ -247,7 +246,28 @@ public final class HttpHelper {
      * @return HttpResponse
      */
     public HttpResponse sendRequest(List<NameValuePair> params) {
-        return sendRequest(KeyValuePair.toUrlParam(params));
+        assertUrl();
+        if (getMethod() == HttpMethod.GET) {
+            String paramStr = HttpHelper.toUrlParam(params);
+            mergeUrl(paramStr);
+            return sendTextRequest(null);
+        }
+        return sendTextRequest(HttpHelper.toUrlParam(params));
+    }
+
+    void mergeUrl(String paramStr) {
+        int askMarkIndex = requestUrl.indexOf("?");
+        if (askMarkIndex > -1) {
+            requestUrl = requestUrl + "&" + paramStr;
+        } else {
+            requestUrl = requestUrl + "?" + paramStr;
+        }
+    }
+
+    void assertUrl() {
+        if (StringHelper.isEmpty(requestUrl)) {
+            throw new IllegalArgumentException("请设置请求url");
+        }
     }
 
     /**
@@ -256,7 +276,7 @@ public final class HttpHelper {
      * @param bodyParam http body参数字符串
      * @return HttpResponse
      */
-    public HttpResponse sendRequest(String bodyParam) {
+    private HttpResponse sendTextRequest(String bodyParam) {
         log.debug("发起http请求:url={},方式={},body参数={}", requestUrl, getMethod(), bodyParam);
         return sendRequest(bodyParam, new TextRequestBodyHandler());
     }
@@ -302,11 +322,12 @@ public final class HttpHelper {
         String boundary = "-----***anysplit";
         String newLine = "\r\n";
         String prefix = "--";
-        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         StringBuilder paramStrBuf = new StringBuilder(50);
         DataOutputStream outStream = null;
         log.debug("发起http请求:url={}", requestUrl);
         try {
+            initConnect();
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             if (getMethod() != HttpMethod.POST) {
                 conn.setRequestMethod(HttpMethod.POST.name());
                 conn.setDoOutput(true);
@@ -478,20 +499,34 @@ public final class HttpHelper {
         return null;
     }
 
+    public static HttpResponse get(String url) {
+        return get(url, (List<NameValuePair>) null);
+    }
+
     /**
      * 执行一个get请求，使用默认属性.
      * 
      * @param url 请求地址
+     * @param params 请求参数 Map
      * @return HttpResponse请求结果,实际数据为文本字符
      */
-    public static HttpResponse get(String url) {
-        HttpHelper helper = new HttpHelper();
-        boolean inited = helper.initConnect(url, HttpMethod.GET);
-        if (inited) {
-            return helper.sendRequest();
-        } else {
-            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
-        }
+    public static HttpResponse get(String url, Map<String,String> params) {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.GET);
+        return helper.sendRequest(NameValuePair.toList(params));
+    }
+
+    /**
+     * 执行一个get请求，使用默认属性.
+     * 
+     * @param url 请求地址
+     * @param params 请求参数 NameValuePair
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse get(String url, List<NameValuePair> params) {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.GET);
+        return helper.sendRequest(params);
     }
 
     /**
@@ -502,13 +537,9 @@ public final class HttpHelper {
      * @return HttpResponse请求结果,实际数据为文本字符
      */
     public static HttpResponse post(String url, List<NameValuePair> params) {
-        HttpHelper helper = new HttpHelper();
-        boolean inited = helper.initConnect(url, HttpMethod.POST);
-        if (inited) {
-            return helper.sendRequest(params);
-        } else {
-            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
-        }
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendRequest(params);
     }
 
     /**
@@ -519,13 +550,9 @@ public final class HttpHelper {
      * @return
      */
     public static <T extends Serializable> HttpResponse postJson(String url, T entity) {
-        HttpHelper helper = new HttpHelper();
-        boolean inited = helper.initConnect(url, HttpMethod.POST);
-        if (inited) {
-            return helper.sendJsonRequest(entity);
-        } else {
-            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
-        }
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendJsonRequest(entity);
     }
 
     /**
@@ -537,15 +564,11 @@ public final class HttpHelper {
      */
     public static <T> HttpResponse postXml(String url, T entity) {
         HttpHelper helper = new HttpHelper();
-        boolean inited = helper.initConnect(url, HttpMethod.POST);
-        if (inited) {
-            return helper.sendXmlRequest(entity);
-        } else {
-            return new HttpResponse(HttpURLConnection.HTTP_UNAVAILABLE, "建立连接失败");
-        }
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendXmlRequest(entity);
     }
 
-    private void setConnectionProperty() throws ProtocolException, URISyntaxException {
+    private void setConnectionProperty() throws ProtocolException, URISyntaxException, MalformedURLException {
         conn.setRequestMethod(getMethod().name());
         // 设置通用属性
         conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -559,7 +582,7 @@ public final class HttpHelper {
         conn.setUseCaches(false);
         conn.setDoOutput(true);
         // 设置cookie
-        String cookies = getCookies(requestUrl.toURI());
+        String cookies = getCookies(new URL(requestUrl).toURI());
         if (StringHelper.isNotEmpty(cookies)) {
             conn.setRequestProperty("Cookie", cookies);
         }
@@ -642,8 +665,8 @@ public final class HttpHelper {
         if (cookieName != null) {
             HttpCookie cookie = new HttpCookie(cookieName, cookieValue);
             try {
-                cookieManager.getCookieStore().add(requestUrl.toURI(), cookie);
-            } catch (URISyntaxException e) {
+                cookieManager.getCookieStore().add(new URL(requestUrl).toURI(), cookie);
+            } catch (URISyntaxException | MalformedURLException e) {
                 throw new RuntimeException("设置cookie失败,url不正确", e);
             }
         }
@@ -665,6 +688,52 @@ public final class HttpHelper {
         return null;
     }
 
+    /**
+     * NameValuePair参数 转为url参数格式的字符串
+     * 
+     * @param params 参数 List&lt;NameValuePair&gt;
+     * @return
+     */
+    public static String toUrlParam(List<NameValuePair> params) {
+        if (CollectionHelper.isNotEmpty(params)) {
+            StringBuilder strBuf = new StringBuilder(20);
+            try {
+                for (NameValuePair kv : params) {
+                    strBuf.append('&').append(kv.getKey()).append('=')
+                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // ignore
+            }
+            strBuf.deleteCharAt(0);
+            return strBuf.toString();
+        }
+        return "";
+    }
+
+    /**
+     * Map参数转为url参数格式的字符串
+     * 
+     * @param params Map&lt;String,Object&gt;
+     * @return
+     */
+    public static String toUrlParam(Map<String,Object> params) {
+        if (MapHelper.isNotEmpty(params)) {
+            StringBuilder strBuf = new StringBuilder(20);
+            try {
+                for (Entry<String,Object> kv : params.entrySet()) {
+                    strBuf.append('&').append(kv.getKey()).append('=')
+                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // ignore
+            }
+            strBuf.deleteCharAt(0);
+            return strBuf.toString();
+        }
+        return "";
+    }
+
     public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;
     }
@@ -682,8 +751,9 @@ public final class HttpHelper {
      * 
      * @param connectionTimeout
      */
-    public void setConnectionTimeout(int connectionTimeout) {
+    public HttpHelper setConnectionTimeout(int connectionTimeout) {
         this.requestProperty.setConnectionTimeout(connectionTimeout);
+        return this;
     }
 
     public int getReadTimeout() {
@@ -695,8 +765,9 @@ public final class HttpHelper {
      * 
      * @param readTimeout
      */
-    public void setReadTimeout(int readTimeout) {
+    public HttpHelper setReadTimeout(int readTimeout) {
         this.requestProperty.setReadTimeout(readTimeout);
+        return this;
     }
 
     public String getCharset() {
@@ -708,18 +779,22 @@ public final class HttpHelper {
      * 
      * @throws IllegalArgumentException 不支持字符集
      */
-    public void setCharset(String charset) {
+    public HttpHelper setCharset(String charset) {
         if (Charset.isSupported(charset)) {
             this.requestProperty.setCharset(charset);
+        } else {
+            throw new IllegalArgumentException("不支持的字符集" + charset);
         }
+        return this;
     }
 
     public HttpMethod getMethod() {
         return this.requestProperty.getMethod();
     }
 
-    public void setMethod(HttpMethod method) {
+    public HttpHelper setMethod(HttpMethod method) {
         this.requestProperty.setMethod(method);
+        return this;
     }
 
     public Map<String,String> getHeaders() {
@@ -731,12 +806,13 @@ public final class HttpHelper {
      * 
      * @param headers
      */
-    public void setHeaders(Map<String,String> headers) {
+    public HttpHelper setHeaders(Map<String,String> headers) {
         if (this.requestProperty.getHeaders() == null) {
             this.requestProperty.setHeaders(headers);
         } else {
             this.requestProperty.getHeaders().putAll(headers);
         }
+        return this;
     }
 
     /**
@@ -745,11 +821,26 @@ public final class HttpHelper {
      * @param headField header field name
      * @param value header field value
      */
-    public void addHeader(String headField, String value) {
+    public HttpHelper addHeader(String headField, String value) {
         if (this.requestProperty.getHeaders() == null) {
             this.requestProperty.setHeaders(new HashMap<String,String>());
         }
         this.requestProperty.getHeaders().put(headField, value);
+        return this;
+    }
+
+    public String getRequestUrl() {
+        return requestUrl;
+    }
+
+    public HttpHelper setRequestUrl(String requestUrl) {
+        this.requestUrl = requestUrl;
+        return this;
+    }
+
+    public HttpHelper setRequestProperty(RequestProperty requestProperty) {
+        this.requestProperty = requestProperty;
+        return this;
     }
 
     /**

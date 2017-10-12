@@ -83,15 +83,14 @@ public final class SerialNumberUtils {
         return tin;
     }
 
- 
-    //     public static void main(String[] args) {
-    //     for (int i = 0; i < 100; i++) {
-    //     System.out.println(dayAndSequence("1"));
-    //     try {
-    //     Thread.sleep(500);
-    //     } catch (InterruptedException e) {
-    //     e.printStackTrace();
-    //     }
-    //     }
-    //     }
+    // public static void main(String[] args) {
+    // for (int i = 0; i < 100; i++) {
+    // System.out.println(dayAndSequence("1"));
+    // try {
+    // Thread.sleep(500);
+    // } catch (InterruptedException e) {
+    // e.printStackTrace();
+    // }
+    // }
+    // }
 }

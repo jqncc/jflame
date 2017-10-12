@@ -11,18 +11,23 @@ import java.text.MessageFormat;
  * @see ResultEnum
  * @author zyc
  */
-public class CallResult implements Serializable {
+public class CallResult<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private int status = 200; // 状态码
     private String message; // 结果描述
-    private Object data; // 返回数据
+    private T data; // 返回数据
 
     public CallResult() {
         this(ResultEnum.SUCCESS);
     }
 
+    /**
+     * 构造函数,使用默认结果枚举ResultEnum设置status和message
+     * 
+     * @param result ResultEnum
+     */
     public CallResult(ResultEnum result) {
         setResult(result.getStatus(), result.getMessage());
     }
@@ -33,6 +38,19 @@ public class CallResult implements Serializable {
 
     public CallResult(int status, String message) {
         setResult(status, message);
+    }
+
+    /**
+     * 构造函数
+     * 
+     * @param status
+     * @param message
+     * @param data
+     */
+    public CallResult(int status, String message, T data) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 
     public int getStatus() {
@@ -51,11 +69,11 @@ public class CallResult implements Serializable {
         this.message = message;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 

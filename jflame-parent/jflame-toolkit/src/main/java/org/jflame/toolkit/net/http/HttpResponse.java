@@ -15,7 +15,7 @@ import org.jflame.toolkit.net.http.handler.XmlResponseHandler;
  * 
  * @author yucan.zhang
  */
-public class HttpResponse extends CallResult {
+public class HttpResponse extends CallResult<byte[]> {
 
     private static final long serialVersionUID = -8303137663872800766L;
     private Map<String,List<String>> headers;// http headers
@@ -90,7 +90,7 @@ public class HttpResponse extends CallResult {
      * @return
      */
     public byte[] getResponseBody() {
-        return (byte[]) getData();
+        return getData();
     }
 
     /**

@@ -35,18 +35,20 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
-        forward(request,resp);
+        forward(request, resp);
     }
 
-    protected void beforeLogout(HttpServletRequest request, HttpServletResponse resp)throws ServletException, IOException  {
+    protected void beforeLogout(HttpServletRequest request, HttpServletResponse resp)
+            throws ServletException, IOException {
 
     }
 
-    protected void forward(HttpServletRequest request, HttpServletResponse resp)throws ServletException, IOException  {
+    protected void forward(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
         if (WebUtils.isAbsoluteUrl(logoutPage)) {
             resp.sendRedirect(logoutPage);
         } else {
             resp.sendRedirect(WebUtils.mergeUrl(request.getContextPath(), logoutPage));
         }
     }
+
 }
