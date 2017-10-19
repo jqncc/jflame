@@ -27,6 +27,10 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
     private static AtomicBoolean isLoaded = new AtomicBoolean(false);
     private boolean valueConvert = false;// 是否对属性值做转换,
 
+    public PropertiesConfig() {
+
+    }
+
     /**
      * 构造函数,指定配置文件
      * 
@@ -130,6 +134,10 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
 
     public void setValueConvert(boolean valueConvert) {
         this.valueConvert = valueConvert;
+    }
+
+    public void setPropertiesFiles(String[] propertiesFiles) {
+        this.propertiesFiles = propertiesFiles;
     }
 
 }
