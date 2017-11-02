@@ -38,27 +38,25 @@ public final class SerialNumberUtils {
     }
 
     /**
-     * 编号生成,规则: 业务标识+时间(yyMMddHHmm)+随机数(1位)+1分钟内流水号+随机数(2位)
+     * 编号生成,规则: 业务标识+时间(yyMMddHHmm)+随机数(1位)+1分钟内流水号
      * 
      * @param prefix 业务标识,区分业务场景,相同标识使用同一流水号生成实例,分布式场景建议同时加入机器id
      * @return
      */
     public static String minuteAndSequence(String prefix) {
         TimeUnitIncreaseNum tin = getMinuteSequencer(prefix);
-        return prefix + DateHelper.formatNow("yyMMddHHmm") + RandomStringUtils.randomNumeric(1) + tin.nextNum()
-                + RandomStringUtils.randomNumeric(2);
+        return prefix + DateHelper.formatNow("yyMMddHHmm") + RandomStringUtils.randomNumeric(1) + tin.nextNum();
     }
 
     /**
-     * 编号生成,规则: 业务标识+时间(yyMMdd)+随机数(1位)+1天内流水号+随机数(2位)
+     * 编号生成,规则: 业务标识+时间(yyMMdd)+随机数(2位)+1天内流水号
      * 
      * @param prefix 业务标识,区分业务场景,相同标识使用同一流水号生成实例,分布式场景建议同时加入机器id
      * @return
      */
     public static String dayAndSequence(String prefix) {
         TimeUnitIncreaseNum tin = getDaySequencer(prefix);
-        return prefix + DateHelper.formatNow("yyMMdd") + RandomStringUtils.randomNumeric(1) + tin.nextNum()
-                + RandomStringUtils.randomNumeric(2);
+        return prefix + DateHelper.formatNow("yyMMdd") + RandomStringUtils.randomNumeric(2) + tin.nextNum();
     }
 
     private static TimeUnitIncreaseNum getMinuteSequencer(String prefix) {
@@ -82,15 +80,4 @@ public final class SerialNumberUtils {
         }
         return tin;
     }
-
-    // public static void main(String[] args) {
-    // for (int i = 0; i < 100; i++) {
-    // System.out.println(dayAndSequence("1"));
-    // try {
-    // Thread.sleep(500);
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // }
 }

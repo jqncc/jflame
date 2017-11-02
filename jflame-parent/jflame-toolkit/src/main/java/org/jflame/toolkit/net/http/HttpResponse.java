@@ -10,6 +10,8 @@ import org.jflame.toolkit.net.http.handler.ResponseBodyHandler;
 import org.jflame.toolkit.net.http.handler.TextResponseHandler;
 import org.jflame.toolkit.net.http.handler.XmlResponseHandler;
 
+import com.alibaba.fastjson.TypeReference;
+
 /**
  * http请求返回结果
  * 
@@ -63,13 +65,25 @@ public class HttpResponse extends CallResult<byte[]> {
     }
 
     /**
-     * 请求结果作为JSON字符串反序列化为java对象.只适用于单一对象,List,Map等请另构造JsonResponseHandler
+     * 请求结果作为JSON字符串反序列化为java对象.<b>只适用于单一对象,List,Map等复杂对象请使用</b>{@link #getResponseAsJson(TypeReference)}}
      * 
      * @param entityClass java对象类型
      * @return
+     * @see #getResponseAsJson(TypeReference)
      */
     public <T> T getResponseAsJson(Class<T> entityClass) {
         ResponseBodyHandler<T> responseHandler = new JsonResponseHandler<>(entityClass);
+        return getResponse(responseHandler);
+    }
+
+    /**
+     * 请求结果作为JSON字符串反序列化为java对象
+     * 
+     * @param typeReference
+     * @return
+     */
+    public <T> T getResponseAsJson(TypeReference<T> typeReference) {
+        ResponseBodyHandler<T> responseHandler = new JsonResponseHandler<>(typeReference);
         return getResponse(responseHandler);
     }
 
@@ -104,7 +118,7 @@ public class HttpResponse extends CallResult<byte[]> {
     @Override
     public String toString() {
         return "HttpResponse [headers=" + headers + ", charset=" + charset + ", status()=" + getStatus()
-                + ", message()=" + getMessage() + ", data()=" + getData() + "]";
+                + ", message()=" + getMessage() + ", data()=" + getResponseAsText() + "]";
     }
 
 }

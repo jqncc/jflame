@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jflame.toolkit.util.MapHelper;
+import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public abstract class UIHtmlTag extends BaseTag {
     protected String cssClass;// 标签 css class
     protected Integer width;
     protected Integer height;
-    protected Map<String,Object> attrMap=new HashMap<>();
+    protected Map<String,Object> attrMap = new HashMap<>();
 
     /**
      * 设置标签属性
@@ -31,15 +32,15 @@ public abstract class UIHtmlTag extends BaseTag {
      * @param strBuf
      */
     protected void setAttributes(StringBuilder strBuf) {
-        if (name != null && "".equals(name))
+        if (StringHelper.isNotEmpty(name))
             strBuf.append(" name=\"").append(name).append("\"");
-        if (id != null && "".equals(id))
+        if (StringHelper.isNotEmpty(id))
             strBuf.append(" id=\"").append(id).append("\"");
-        if (style != null) {
+        if (StringHelper.isNotEmpty(style)) {
             strBuf.append(" style=\"").append(style).append("\"");
         }
-        if (cssClass != null) {
-            strBuf.append(" cssClass=\"").append(cssClass).append("\"");
+        if (StringHelper.isNotEmpty(cssClass)) {
+            strBuf.append(" class=\"").append(cssClass).append("\"");
         }
         if (width != null) {
             strBuf.append(" width=\"").append(width).append("\"");
@@ -47,7 +48,7 @@ public abstract class UIHtmlTag extends BaseTag {
         if (height != null) {
             strBuf.append(" height=\"").append(height).append("\"");
         }
-        if (attrs != null && "".equals(attrs)) {
+        if (StringHelper.isNotEmpty(attrs)) {
             strBuf.append(" ").append(attrs);
         }
         if (MapHelper.isNotEmpty(attrMap)) {

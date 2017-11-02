@@ -44,12 +44,12 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
     @Override
     public long nextNum() {
         long curTime = System.currentTimeMillis();
-        //System.out.println(curTime);
-        //System.out.println(lastTimestamp.get());
+        // System.out.println(curTime);
+        // System.out.println(lastTimestamp.get());
         if (curTime > lastTimestamp.get()) {
             sequence.set(initSeq);
             setNextTimestamp();
-            //System.out.println("reset..");
+            // System.out.println("reset..");
         }
         return sequence.getAndIncrement();
     }
@@ -92,24 +92,24 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
         return calendar.getTimeInMillis();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         System.out.println(calendar.getTime());
-    }
-    //    public static void main(String[] args) {
-    //        TimeUnitIncreaseNum num = new TimeUnitIncreaseNum(TimeUnit.SECONDS);
-    //        for (int i = 0; i < 10; i++) {
-    //            System.out.println(num.nextNum());
-    //        }
-    //        try {
-    //            Thread.sleep(999);
-    //        } catch (InterruptedException e) {
-    //            e.printStackTrace();
-    //        }
-    //        for (int i = 0; i < 5; i++) {
-    //            System.out.println(num.nextNum());
-    //        }
-    //    }
+    }*/
+    // public static void main(String[] args) {
+    // TimeUnitIncreaseNum num = new TimeUnitIncreaseNum(TimeUnit.SECONDS);
+    // for (int i = 0; i < 10; i++) {
+    // System.out.println(num.nextNum());
+    // }
+    // try {
+    // Thread.sleep(999);
+    // } catch (InterruptedException e) {
+    // e.printStackTrace();
+    // }
+    // for (int i = 0; i < 5; i++) {
+    // System.out.println(num.nextNum());
+    // }
+    // }
 }

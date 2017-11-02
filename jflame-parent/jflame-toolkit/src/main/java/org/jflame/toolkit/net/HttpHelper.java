@@ -459,14 +459,13 @@ public final class HttpHelper {
                 throw e;
             }
         } else {
+            result.setMessage(httpConn.getResponseMessage());
             if (null != httpConn.getErrorStream()) {
                 try (InputStream inStream = httpConn.getErrorStream()) {
                     result.setData(IOHelper.readBytes(inStream));
                 } catch (IOException e) {
                     throw e;
                 }
-            } else {
-                result.setMessage(httpConn.getResponseMessage());
             }
             log.error("请求失败," + result);
         }
