@@ -37,12 +37,13 @@ public final class ChineseHelper {
     }
 
     /**
-     * 取得给定汉字串的首字母串,即声母串
+     * 取得给定汉字串的首字母串,即声母串.废除,读取汉字不全
      * 
      * @param str 汉字
      * @return 声母
      * @throws UnsupportedEncodingException 不支持的编码异常
      */
+    @Deprecated
     public static String getAllFirstLetter(String str) throws UnsupportedEncodingException {
         if (str == null || str.isEmpty()) {
             return "";
@@ -57,14 +58,14 @@ public final class ChineseHelper {
     }
 
     /**
-     * 取得给定汉字的首字母,即声母
+     * 取得给定汉字的首字母,即声母.废除,读取汉字不全
      * 
      * @param chinese 汉字
      * @return 汉字的声母
      * @throws UnsupportedEncodingException 不支持的编码异常
      */
     private static char getFirstLetter(String chinese) throws UnsupportedEncodingException {
-        if (chinese == null || chinese.isEmpty()) {
+        if (StringHelper.isEmpty(chinese)) {
             throw new IllegalArgumentException("请传入中文字符");
         }
         char f = ' ';
