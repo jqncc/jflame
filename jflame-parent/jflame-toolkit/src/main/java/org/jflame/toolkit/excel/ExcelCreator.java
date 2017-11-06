@@ -428,17 +428,13 @@ public class ExcelCreator {
      * 注:请自行关闭方法输出流
      * 
      * @param data 要导出数据集
-     * @param propertyNames 需要填充的键名
+     * @param titles 标题
      * @param out 文件输出流,请自行关闭方法类不做处理
      * @throws IOException IOException
      */
-    @Deprecated
-    public static void export(final List<LinkedHashMap<String,Object>> data, String[] propertyNames, OutputStream out)
+    public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out)
             throws IOException {
-        ExcelCreator creator = new ExcelCreator();
-        creator.createSheet();
-        creator.fillMapData(data, propertyNames);
-        creator.write(out);
+        export(data, new String[0], titles, out);
     }
 
     /**
@@ -446,17 +442,17 @@ public class ExcelCreator {
      * 注:请自行关闭方法输出流
      * 
      * @param data 要导出数据集
-     * @param propertyNames 需要填充的键名
+     * @param exculdeKeyNames 要排除的键名
      * @param titles 标题
      * @param out 输出流,请自行关闭方法类不做处理
      * @throws IOException
      */
-    public static void export(final List<LinkedHashMap<String,Object>> data, String[] propertyNames, String[] titles,
+    public static void export(final List<LinkedHashMap<String,Object>> data, String[] exculdeKeyNames, String[] titles,
             OutputStream out) throws IOException {
         ExcelCreator creator = new ExcelCreator();
         creator.createSheet();
         creator.createTitleRow(titles);
-        creator.fillMapData(data, propertyNames);
+        creator.fillMapData(data, exculdeKeyNames);
         creator.write(out);
     }
 
