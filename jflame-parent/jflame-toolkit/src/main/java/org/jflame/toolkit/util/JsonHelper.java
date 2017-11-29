@@ -51,9 +51,24 @@ public final class JsonHelper {
      * @param excludeFields 要排除的属性
      * @return
      */
-    public static String toJson(Object obj, String... excludeFields) {
+    public static String toJsonWidthExclude(Object obj, String... excludeFields) {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
         for (String field : excludeFields) {
+            filter.getExcludes().add(field);
+        }
+        return JSON.toJSONString(obj, filter);
+    }
+
+    /**
+     * Java对象序列化为JSON字符串,指定要包含的属性.
+     * 
+     * @param obj Java对象
+     * @param includeFields 要包含的属性
+     * @return
+     */
+    public static String toJsonWidthInclude(Object obj, String... includeFields) {
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
+        for (String field : includeFields) {
             filter.getIncludes().add(field);
         }
         return JSON.toJSONString(obj, filter);

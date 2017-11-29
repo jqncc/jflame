@@ -96,7 +96,7 @@ public final class ExcelConvertorSupport {
     @SuppressWarnings({ "unchecked" })
     public static String convertToCellValue(final String convertorName, final Object value, final String format) {
         ICellValueConvertor convertor;
-        if (StringUtils.isNotEmpty(convertorName)) {
+        if (StringUtils.isNotEmpty(convertorName) && !CellConvertorEnum.none.equals(convertorName)) {
             convertor = getConvertor(convertorName);
             if (convertor != null) {
                 return convertor.convertToExcel(value, format);

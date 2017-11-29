@@ -36,6 +36,11 @@ public final class DateHelper {
      */
     public static final String CN_HH_mm_ss = "HH时mm分ss秒";
     /**
+     * 时间格式HH:mm:ss
+     */
+    public static final String HH_mm_ss = "HH:mm:ss";
+
+    /**
      * 时间格式yyyyMMddHHmmss
      */
     public static final String yyyyMMddHHmmss = "yyyyMMddHHmmss";
@@ -44,7 +49,8 @@ public final class DateHelper {
      */
     public static final String yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
 
-    public static final String[] formats = { YYYY_MM_DD,CN_YYYY_MM_DD,YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss };
+    @Deprecated
+    public static final String[] formats = { YYYY_MM_DD,CN_YYYY_MM_DD,YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,HH_mm_ss };
 
     /**
      * 格式化时间
@@ -65,6 +71,26 @@ public final class DateHelper {
      */
     public static String formatNow(String pattern) {
         return DateFormatUtils.format(new Date(), pattern);
+    }
+
+    /**
+     * 使用长格式yyyy-MM-dd HH:mm:ss 格式化时间
+     * 
+     * @param date date
+     * @return
+     */
+    public static String formatLong(Date date) {
+        return DateFormatUtils.format(date, YYYY_MM_DD_HH_mm_ss);
+    }
+
+    /**
+     * 使用短格式yyyy-MM-dd格式化时间
+     * 
+     * @param date date
+     * @return
+     */
+    public static String formatShort(Date date) {
+        return DateFormatUtils.format(date, YYYY_MM_DD);
     }
 
     /**
@@ -190,6 +216,49 @@ public final class DateHelper {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         return calendar.getTime();
+    }
+
+    /**
+     * 获取指定时间的月份第一天00:00:00.<br>
+     * eg:2017-11-21 23:12:12 => 2017-11-01 00:00:00
+     * 
+     * @param date Date
+     * @return
+     */
+    public static Date getFirstDayOfMonth(Date date) {
+        return DateUtils.truncate(date, Calendar.MONTH);
+    }
+
+    /**
+     * 获取指定时间的月份最后一天23:59:59.<br>
+     * eg:2017-11-21 23:12:12 => 2017-11-20 23:59:59
+     * 
+     * @param date Date
+     * @return
+     */
+    public static Date getLastDayOfMonth(Date date) {
+        Calendar endCalendar = DateUtils.toCalendar(date);
+        endCalendar.set(Calendar.DAY_OF_MONTH, endCalendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        endCalendar.set(Calendar.HOUR_OF_DAY, endCalendar.getActualMaximum(Calendar.HOUR_OF_DAY));
+        endCalendar.set(Calendar.MINUTE, endCalendar.getActualMaximum(Calendar.MINUTE));
+        endCalendar.set(Calendar.SECOND, endCalendar.getActualMaximum(Calendar.SECOND));
+        return endCalendar.getTime();
+    }
+
+    /**
+     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
+     * 
+     * @param startTime 时间1
+     * @param endTime 时间2
+     * @return
+     */
+    public static long intervalMinutes(Date startTime, Date endTime) {
+        long differTime = endTime.getTime() - startTime.getTime();
+        if (differTime > 0) {
+            return TimeUnit.MILLISECONDS.toMinutes(differTime);
+        } else {
+            return 0 - TimeUnit.MILLISECONDS.toMinutes(Math.abs(differTime));
+        }
     }
 
     /**

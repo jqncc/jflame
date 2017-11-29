@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jflame.toolkit.key.ObjectId;
 import org.jflame.toolkit.util.DateHelper;
 
 /**
@@ -57,6 +58,16 @@ public final class SerialNumberUtils {
     public static String dayAndSequence(String prefix) {
         TimeUnitIncreaseNum tin = getDaySequencer(prefix);
         return prefix + DateHelper.formatNow("yyMMdd") + RandomStringUtils.randomNumeric(2) + tin.nextNum();
+    }
+
+    /**
+     * 生成一个ObjectID字符串
+     * 
+     * @return
+     */
+    public static String objectId() {
+        ObjectId idGen = new ObjectId();
+        return idGen.toHexString();
     }
 
     private static TimeUnitIncreaseNum getMinuteSequencer(String prefix) {

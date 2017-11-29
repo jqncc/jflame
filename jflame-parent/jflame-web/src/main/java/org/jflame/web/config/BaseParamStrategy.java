@@ -44,7 +44,7 @@ public abstract class BaseParamStrategy implements ParamStrategy {
         return getValue(configKey, new Parser<String>() {
 
             public String parse(final String value) {
-                return value;
+                return value.trim();
             }
         });
     }

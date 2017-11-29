@@ -104,7 +104,7 @@ public class WebUtils {
      */
     public static void outJson(HttpServletResponse response, String jsonStr) throws IOException {
         setDisableCacheHeader(response);
-        response.setContentType(WebConstant.MIME_TYPE_JSON);
+        response.setContentType(WebConstant.MIME_TYPE_JSON_UTF8);
         PrintWriter out = response.getWriter();
         out.print(jsonStr);
         out.close();

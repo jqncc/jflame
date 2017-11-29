@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -19,11 +18,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.valid.ValidatorHelper;
 import org.jflame.web.config.DefaultConfigKeys;
-import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +38,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
 
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
 
-    private List<URI> whiteUrls; // 白名单
+    private List<String> whiteUrls; // 白名单
     private String errorPage;// 错误转向页面
     private final String headerReferer = "Referer";
 
@@ -81,8 +79,8 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
                 logger.debug("referer uri,host={},port={}", refererUri.getHost(), refererUri.getPort());
                 logger.debug("request uri,host={},port={}", request.getServerName(), request.getServerPort());
                 if (CollectionHelper.isNotEmpty(whiteUrls)) {
-                    for (URI uri : whiteUrls) {
-                        if (uri.getHost().equals(refererUri.getHost())) {
+                    for (String urlRegex : whiteUrls) {
+                        if (ValidatorHelper.regex(referUrl, urlRegex)) {
                             isSafeUri = true;
                             break;
                         }
@@ -100,13 +98,13 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
         errorPage = filterParam.getString(DefaultConfigKeys.CSRF_ERROR_PAGE);
 
         if (StringHelper.isNotEmpty(whiteFile)) {
-            List<String> whiteUrlStrs = null;
+            // List<String> whiteUrlStrs = null;
             try {
                 URL url = CsrfFilter.class.getResource(whiteFile.trim());
                 if (url != null) {
                     Path whiteFilePath = Paths.get(url.toURI());
                     if (Files.exists(whiteFilePath)) {
-                        whiteUrlStrs = Files.readAllLines(whiteFilePath, StandardCharsets.UTF_8);
+                        whiteUrls = Files.readAllLines(whiteFilePath, StandardCharsets.UTF_8);
                     } else {
                         logger.error("csrf白名单文件路径不存在或不可读{}", whiteFile);
                     }
@@ -116,7 +114,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
             } catch (IOException | URISyntaxException e) {
                 logger.error("csrf白名单读取失败", e);
             }
-            if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
+            /* if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
                 whiteUrls = new ArrayList<>();
                 for (String urlStr : whiteUrlStrs) {
                     if (StringUtils.isNotBlank(urlStr)) {
@@ -130,7 +128,7 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 
