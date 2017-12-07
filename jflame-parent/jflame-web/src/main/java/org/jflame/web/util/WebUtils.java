@@ -3,7 +3,9 @@ package org.jflame.web.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -11,19 +13,89 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.EnumHelper;
+import org.jflame.toolkit.util.JsonHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.WebConstant;
 
 /**
- * web环境常用工具方法
+ * web环境常用常量定义和工具方法
  * 
  * @author yucan.zhang
  */
 public class WebUtils {
+
+    /**
+     * http mine,json类型
+     */
+    public static final String MIME_TYPE_JSON = "application/json";
+    /**
+     * http mine,json类型指定utf-8编码
+     */
+    public final static String MIME_TYPE_JSON_UTF8 = MIME_TYPE_JSON + ";charset=UTF-8";
+    /**
+     * http mine,excel类型
+     */
+    public static final String MIME_TYPE_EXCEL = "application/vnd.ms-excel";
+    /**
+     * post请求的content-type
+     */
+    public final static String MIME_TYPE_POST = "application/x-www-form-urlencoded";
+    /**
+     * http mine,二进制,常用于下载文件
+     */
+    public final static String MIME_TYPE_STREAM = "applicatoin/octet-stream";
+    /**
+     * ajax请求头标识
+     */
+    public final static NameValuePair AJAX_REQUEST_FLAG = new NameValuePair("x-requested-with", "XMLHttpRequest");
+
+    /**
+     * web支持图片格式枚举
+     * 
+     * @author yucan.zhang
+     */
+    public enum MimeImages {
+        png("image/png"), jpg("image/jpeg"), jpeg("image/jpeg"), gif("image/gif"), bmp("application/x-bmp"), ico(
+                "image/x-icon");
+
+        private String mime;
+
+        public String getMime() {
+            return mime;
+        }
+
+        private MimeImages(String mime) {
+            this.mime = mime;
+        }
+
+        public static boolean support(String mimeType) {
+            for (MimeImages mn : MimeImages.values()) {
+                if (mn.name().equalsIgnoreCase(mimeType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * web图片类型扩展名
+     */
+    public final static String[] IMAGE_EXTS = EnumHelper.enumNames(MimeImages.class);
+    /**
+     * web静态资源扩展名
+     */
+    public final static String[] WEB_STATIC_EXTS = ArrayUtils.addAll(IMAGE_EXTS, "js", "css", "ttf", "tiff", "font");
+    /**
+     * 当前登录用户在session中的key
+     */
+    public final static String SESSION_USER_KEY = "current_user";
 
     /**
      * 设置让浏览器弹出下载对话框的Header.
@@ -35,7 +107,7 @@ public class WebUtils {
     public static void setFileDownloadHeader(HttpServletResponse response, String fileName, long fileSize) {
         String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
-        response.setContentType(WebConstant.MIME_TYPE_STREAM);
+        response.setContentType(MIME_TYPE_STREAM);
         response.setHeader("Content-Length", String.valueOf(fileSize));
     }
 
@@ -70,8 +142,7 @@ public class WebUtils {
      * @return true=是ajax请求
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
-        if (WebConstant.AJAX_REQUEST_FLAG.value()
-                .equalsIgnoreCase(request.getHeader(WebConstant.AJAX_REQUEST_FLAG.name()))) {
+        if (AJAX_REQUEST_FLAG.value().equalsIgnoreCase(request.getHeader(AJAX_REQUEST_FLAG.name()))) {
             return true;
         }
         return false;
@@ -95,18 +166,28 @@ public class WebUtils {
         return yes;
     }
 
+    public static <T extends Serializable> void outJson(HttpServletResponse response, T entity) throws IOException {
+        outJson(response, entity, null);
+    }
+
     /**
-     * 输出json字符串.注:未设置输出编码
+     * 对象转为json后输出到到response.
      * 
      * @param response HttpServletResponse
-     * @param jsonStr json字符串
+     * @param entity 待序列化对象
+     * @param charset 字符集,为null时采用utf-8
      * @throws IOException
      */
-    public static void outJson(HttpServletResponse response, String jsonStr) throws IOException {
+    public static <T extends Serializable> void outJson(HttpServletResponse response, T entity, Charset charset)
+            throws IOException {
         setDisableCacheHeader(response);
-        response.setContentType(WebConstant.MIME_TYPE_JSON_UTF8);
+        if (charset == null) {
+            response.setContentType(MIME_TYPE_JSON_UTF8);
+        } else {
+            response.setContentType(MIME_TYPE_JSON + ";charset=" + charset.name());
+        }
         PrintWriter out = response.getWriter();
-        out.print(jsonStr);
+        out.print(JsonHelper.toJson(entity));
         out.close();
     }
 

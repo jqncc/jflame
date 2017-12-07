@@ -13,7 +13,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.DefaultConfigKeys;
-import org.jflame.web.config.WebConstant;
 import org.jflame.web.util.WebUtils;
 
 /**
@@ -71,7 +70,7 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
             return false;
         }
         String ext = FileHelper.getExtension(requestUrl, false);
-        return ArrayUtils.contains(WebConstant.webStaticExts, ext);
+        return ArrayUtils.contains(WebUtils.WEB_STATIC_EXTS, ext);
     }
 
     public boolean isIgnoreStatic() {

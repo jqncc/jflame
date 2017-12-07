@@ -130,14 +130,16 @@ public class PageBean implements Serializable {
 
     /**
      * 是否有下一页.
+     * 
      * @return true=有下一页
      */
     public boolean hasNextPage() {
-        return this.getPageNo() < this.getMaxPage() - 1;
+        return this.getPageNo() < this.getMaxPage();
     }
 
     /**
      * 是否有上一页.
+     * 
      * @return true=有上一页
      */
     public boolean hasPreviousPage() {

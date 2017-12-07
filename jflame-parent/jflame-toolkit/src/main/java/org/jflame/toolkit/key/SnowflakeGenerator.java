@@ -1,6 +1,11 @@
 package org.jflame.toolkit.key;
 
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * snowflake唯一id生成算法实现.
@@ -49,8 +54,8 @@ public final class SnowflakeGenerator {
      * 构造函数,默认使用机器MAC地址和进程号作为数据中心位和机器位
      */
     public SnowflakeGenerator() {
-        this.datacenterId = ObjectId.createMachineIdentifier();
-        this.workerId = ObjectId.createProcessIdentifier();
+        this.datacenterId = getDatacenterId(maxDatacenterId);
+        this.workerId = getMaxWorkerId(datacenterId, maxWorkerId);
     }
 
     /**
@@ -133,6 +138,52 @@ public final class SnowflakeGenerator {
         return System.currentTimeMillis();
     }
 
+    /**
+     * <p>
+     * 获取 maxWorkerId
+     * </p>
+     */
+    protected static long getMaxWorkerId(long datacenterId, long maxWorkerId) {
+        StringBuilder mpid = new StringBuilder();
+        mpid.append(datacenterId);
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        if (StringHelper.isNotEmpty(name)) {
+            /*
+             * GET jvmPid
+             */
+            mpid.append(name.split("@")[0]);
+        }
+        /*
+         * MAC + PID 的 hashcode 获取16个低位
+         */
+        return (mpid.toString().hashCode() & 0xffff) % (maxWorkerId + 1);
+    }
+
+    /**
+     * <p>
+     * 数据标识id部分
+     * </p>
+     */
+    protected static long getDatacenterId(long maxDatacenterId) {
+        long id = 0L;
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+            if (network == null) {
+                id = 1L;
+            } else {
+                byte[] mac = network.getHardwareAddress();
+                if (null != mac) {
+                    id = ((0x000000FF & (long) mac[mac.length - 1])
+                            | (0x0000FF00 & (((long) mac[mac.length - 2]) << 8))) >> 6;
+                    id = id % (maxDatacenterId + 1);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("获取数据中心标识异常");
+        }
+        return id;
+    }
     // 测试
     // public static void main(String[] args) {
     // final int threadCount = 3;

@@ -5,12 +5,14 @@ import java.io.File;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.web.util.WebUtils;
+
 /**
  * 文件下载工具类
+ * 
  * @author yucan.zhang
- *
  */
 public final class DownloadUtils {
 
@@ -26,17 +28,19 @@ public final class DownloadUtils {
         try {
             File downFile = new File(filePath);
             if (downFile.exists() && downFile.isFile()) {
-                WebUtils.setFileDownloadHeader(response, filePath, downFile.length());
+                String name = FileHelper.getFilename(filePath);
+                WebUtils.setFileDownloadHeader(response, name, downFile.length());
                 out = response.getOutputStream();
                 IOHelper.copy(downFile, out);
                 out.flush();
-                return;
+            } else {
+                throw new UploadDownException("下载文件不存在或不是可下载文件" + filePath);
             }
         } catch (Exception e) {
             throw new UploadDownException(e);
         } finally {
             IOHelper.closeQuietly(out);
         }
-        throw new UploadDownException("下载文件不存在或不是可下载文件" + filePath);
+
     }
 }

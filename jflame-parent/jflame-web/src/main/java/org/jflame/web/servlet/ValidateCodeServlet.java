@@ -24,8 +24,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.DefaultConfigKeys;
 import org.jflame.web.config.ServletParamConfig;
-import org.jflame.web.config.WebConstant.MimeImages;
 import org.jflame.web.util.WebUtils;
+import org.jflame.web.util.WebUtils.MimeImages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
