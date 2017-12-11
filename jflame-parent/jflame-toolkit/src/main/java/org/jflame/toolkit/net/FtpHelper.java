@@ -405,7 +405,7 @@ public final class FtpHelper {
     /**
      * 设置是否被动模式连接
      * 
-     * @param passiveMode
+     * @param passiveMode true=被动模式
      */
     public void setPassiveMode(boolean passiveMode) {
         this.passiveMode = passiveMode;

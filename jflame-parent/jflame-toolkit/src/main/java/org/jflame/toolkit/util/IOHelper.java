@@ -132,18 +132,36 @@ public final class IOHelper {
     }
 
     /**
+     * 从输入字节流读取字符串,指定字符编码
+     * 
+     * @param input InputStream 输入字节流
+     * @param charset 字符编码
+     * @param isAutoClosed 是否在方法内自动关闭input流
+     * @return String
+     * @throws IOException
+     */
+    public static String readText(InputStream input, String charset, boolean isAutoClosed) throws IOException {
+        StringWriter writer = new StringWriter();
+        try {
+            copy(toBufferedReader(input, charset), writer);
+            return writer.toString();
+        } finally {
+            if (isAutoClosed && input != null) {
+                input.close();
+            }
+        }
+    }
+
+    /**
      * 从输入字节流读取字符串,指定字符编码.<strong>请手动关闭输入流</strong>
      * 
      * @param input InputStream 输入字节流
      * @param charset 字符编码
-     * @return
-     * @throws UnsupportedEncodingException
+     * @return String
      * @throws IOException
      */
     public static String readText(InputStream input, String charset) throws IOException {
-        StringWriter writer = new StringWriter();
-        copy(toBufferedReader(input, charset), writer);
-        return writer.toString();
+        return readText(input, charset, false);
     }
 
     /**
