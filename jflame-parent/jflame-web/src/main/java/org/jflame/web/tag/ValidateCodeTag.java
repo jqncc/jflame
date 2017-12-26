@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.web.util.WebUtils;
 
 /**
  * 图片验证码生成标签. 示例:
@@ -23,7 +24,8 @@ public class ValidateCodeTag extends UIHtmlTag {
     private Integer height;
     private Integer codeCount;
     private String codeName;
-    private final String tagFmt = "<img src=\"%2$s/validcode?rn=1%1$s\" title=\"点击刷新\" onclick=\"this.src='%2$s/validcode?rn=1%1$s&r='+Math.random()\"";
+    private String url;
+    private final String tagFmt = "<img src=\"%2$s?rn=1%1$s\" title=\"点击刷新\" onclick=\"this.src='%2$s?rn=1%1$s&r='+Math.random()\"";
 
     @Override
     public void doTag() throws JspException, IOException {
@@ -41,14 +43,13 @@ public class ValidateCodeTag extends UIHtmlTag {
             paramStr = paramStr + "&n=" + codeName;
         }
         StringBuilder strBuilder = new StringBuilder(100);
-        strBuilder.append(String.format(tagFmt, paramStr, getContextPath()));
+        strBuilder.append(String.format(tagFmt, paramStr, url));
         setAttributes(strBuilder);
         strBuilder.append(" >");
 
         getOut().print(strBuilder);
 
     }
-
 
     public void setWidth(Integer width) {
         this.width = width;
@@ -64,6 +65,16 @@ public class ValidateCodeTag extends UIHtmlTag {
 
     public void setCodeName(String codeName) {
         this.codeName = codeName;
+    }
+
+    public void setUrl(String url) {
+        String contextPath = getContextPath();
+        if (!url.startsWith("http") && !url.startsWith(contextPath)) {
+            this.url = WebUtils.mergeUrl(contextPath, url);
+        } else {
+            this.url = url;
+        }
+
     }
 
 }

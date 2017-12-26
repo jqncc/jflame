@@ -48,6 +48,7 @@ public class CodeGenerator {
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setDbType(DbType.MYSQL);
         dsc.setTypeConvert(new MySqlTypeConvert() {
+
             // 自定义数据库表字段类型转换【可选】
             @Override
             public DbColumnType processTypeConvert(String fieldType) {
@@ -59,17 +60,17 @@ public class CodeGenerator {
         dsc.setUsername("dbuser");
         dsc.setPassword("321321");
         dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_bss?characterEncoding=utf8");
-       // dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zpgo?characterEncoding=utf8");
+        // dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zpgo?characterEncoding=utf8");
         mpg.setDataSource(dsc);
 
         // 策略配置
         StrategyConfig strategy = new StrategyConfig();
         // strategy.setCapitalMode(true);// 全局大写命名
-        strategy.setDbColumnUnderline(true);//全局下划线命名
-        //strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
+        strategy.setDbColumnUnderline(true);// 全局下划线命名
+        // strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-       
-        strategy.setInclude(new String[] { "admin_visit_log","operate_log","purchase_info","purchase_item","qr_info","shelve_info","shelve_item","shop_admin","shop_admin_rel","stock_info","stock_item","unshelve_info","unshelve_item" }); // 需要生成的表
+
+        strategy.setInclude(new String[]{ "wallet_recharge" }); // 需要生成的表
         // strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
         // 自定义实体父类
         // strategy.setSuperEntityClass("com.baomidou.demo.TestEntity");
@@ -78,9 +79,9 @@ public class CodeGenerator {
         // 自定义 mapper 父类
         // strategy.setSuperMapperClass("com.baomidou.demo.TestMapper");
         // 自定义 service 父类
-         strategy.setSuperServiceClass("com.ghgcn.bss.service.ICrudService");
+        strategy.setSuperServiceClass("com.ghgcn.bss.service.ICrudService");
         // 自定义 service 实现类父类
-         strategy.setSuperServiceImplClass("com.ghgcn.bss.service.impl.BaseServiceImpl");
+        strategy.setSuperServiceImplClass("com.ghgcn.bss.service.impl.BaseServiceImpl");
         // 自定义 controller 父类
         strategy.setSuperControllerClass("com.ghgcn.bss.support.web.BaseController");
         // 【实体】是否生成字段常量（默认 false）
@@ -100,15 +101,17 @@ public class CodeGenerator {
 
         // 注入自定义配置，可以在 VM 中使用 cfg.abc 设置的值
         InjectionConfig cfg = new InjectionConfig() {
+
             @Override
             public void initMap() {
-                //Map<String, Object> map = new HashMap<>();
-                //map.put("abc", this.getConfig().getGlobalConfig().getAuthor() + "-mp");
-                //this.setMap(map);
+                // Map<String, Object> map = new HashMap<>();
+                // map.put("abc", this.getConfig().getGlobalConfig().getAuthor() + "-mp");
+                // this.setMap(map);
             }
         };
         List<FileOutConfig> focList = new ArrayList<>();
         focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
+
             @Override
             public String outputFile(TableInfo tableInfo) {
                 return "d:/datecenter/bsscode/xml/" + tableInfo.getEntityName() + ".xml";
@@ -119,9 +122,9 @@ public class CodeGenerator {
         mpg.setCfg(cfg);
 
         // 关闭默认 xml 生成，调整生成 至 根目录
-       // TemplateConfig tc = new TemplateConfig();
-        //tc.setXml(null);
-        //mpg.setTemplate(tc);
+        // TemplateConfig tc = new TemplateConfig();
+        // tc.setXml(null);
+        // mpg.setTemplate(tc);
 
         // 自定义模板配置，模板可以参考源码 /mybatis-plus/src/main/resources/template 使用 copy
         // 至您项目 src/main/resources/template 目录下，模板名称也可自定义如下配置：
@@ -138,7 +141,7 @@ public class CodeGenerator {
         mpg.execute();
 
         // 打印注入设置
-        //System.err.println(mpg.getCfg().getMap().get("abc"));
+        // System.err.println(mpg.getCfg().getMap().get("abc"));
     }
 
 }

@@ -14,7 +14,7 @@
 	</parent>
 	<properties>
 		<version.spring>4.2.9.RELEASE</version.spring>
-		<version.mybatisplus>2.0.8</version.mybatisplus>
+		<version.mybatisplus>2.1.2-b</version.mybatisplus>
 		<version.mysql>5.1.30</version.mysql>
 	</properties>
 	<dependencies>

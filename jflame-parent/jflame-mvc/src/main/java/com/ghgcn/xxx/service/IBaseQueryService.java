@@ -8,21 +8,12 @@ import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 
 /**
- * 
  * 只包含查询方法的service基接口
+ * 
  * @author yucan.zhang
- *
  * @param <T>
  */
 public interface IBaseQueryService<T> {
-
-    /**
-     * 按id查询
-     * 
-     * @param id
-     * @return
-     */
-    T getById(Serializable id);
 
     /**
      * 按id列表查询
@@ -54,7 +45,7 @@ public interface IBaseQueryService<T> {
 
     int selectCount(Wrapper<T> wrapper);
 
-    List<T> selectList(Wrapper<T> wrapper);
+    List<T> findForList(Wrapper<T> wrapper);
 
     Page<T> selectPage(Page<T> page);
 
@@ -62,7 +53,9 @@ public interface IBaseQueryService<T> {
 
     List<Object> selectObjs(Wrapper<T> wrapper);
 
+    @SuppressWarnings("rawtypes")
     Page<Map<String,Object>> selectMapsPage(Page page, Wrapper<T> wrapper);
 
     Page<T> selectPage(Page<T> page, Wrapper<T> wrapper);
+
 }

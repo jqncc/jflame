@@ -11,11 +11,14 @@
 <body>
 <p>
 图片标签:
-<% request.setAttribute("img","/2017/4/gg.jpg");%><br>
+<% 
+request.setAttribute("img","/2017/4/gg.jpg");
+request.setAttribute("ctx",request.getContextPath());
+%><br>
 <jf:img src="/2017/4/gg.jpg" />
 <jf:img src="/2017/4/gg.jpg" id="abc" name="imgname" width="100" height="100" alt="图片标题" /><br>
 调用静态方法标签显示图片服务器路径:${jfn:baseimg()}
-<img alt="" src="<%=request.getContextPath()%>${jfn:baseimg()}/2017/4/gg.jpg">
+<img alt="" src="${ctx}${jfn:baseimg()}/2017/4/gg.jpg">
 </p>
 <hr>
 <p>

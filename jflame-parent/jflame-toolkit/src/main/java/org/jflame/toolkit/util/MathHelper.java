@@ -95,19 +95,31 @@ public final strictfp class MathHelper {
     }
 
     /**
-     * 乘法
+     * 乘法，返回double
      * 
      * @param num1 被乘数
      * @param num2 乘数
      * @param scale 精度
-     * @return 积
+     * @return double积
      */
     public static final double multiply(Number num1, Number num2, int scale) {
+        return multiplyDecimal(num1, num2, scale).doubleValue();
+    }
+
+    /**
+     * 乘法，返回BigDecimal
+     * 
+     * @param num1 被乘数
+     * @param num2 乘数
+     * @param scale 精度
+     * @return BigDecimal 积
+     */
+    public static final BigDecimal multiplyDecimal(Number num1, Number num2, int scale) {
         if (scale < 0) {
             throw new IllegalArgumentException("精度必须>=0");
         }
         BigDecimal result = createBigDecimal(num1).multiply(createBigDecimal(num2));
-        return result.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return result.setScale(scale, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -122,21 +134,32 @@ public final strictfp class MathHelper {
     }
 
     /**
-     * 除法运算,超出精度以后的数字四舍五入.
+     * 除法运算,超出精度以后的数字四舍五入.返回double
      * 
      * @param num1 被除数
      * @param num2 除数
      * @param scale 精度
-     * @return 商
+     * @return double 商
      */
     public static final double divide(Number num1, Number num2, int scale) {
+        return divideDecimal(num1, num2, scale).doubleValue();
+    }
+
+    /**
+     * 除法运算,超出精度以后的数字四舍五入，返回BigDecimal
+     * 
+     * @param num1 被除数
+     * @param num2 除数
+     * @param scale 精度
+     * @return BigDecimal 商
+     */
+    public static final BigDecimal divideDecimal(Number num1, Number num2, int scale) {
         if (scale < 0) {
             throw new IllegalArgumentException("精度必须>=0");
         }
         BigDecimal dividend = createBigDecimal(num1);
         BigDecimal divisor = createBigDecimal(num2);
-        BigDecimal result = dividend.divide(divisor, scale, BigDecimal.ROUND_HALF_UP);
-        return result.doubleValue();
+        return dividend.divide(divisor, scale, BigDecimal.ROUND_HALF_UP);
     }
 
     /**
@@ -152,5 +175,9 @@ public final strictfp class MathHelper {
         }
         BigDecimal result = createBigDecimal(num).divide(createBigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP);
         return result.doubleValue();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(round(0.3959243086, 4));
     }
 }

@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>jflame-mvc</module>
+		<!-- <module>jflame-mvc</module> -->
 		<module>jflame-toolkit</module>
 		<module>jflame-web</module>
 		<module>jflame-db</module>

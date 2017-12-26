@@ -8,13 +8,13 @@ import com.ghgcn.xxx.service.IUserInfoService;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author yucan.zhang
  * @since 2017-05-08
  */
 @Service
-public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInfo> implements IUserInfoService {
+public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper,UserInfo,Integer> implements IUserInfoService {
 
 }

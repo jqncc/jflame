@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * csrf攻击拦截，比对请求来源referer.
  * <p>
- * 配置参数:<br>
+ * 配置参数(同时继承IgnoreUrlMatchFilter参数):<br>
  * 1.whiteFile[可选] 白名单文件名,只在classpath目录下查找.<br>
  * 2.errorPage[可选] 错误转向页面,默认返回400错误请求<br>
  * 
