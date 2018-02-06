@@ -250,7 +250,15 @@ public class RSAEncryptor extends BaseEncryptor {
         }
     }
 
-    private byte[] docrypt(Key decryptKey, byte[] cryptBytes, int cipherMode) {
+    /**
+     * 执行rsa算法计算
+     * 
+     * @param key 密钥
+     * @param cryptBytes 内容
+     * @param cipherMode Cipher.ENCRYPT_MODE=加密 Cipher.DECRYPT_MODE=解密
+     * @return
+     */
+    public byte[] docrypt(Key key, byte[] cryptBytes, int cipherMode) {
         byte[] resultBytes;
         Cipher cipher = null;
         try {
@@ -259,7 +267,7 @@ public class RSAEncryptor extends BaseEncryptor {
             } else {
                 cipher = Cipher.getInstance(getCipherStr());// RSA/ECB/PKCS1Padding
             }
-            cipher.init(cipherMode, decryptKey);
+            cipher.init(cipherMode, key);
             resultBytes = cipher.doFinal(cryptBytes);
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
@@ -275,4 +283,12 @@ public class RSAEncryptor extends BaseEncryptor {
         return curAlgorithm == Algorithm.RSA;
     }
 
+    public static void main(String[] args) {
+        RSAEncryptor encryptor = new RSAEncryptor();
+        // encryptor.generateKeyPair("d:\\pub.key", "d:\\zp_pri.key");
+
+        String et = encryptor.encryptToBase64("中国人加密", "d:\\pub.key");
+        String dt = encryptor.dencryptBase64(et, "d:\\zp_pri.key");
+        System.out.println(dt);
+    }
 }

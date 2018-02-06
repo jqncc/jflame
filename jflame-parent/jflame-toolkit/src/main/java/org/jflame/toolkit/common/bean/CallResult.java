@@ -96,6 +96,16 @@ public class CallResult<T> implements Serializable {
         return status == ResultEnum.SUCCESS.getStatus();
     }
 
+    public static <T> CallResult<T> error(String message) {
+        CallResult<T> result = new CallResult<>(ResultEnum.SERVER_ERROR.getStatus(), message);
+        return result;
+    }
+
+    public static <T> CallResult<T> paramError(String message) {
+        CallResult<T> result = new CallResult<>(ResultEnum.PARAM_ERROR.getStatus(), message);
+        return result;
+    }
+
     /**
      * 默认的执行结果枚举. <br>
      * 200=执行成功 <br>
@@ -105,7 +115,11 @@ public class CallResult<T> implements Serializable {
      * 500=执行错误,通常是程序执行抛出异常了
      */
     public enum ResultEnum {
-        SUCCESS(200), PARAM_ERROR(400), NO_AUTH(401), FORBIDDEN(403), SERVER_ERROR(500);
+        SUCCESS(200),
+        PARAM_ERROR(400),
+        NO_AUTH(401),
+        FORBIDDEN(403),
+        SERVER_ERROR(500);
 
         private int status;
         private final static String[] initMsgs = { "执行成功","提交的数据错误","身份验证失败","无权限访问","执行错误" };

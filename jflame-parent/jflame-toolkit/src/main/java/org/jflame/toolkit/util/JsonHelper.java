@@ -10,7 +10,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.Labels;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
 /**
@@ -27,7 +26,7 @@ public final class JsonHelper {
      * @return json字符串
      */
     public static String toJson(Object obj) {
-        return JSON.toJSONString(obj, SerializerFeature.WriteMapNullValue);
+        return JSON.toJSONString(obj);
     }
 
     /**
@@ -83,7 +82,7 @@ public final class JsonHelper {
      * @throws IOException
      */
     public static final int writeJSONString(OutputStream os, Object object) throws IOException {
-        return JSON.writeJSONString(os, object, SerializerFeature.WriteMapNullValue);
+        return JSON.writeJSONString(os, object);
     }
 
     /**

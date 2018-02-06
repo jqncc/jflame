@@ -3,6 +3,7 @@ package org.jflame.toolkit.valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.ChineseHelper;
+import org.jflame.toolkit.util.MapHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 常用验证方法.支持规则:
@@ -35,6 +38,9 @@ import org.jflame.toolkit.util.ChineseHelper;
  * <li>是否是字母或数字或下划线</li>
  * <li>是否是数字</li>
  * <li>是否是字母</li>
+ * <li>JSR303验证器验证实体Bean对象</li>
+ * <li>IP地址(ipv4 or v6)</li>
+ * <li>空或非空判断(支持类型:字符串,集合,数组,map)</li>
  * </ul>
  * 
  * @author zyc
@@ -131,7 +137,7 @@ public final class ValidatorHelper {
         if (idcard == null) {
             return false;
         }
-        idcard=idcard.toLowerCase();
+        idcard = idcard.toLowerCase();
         int len = idcard.length();
         if (len != 15 && len != 18) {
             return false;
@@ -305,7 +311,7 @@ public final class ValidatorHelper {
     public static boolean isIPAddress(String ip) {
         return IPAddressHelper.isIP(ip);
     }
-    
+
     /**
      * 使用JSR303验证器验证实体对象
      * 
@@ -445,6 +451,86 @@ public final class ValidatorHelper {
             }
         }
         return true;
+    }
+
+    /**
+     * 判断集合为空,等于null或元素为0个
+     * 
+     * @param collection 集合
+     * @return true=空
+     */
+    public static <E> boolean isEmpty(Collection<E> collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * 判断集合不为空,不等于null且元素>0个
+     * 
+     * @param collection 集合
+     * @return true=非空
+     */
+    public static <E> boolean isNotEmpty(Collection<E> collection) {
+        return !isEmpty(collection);
+    }
+
+    /**
+     * 判断数组为空,等于null或元素为0个
+     * 
+     * @param array 数组
+     * @return true=空
+     */
+    public static <E> boolean isEmpty(E[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断数组不为空,不等于null且元素>0个
+     * 
+     * @param array 数组
+     * @return true=非空
+     */
+    public static <E> boolean isNotEmpty(E[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断Map为空,等于null或元素为0个
+     * 
+     * @param map Map
+     * @return true=空
+     */
+    public static boolean isEmpty(Map<?,?> map) {
+        return MapHelper.isEmpty(map);
+    }
+
+    /**
+     * 判断Map不为空,不等于null且元素>0个
+     * 
+     * @param map Map
+     * @return true=非空
+     */
+    public static boolean isNotEmpty(Map<?,?> map) {
+        return MapHelper.isNotEmpty(map);
+    }
+
+    /**
+     * 判断字符串为空,等于null或空白字符
+     * 
+     * @param str 字符串
+     * @return true=空
+     */
+    public static boolean isEmpty(CharSequence str) {
+        return StringHelper.isEmpty(str);
+    }
+
+    /**
+     * 判断字符串不为空,不等于null和空白字符
+     * 
+     * @param str 字符串
+     * @return true=非空
+     */
+    public static boolean isNotEmpty(CharSequence str) {
+        return StringHelper.isNotEmpty(str);
     }
 
 }

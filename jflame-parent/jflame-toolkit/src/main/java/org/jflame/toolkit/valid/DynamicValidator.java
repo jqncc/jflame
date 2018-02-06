@@ -21,7 +21,7 @@ import org.jflame.toolkit.valid.DynamicValid.ValidRule;
 public class DynamicValidator implements ConstraintValidator<DynamicValid,String> {
 
     private ValidRule[] rules;
-    private boolean nullable;
+    private boolean nullable = true;
     private Map<String,String[]> paramMap;
 
     @Override

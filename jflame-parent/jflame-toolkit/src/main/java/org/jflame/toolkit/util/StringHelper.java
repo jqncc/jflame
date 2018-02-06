@@ -2,6 +2,7 @@ package org.jflame.toolkit.util;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -90,6 +91,17 @@ public final class StringHelper {
      * @return
      */
     public static String join(Object[] array) {
+        return StringUtils.join(array, ',');
+    }
+
+    /**
+     * 以逗号,组合集合元素为字符串,示例:<br>
+     * StringHelper.join(["a", "b", "c"]) = "a,b,c"
+     * 
+     * @param array 数组
+     * @return
+     */
+    public static String join(Collection<?> array) {
         return StringUtils.join(array, ',');
     }
 

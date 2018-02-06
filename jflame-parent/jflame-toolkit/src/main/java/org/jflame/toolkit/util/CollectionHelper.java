@@ -2,14 +2,17 @@ package org.jflame.toolkit.util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 /**
  * 集合工具
+ * 
  * @see java.util.Collections
  * @author yucan.zhang
- *
  */
 public final class CollectionHelper {
 
@@ -46,7 +49,6 @@ public final class CollectionHelper {
         E[] arr = (E[]) Array.newInstance(collection.iterator().next().getClass(), collection.size());
         return collection.toArray(arr);
     }
-    
 
     /**
      * 合并数组,并去重,元素顺序与原数组保持一至
@@ -76,5 +78,40 @@ public final class CollectionHelper {
             joinedArray[i++] = t;
         }
         return joinedArray;
+    }
+
+    /**
+     * 判断一个对象是否在一个集合迭代内
+     * 
+     * @param iterator 迭代器
+     * @param element 要查找的对象
+     * @return true存在
+     */
+    public static boolean contains(Iterator<?> iterator, Object element) {
+        if (iterator != null) {
+            while (iterator.hasNext()) {
+                Object candidate = iterator.next();
+                if (ObjectUtils.equals(candidate, element)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断一个对象是否在一个集合内
+     * 
+     * @param collection 集合
+     * @param element 要查找的对象
+     * @return true存在
+     */
+    public static <E> boolean contains(Collection<E> collection, E element) {
+        for (E object : collection) {
+            if (ObjectUtils.equals(object, element)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
