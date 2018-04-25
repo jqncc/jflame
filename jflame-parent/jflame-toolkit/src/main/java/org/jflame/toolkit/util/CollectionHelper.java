@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 集合工具
@@ -113,5 +114,15 @@ public final class CollectionHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * 集合用','拼接成字符串
+     * 
+     * @param collection 集合
+     * @return
+     */
+    public static <E> String toString(Collection<E> collection) {
+        return StringUtils.join(collection, ',');
     }
 }

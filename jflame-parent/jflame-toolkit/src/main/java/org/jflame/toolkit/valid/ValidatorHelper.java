@@ -50,7 +50,7 @@ public final class ValidatorHelper {
     /**
      * 手机号正则
      */
-    public static final String REGEX_MOBLIE = "^((\\+86)|(86))?0{0,1}1[3|4|5|7|8]\\d{9}$";
+    public static final String REGEX_MOBLIE = "^((\\+86)|(86))?0{0,1}1[3-8]\\d{9}$";
     /**
      * 电话号正则
      */
@@ -105,6 +105,16 @@ public final class ValidatorHelper {
                 break;
         }
         return result;
+    }
+
+    /**
+     * 验证手机号格式
+     * 
+     * @param mobile 手机号
+     * @return
+     */
+    public static boolean isMobile(String mobile) {
+        return isMobileOrTel(mobile, 0);
     }
 
     /**
@@ -254,6 +264,9 @@ public final class ValidatorHelper {
      * @return
      */
     public static boolean stringLength(String str, int min, int max) {
+        if (str == null) {
+            throw new IllegalArgumentException("str not null");
+        }
         if (min <= 0 && max <= 0) {
             throw new IllegalArgumentException("参数min,max不能同时小于0");
         }
@@ -261,24 +274,12 @@ public final class ValidatorHelper {
             throw new IllegalArgumentException("参数min应小于max");
         }
         if (min < 0 && max > 0) {
-            if (str == null) {
-                return true;
-            } else {
-                return str.length() <= max;
-            }
+            return str.length() <= max;
         } else if (min > 0 && max < 0) {
-            if (str == null) {
-                return false;
-            } else {
-                return str.length() >= min;
-            }
+            return str.length() >= min;
         } else if (min > 0 && max > 0) {
-            if (str == null) {
-                return false;
-            } else {
-                int len = str.length();
-                return len >= min && len <= max;
-            }
+            int len = str.length();
+            return len >= min && len <= max;
         }
         return false;
     }

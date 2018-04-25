@@ -55,4 +55,12 @@ public class ValidTest {
         }
     }
 
+    @Test
+    public void testValid() {
+        String[] tels = new String[]{ "123551","13124557854","12124557854","16542557844","1842557844","1642557844",
+                "18x2557844" };
+        for (String string : tels) {
+            System.out.println(string + ":" + ValidatorHelper.isMobileOrTel(string, 0));
+        }
+    }
 }
