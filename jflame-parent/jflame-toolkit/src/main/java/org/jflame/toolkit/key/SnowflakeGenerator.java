@@ -3,7 +3,6 @@ package org.jflame.toolkit.key;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.jflame.toolkit.util.StringHelper;
@@ -187,9 +186,9 @@ public final class SnowflakeGenerator {
     }
 
     public static void main(String[] args) {
-        // SnowflakeGenerator generator = new SnowflakeGenerator();
-        // System.out.println(generator.nextId());
-        System.out.println(new Date(1483436297001L));
+        SnowflakeGenerator generator = new SnowflakeGenerator();
+        System.out.println(generator.nextId());
+        // System.out.println(new Date(1483436297001L));
     }
     // 测试
     // public static void main(String[] args) {

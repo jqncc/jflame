@@ -72,6 +72,7 @@ public class HttpTest {
         pairs.add(new NameValuePair("password", "123456"));
         HttpResponse result = httpHelper.sendRequest(pairs);
         // 返回结果,反序列化json
+
         System.out.println(result.getResponseAsJson(CallResult.class));// 结果json转为bean
         // httpHelper.sendJsonRequest(null, null)
         // 登录成功后请求有身份证验证的页面

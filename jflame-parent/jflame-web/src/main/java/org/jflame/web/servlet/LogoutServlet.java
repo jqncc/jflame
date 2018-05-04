@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jflame.toolkit.common.bean.CallResult;
+import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.config.DefaultConfigKeys;
 import org.jflame.web.config.ServletParamConfig;
@@ -28,6 +30,7 @@ public class LogoutServlet extends HttpServlet {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
         beforeLogout(request, resp);
@@ -35,7 +38,11 @@ public class LogoutServlet extends HttpServlet {
         if (session != null) {
             session.invalidate();
         }
-        forward(request, resp);
+        if (WebUtils.isAjaxRequest(request)) {
+            forward(request, resp);
+        } else {
+            WebUtils.outJson(resp, new CallResult(ResultEnum.SUCCESS));
+        }
     }
 
     protected void beforeLogout(HttpServletRequest request, HttpServletResponse resp)

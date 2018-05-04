@@ -491,7 +491,7 @@ public final class ValidatorHelper {
      * @return true=非空
      */
     public static <E> boolean isNotEmpty(E[] array) {
-        return array == null || array.length == 0;
+        return array != null && array.length > 0;
     }
 
     /**

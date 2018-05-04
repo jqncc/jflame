@@ -67,15 +67,15 @@ public class ExcelTest extends TestCase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //快捷静态方法导出
-        //        try( FileOutputStream out =new FileOutputStream("e:\\1.xls")) {
-        //            ExcelCreator.export(pets, out);
-        //        } catch (IOException e) {
-        //            e.printStackTrace();
-        //        }
+
+        // 快捷静态方法导出
+        // try( FileOutputStream out =new FileOutputStream("e:\\1.xls")) {
+        // ExcelCreator.export(pets, out);
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
     }
 
-    
     /**
      * map数据导出
      */
@@ -102,9 +102,10 @@ public class ExcelTest extends TestCase {
             e.printStackTrace();
         }
     }
-     
+
     /**
      * 导入数据转为实体对象
+     * 
      * @throws IOException
      */
     @org.junit.Test
