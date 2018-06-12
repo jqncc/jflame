@@ -16,8 +16,12 @@ import org.jflame.toolkit.net.HttpHelper;
 import org.jflame.toolkit.net.HttpHelper.HttpMethod;
 import org.jflame.toolkit.net.http.HttpResponse;
 import org.jflame.toolkit.net.http.handler.JsonResponseHandler;
+import org.jflame.toolkit.test.entity.MemberInfo;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.JsonHelper;
 import org.junit.Test;
+
+import com.alibaba.fastjson.TypeReference;
 
 public class HttpTest {
 
@@ -42,16 +46,17 @@ public class HttpTest {
      */
     @Test
     public void testJsonResponse() {
-        HttpResponse result = HttpHelper.post("http://127.0.0.1:88/user/1", null);
+        List<NameValuePair> pairs = new ArrayList<>();
+        HttpResponse result = HttpHelper.post("http://127.0.0.1:88/user/1", pairs);
         if (result.success()) {
             CallResult info = result.getResponse(new JsonResponseHandler<>(CallResult.class));
         }
         //
-        // result.getResponseAsJson(CallResult.class);//结果json解析为bean
-        // result.getResponseAsXml(CallResult.class);xml解析为bean
+        result.getResponseAsJson(CallResult.class);// 结果json解析为bean
+        result.getResponseAsXml(CallResult.class);// xml解析为bean
         // 构造JSON反序列复合对象list
-        // TypeReference<List<MemberInfo>> type=JsonHelper.buildListType(MemberInfo.class);
-        // List<MemberInfo> list=result.getResponse(new JsonResponseHandler<>(type));
+        TypeReference<List<MemberInfo>> type = JsonHelper.buildListType(MemberInfo.class);
+        List<MemberInfo> list = result.getResponse(new JsonResponseHandler<>(type));
     }
 
     /**

@@ -465,7 +465,7 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 判断集合不为空,不等于null且元素>0个
+     * 判断集合不为空,不等于null且元素&gt;0个
      * 
      * @param collection 集合
      * @return true=非空
@@ -485,7 +485,7 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 判断数组不为空,不等于null且元素>0个
+     * 判断数组不为空,不等于null且元素&gt;0个
      * 
      * @param array 数组
      * @return true=非空
@@ -505,7 +505,7 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 判断Map不为空,不等于null且元素>0个
+     * 判断Map不为空,不等于null且元素&gt;0个
      * 
      * @param map Map
      * @return true=非空

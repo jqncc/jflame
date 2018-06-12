@@ -57,7 +57,7 @@ public final class SerialNumberUtils {
      */
     public static String dayAndSequence(String prefix) {
         TimeUnitIncreaseNum tin = getDaySequencer(prefix);
-        return prefix + DateHelper.formatNow("yyMMdd") + RandomStringUtils.randomNumeric(2) + tin.nextNum();
+        return prefix + DateHelper.formatNow("yyMMddHH") + RandomStringUtils.randomNumeric(2) + tin.nextNum();
     }
 
     /**
@@ -90,5 +90,10 @@ public final class SerialNumberUtils {
             daySeqMap.put(prefix, tin);
         }
         return tin;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(dayAndSequence("a"));
+        System.out.println(dayAndSequence("a"));
     }
 }

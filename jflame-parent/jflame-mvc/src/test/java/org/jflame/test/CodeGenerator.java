@@ -70,7 +70,7 @@ public class CodeGenerator {
         // strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
 
-        strategy.setInclude(new String[]{ "user_score_log","user_score_adjust","user_score_adjust_item" }); // 需要生成的表
+        strategy.setInclude(new String[]{ "prepay","prepay_notify" }); // 需要生成的表
         // strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
         // 自定义实体父类
         // strategy.setSuperEntityClass("com.baomidou.demo.TestEntity");

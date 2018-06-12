@@ -61,8 +61,12 @@ public class WebUtils {
      * @author yucan.zhang
      */
     public enum MimeImages {
-        png("image/png"), jpg("image/jpeg"), jpeg("image/jpeg"), gif("image/gif"), bmp("application/x-bmp"), ico(
-                "image/x-icon");
+        png("image/png"),
+        jpg("image/jpeg"),
+        jpeg("image/jpeg"),
+        gif("image/gif"),
+        bmp("application/x-bmp"),
+        ico("image/x-icon");
 
         private String mime;
 
@@ -187,7 +191,11 @@ public class WebUtils {
             response.setContentType(MIME_TYPE_JSON + ";charset=" + charset.name());
         }
         PrintWriter out = response.getWriter();
-        out.print(JsonHelper.toJson(entity));
+        if (entity instanceof String) {
+            out.print(entity);
+        } else {
+            out.print(JsonHelper.toJson(entity));
+        }
         out.close();
     }
 

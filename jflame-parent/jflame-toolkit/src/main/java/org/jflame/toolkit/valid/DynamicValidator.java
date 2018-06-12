@@ -86,6 +86,16 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                 case noContain:
                     flag = !StringHelper.containsAny(value, params[0].split(","));
                     break;
+                case min:
+                    flag = ValidatorHelper.minLength(value, Integer.parseInt(params[0]));
+                    break;
+                case max:
+                    flag = ValidatorHelper.maxLength(value, Integer.parseInt(params[0]));
+                    break;
+                case size:
+                    flag = ValidatorHelper.stringLength(value, Integer.parseInt(params[0]),
+                            Integer.parseInt(params[1]));
+                    break;
                 default:
                     break;
             }

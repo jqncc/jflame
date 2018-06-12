@@ -69,17 +69,17 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  * <code>
- *  HttpHelper helper=new HttpHelper();
- *  helper.setCharset("gbk");
- *  boolean inited=helper.initConnect("http://www.qq.com",HttpMethod.POST);
+ * HttpHelper httpHelper = new HttpHelper();
+ * httpHelper.setRequestUrl("http://localhost").setCharset(CharsetHelper.GBK.name())
+ *              .setMethod(HttpMethod.POST);
  *  List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt;();
  *  params.add(new NameValuePair("paramName","paramValue"));
- *  if(inited){
- *      HttpResponse result=helper.sendRequest(params);
- *      if(result.success()){
- *          System.out.print(result.getData());
- *      }
+ *  
+ *  HttpResponse result=helper.sendRequest(params);
+ *  if(result.success()){
+ *     System.out.print(result.getData());
  *  }
+ *  
  * </code>
  * </pre>
  * 
@@ -93,7 +93,12 @@ public final class HttpHelper {
      * HTTP请求方式枚举
      */
     public enum HttpMethod {
-        GET, POST, PUT, DELETE
+        GET,
+        POST,
+        PUT,
+        DELETE,
+        OPTIONS,
+        HEAD
     }
 
     public final static String accept = "text/html,application/json,application/xhtml+xml, */*";
@@ -140,6 +145,8 @@ public final class HttpHelper {
                 ((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
                 ((HttpsURLConnection) conn).setHostnameVerifier(trustVerifier);
             }
+            HttpURLConnection.setFollowRedirects(true);
+            conn.setInstanceFollowRedirects(true);
             if (getMethod() == null) {
                 setMethod(HttpMethod.POST);
             }
@@ -154,44 +161,6 @@ public final class HttpHelper {
         }
 
     }
-
-    /**
-     * 使用指定请求属性初始一个连接
-     * 
-     * @param url 请求地址
-     * @param requestProperty 请求属性
-     * @return
-     */
-    /* boolean initConnect(String url, RequestProperty requestProperty) {
-        this.requestProperty = requestProperty;
-        return initConnect(url);
-    }*/
-
-    /**
-     * 初始一个http连接
-     * 
-     * @param url 请求地址
-     * @param method 请求方法.HttpMethod
-     * @return true初始成功,false失败
-     */
-    /*   boolean initConnect(String url, HttpMethod method) {
-        setMethod(method);
-        return initConnect(url);
-    }*/
-
-    /**
-     * 初始一个http连接,设置请求头,cookie,请求方式等
-     * 
-     * @param url 请求地址
-     * @param method 请求方法.HttpMethod
-     * @param httpHeaders http请求头
-     * @return true初始成功,false失败
-     *//*
-      boolean initConnect(String url, HttpMethod method, Map<String,String> httpHeaders) {
-      setMethod(method);
-      setHeaders(httpHeaders);
-      return initConnect(url);
-      }*/
 
     /**
      * 发起请求,参数使用body发送
@@ -246,6 +215,22 @@ public final class HttpHelper {
      * @return HttpResponse
      */
     public HttpResponse sendRequest(List<NameValuePair> params) {
+        assertUrl();
+        if (getMethod() == HttpMethod.GET) {
+            String paramStr = HttpHelper.toUrlParam(params);
+            mergeUrl(paramStr);
+            return sendTextRequest(null);
+        }
+        return sendTextRequest(HttpHelper.toUrlParam(params));
+    }
+
+    /**
+     * 发起请求
+     * 
+     * @param params 请求参数 Map&lt;String,Object&gt;
+     * @return HttpResponse
+     */
+    public HttpResponse sendRequest(Map<String,Object> params) {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
             String paramStr = HttpHelper.toUrlParam(params);
@@ -397,7 +382,7 @@ public final class HttpHelper {
      * @return
      */
     public <T extends Serializable> HttpResponse sendJsonRequest(T entity) {
-        addHeader(headContentType, "application/json;charset=" + getCharset());
+        setContentType("application/json;charset=" + getCharset());
         if (getMethod() == HttpMethod.GET) {
             setMethod(HttpMethod.POST);
         }
@@ -426,7 +411,7 @@ public final class HttpHelper {
      * @return
      */
     public <T> HttpResponse sendXmlRequest(T entity) {
-        conn.setRequestProperty(headContentType, "application/xml;charset=" + getCharset());
+        setContentType("application/xml;charset=" + getCharset());
         if (getMethod() == HttpMethod.GET) {
             setMethod(HttpMethod.POST);
         }
@@ -451,8 +436,9 @@ public final class HttpHelper {
         } else if (StringHelper.isNotEmpty(getCharset())) {
             result.setCharset(getCharset());
         }
-        // <300算成功处理
-        if (result.getStatus() < HttpURLConnection.HTTP_MULT_CHOICE) {
+        // >200 or <300算成功处理
+        if (result.getStatus() >= HttpURLConnection.HTTP_OK
+                && result.getStatus() < HttpURLConnection.HTTP_MULT_CHOICE) {
             try (InputStream inStream = getInputStream(httpConn)) {
                 result.setData(IOHelper.readBytes(inStream));
             } catch (IOException e) {
@@ -532,10 +518,23 @@ public final class HttpHelper {
      * 执行一个post请求,使用默认属性
      * 
      * @param url 请求地址
-     * @param params 请求参数
+     * @param params NameValuePair. 请求参数
      * @return HttpResponse请求结果,实际数据为文本字符
      */
     public static HttpResponse post(String url, List<NameValuePair> params) {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendRequest(params);
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性
+     * 
+     * @param url 请求地址
+     * @param params Map.请求参数
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse post(String url, Map<String,Object> params) {
         HttpHelper helper = new HttpHelper(url);
         helper.setMethod(HttpMethod.POST);
         return helper.sendRequest(params);
@@ -798,6 +797,10 @@ public final class HttpHelper {
 
     public Map<String,String> getHeaders() {
         return this.requestProperty.getHeaders();
+    }
+
+    public HttpHelper setContentType(String contentType) {
+        return addHeader(headContentType, contentType);
     }
 
     /**

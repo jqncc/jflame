@@ -39,9 +39,9 @@ public class LogoutServlet extends HttpServlet {
             session.invalidate();
         }
         if (WebUtils.isAjaxRequest(request)) {
-            forward(request, resp);
-        } else {
             WebUtils.outJson(resp, new CallResult(ResultEnum.SUCCESS));
+        } else {
+            forward(request, resp);
         }
     }
 
@@ -56,6 +56,14 @@ public class LogoutServlet extends HttpServlet {
         } else {
             resp.sendRedirect(WebUtils.mergeUrl(request.getContextPath(), logoutPage));
         }
+    }
+
+    public String getLogoutPage() {
+        return logoutPage;
+    }
+
+    public void setLogoutPage(String logoutPage) {
+        this.logoutPage = logoutPage;
     }
 
 }

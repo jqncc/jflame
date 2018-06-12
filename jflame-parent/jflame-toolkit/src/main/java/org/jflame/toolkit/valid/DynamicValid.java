@@ -101,7 +101,10 @@ public @interface DynamicValid {
          * 不包含特殊字符*%#\=&lt;&gt;`';?&amp;!
          */
         safeChar,
-        noContain
+        noContain,
+        size,
+        min,
+        max
     }
 
 }
