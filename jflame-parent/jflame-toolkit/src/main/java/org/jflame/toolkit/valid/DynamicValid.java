@@ -57,7 +57,8 @@ public @interface DynamicValid {
 
     /**
      * 规则所需参数,格式说明:<br>
-     * 规则名1:参数,规则名:参数. 如:rules={ValidRule.min,ValidRule.max} param="min:1,max:2"; 参数类型:数字1,字符串:"1",数组:[1,2]
+     * 规则名1:参数,规则名:参数. 如:rules={ValidRule.min,ValidRule.regex} param="min:1,regex:\"\\\\d{1,13}\""; 参数表示
+     * 数字:1,字符串:"1",数组:[1,2]
      * 
      * @return
      */
@@ -104,7 +105,8 @@ public @interface DynamicValid {
         noContain,
         size,
         min,
-        max
+        max,
+        regex
     }
 
 }

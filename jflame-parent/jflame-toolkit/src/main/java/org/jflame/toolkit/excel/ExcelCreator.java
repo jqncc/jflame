@@ -19,36 +19,41 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
 import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
+import org.jflame.toolkit.excel.handler.ISheetRowHandler;
 import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
 import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 /**
- * 创建excel文件的工具类,可创建多个工作表.
- * <p>
- * 支持生成office2003或最新office2007格式文件,默认为2007
- * <p>
- * 支持使用普通javabean对象,有序map集合 填充数据
- * <p>
- * 可根据注解自动创建标题行.属性使用excelColumn注解,可指定值格式化器 示例:
+ * 本类基于Apache POI封装提供Excel文件的创建,数据导出功能. 支持office2003、office2007格式文件,默认为2007.
+ * <ul>
+ * <li>JavaBean集合的写入，bean只需实现IExcelEntity接口(该接口只是个标志接口),并在需要导出的属性Getter方法加ExcelColumn注解,即可实现列表数据填充;</li>
+ * <li>有序Map集合(通常为List&lt;LinkedHashMap&gt;)的写入,使用map作为填充数据源时,如需标题列需代码显式写入,另外数据格式上时map元素数据的类型使用默认转换器且无法对特定键指定转换器,
+ * 所以推荐使用Bean集合数据源;</li>
+ * <li>可自定义值转换器({@link ICellValueConvertor}),同时也可以自己控制excel行({@link ISheetRowHandler})的写入</li>
+ * <li>类暴露WorkBook,Sheet对象,仍可自由写入数据</li>
+ * </ul>
+ * 示例:
  * 
  * <pre>
  * {@code
  *  ExcelCreator xlsCreator=new ExcelCreator(EXCEL_VERSION.office2003);
  *  HSSFSheet sheet=xlsCreator.createSheet("sheet1");
  *  List<Pet> pets=new ArrayList<>();
- *  //填充pets...
+ *  //填充数据集合...
  *  xlsCreator.fillEntityData(sheet,pets);
  *  FileOutPutStream out=new FileOutPutStream("xxxx.xls")
+ *  //输出到文件流
  *  xlsCreator.write(out);
  *  out.close();
  *  }
  * </pre>
  * 
- * 支持便捷静态方法，生成数据输出到流
+ * 静态方法示例:
  * 
  * <pre>
  * {@code 
@@ -56,12 +61,15 @@ import org.jflame.toolkit.util.CollectionHelper;
  * </pre>
  * 
  * @see ExcelColumn
+ * @see ICellValueConvertor
+ * @see ISheetRowHandler
  * @author zyc
  */
 public class ExcelCreator {
 
     public enum ExcelVersion {
-        office2003, office2007
+        office2003,
+        office2007
     }
 
     private Workbook workbook;

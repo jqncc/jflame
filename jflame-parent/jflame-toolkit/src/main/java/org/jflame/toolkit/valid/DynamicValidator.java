@@ -114,6 +114,9 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                     flag = ValidatorHelper.stringLength(value, Integer.parseInt(params[0]),
                             Integer.parseInt(params[1]));
                     break;
+                case regex:
+                    flag = ValidatorHelper.regex(value, params[0]);
+                    break;
                 default:
                     break;
             }
@@ -124,8 +127,10 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         return flag;
     }
 
-    /* public static void main(String[] args) {
+    public static void main(String[] args) {
         String x = "{size:1, min:[1,2]}";
+        // String x = "{regex:\"[0-9]{1,3}\"}";
+
         String paramText = StringUtils.deleteWhitespace(x);
         if (paramText.charAt(0) != '{') {
             paramText = '{' + paramText;
@@ -134,9 +139,9 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
             paramText = paramText + '}';
         }
         Map<String,String[]> paramMap = new HashMap<>();
-    
-        JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowUnQuotedFieldNames);
-    
+        //
+        JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowSingleQuotes);
+
         // Map<String,String> tempMap = JSON.parseObject(paramText, type, ~SerializerFeature.QuoteFieldNames.mask);
         for (Entry<String,Object> kv : tempMap.entrySet()) {
             if (kv.getValue() instanceof JSONObject) {
@@ -145,8 +150,10 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
             } else if (kv.getValue() instanceof JSONArray) {
                 List<String> list = ((JSONArray) kv.getValue()).toJavaList(String.class);
                 paramMap.put(kv.getKey(), CollectionHelper.toArray(list));
+            } else {
+                paramMap.put(kv.getKey(), new String[]{ String.valueOf(kv.getValue()) });
             }
         }
         System.out.println(paramMap);
-    }*/
+    }
 }
