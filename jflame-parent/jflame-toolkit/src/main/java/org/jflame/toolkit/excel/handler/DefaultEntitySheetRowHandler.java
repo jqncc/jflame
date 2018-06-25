@@ -62,7 +62,7 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
                 if (pd.getName().equals(cproperty.propertyName)) {
                     methodGetX = pd.getReadMethod();
                     propertyValue = methodGetX.invoke(object);
-                    if (propertyValue != null) {
+                    if (propertyValue != null && !"".equals(propertyValue)) {
                         cell.setCellType(Cell.CELL_TYPE_STRING);
                         cell.setCellValue(ExcelConvertorSupport.convertToCellValue(cproperty.convert, propertyValue,
                                 cproperty.fmt));

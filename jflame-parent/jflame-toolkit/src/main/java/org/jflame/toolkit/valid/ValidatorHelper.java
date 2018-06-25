@@ -259,8 +259,8 @@ public final class ValidatorHelper {
      * 验证字符串长度
      *
      * @param str
-     * @param min 最小长度,传入负数表示不计算
-     * @param max 最大长度,传入负数表示不计算
+     * @param min 最小长度,传入0或负数表示不计算
+     * @param max 最大长度,传入0或负数表示不计算
      * @return
      */
     public static boolean stringLength(String str, int min, int max) {
@@ -273,9 +273,9 @@ public final class ValidatorHelper {
         if (max > 0 && min > max) {
             throw new IllegalArgumentException("参数min应小于max");
         }
-        if (min < 0 && max > 0) {
+        if (min <= 0 && max > 0) {
             return str.length() <= max;
-        } else if (min > 0 && max < 0) {
+        } else if (min > 0 && max <= 0) {
             return str.length() >= min;
         } else if (min > 0 && max > 0) {
             int len = str.length();

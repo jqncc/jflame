@@ -58,5 +58,5 @@ public interface DefaultConfigKeys {
     /**
      * LogoutServlet参数,注销后跳转页面
      */
-    ConfigKey<String> LOGOUT_PAGE = new ConfigKey<>("logoutPage", "logout");
+    ConfigKey<String> LOGOUT_PAGE = new ConfigKey<>("logoutPage");
 }

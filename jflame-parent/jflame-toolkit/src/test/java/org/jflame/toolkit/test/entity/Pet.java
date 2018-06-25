@@ -12,6 +12,7 @@ public class Pet implements IExcelEntity {
     private String skin;
     private Date birthday;
     private double money;
+    private Date createDate;
 
     public Pet() {
     }
@@ -52,7 +53,7 @@ public class Pet implements IExcelEntity {
         this.skin = skin;
     }
 
-    @ExcelColumn(name = "生日", order = 4,fmt="yyyy/MM/dd")
+    @ExcelColumn(name = "生日", order = 4, fmt = "yyyy/MM/dd")
     public Date getBirthday() {
         return birthday;
     }
@@ -68,6 +69,15 @@ public class Pet implements IExcelEntity {
 
     public void setMoney(double money) {
         this.money = money;
+    }
+
+    @ExcelColumn(name = "创建时间", order = 6)
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
 }

@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.ExcelImportor;
+import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
 import org.jflame.toolkit.test.entity.Pet;
 
 import junit.framework.Test;
@@ -48,15 +49,16 @@ public class ExcelTest extends TestCase {
      * 实体类导出到文件流
      */
     public void testExport() {
-        List<Pet> pets = new ArrayList<>(300);
+        List<Pet> pets = new ArrayList<>(5);
         for (int i = 0; i < 300; i++) {
             Pet p = new Pet("pet " + i, i + 20, "肤色 " + i, new Date(), 3.4 + i);
+            p.setCreateDate(new Date());
             pets.add(p);
         }
         ExcelCreator creator = new ExcelCreator();
         creator.createSheet();
         creator.fillEntityData(pets);
-        File f = new File("e:\\1.xls");
+        File f = new File("D:\\datacenter\\1.xls");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -127,5 +129,12 @@ public class ExcelTest extends TestCase {
             System.out.println(xMap.values().toString());
         }
         // List<Integer> resultIndexs=xlsImport.getCurRowIndexs();
+    }
+
+    @org.junit.Test
+    public void testConvertor() {
+        Date x = new Date();
+        String s = ExcelConvertorSupport.convertToCellValue(null, x, null);
+        System.out.println(s);
     }
 }

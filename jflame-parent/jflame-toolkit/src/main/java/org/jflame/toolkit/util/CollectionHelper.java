@@ -3,6 +3,7 @@ package org.jflame.toolkit.util;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -120,9 +121,35 @@ public final class CollectionHelper {
      * 集合用','拼接成字符串
      * 
      * @param collection 集合
-     * @return
+     * @return string
      */
     public static <E> String toString(Collection<E> collection) {
         return StringUtils.join(collection, ',');
+    }
+
+    /**
+     * 返回集合的最后一个元素,<b>传入无序集合时结果不确定</b>
+     * 
+     * @param collection Collection
+     * @return 集合的最后一个元素
+     */
+    public static <T> T getLast(Collection<T> collection) {
+        if (isEmpty(collection)) {
+            return null;
+        }
+
+        // 当类型List时，直接取得最后一个元素.
+        if (collection instanceof List) {
+            List<T> list = (List<T>) collection;
+            return list.get(list.size() - 1);
+        }
+        int i = 0,size = collection.size();
+        for (T t : collection) {
+            if (i == size - 1) {
+                return t;
+            }
+            i++;
+        }
+        return null;
     }
 }
