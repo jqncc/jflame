@@ -1,6 +1,5 @@
 package org.jflame.toolkit.excel.handler;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -19,12 +18,20 @@ import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
  */
 public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEntitySheetRowHandler<T> {
 
-    PropertyDescriptor[] properties = null;
+    // PropertyDescriptor[] properties = null;
     List<ExcelColumnProperty> columnPropertys = null;
+    private Class<T> entityClazz;
 
-    public DefaultEntitySheetRowHandler(PropertyDescriptor[] properties, List<ExcelColumnProperty> columnPropertys) {
-        this.properties = properties;
+    /**
+     * 构造函数
+     * 
+     * @param columnPropertys ExcelColumnProperty集合
+     * @param dataClass 数据类型
+     */
+    public DefaultEntitySheetRowHandler(List<ExcelColumnProperty> columnPropertys, Class<T> dataClass) {
+        // this.properties = properties;
         this.columnPropertys = columnPropertys;
+        this.entityClazz = dataClass;
     }
 
     @Override
@@ -34,14 +41,14 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
         int size = columnPropertys.size();
         for (cellIndex = 0; cellIndex < size; cellIndex++) {
             cell = excelSheetRow.createCell(cellIndex);
-            setPropertyToCell(properties, rowData, columnPropertys.get(cellIndex), cell);
+            setPropertyToCell(rowData, columnPropertys.get(cellIndex), cell);
         }
     }
 
-    @Override
+    /* @Override
     public PropertyDescriptor[] getProperties() {
         return properties;
-    }
+    }*/
 
     @Override
     public List<ExcelColumnProperty> getColumnPropertys() {
@@ -50,15 +57,45 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
 
     @Override
     public T extractRow(Row excelSheetRow) {
-        return null;
+        T newObj = null;
+        try {
+            newObj = entityClazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new ExcelAccessException("failed to new instance for " + entityClazz, e);
+        }
+        List<ExcelColumnProperty> lstDescriptors = getColumnPropertys();
+        int size = lstDescriptors.size();
+        ExcelColumnProperty cProperty;
+        Object newValue = null;
+        for (int i = 0; i < size; i++) {
+            if (excelSheetRow.getCell(i) == null) {
+                continue;
+            }
+            cProperty = lstDescriptors.get(i);
+            newValue = ExcelConvertorSupport.convertValueFromCellValue(cProperty, excelSheetRow.getCell(i));
+            if (newValue != null) {
+                try {
+                    cProperty.getPropertyDescriptor().getWriteMethod().invoke(newObj, newValue);
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                    throw new ExcelAccessException("赋值失败,第" + excelSheetRow.getRowNum() + "行 " + cProperty.getName(),
+                            e);
+                }
+            }
+        }
+        return newObj;
     }
 
-    private void setPropertyToCell(PropertyDescriptor[] properties, T object, ExcelColumnProperty cproperty,
-            Cell cell) {
+    private void setPropertyToCell(T object, ExcelColumnProperty cproperty, Cell cell) {
         Method methodGetX;
         Object propertyValue;
         try {
-            for (PropertyDescriptor pd : properties) {
+            methodGetX = cproperty.getPropertyDescriptor().getReadMethod();
+            propertyValue = methodGetX.invoke(object);
+            if (propertyValue != null && !"".equals(propertyValue)) {
+                cell.setCellType(Cell.CELL_TYPE_STRING);
+                cell.setCellValue(ExcelConvertorSupport.convertToCellValue(cproperty, propertyValue));
+            }
+            /* for (PropertyDescriptor pd : properties) {
                 if (pd.getName().equals(cproperty.propertyName)) {
                     methodGetX = pd.getReadMethod();
                     propertyValue = methodGetX.invoke(object);
@@ -68,7 +105,7 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
                                 cproperty.fmt));
                     }
                 }
-            }
+            }*/
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new ExcelAccessException(e);
         }

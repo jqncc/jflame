@@ -10,9 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.convertor.ICellValueConvertor.CellConvertorEnum;
 import org.jflame.toolkit.exception.ConvertException;
-import org.jflame.toolkit.util.StringHelper;
 
 @SuppressWarnings("rawtypes")
 public final class ExcelConvertorSupport {
@@ -22,14 +23,21 @@ public final class ExcelConvertorSupport {
 
     static {
         // 注册默认转换器
+        defaultConvertors.put(String.class, new StringConvertor());
         defaultConvertors.put(boolean.class, new BoolConvertor());
         defaultConvertors.put(Boolean.class, new BoolConvertor());
-        defaultConvertors.put(byte.class, new NumberConvertor(Byte.class));
-        defaultConvertors.put(short.class, new NumberConvertor(Short.class));
-        defaultConvertors.put(int.class, new NumberConvertor(Integer.class));
-        defaultConvertors.put(long.class, new NumberConvertor(Long.class));
-        defaultConvertors.put(float.class, new NumberConvertor(Float.class));
-        defaultConvertors.put(double.class, new NumberConvertor(Double.class));
+        defaultConvertors.put(byte.class, new NumberConvertor(byte.class));
+        defaultConvertors.put(Byte.class, new NumberConvertor(Byte.class));
+        defaultConvertors.put(short.class, new NumberConvertor(short.class));
+        defaultConvertors.put(Short.class, new NumberConvertor(Short.class));
+        defaultConvertors.put(int.class, new NumberConvertor(int.class));
+        defaultConvertors.put(Integer.class, new NumberConvertor(Integer.class));
+        defaultConvertors.put(long.class, new NumberConvertor(long.class));
+        defaultConvertors.put(Long.class, new NumberConvertor(Long.class));
+        defaultConvertors.put(float.class, new NumberConvertor(float.class));
+        defaultConvertors.put(Float.class, new NumberConvertor(Float.class));
+        defaultConvertors.put(double.class, new NumberConvertor(double.class));
+        defaultConvertors.put(Double.class, new NumberConvertor(Double.class));
         defaultConvertors.put(BigDecimal.class, new NumberConvertor(BigDecimal.class));
         defaultConvertors.put(BigInteger.class, new NumberConvertor(BigInteger.class));
         defaultConvertors.put(java.sql.Date.class, new DateConvertor(java.sql.Date.class));
@@ -87,22 +95,25 @@ public final class ExcelConvertorSupport {
     /**
      * 使用指定名称转换器，将java属性值转为excel单元格值,未找到转换器返回toString()
      * 
-     * @param convertorName 转换器名称
+     * @param property ExcelColumnProperty
      * @param value excel单元格值
-     * @param format 格式
      * @throws ConvertException 转换器未找到或转换异常
      * @return 转换后字符串
      */
     @SuppressWarnings({ "unchecked" })
-    public static String convertToCellValue(final String convertorName, final Object value, final String format) {
+    public static String convertToCellValue(final ExcelColumnProperty property, final Object value) {
+        if (value == null) {
+            return "";
+        }
         ICellValueConvertor convertor;
-        if (StringUtils.isNotEmpty(convertorName) && !CellConvertorEnum.none.name().equals(convertorName)) {
-            convertor = getConvertor(convertorName);
+        if (property != null && StringUtils.isNotEmpty(property.getConvert())
+                && !CellConvertorEnum.none.name().equals(property.getConvert())) {
+            convertor = getConvertor(property.getConvert());
             if (convertor != null) {
-                return convertor.convertToExcel(value, format);
+                return convertor.convertToExcel(value, property.getFmt());
             }
         } else {
-            Class valueClazz = value.getClass();
+            Class<?> valueClazz = property.getPropertyDescriptor().getPropertyType();
             Object newValue = null;
             if (valueClazz == Calendar.class) {
                 valueClazz = Date.class;
@@ -110,7 +121,7 @@ public final class ExcelConvertorSupport {
             }
             convertor = getDefaultConvertor(valueClazz);
             if (convertor != null) {
-                return convertor.convertToExcel(newValue == null ? value : newValue, format);
+                return convertor.convertToExcel(newValue == null ? value : newValue, property.getFmt());
             }
         }
         return String.valueOf(value);
@@ -119,31 +130,53 @@ public final class ExcelConvertorSupport {
     /**
      * 转换excel单元格值到java属性,转换器或java属性类型必须指定一个
      * 
-     * @param convertorName 转换器名称
-     * @param propertyClass java属性类型
-     * @param fmt 格式
-     * @param cellValue excel单元格值
+     * @param property ExcelColumnProperty
+     * @param cell excel单元格
      * @return java属性值
      */
-    public static Object convertValueFromCellValue(final String convertorName, final Class<?> propertyClass,
-            final String fmt, final Object cellValue) {
-        if (StringHelper.isEmpty(convertorName) && propertyClass == null) {
-            throw new ConvertException("参数convertorName，propertyClass必须存在一个");
+    public static Object convertValueFromCellValue(final ExcelColumnProperty property, final Cell cell) {
+        if (cell == null) {
+            return null;
         }
+
         ICellValueConvertor convertor;
-        if (StringUtils.isNotEmpty(convertorName)) {
-            convertor = getConvertor(convertorName);
+        Object cellValue = getCellValue(cell);
+        if (StringUtils.isNotEmpty(property.getConvert())
+                && !CellConvertorEnum.none.name().equals(property.getConvert())) {
+            convertor = getConvertor(property.getConvert());
             if (convertor != null) {
-                return convertor.convertFromExcel(cellValue, fmt);
+                return convertor.convertFromExcel(cellValue, property.getFmt());
             }
         }
-        if (propertyClass != null) {
-            convertor = getDefaultConvertor(propertyClass);
-            if (convertor != null) {
-                return convertor.convertFromExcel(cellValue, fmt);
-            }
+        convertor = getDefaultConvertor(property.getPropertyDescriptor().getPropertyType());
+        if (convertor != null) {
+            return convertor.convertFromExcel(cellValue, property.getFmt());
         }
+
         return String.valueOf(cellValue);
+    }
+
+    /**
+     * @param curCell
+     * @return
+     */
+    public static Object getCellValue(Cell curCell) {
+        if (curCell == null) {
+            return null;
+        }
+        if (curCell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+            return curCell.getBooleanCellValue();
+        } else if (curCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(curCell)) {
+                return curCell.getDateCellValue();
+            } else {
+                return curCell.getNumericCellValue();
+            }
+        } else if (curCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+            return curCell.getNumericCellValue();// 公式类型取计算结果
+        } else {
+            return curCell.getStringCellValue();
+        }
     }
 
 }

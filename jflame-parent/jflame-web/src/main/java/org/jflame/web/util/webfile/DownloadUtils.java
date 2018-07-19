@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.IOHelper;
+import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils;
 
 /**
@@ -21,15 +22,19 @@ public final class DownloadUtils {
      * 
      * @param response HttpServletResponse
      * @param filePath 等下载文件
+     * @param fileShowName 文件下载名
      * @throws UploadDownException 文件不存在或I/O异常
      */
-    public static void download(HttpServletResponse response, String filePath) throws UploadDownException {
+    public static void download(HttpServletResponse response, String filePath, String fileShowName)
+            throws UploadDownException {
         ServletOutputStream out = null;
         try {
             File downFile = new File(filePath);
             if (downFile.exists() && downFile.isFile()) {
-                String name = FileHelper.getFilename(filePath);
-                WebUtils.setFileDownloadHeader(response, name, downFile.length());
+                if (StringHelper.isEmpty(fileShowName)) {
+                    fileShowName = FileHelper.getFilename(filePath);
+                }
+                WebUtils.setFileDownloadHeader(response, fileShowName, downFile.length());
                 out = response.getOutputStream();
                 IOHelper.copy(downFile, out);
                 out.flush();

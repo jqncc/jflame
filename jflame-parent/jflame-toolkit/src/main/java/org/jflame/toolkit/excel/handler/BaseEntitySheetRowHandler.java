@@ -1,8 +1,8 @@
 package org.jflame.toolkit.excel.handler;
 
-import java.beans.PropertyDescriptor;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.IExcelEntity;
 
@@ -13,7 +13,7 @@ public abstract class BaseEntitySheetRowHandler<T extends IExcelEntity> implemen
      * 
      * @return
      */
-    public abstract PropertyDescriptor[] getProperties();
+    // public abstract PropertyDescriptor[] getProperties();
 
     /**
      * 获取ExcelColumnProperty
@@ -21,4 +21,7 @@ public abstract class BaseEntitySheetRowHandler<T extends IExcelEntity> implemen
      * @return
      */
     public abstract List<ExcelColumnProperty> getColumnPropertys();
+
+    public abstract void fillRow(T rowData, Row excelSheetRow);
+
 }

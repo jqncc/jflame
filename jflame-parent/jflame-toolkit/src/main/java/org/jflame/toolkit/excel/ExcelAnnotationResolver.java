@@ -30,14 +30,13 @@ public class ExcelAnnotationResolver {
             methodGetX = propertyDescriptor.getReadMethod();
             if (methodGetX.isAnnotationPresent(clazz)) {
                 tmpAnns = methodGetX.getAnnotation(clazz);
-
                 newProperty = new ExcelColumnProperty();
-                newProperty.propertyName = propertyDescriptor.getName();
-                newProperty.convert = tmpAnns.convert();
-                newProperty.fmt = tmpAnns.fmt();
-                newProperty.name = tmpAnns.name();
-                newProperty.width = tmpAnns.width();
-                newProperty.order = tmpAnns.order();
+                newProperty.setPropertyDescriptor(propertyDescriptor);
+                newProperty.setOrder(tmpAnns.order());
+                newProperty.setConvert(tmpAnns.convert());
+                newProperty.setFmt(tmpAnns.fmt());
+                newProperty.setName(tmpAnns.name());
+                newProperty.setWidth(tmpAnns.width());
                 as.add(newProperty);
             }
         }
@@ -46,7 +45,7 @@ public class ExcelAnnotationResolver {
     }
 
     /**
-     * 获取指定属性名的属性.
+     * 获取指定属性名的属性.排序按照propertyNames的顺序
      * 
      * @param properties bean属性描述对象
      * @param propertyNames 指定的属性名数据组
@@ -65,17 +64,16 @@ public class ExcelAnnotationResolver {
                     methodGetX = pd.getReadMethod();
                     if (methodGetX != null) {
                         newProperty = new ExcelColumnProperty();
-                        newProperty.propertyName = property;
+                        newProperty.setPropertyDescriptor(pd);
                         if (methodGetX.isAnnotationPresent(clazz)) {
                             tmpAnns = methodGetX.getAnnotation(clazz);
-                            newProperty.convert = tmpAnns.convert();
-                            newProperty.fmt = tmpAnns.fmt();
-                            newProperty.name = tmpAnns.name();
-                            newProperty.width = tmpAnns.width();
+                            newProperty.setConvert(tmpAnns.convert());
+                            newProperty.setFmt(tmpAnns.fmt());
+                            newProperty.setName(tmpAnns.name());
+                            newProperty.setWidth(tmpAnns.width());
                         }
-                        newProperty.order = i++;
+                        newProperty.setOrder(i++);
                         as.add(newProperty);
-                        break;
                     }
                 }
             }

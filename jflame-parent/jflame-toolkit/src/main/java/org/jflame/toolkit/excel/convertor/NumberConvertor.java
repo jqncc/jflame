@@ -26,8 +26,22 @@ public class NumberConvertor implements ICellValueConvertor<Number> {
         if (cellValue == null) {
             return null;
         }
-        if ((cellValue instanceof Double)) {
-            return (Double) cellValue;
+        // excel数据都是转为double
+        if (cellValue instanceof Double) {
+            Double db = (Double) cellValue;
+            if (numberClass == Double.class || numberClass == double.class) {
+                return db;
+            } else if (numberClass == Integer.class || numberClass == int.class) {
+                return db.intValue();
+            } else if (numberClass == Short.class || numberClass == short.class) {
+                return db.shortValue();
+            } else if (numberClass == Byte.class || numberClass == byte.class) {
+                return db.byteValue();
+            } else if (numberClass == Long.class || numberClass == long.class) {
+                return db.longValue();
+            } else if (numberClass == Float.class || numberClass == float.class) {
+                return db.floatValue();
+            }
         }
         String text = StringUtils.trimToEmpty(cellValue.toString());
         try {

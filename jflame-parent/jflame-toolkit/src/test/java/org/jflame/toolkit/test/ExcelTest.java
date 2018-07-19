@@ -12,12 +12,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.ExcelImportor;
-import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
 import org.jflame.toolkit.test.entity.Pet;
 
 import junit.framework.Test;
@@ -48,6 +47,7 @@ public class ExcelTest extends TestCase {
     /**
      * 实体类导出到文件流
      */
+    @org.junit.Test
     public void testExport() {
         List<Pet> pets = new ArrayList<>(5);
         for (int i = 0; i < 300; i++) {
@@ -112,8 +112,9 @@ public class ExcelTest extends TestCase {
      */
     @org.junit.Test
     public void testImport() throws IOException {
-        FileInputStream in = new FileInputStream("e:\\1.xls");
-        Workbook wb = new HSSFWorkbook(in);
+        FileInputStream in = new FileInputStream("e:\\documents\\1.xlsx");
+        Workbook wb = new XSSFWorkbook(in);// HSSFWorkbook
+        in.close();
         ExcelImportor xlsImport = new ExcelImportor();
         xlsImport.setStepValid(false);
         xlsImport.setStartRowIndex(1);
@@ -125,16 +126,11 @@ public class ExcelTest extends TestCase {
             }
 
         } catch (ExcelAccessException e) {
+            e.printStackTrace();
             Map<Integer,String> xMap = xlsImport.getErrorMap();
             System.out.println(xMap.values().toString());
         }
         // List<Integer> resultIndexs=xlsImport.getCurRowIndexs();
     }
 
-    @org.junit.Test
-    public void testConvertor() {
-        Date x = new Date();
-        String s = ExcelConvertorSupport.convertToCellValue(null, x, null);
-        System.out.println(s);
-    }
 }

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
 
 /**
@@ -18,6 +19,22 @@ import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
 public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String,Object>> {
 
     private String[] excludeKeys;// 需要排除的键,即不写入excel
+    private String[] importKeys;
+
+    public MapSheetRowHandler() {
+    }
+
+    /**
+     * 构造
+     * 
+     * @param keys 导入时的map keys,顺序跟excel列一致
+     */
+    public MapSheetRowHandler(String[] keys) {
+        if (keys == null || keys.length == 0) {
+            throw new ExcelAccessException("未指定要导入的map keys");
+        }
+        importKeys = keys;
+    }
 
     @Override
     public void fillRow(LinkedHashMap<String,Object> rowData, Row excelSheetRow) {
@@ -36,7 +53,15 @@ public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String
 
     @Override
     public LinkedHashMap<String,Object> extractRow(Row excelSheetRow) {
-        return null;
+        if (importKeys == null || importKeys.length == 0) {
+            throw new ExcelAccessException("未指定要导入的map keys");
+        }
+        LinkedHashMap<String,Object> dataMap = new LinkedHashMap<>();
+        for (int i = 0; i < importKeys.length; i++) {
+            dataMap.put(importKeys[i],
+                    ExcelConvertorSupport.getCellValue(excelSheetRow.getCell(i, Row.RETURN_NULL_AND_BLANK)));
+        }
+        return dataMap;
     }
 
     boolean isExcude(String key) {
@@ -49,7 +74,7 @@ public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String
 
     void setValueToCell(Object propertyValue, Cell cell) {
         cell.setCellType(Cell.CELL_TYPE_STRING);
-        cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, propertyValue,null));
+        cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, propertyValue));
     }
 
     public void setExcludeKeys(String[] excludeKeys) {

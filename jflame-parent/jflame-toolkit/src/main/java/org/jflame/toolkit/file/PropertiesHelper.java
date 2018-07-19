@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Properties文件载入工具类. 可载入多个properties文件. 相同的属性在最后载入的文件中的值将会覆盖之前的值，但以System的Property优先.
+ * Properties文件载入工具类. 可载入多个properties文件. 相同的属性在最后载入的文件中的值将会覆盖之前的值
  * 
  * @author yucan.zhang
  */
@@ -53,28 +52,21 @@ public final class PropertiesHelper {
      * @param key 属性名
      */
     private String getValue(String key) {
-        String systemProperty = System.getProperty(key);
-        if (systemProperty != null) {
-            return systemProperty;
-        }
         return properties.getProperty(key);
     }
 
     /**
-     * 取出String类型的属性,如果都为Null则抛出异常.
+     * 取出String类型的属性
      * 
      * @param key 属性名
      */
     public String getProperty(String key) {
         String value = getValue(key);
-        if (value == null) {
-            throw new NoSuchElementException("未配置属性:" + key);
-        }
         return value;
     }
 
     /**
-     * 取出String类型的属性.如果都为Null则返回Default值.
+     * 取出String类型的属性
      * 
      * @param key 属性名
      * @param defaultValue 默认值
@@ -91,10 +83,7 @@ public final class PropertiesHelper {
      */
     public Integer getInteger(String key) {
         String value = getValue(key);
-        if (value == null) {
-            throw new NoSuchElementException("未配置属性:" + key);
-        }
-        return Integer.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Integer.valueOf(value);
     }
 
     /**
@@ -105,20 +94,17 @@ public final class PropertiesHelper {
      */
     public Integer getInteger(String key, Integer defaultValue) {
         String value = getValue(key);
-        return value != null ? Integer.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Integer.valueOf(value) : defaultValue;
     }
 
     /**
-     * 取出Double类型的属性.如果都为Null或内容错误则抛出异常.
+     * 取出Double类型的属性.
      * 
      * @param key 属性名
      */
     public Double getDouble(String key) {
         String value = getValue(key);
-        if (value == null) {
-            throw new NoSuchElementException("未配置属性:" + key);
-        }
-        return Double.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Double.valueOf(value);
     }
 
     /**
@@ -129,7 +115,7 @@ public final class PropertiesHelper {
      */
     public Double getDouble(String key, Integer defaultValue) {
         String value = getValue(key);
-        return value != null ? Double.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Double.valueOf(value) : defaultValue;
     }
 
     /**
@@ -139,10 +125,7 @@ public final class PropertiesHelper {
      */
     public Boolean getBoolean(String key) {
         String value = getValue(key);
-        if (value == null) {
-            throw new NoSuchElementException("未配置属性:" + key);
-        }
-        return Boolean.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Boolean.valueOf(value);
     }
 
     /**
@@ -153,7 +136,7 @@ public final class PropertiesHelper {
      */
     public Boolean getBoolean(String key, boolean defaultValue) {
         String value = getValue(key);
-        return value != null ? Boolean.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Boolean.valueOf(value) : defaultValue;
     }
 
     /**

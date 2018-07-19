@@ -20,11 +20,11 @@ public class StringConvertor implements ICellValueConvertor<String> {
             formator.setGroupingUsed(false);// 不分组，避免科学计数等
             value = formator.format(cellValue);
         } else if (cellValue instanceof Date) {
-            value = DateHelper.format((Date) cellValue, DateHelper.YYYY_MM_DD_HH_mm_ss);
+            value = DateHelper.format((Date) cellValue, pattern == null ? DateHelper.YYYY_MM_DD_HH_mm_ss : pattern);
         } else {
             value = String.valueOf(cellValue);
         }
-        return value;
+        return value == null ? null : value.trim();
     }
 
     @Override
@@ -39,4 +39,12 @@ public class StringConvertor implements ICellValueConvertor<String> {
     public String getConvertorName() {
         return CellConvertorEnum.string.name();
     }
+
+    /*  public static void main(String[] args) {
+        double l = 1.0;
+    
+        NumberFormat formator = NumberFormat.getInstance();
+        formator.setGroupingUsed(false);
+        System.out.println(formator.format(l));
+    }*/
 }

@@ -64,7 +64,7 @@ public final class IPAddressHelper {
         } catch (SocketException e) {
             e.printStackTrace();
         }
-        return realIPAddr != null ? realIPAddr.getHostAddress() : "";
+        return realIPAddr != null ? realIPAddr.getHostAddress() : getLocalIP();
     }
 
     /**
@@ -219,7 +219,27 @@ public final class IPAddressHelper {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(getHostIP());
+    /**
+     * 判断ip是否在指定网段内
+     * 
+     * @param ip ip地址
+     * @param ipSegment 指定网段,格式:192.168.0.0/32
+     */
+    public static boolean isInRange(String ip, String ipSegment) {
+        String[] ips = ip.split("\\.");
+        int ipAddr = (Integer.parseInt(ips[0]) << 24) | (Integer.parseInt(ips[1]) << 16)
+                | (Integer.parseInt(ips[2]) << 8) | Integer.parseInt(ips[3]);
+        int type = Integer.parseInt(ipSegment.replaceAll(".*/", ""));
+        int mask = 0xFFFFFFFF << (32 - type);
+        String cidrIp = ipSegment.replaceAll("/.*", "");
+        String[] cidrIps = cidrIp.split("\\.");
+        int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24) | (Integer.parseInt(cidrIps[1]) << 16)
+                | (Integer.parseInt(cidrIps[2]) << 8) | Integer.parseInt(cidrIps[3]);
+
+        return (ipAddr & mask) == (cidrIpAddr & mask);
     }
+
+    /*public static void main(String[] args) {
+        System.out.println(getHostIP());
+    }*/
 }

@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
+import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
 import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.ISheetRowHandler;
@@ -175,8 +176,8 @@ public class ExcelCreator {
             cell = row.createCell(i);
             cell.setCellStyle(defaultTitleStyle);
             cell.setCellType(Cell.CELL_TYPE_STRING);
-            cell.setCellValue(columns.get(i).name);
-            sheet.setColumnWidth(i, columns.get(i).width);
+            cell.setCellValue(columns.get(i).getName());
+            sheet.setColumnWidth(i, columns.get(i).getWidth());
         }
     }
 
@@ -189,14 +190,15 @@ public class ExcelCreator {
      * @param sheetRowHandler 自定义单行数据转换器,缺省使用{@link DefaultEntitySheetRowHandler}
      * @exception ExcelAccessException
      */
-    public void fillEntityData(Sheet sheet, final List<? extends IExcelEntity> dataList, final String[] propertyNames,
-            final BaseEntitySheetRowHandler<IExcelEntity> sheetRowHandler) {
-        BaseEntitySheetRowHandler<IExcelEntity> rowHandler;
+    @SuppressWarnings("unchecked")
+    public <T extends IExcelEntity> void fillEntityData(Sheet sheet, final List<T> dataList,
+            final String[] propertyNames, final BaseEntitySheetRowHandler<T> sheetRowHandler) {
+        BaseEntitySheetRowHandler<T> rowHandler;
         if (CollectionHelper.isNotEmpty(dataList)) {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
-                Class<?> dataClass = dataList.iterator().next().getClass();
+                Class<? extends IExcelEntity> dataClass = dataList.get(0).getClass();
                 PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
                 if (properties == null) {
                     throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
@@ -207,10 +209,10 @@ public class ExcelCreator {
                 } else {
                     columnPropertys = annotResolver.getColumnPropertysByName(properties, propertyNames);
                 }
-                if (columnPropertys == null || columnPropertys.isEmpty()) {
+                if (CollectionHelper.isEmpty(columnPropertys)) {
                     throw new ExcelAccessException("没有找到要导入的属性");
                 }
-                rowHandler = new DefaultEntitySheetRowHandler<>(properties, columnPropertys);
+                rowHandler = new DefaultEntitySheetRowHandler<>(columnPropertys, (Class<T>) dataClass);
             } else {
                 rowHandler = sheetRowHandler;
             }
@@ -221,7 +223,7 @@ public class ExcelCreator {
             // 填充数据
             Row row = null;
             int rowIndex = 0;
-            for (IExcelEntity rowData : dataList) {
+            for (T rowData : dataList) {
                 row = sheet.createRow(++rowIndex);
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
@@ -292,6 +294,47 @@ public class ExcelCreator {
      */
     public void fillMapData(final List<LinkedHashMap<String,Object>> data, String[] excludeKeys) {
         fillMapData(workbook.getSheetAt(0), data, excludeKeys);
+    }
+
+    /**
+     * 将Object[]数据集合填充到工作表.
+     * 
+     * @param sheet 要填充的工作表
+     * @param data List&lt;Object[]&gt;
+     */
+    public void fillArrayData(Sheet sheet, final List<Object[]> data) {
+        if (data != null && !data.isEmpty()) {
+            int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+            Row row = null;
+            ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
+            for (Object[] rowData : data) {
+                row = sheet.createRow(rowIndex++);
+                if (cellStyle != null) {
+                    row.setRowStyle(cellStyle);
+                }
+                rowHandler.fillRow(rowData, row);
+            }
+        }
+    }
+
+    /**
+     * 将Object[]数据集合填充到第一个工作表.
+     * 
+     * @param data List&lt;Object[]&gt;
+     */
+    public void fillArrayData(final List<Object[]> data) {
+        if (data != null && !data.isEmpty()) {
+            int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+            Row row = null;
+            ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
+            for (Object[] rowData : data) {
+                row = workbook.getSheetAt(0).createRow(rowIndex++);
+                if (cellStyle != null) {
+                    row.setRowStyle(cellStyle);
+                }
+                rowHandler.fillRow(rowData, row);
+            }
+        }
     }
 
     /**
