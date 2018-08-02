@@ -56,8 +56,8 @@ public class NumberConvertor implements ICellValueConvertor<Number> {
             } else {
                 return NumberHelper.parseNumber(text, numberClass);
             }
-        } catch (ParseException e) {
-            throw new ConvertException("使用格式:" + fmt + "转换失败", e);
+        } catch (ParseException | IllegalArgumentException e) {
+            throw new ConvertException("数据转换失败", e);
         }
     }
 

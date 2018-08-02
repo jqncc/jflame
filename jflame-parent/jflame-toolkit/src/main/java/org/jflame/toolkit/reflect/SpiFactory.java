@@ -42,15 +42,36 @@ public class SpiFactory {
      * 加载接口第一个实现类,每次都是新实例
      * 
      * @param serviceClazz 接口类型
-     * @return
+     * @return T
      */
     public static <T> T getBean(Class<T> serviceClazz) {
         ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceClazz);
-        Iterator<T> it = serviceLoader.iterator();
-        if (it.hasNext()) {
-            return it.next();
+        if (serviceLoader != null) {
+            Iterator<T> it = serviceLoader.iterator();
+            if (it.hasNext()) {
+                return it.next();
+            }
         }
         return null;
+    }
+
+    /**
+     * 加载接口第一个实现类,每次都是新实例,如果未指定实现类使用传入实现类生成新实例
+     * 
+     * @param interfaceClazz 接口类型
+     * @param ifnullDefaultClass 默认实现类型
+     * @return T
+     */
+    public static <T> T getBean(Class<T> interfaceClazz, Class<? extends T> ifnullDefaultClass) {
+        T t = getBean(interfaceClazz);
+        if (t == null) {
+            try {
+                t = ifnullDefaultClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return t;
     }
 
     /**

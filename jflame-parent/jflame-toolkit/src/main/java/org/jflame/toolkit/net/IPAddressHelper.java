@@ -56,15 +56,16 @@ public final class IPAddressHelper {
         try {
             allIps = getAllIPAddress();
             for (InetAddress inetAddress : allIps) {
-                realIPAddr = inetAddress;
                 if (!inetAddress.isSiteLocalAddress()) {
-                    break;
+                    return inetAddress.getHostAddress();
+                } else {
+                    realIPAddr = inetAddress;
                 }
             }
         } catch (SocketException e) {
             e.printStackTrace();
         }
-        return realIPAddr != null ? realIPAddr.getHostAddress() : getLocalIP();
+        return realIPAddr != null ? realIPAddr.getHostAddress() : null;
     }
 
     /**
@@ -77,7 +78,7 @@ public final class IPAddressHelper {
         try {
             allIps = getAllIPAddress();
             for (InetAddress inetAddress : allIps) {
-                if (inetAddress.isSiteLocalAddress()) {
+                if (inetAddress.isSiteLocalAddress() && !inetAddress.isLoopbackAddress()) {
                     return inetAddress;
                 }
             }
@@ -212,8 +213,8 @@ public final class IPAddressHelper {
             return false;
         }
         try {
-            InetAddress ipAddr = InetAddress.getByName(ip.trim());
-            return ipAddr.isSiteLocalAddress();
+            InetAddress ipAddr = InetAddress.getByName(ip);
+            return ipAddr.isSiteLocalAddress() && !ipAddr.isLoopbackAddress();
         } catch (UnknownHostException e) {
             return false;
         }

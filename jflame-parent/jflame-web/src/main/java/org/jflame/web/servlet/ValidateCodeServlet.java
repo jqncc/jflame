@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 以上属性可使用请求参数修改,对应参数如下:w=宽度,h=高度,c=字符个数,n=随机码存储名称(该名称必须在names指定的名称内). 示例:<br>
  * <br>
- * 生成宽度为120 高为30 字符数5个的验证图片 /validcode?w=120&h=30&c=5
+ * 生成宽度为120 高为30 字符数5个的验证图片 {@code /validcode?w=120&h=30&c=5}
  * 
  * @author yucan.zhang
  */

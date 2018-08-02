@@ -3,6 +3,7 @@ package org.jflame.toolkit.test.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.jflame.toolkit.valid.DynamicValid;
@@ -15,7 +16,7 @@ public class UserInfo implements Serializable {
     private static final long serialVersionUID = -1845840272344274024L;
     
     @NotNull
-    @DynamicValid(rules=ValidRule.letterNumOrline,message="用户名由字母数字或下划线组成")
+    @DynamicValid(rules= {ValidRule.letterNumOrline},message="用户名由字母数字或下划线组成",nullable=true)
     private String userName;
     @NotNull
     private String password;

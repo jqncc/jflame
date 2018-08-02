@@ -1,9 +1,12 @@
 package org.jflame.toolkit.test;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.jflame.toolkit.file.FileHelper;
 import org.junit.Test;
+
+import com.google.common.io.Files;
 
 public class IOTest {
 
@@ -15,6 +18,7 @@ public class IOTest {
         //String text = IOHelper.readString(stream, "utf-8");
         String text =FileHelper.readText("C:\\Users\\yucan.zhang\\Desktop\\new 2.txt", "utf-8");
         System.out.println(text);
+      
     }
 
     @Test

@@ -10,6 +10,7 @@ import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
+import org.jflame.toolkit.exception.ConvertException;
 
 /**
  * excel单行数据与实体bean转换处理器.
@@ -72,14 +73,17 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
                 continue;
             }
             cProperty = lstDescriptors.get(i);
-            newValue = ExcelConvertorSupport.convertValueFromCellValue(cProperty, excelSheetRow.getCell(i));
-            if (newValue != null) {
-                try {
+            try {
+                newValue = ExcelConvertorSupport.convertValueFromCellValue(cProperty, excelSheetRow.getCell(i));
+                if (newValue != null) {
                     cProperty.getPropertyDescriptor().getWriteMethod().invoke(newObj, newValue);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    throw new ExcelAccessException("赋值失败,第" + excelSheetRow.getRowNum() + "行 " + cProperty.getName(),
-                            e);
                 }
+            } catch (ConvertException e) {
+                String errMsg = String.format("第%d行,'%s'值转换失败", excelSheetRow.getRowNum(), cProperty.getName());
+                throw new ExcelAccessException(errMsg, e);
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                String errMsg = String.format("第%d行,'%s'赋值失败", excelSheetRow.getRowNum(), cProperty.getName());
+                throw new ExcelAccessException(errMsg, e);
             }
         }
         return newObj;
