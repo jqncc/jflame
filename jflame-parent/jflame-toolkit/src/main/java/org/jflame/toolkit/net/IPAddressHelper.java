@@ -45,27 +45,32 @@ public final class IPAddressHelper {
         return ips;
     }
 
+    static volatile String hostIp;
+
     /**
      * 返回本机ip地址，优先取外网地址，无外网地址返回局域网地址
      * 
      * @return
      */
     public static String getHostIP() {
-        List<InetAddress> allIps;
         InetAddress realIPAddr = null;
-        try {
-            allIps = getAllIPAddress();
-            for (InetAddress inetAddress : allIps) {
-                if (!inetAddress.isSiteLocalAddress()) {
-                    return inetAddress.getHostAddress();
-                } else {
-                    realIPAddr = inetAddress;
+        if (hostIp == null) {
+            List<InetAddress> allIps;
+            try {
+                allIps = getAllIPAddress();
+                for (InetAddress inetAddress : allIps) {
+                    if (!inetAddress.isSiteLocalAddress()) {
+                        return inetAddress.getHostAddress();
+                    } else {
+                        realIPAddr = inetAddress;
+                    }
                 }
+            } catch (SocketException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
         }
-        return realIPAddr != null ? realIPAddr.getHostAddress() : null;
+        hostIp = realIPAddr != null ? realIPAddr.getHostAddress() : null;
+        return hostIp;
     }
 
     /**
@@ -83,11 +88,13 @@ public final class IPAddressHelper {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return null;
     }
+
+    static volatile String localIp;
 
     /**
      * 获取本机局域网ip字符串,无法获取ip返回空字符
@@ -95,8 +102,11 @@ public final class IPAddressHelper {
      * @return
      */
     public static String getLocalIP() {
-        InetAddress addr = getLocalIPAddress();
-        return addr != null ? addr.getHostAddress() : "";
+        if (localIp == null) {
+            InetAddress addr = getLocalIPAddress();
+            localIp = addr != null ? addr.getHostAddress() : "";
+        }
+        return localIp;
     }
 
     /**

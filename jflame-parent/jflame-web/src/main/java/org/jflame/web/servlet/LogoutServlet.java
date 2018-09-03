@@ -54,7 +54,11 @@ public class LogoutServlet extends HttpServlet {
         if (WebUtils.isAbsoluteUrl(logoutPage)) {
             resp.sendRedirect(logoutPage);
         } else {
-            resp.sendRedirect(WebUtils.mergeUrl(request.getContextPath(), logoutPage));
+            if (logoutPage == null) {
+                resp.sendRedirect(WebUtils.getApplicationPath(request));
+            } else {
+                resp.sendRedirect(WebUtils.mergeUrl(request.getContextPath(), logoutPage));
+            }
         }
     }
 

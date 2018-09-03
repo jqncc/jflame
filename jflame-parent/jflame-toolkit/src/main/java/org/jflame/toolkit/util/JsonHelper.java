@@ -110,6 +110,17 @@ public final class JsonHelper {
     }
 
     /**
+     * 将JSON字符串反序列化为Type指定的类型
+     * 
+     * @param text JSON字符串
+     * @param type Type java类型
+     * @return
+     */
+    public static <T> T parseObject(String text, Type type) {
+        return JSON.parseObject(text, type);
+    }
+
+    /**
      * 将JSON字符串反序列化为泛型List
      * 
      * @param jsonStr json字符串

@@ -108,6 +108,38 @@ public class HttpResponse extends CallResult<byte[]> {
     }
 
     /**
+     * 返回请求结果反序列化为CallResult&lt;T&gt;
+     * 
+     * @param entityClass CallResult data的类型
+     * @return
+     */
+    public <T> CallResult<T> getResponseAsCallResult(Class<T> entityClass) {
+        return getResponseAsJson(new TypeReference<CallResult<T>>() {
+        });
+    }
+
+    /**
+     * 返回请求结果反序列化为CallResult&lt;List&lt;T&gt;&gt;
+     * 
+     * @param listElementClass CallResult data集合元素的类型
+     * @return
+     */
+    public <T> CallResult<List<T>> getResponseAsCallResultWithList(Class<T> listElementClass) {
+        return getResponseAsJson(new TypeReference<CallResult<List<T>>>() {
+        });
+    }
+
+    /**
+     * 返回是json格式,转为map
+     * 
+     * @return
+     */
+    public Map<String,Object> getResponseAsJsonMap() {
+        return getResponseAsJson(new TypeReference<Map<String,Object>>() {
+        });
+    }
+
+    /**
      * @param handler
      * @return
      */
@@ -117,8 +149,8 @@ public class HttpResponse extends CallResult<byte[]> {
 
     @Override
     public String toString() {
-        return "HttpResponse [headers=" + headers + ", charset=" + charset + ", status()=" + getStatus()
-                + ", message()=" + getMessage() + ", data()=" + getResponseAsText() + "]";
+        return "HttpResponse [headers=" + headers + ", charset=" + charset + ", status=" + getStatus() + ", message="
+                + getMessage() + ", data=" + getResponseAsText() + "]";
     }
 
 }

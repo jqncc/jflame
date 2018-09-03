@@ -246,7 +246,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
+     * 计算两个日期间隔分钟数.startTime大于endTime时返回负数<br>
      * 
      * @param startTime 时间1
      * @param endTime 时间2
@@ -262,7 +262,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔小时数.startTime小于endTime时返回负数<br>
+     * 计算两个日期间隔小时数.startTime大于endTime时返回负数<br>
      * 注:整数计算,如55分钟内为0小时,79分钟为1小时
      * 
      * @param startTime 时间1
@@ -279,7 +279,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔天数.date1小于date2时返回负数
+     * 计算两个日期间隔天数.date1大于date2时返回负数
      * 
      * @param date1 时间1
      * @param date2 时间2
@@ -338,6 +338,17 @@ public final class DateHelper {
      */
     public static boolean isSameDay(Date date1, Date date2) {
         return DateUtils.isSameDay(date1, date2);
+    }
+
+    /**
+     * 返回昨天日期
+     * 
+     * @return
+     */
+    public static Date yesterday() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        return cal.getTime();
     }
 
 }

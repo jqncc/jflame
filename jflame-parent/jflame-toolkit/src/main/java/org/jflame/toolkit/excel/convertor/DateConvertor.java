@@ -31,19 +31,18 @@ public class DateConvertor implements ICellValueConvertor<Date> {
     }
 
     @Override
-    public Date convertFromExcel(Object cellValue,final String fmt) throws ConvertException {
+    public Date convertFromExcel(Object cellValue, final String fmt) throws ConvertException {
         Date resultVal = null;
         if (cellValue instanceof Date) {
             resultVal = (Date) cellValue;
         } else {
-            if (cellValue != null) {
+            if (cellValue != null && "".equals(cellValue)) {
                 String text = StringUtils.trim(String.valueOf(cellValue));
                 if (StringUtils.isNotEmpty(fmt)) {
                     resultVal = DateHelper.parseDate(text, fmt);
                 } else {
                     resultVal = DateHelper.parseDate(String.valueOf(cellValue), DateHelper.YYYY_MM_DD_HH_mm_ss,
-                            DateHelper.YYYY_MM_DD, DateHelper.CN_YYYY_MM_DD, DateHelper.yyyyMMddHHmmss,
-                            "yyyy/MM/dd");
+                            DateHelper.YYYY_MM_DD, DateHelper.CN_YYYY_MM_DD, DateHelper.yyyyMMddHHmmss, "yyyy/MM/dd");
                 }
             }
         }

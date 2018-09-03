@@ -1,7 +1,5 @@
 package org.jflame.toolkit.util;
 
-import org.apache.commons.lang3.EnumUtils;
-
 /**
  * 枚举工具类.
  * 

@@ -23,7 +23,7 @@ public class NumberConvertor implements ICellValueConvertor<Number> {
 
     @Override
     public Number convertFromExcel(Object cellValue, final String fmt) throws ConvertException {
-        if (cellValue == null) {
+        if (cellValue == null || "".equals(cellValue)) {
             return null;
         }
         // excel数据都是转为double

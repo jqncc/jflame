@@ -14,7 +14,7 @@ public class BoolConvertor implements ICellValueConvertor<Boolean> {
         if (cellValue instanceof Boolean) {
             return (Boolean) cellValue;
         }
-        if (cellValue == null) {
+        if (cellValue == null || "".equals(cellValue)) {
             return false;
         }
         String text = StringUtils.trim(String.valueOf(cellValue));
