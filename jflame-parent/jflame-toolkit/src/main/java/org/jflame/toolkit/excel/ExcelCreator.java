@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -446,9 +447,10 @@ public class ExcelCreator {
             String[] titles, String fileName, HttpServletResponse response) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ExcelCreator.export(data, propertyNames, titles, out);
-        setFileDownloadHeader(response, fileName, out.size());
+        setFileDownloadHeader(response, fileName);
         out.writeTo(response.getOutputStream());
         out.close();
+
     }
 
     /**
@@ -461,17 +463,26 @@ public class ExcelCreator {
      */
     public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
             HttpServletResponse response) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        /* ByteArrayOutputStream out = new ByteArrayOutputStream();
         ExcelCreator.export(data, out);
         setFileDownloadHeader(response, fileName, out.size());
-        out.writeTo(response.getOutputStream());
+        out.writeTo(response.getOutputStream());*/
+
+        ExcelCreator creator = new ExcelCreator();
+        creator.createSheet();
+        creator.fillEntityData(data);
+        ServletOutputStream out = response.getOutputStream();
+        creator.write(out);
+        out.flush();
+        setFileDownloadHeader(response, fileName);
     }
 
-    private static void setFileDownloadHeader(HttpServletResponse response, String fileName, long fileSize) {
+    private static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
         String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType("applicatoin/octet-stream");
-        response.setHeader("Content-Length", String.valueOf(fileSize));
+        // response.setHeader("Content-Length", String.valueOf(fileSize));
+        response.setHeader("Transfer-Encoding", "chunked");
     }
 
     /**

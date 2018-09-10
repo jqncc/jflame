@@ -238,7 +238,7 @@ public class WebUtils {
      * @return
      */
     public static String mergeUrl(final String firstUrl, final String... relativeUrls) {
-        if (StringHelper.isEmpty(firstUrl)) {
+        if (firstUrl == null) {
             throw new IllegalArgumentException("argument 'firstUrl' must not be null");
         }
         String fullUrl = "";
@@ -257,8 +257,7 @@ public class WebUtils {
             fullUrl += url;
         }
         fullUrl = fullUrl.replace('\\', urlSplit).replaceAll("/{2,}", "/");
-
-        if (firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
+        if (firstUrl.length() > 1 && firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
             fullUrl = firstUrl + fullUrl.substring(1);
         } else {
             fullUrl = firstUrl + fullUrl;
