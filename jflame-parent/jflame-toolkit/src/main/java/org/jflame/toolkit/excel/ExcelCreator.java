@@ -1,7 +1,6 @@
 package org.jflame.toolkit.excel;
 
-import java.beans.PropertyDescriptor;
-import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
@@ -11,47 +10,46 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
 import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
 import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.ISheetRowHandler;
 import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
-import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.IOHelper;
 
 /**
- * 本类基于Apache POI封装提供Excel文件的创建,数据导出功能. 支持office2003、office2007格式文件,默认为2007.
- * <ul>
- * <li>JavaBean集合的写入，bean只需实现IExcelEntity接口(该接口只是个标志接口),并在需要导出的属性Getter方法加ExcelColumn注解,即可实现列表数据填充;</li>
- * <li>有序Map集合(通常为List&lt;LinkedHashMap&gt;)的写入,使用map作为填充数据源时,如需标题列需代码显式写入,另外数据格式上时map元素数据的类型使用默认转换器且无法对特定键指定转换器,
- * 所以推荐使用Bean集合数据源;</li>
- * <li>可自定义值转换器({@link ICellValueConvertor}),同时也可以自己控制excel行({@link ISheetRowHandler})的写入</li>
- * <li>类暴露WorkBook,Sheet对象,仍可自由写入数据</li>
- * </ul>
+ * <p>
+ * 本类基于Apache POI封装提供Excel文件(只支持office2007+格式)的创建,数据导出功能.<br>
+ * 支持数据源：实体类集合、LinkdHashMap集合、和数组.
+ * </p>
+ * <ol>
+ * <li>要导出实体类集合, Bean需实现IExcelEntity接口,IExcelEntity接口只是一个标记接口所以无需实现任何方法, 在属性或对应的get方法上作@ExcelCoumn注解指定列名格式等</li>
+ * <li>Map的导出,因为需要保证顺序所以请使用LinkdHashMap.如果您还需指定列名请在导出方法参数中单独指定</li>
+ * </ol>
  * 示例:
  * 
  * <pre>
  * {@code
- *  ExcelCreator xlsCreator=new ExcelCreator(EXCEL_VERSION.office2003);
- *  HSSFSheet sheet=xlsCreator.createSheet("sheet1");
- *  List<Pet> pets=new ArrayList<>();
- *  //填充数据集合...
- *  xlsCreator.fillEntityData(sheet,pets);
- *  FileOutPutStream out=new FileOutPutStream("xxxx.xls")
- *  //输出到文件流
- *  xlsCreator.write(out);
- *  out.close();
+ *  try(ExcelCreator xlsCreator=new ExcelCreator()){
+ *      Sheet sheet=xlsCreator.createSheet("sheet1");
+ *      List<Pet> pets=new ArrayList<>();
+ *      //填充数据集合...
+ *      xlsCreator.fillEntityData(sheet,pets);
+ *      FileOutPutStream out=new FileOutPutStream("xxxx.xlsx")
+ *      //输出到文件流
+ *      xlsCreator.write(out);
  *  }
  * </pre>
  * 
@@ -59,7 +57,12 @@ import org.jflame.toolkit.util.CollectionHelper;
  * 
  * <pre>
  * {@code 
- *  ExcelCreator.export(pets,response.getOutputStream());}
+ *  FileOutPutStream out=new FileOutPutStream("xxxx.xlsx")
+ *  ExcelCreator.export(pets,out);
+ *  //导出浏览器HttpServletResponse response
+ *  ExcelCreator.exportExcel(pets,"excelName.xlsx",response);
+ *  
+ *  }
  * </pre>
  * 
  * @see ExcelColumn
@@ -67,14 +70,16 @@ import org.jflame.toolkit.util.CollectionHelper;
  * @see ISheetRowHandler
  * @author zyc
  */
-public class ExcelCreator {
+public class ExcelCreator implements Closeable {
 
+    @Deprecated
     public enum ExcelVersion {
         office2003,
         office2007
     }
 
-    private Workbook workbook;
+    // private Workbook workbook;
+    private SXSSFWorkbook workbook;
     private CellStyle defaultTitleStyle;
     private CellStyle cellStyle;
     private CellStyle titleStyle;
@@ -86,7 +91,7 @@ public class ExcelCreator {
      * 构造函数,默认生成office2003工作表.
      */
     public ExcelCreator() {
-        this(ExcelVersion.office2007);
+        this(ExcelVersion.office2007, true);
     }
 
     /**
@@ -94,13 +99,14 @@ public class ExcelCreator {
      * 
      * @param excelVersion 要生成的excel版本
      */
+    @Deprecated
     public ExcelCreator(ExcelVersion excelVersion) {
-        if (excelVersion == ExcelVersion.office2007) {
+        /*if (excelVersion == ExcelVersion.office2007) {
             workbook = new XSSFWorkbook();
         } else {
             workbook = new HSSFWorkbook();
-        }
-        setTitleRowStyle();
+        }*/
+        this(excelVersion, true);
     }
 
     /**
@@ -110,8 +116,11 @@ public class ExcelCreator {
      * @param excelVersion excel版本
      */
     public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow) {
-        this(excelVersion);
+        workbook = new SXSSFWorkbook(500);
         isAutoCreateTitleRow = isCreateTitleRow;
+        if (isCreateTitleRow) {
+            setTitleRowStyle();
+        }
     }
 
     /**
@@ -150,7 +159,7 @@ public class ExcelCreator {
             } else {
                 cell.setCellStyle(defaultTitleStyle);
             }
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(titleNames[i]);
             sheet.setColumnWidth(i, defaultWidth);
         }
@@ -176,7 +185,7 @@ public class ExcelCreator {
         for (int i = 0; i < size; i++) {
             cell = row.createCell(i);
             cell.setCellStyle(defaultTitleStyle);
-            cell.setCellType(Cell.CELL_TYPE_STRING);
+            cell.setCellType(CellType.STRING);
             cell.setCellValue(columns.get(i).getName());
             sheet.setColumnWidth(i, columns.get(i).getWidth());
         }
@@ -200,15 +209,15 @@ public class ExcelCreator {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
                 Class<? extends IExcelEntity> dataClass = dataList.get(0).getClass();
-                PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
+                /* PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
                 if (properties == null) {
                     throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
-                }
+                }*/
                 // propertyNames为空则从实体类在提取所有
                 if (ArrayUtils.isEmpty(propertyNames)) {
-                    columnPropertys = annotResolver.getColumnPropertysByAnnons(properties);
+                    columnPropertys = annotResolver.getColumnPropertysByAnnons(dataClass);
                 } else {
-                    columnPropertys = annotResolver.getColumnPropertysByName(properties, propertyNames);
+                    columnPropertys = annotResolver.getColumnPropertysByName(dataClass, propertyNames);
                 }
                 if (CollectionHelper.isEmpty(columnPropertys)) {
                     throw new ExcelAccessException("没有找到要导入的属性");
@@ -379,15 +388,21 @@ public class ExcelCreator {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        if (workbook != null) {
+            workbook.dispose();
+        }
+    }
+
     private void setTitleRowStyle() {
         if (defaultTitleStyle == null) {
             defaultTitleStyle = workbook.createCellStyle();
         }
-        defaultTitleStyle.setAlignment(CellStyle.ALIGN_CENTER);
-
+        defaultTitleStyle.setAlignment(HorizontalAlignment.CENTER);
         org.apache.poi.ss.usermodel.Font titleCellFont = workbook.createFont();// 字体
         titleCellFont.setFontHeightInPoints((short) 12);
-        titleCellFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        titleCellFont.setBold(true);
         titleCellFont.setColor(IndexedColors.GREEN.getIndex());
         defaultTitleStyle.setFont(titleCellFont);
     }
@@ -419,38 +434,35 @@ public class ExcelCreator {
     }
 
     /**
-     * 导出实体类数据到单表的便捷方法. <br>
-     * 注:请自行关闭方法输出流
+     * 导出实体类数据到单表的便捷方法.
      * 
      * @param data 要导出数据集
-     * @param out 文件输出流,请自行关闭方法类不做处理
+     * @param out 文件输出流
+     * @param isCloseOutStream 是否关闭输出流
      * @throws IOException IOException
      */
-    public static void export(final List<? extends IExcelEntity> data, OutputStream out) throws IOException {
-        ExcelCreator creator = new ExcelCreator();
-        creator.createSheet();
-        creator.fillEntityData(data);
-        creator.write(out);
+    public static void export(final List<? extends IExcelEntity> data, OutputStream out, boolean isCloseOutStream)
+            throws IOException {
+        try (ExcelCreator creator = new ExcelCreator()) {
+            creator.createSheet();
+            creator.fillEntityData(data);
+            creator.write(out);
+            out.flush();
+            if (isCloseOutStream) {
+                IOHelper.closeQuietly(out);
+            }
+        }
     }
 
     /**
-     * Map数据生成excel文件,并输出到HttpServletResponse
+     * 导出实体类数据到单表的便捷方法.自动关闭输出流
      * 
-     * @param data 数据集Map
-     * @param propertyNames 要导出的Key
-     * @param titles 标题名与propertyNames key顺序对应
-     * @param fileName 文件名,浏览器要显示的文件名
-     * @param response HttpServletResponse
-     * @throws IOException
+     * @param data 要导出数据集
+     * @param out 文件输出流
+     * @throws IOException IOException
      */
-    public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] propertyNames,
-            String[] titles, String fileName, HttpServletResponse response) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ExcelCreator.export(data, propertyNames, titles, out);
-        setFileDownloadHeader(response, fileName);
-        out.writeTo(response.getOutputStream());
-        out.close();
-
+    public static void export(final List<? extends IExcelEntity> data, OutputStream out) throws IOException {
+        ExcelCreator.export(data, out, true);
     }
 
     /**
@@ -463,18 +475,62 @@ public class ExcelCreator {
      */
     public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
             HttpServletResponse response) throws IOException {
-        /* ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ExcelCreator.export(data, out);
-        setFileDownloadHeader(response, fileName, out.size());
-        out.writeTo(response.getOutputStream());*/
-
-        ExcelCreator creator = new ExcelCreator();
-        creator.createSheet();
-        creator.fillEntityData(data);
-        ServletOutputStream out = response.getOutputStream();
-        creator.write(out);
-        out.flush();
         setFileDownloadHeader(response, fileName);
+        ServletOutputStream out = response.getOutputStream();
+        ExcelCreator.export(data, out, false);
+    }
+
+    /**
+     * Map数据生成excel文件,并输出到HttpServletResponse
+     * 
+     * @param data 数据集 LinkedHashMap
+     * @param titles 标题名 顺序与map对应
+     * @param fileName 文件名,浏览器要显示的文件名
+     * @param response HttpServletResponse
+     * @throws IOException
+     */
+    public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] titles, String fileName,
+            HttpServletResponse response) throws IOException {
+        setFileDownloadHeader(response, fileName);
+        ServletOutputStream out = response.getOutputStream();
+        ExcelCreator.export(data, titles, out, false);
+    }
+
+    /**
+     * 导出map键值对集合数据到单表的便捷方法.<br>
+     * 
+     * @param data 要导出数据集
+     * @param titles 标题
+     * @param out 文件输出流
+     * @throws IOException IOException
+     */
+    public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out)
+            throws IOException {
+        export(data, titles, out, true);
+    }
+
+    /**
+     * 导出map键值对集合数据到单表的便捷方法.<br>
+     * 注:请自行关闭方法输出流
+     * 
+     * @param data 要导出数据集
+     * @param titles 标题
+     * @param out 输出流,请自行关闭方法类不做处理
+     * @param isCloseOutStream 是否关闭输出流
+     * @throws IOException
+     */
+    public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out,
+            boolean isCloseOutStream) throws IOException {
+        try (ExcelCreator creator = new ExcelCreator()) {
+            creator.createSheet();
+            creator.createTitleRow(titles);
+            creator.fillMapData(data, new String[0]);
+            creator.write(out);
+            out.flush();
+            if (isCloseOutStream) {
+                IOHelper.closeQuietly(out);
+            }
+        }
     }
 
     private static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
@@ -484,38 +540,4 @@ public class ExcelCreator {
         // response.setHeader("Content-Length", String.valueOf(fileSize));
         response.setHeader("Transfer-Encoding", "chunked");
     }
-
-    /**
-     * 导出map键值对集合数据到单表的便捷方法.<br>
-     * 注:请自行关闭方法输出流
-     * 
-     * @param data 要导出数据集
-     * @param titles 标题
-     * @param out 文件输出流,请自行关闭方法类不做处理
-     * @throws IOException IOException
-     */
-    public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out)
-            throws IOException {
-        export(data, new String[0], titles, out);
-    }
-
-    /**
-     * 导出map键值对集合数据到单表的便捷方法.<br>
-     * 注:请自行关闭方法输出流
-     * 
-     * @param data 要导出数据集
-     * @param exculdeKeyNames 要排除的键名
-     * @param titles 标题
-     * @param out 输出流,请自行关闭方法类不做处理
-     * @throws IOException
-     */
-    public static void export(final List<LinkedHashMap<String,Object>> data, String[] exculdeKeyNames, String[] titles,
-            OutputStream out) throws IOException {
-        ExcelCreator creator = new ExcelCreator();
-        creator.createSheet();
-        creator.createTitleRow(titles);
-        creator.fillMapData(data, exculdeKeyNames);
-        creator.write(out);
-    }
-
 }

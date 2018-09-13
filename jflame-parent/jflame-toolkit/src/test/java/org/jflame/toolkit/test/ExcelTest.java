@@ -1,7 +1,6 @@
 package org.jflame.toolkit.test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -12,12 +11,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.ExcelImportor;
-import org.jflame.toolkit.test.entity.Pet;
+import org.jflame.toolkit.test.entity.Cat;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -49,17 +46,24 @@ public class ExcelTest extends TestCase {
      */
     @org.junit.Test
     public void testExport() {
-        List<Pet> pets = new ArrayList<>(5);
-        for (int i = 0; i < 300; i++) {
-            Pet p = new Pet("pet " + i, i + 20, "肤色 " + i, new Date(), 3.4 + i);
+        List<Cat> pets = new ArrayList<>(300);
+        Cat p = null;
+        for (int i = 0; i < 2000; i++) {
+            p = new Cat();
+            p.setAge(i);
+            p.setBirthday(new Date());
+            p.setMoney(i * 2.3);
+            p.setName("猫咪名" + i);
+            p.setStreak(i % 2 == 0 ? "灰白相间" : "纯白");
+            p.setSkin("猫的皮肤");
+            p.setWeight(5.4f * i);
             p.setCreateDate(new Date());
             pets.add(p);
         }
-        ExcelCreator creator = new ExcelCreator();
-        creator.createSheet();
-        creator.fillEntityData(pets);
-        File f = new File("D:\\datacenter\\1.xls");
-        try {
+        File f = new File("D:\\datacenter\\2.xlxs");
+        try (ExcelCreator creator = new ExcelCreator()) {
+            creator.createSheet();
+            creator.fillEntityData(pets);
             if (!f.exists()) {
                 f.createNewFile();
             }
@@ -92,13 +96,13 @@ public class ExcelTest extends TestCase {
             m.put("salary", new BigDecimal("322" + i));
             pets.add(m);
         }
-        File f = new File("e:\\2.xls");
+        File f = new File("D:\\datacenter\\map.xls");
         try {
             if (!f.exists()) {
                 f.createNewFile();
             }
             FileOutputStream out = new FileOutputStream(f);
-            ExcelCreator.export(pets, new String[]{ "name","age","skin","salary","birthday","abc" }, out);
+            ExcelCreator.export(pets, new String[]{ "age","name","birthday","skin","salary" }, out);
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,23 +116,21 @@ public class ExcelTest extends TestCase {
      */
     @org.junit.Test
     public void testImport() throws IOException {
-        FileInputStream in = new FileInputStream("e:\\documents\\1.xlsx");
-        Workbook wb = new XSSFWorkbook(in);// HSSFWorkbook
-        in.close();
-        ExcelImportor xlsImport = new ExcelImportor();
-        xlsImport.setStepValid(false);
-        xlsImport.setStartRowIndex(1);
-        try {
-            LinkedHashSet<Pet> results = xlsImport.importSheet(wb.getSheetAt(0), Pet.class);
-            for (Pet pet : results) {
-                System.out.println(pet.getName() + ",age:" + pet.getAge() + ",skin:" + pet.getSkin() + ",money:"
-                        + pet.getMoney() + ",birthday:" + pet.getBirthday());
-            }
+        try (ExcelImportor xlsImport = new ExcelImportor("D:\\datacenter\\2.xlsx")) {
+            xlsImport.setStepValid(false);
+            xlsImport.setStartRowIndex(1);
+            try {
+                LinkedHashSet<Cat> results = xlsImport.importSheet(Cat.class);
+                for (Cat pet : results) {
+                    System.out.println(pet.getName() + ",age:" + pet.getAge() + ",skin:" + pet.getSkin() + ",money:"
+                            + pet.getMoney() + ",birthday:" + pet.getBirthday());
+                }
 
-        } catch (ExcelAccessException e) {
-            e.printStackTrace();
-            Map<Integer,String> xMap = xlsImport.getErrorMap();
-            System.out.println(xMap.values().toString());
+            } catch (ExcelAccessException e) {
+                e.printStackTrace();
+                Map<Integer,String> xMap = xlsImport.getErrorMap();
+                System.out.println(xMap.values().toString());
+            }
         }
         // List<Integer> resultIndexs=xlsImport.getCurRowIndexs();
     }

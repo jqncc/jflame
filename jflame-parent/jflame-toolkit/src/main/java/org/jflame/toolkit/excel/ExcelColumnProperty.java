@@ -10,7 +10,6 @@ import java.beans.PropertyDescriptor;
 public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
 
     private PropertyDescriptor propertyDescriptor;
-    // protected String propertyName;
     private String name;
     private int order;
     private int width = 256 * 20;

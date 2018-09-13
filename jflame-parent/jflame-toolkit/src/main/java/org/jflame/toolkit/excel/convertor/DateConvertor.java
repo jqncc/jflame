@@ -1,9 +1,9 @@
 package org.jflame.toolkit.excel.convertor;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.util.DateHelper;
 
@@ -36,13 +36,13 @@ public class DateConvertor implements ICellValueConvertor<Date> {
         if (cellValue instanceof Date) {
             resultVal = (Date) cellValue;
         } else {
-            if (cellValue != null && "".equals(cellValue)) {
+            if (cellValue != null && !StringUtils.EMPTY.equals(cellValue)) {
                 String text = StringUtils.trim(String.valueOf(cellValue));
                 if (StringUtils.isNotEmpty(fmt)) {
                     resultVal = DateHelper.parseDate(text, fmt);
                 } else {
-                    resultVal = DateHelper.parseDate(String.valueOf(cellValue), DateHelper.YYYY_MM_DD_HH_mm_ss,
-                            DateHelper.YYYY_MM_DD, DateHelper.CN_YYYY_MM_DD, DateHelper.yyyyMMddHHmmss, "yyyy/MM/dd");
+                    resultVal = DateHelper.parseDate(text, DateHelper.YYYY_MM_DD_HH_mm_ss, DateHelper.YYYY_MM_DD,
+                            DateHelper.CN_YYYY_MM_DD, DateHelper.yyyyMMddHHmmss, "yyyy/MM/dd");
                 }
             }
         }
@@ -59,8 +59,8 @@ public class DateConvertor implements ICellValueConvertor<Date> {
 
     @Override
     public String convertToExcel(Date value, final String fmt) throws ConvertException {
-        SimpleDateFormat datFormator = new SimpleDateFormat();
-
+        /*SimpleDateFormat datFormator = new SimpleDateFormat();
+        
         if (StringUtils.isNotEmpty(fmt)) {
             try {
                 datFormator.applyPattern(fmt);
@@ -70,7 +70,8 @@ public class DateConvertor implements ICellValueConvertor<Date> {
         } else {
             datFormator.applyPattern(DateHelper.YYYY_MM_DD_HH_mm_ss);
         }
-        return datFormator.format(value);
+        return datFormator.format(value);*/
+        return DateFormatUtils.format(value, StringUtils.isNotEmpty(fmt) ? fmt : DateHelper.YYYY_MM_DD_HH_mm_ss);
     }
 
     public String getConvertorName() {

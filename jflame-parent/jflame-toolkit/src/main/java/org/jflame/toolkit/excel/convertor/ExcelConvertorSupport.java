@@ -3,7 +3,6 @@ package org.jflame.toolkit.excel.convertor;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.convertor.ICellValueConvertor.CellConvertorEnum;
 import org.jflame.toolkit.exception.ConvertException;
@@ -43,6 +43,7 @@ public final class ExcelConvertorSupport {
         defaultConvertors.put(java.sql.Date.class, new DateConvertor(java.sql.Date.class));
         defaultConvertors.put(java.util.Date.class, new DateConvertor(java.util.Date.class));
         defaultConvertors.put(java.sql.Timestamp.class, new DateConvertor(java.sql.Timestamp.class));
+        defaultConvertors.put(Calendar.class, new CalendarConvertor());
     }
 
     /**
@@ -103,28 +104,22 @@ public final class ExcelConvertorSupport {
     @SuppressWarnings({ "unchecked" })
     public static String convertToCellValue(final ExcelColumnProperty property, final Object value) {
         if (value == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
-        ICellValueConvertor convertor;
-        if (property != null && StringUtils.isNotEmpty(property.getConvert())
-                && !CellConvertorEnum.none.name().equals(property.getConvert())) {
-            convertor = getConvertor(property.getConvert());
-            if (convertor != null) {
-                return convertor.convertToExcel(value, property.getFmt());
+        ICellValueConvertor convertor = null;
+        if (property != null) {
+            if (StringUtils.isNotEmpty(property.getConvert())
+                    && !CellConvertorEnum.none.name().equals(property.getConvert())) {
+                convertor = getConvertor(property.getConvert());
+            }
+            if (convertor == null) {
+                convertor = getDefaultConvertor(property.getPropertyDescriptor().getPropertyType());
             }
         } else {
-            Class<?> valueClazz = property.getPropertyDescriptor().getPropertyType();
-            Object newValue = null;
-            if (valueClazz == Calendar.class) {
-                valueClazz = Date.class;
-                newValue = ((Calendar) value).getTime();
-            }
-            convertor = getDefaultConvertor(valueClazz);
-            if (convertor != null) {
-                return convertor.convertToExcel(newValue == null ? value : newValue, property.getFmt());
-            }
+            convertor = getDefaultConvertor(value.getClass());
         }
-        return String.valueOf(value);
+        return convertor != null ? convertor.convertToExcel(value, property != null ? property.getFmt() : null)
+                : String.valueOf(value);
     }
 
     /**
@@ -134,11 +129,10 @@ public final class ExcelConvertorSupport {
      * @param cell excel单元格
      * @return java属性值
      */
-    public static Object convertValueFromCellValue(final ExcelColumnProperty property, final Cell cell) {
+    public static Object extractFromCellValue(final ExcelColumnProperty property, final Cell cell) {
         if (cell == null) {
             return null;
         }
-
         ICellValueConvertor convertor;
         Object cellValue = getCellValue(cell);
         if (StringUtils.isNotEmpty(property.getConvert())
@@ -152,8 +146,7 @@ public final class ExcelConvertorSupport {
         if (convertor != null) {
             return convertor.convertFromExcel(cellValue, property.getFmt());
         }
-
-        return String.valueOf(cellValue);
+        return cellValue;
     }
 
     /**
@@ -164,16 +157,20 @@ public final class ExcelConvertorSupport {
         if (curCell == null) {
             return null;
         }
-        if (curCell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
+        if (curCell.getCellTypeEnum() == CellType.BOOLEAN) {
             return curCell.getBooleanCellValue();
-        } else if (curCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        } else if (curCell.getCellTypeEnum() == CellType.NUMERIC) {
             if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(curCell)) {
                 return curCell.getDateCellValue();
             } else {
                 return curCell.getNumericCellValue();
             }
-        } else if (curCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+        } else if (curCell.getCellTypeEnum() == CellType.FORMULA) {
             return curCell.getNumericCellValue();// 公式类型取计算结果
+        } else if (curCell.getCellTypeEnum() == CellType._NONE) {
+            return null;
+        } else if (curCell.getCellTypeEnum() == CellType.BLANK) {
+            return StringUtils.EMPTY;
         } else {
             return curCell.getStringCellValue();
         }

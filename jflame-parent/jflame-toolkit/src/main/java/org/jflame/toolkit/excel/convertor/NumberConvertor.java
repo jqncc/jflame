@@ -43,7 +43,6 @@ public class NumberConvertor implements ICellValueConvertor<Number> {
                 return db.floatValue();
             }
         }
-        String text = StringUtils.trimToEmpty(cellValue.toString());
         try {
             if (StringUtils.isNotEmpty(fmt)) {
                 DecimalFormat formator = new DecimalFormat();
@@ -51,10 +50,10 @@ public class NumberConvertor implements ICellValueConvertor<Number> {
                 formator.applyPattern(fmt);
                 formator.setGroupingUsed(false);
 
-                Number number = formator.parse(text);
+                Number number = formator.parse(cellValue.toString().trim());
                 return NumberHelper.convertNumberToSubclass(number, this.numberClass);
             } else {
-                return NumberHelper.parseNumber(text, numberClass);
+                return NumberHelper.parseNumber(cellValue.toString(), numberClass);
             }
         } catch (ParseException | IllegalArgumentException e) {
             throw new ConvertException("数据转换失败", e);

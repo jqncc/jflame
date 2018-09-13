@@ -1,7 +1,7 @@
 package org.jflame.toolkit.excel;
 
-import java.beans.PropertyDescriptor;
-import java.io.FileInputStream;
+import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,8 +25,6 @@ import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
 import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
 import org.jflame.toolkit.excel.validator.DefaultValidator;
 import org.jflame.toolkit.excel.validator.IValidator;
-import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,23 +37,23 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  * 
- * ExcelImportor xlsImport = new ExcelImportor();
- * xlsImport.setStepValid(false);
- * xlsImport.setStartRowIndex(1);
- * try {
- *     LinkedHashSet&lt;Pet&gt; results = xlsImport.importSheet(sheet1, Pet.class);
- * } catch (ExcelAccessException e) {
- *     xlsImport.getErrorMap();// 错误信息
+ * try (ExcelImportor xlsImport = new ExcelImportor()) {
+ *     xlsImport.setStepValid(false);
+ *     xlsImport.setStartRowIndex(1);
+ *     try {
+ *         LinkedHashSet&lt;Pet&gt; results = xlsImport.importSheet(sheet1, Pet.class);
+ *     } catch (ExcelAccessException e) {
+ *         xlsImport.getErrorMap();// 错误信息
+ *     }
+ *     List&lt;Integer&gt; resultIndexs = xlsImport.getCurRowIndexs();
  * }
- * List&lt;Integer&gt; resultIndexs = xlsImport.getCurRowIndexs();
- * 
  * </pre>
  * 
  * @see ExcelColumn
  * @see ExcelConvertorSupport#registerConvertor(ICellValueConvertor...)
  * @author zyc
  */
-public class ExcelImportor {
+public class ExcelImportor implements Closeable {
 
     private final Logger log = LoggerFactory.getLogger(ExcelImportor.class);
     private boolean stepValid = true;// 是否执行单行验证,验证失败即中断
@@ -63,6 +63,7 @@ public class ExcelImportor {
     private List<Integer> curRowIndexs = new ArrayList<Integer>();
     private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
     private Workbook workbook;
+    private OPCPackage pkg;
 
     public ExcelImportor() {
     }
@@ -74,13 +75,19 @@ public class ExcelImportor {
      * @throws ExcelAccessException
      */
     public ExcelImportor(String excelFile) throws ExcelAccessException {
-        try (FileInputStream xlsStream = new FileInputStream(excelFile)) {
-            if ("xls".equals(FileHelper.getExtension(excelFile, false))) {
-                workbook = new HSSFWorkbook(xlsStream);
-            } else {
-                workbook = new XSSFWorkbook(xlsStream);
-            }
-        } catch (IOException e) {
+        try {
+            pkg = OPCPackage.open(excelFile, PackageAccess.READ);
+            workbook = new XSSFWorkbook(pkg);
+        } catch (InvalidFormatException | IOException e) {
+            throw new ExcelAccessException("未能读取文件,或文件格式损坏," + excelFile);
+        }
+    }
+
+    public ExcelImportor(File excelFile) throws ExcelAccessException {
+        try {
+            pkg = OPCPackage.open(excelFile, PackageAccess.READ);
+            workbook = new XSSFWorkbook(pkg);
+        } catch (IOException | InvalidFormatException e) {
             throw new ExcelAccessException("未能读取文件,或文件格式损坏," + excelFile);
         }
     }
@@ -172,11 +179,11 @@ public class ExcelImportor {
         curRowIndexs.clear();
         errorMap.clear();
         if (sheetRowHandler == null) {
-            PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
+            /* PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
             if (properties == null) {
                 throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
-            }
-            List<ExcelColumnProperty> lstDescriptors = annotResolver.getColumnPropertysByAnnons(properties);
+            }*/
+            List<ExcelColumnProperty> lstDescriptors = annotResolver.getColumnPropertysByAnnons(dataClass);
 
             if (CollectionHelper.isEmpty(lstDescriptors)) {
                 throw new ExcelAccessException("没有找到要转换的属性");
@@ -187,13 +194,14 @@ public class ExcelImportor {
         }
 
         Row curRow;
+        T newObj = null;
         Iterator<Row> rowIterator = sheet.rowIterator();
         while (rowIterator.hasNext()) {
             curRow = rowIterator.next();
             if (curRow.getRowNum() < startRowIndex) {
                 continue;
             }
-            T newObj = rowHandler.extractRow(curRow);
+            newObj = rowHandler.extractRow(curRow);
             // 单行验证
             if (stepValid) {
                 if (!validator.valid(newObj, curRow.getRowNum())) {
@@ -253,96 +261,6 @@ public class ExcelImportor {
         return results;
     }
 
-    /*  private Object getCellValue(Cell curCell) {
-        if (curCell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
-            return curCell.getBooleanCellValue();
-        } else if (curCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(curCell)) {
-                return curCell.getDateCellValue();
-            } else {
-                return curCell.getNumericCellValue();
-            }
-        } else if (curCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-            return curCell.getNumericCellValue();// 公式类型取计算结果
-        } else {
-            return curCell.getStringCellValue();
-        }
-    }*/
-
-    /*private List<ColumnProperty> getColumnDescriptorsByName(final PropertyDescriptor[] properties,
-            final String[] propertyNames) {
-        List<ColumnProperty> lstDescriptors = new ArrayList<>(propertyNames.length);
-        PropertyDescriptor tmProperty;
-        ExcelColumn ec;
-        for (String pname : propertyNames) {
-            tmProperty = getPropertyDescriptorByName(properties, pname);
-            if (tmProperty != null) {
-                ColumnProperty cp = new ColumnProperty();
-                cp.propertyDescriptor = tmProperty;
-                ec = tmProperty.getReadMethod().getAnnotation(ExcelColumn.class);
-                if (ec != null) {
-                    cp.convertor = ec.convert();
-                    cp.fmt = ec.fmt();
-                    cp.columnName = ec.name();
-                }
-                lstDescriptors.add(cp);
-            }
-        }
-        return lstDescriptors;
-    }*/
-
-    /*private PropertyDescriptor getPropertyDescriptorByName(PropertyDescriptor[] properties, String propertyName) {
-        for (PropertyDescriptor pd : properties) {
-            if (propertyName.equals(pd.getName())) {
-                return pd;
-            }
-        }
-        return null;
-    }*/
-
-    /*private List<ColumnProperty> getColumnPropertysByAnnons(PropertyDescriptor[] properties) {
-        List<ColumnProperty> as = new ArrayList<ColumnProperty>();
-        Method methodGetX;
-        final Class<ExcelColumn> clazz = ExcelColumn.class;
-        ColumnProperty newProperty;
-        ExcelColumn tmpAnns;
-        for (PropertyDescriptor propertyDescriptor : properties) {
-            methodGetX = propertyDescriptor.getReadMethod();
-            if (methodGetX.isAnnotationPresent(clazz)) {
-                tmpAnns = methodGetX.getAnnotation(clazz);
-    
-                newProperty = new ColumnProperty();
-                newProperty.propertyDescriptor = propertyDescriptor;
-                newProperty.columnName = tmpAnns.name();
-                newProperty.convertor = tmpAnns.convert();
-                newProperty.fmt = tmpAnns.fmt();
-                newProperty.order = tmpAnns.order();
-                as.add(newProperty);
-            }
-        }
-        Collections.sort(as);
-        return as;
-    }*/
-
-    // private final String convertErrTpl = "第{0}行{1},格式错误";
-
-    /* private Object convertValue(ColumnProperty colProperty, Cell curCell) {
-        Object newValue = null;
-        Object cellValue = null;
-        try {
-            cellValue = getCellValue(curCell);
-            Class<?> paramClass = colProperty.propertyDescriptor.getWriteMethod().getParameterTypes()[0];
-            newValue = ExcelConvertorSupport.convertValueFromCellValue(colProperty.convertor, paramClass,
-                    colProperty.fmt, cellValue);
-        } catch (ConvertException e) {
-            String t = StringUtils.isNotEmpty(colProperty.columnName) ? colProperty.columnName
-                    : "列" + (curCell.getColumnIndex() + 1);
-            throw new ExcelAccessException(MessageFormat.format(convertErrTpl, curCell.getRowIndex() + 1, t), e);
-        }
-    
-        return newValue;
-    }*/
-
     public boolean isStepValid() {
         return stepValid;
     }
@@ -391,20 +309,24 @@ public class ExcelImportor {
         return workbook;
     }
 
+    public Sheet getSheet(int index) {
+        return workbook.getSheetAt(index);
+    }
+
+    public Sheet getSheet(String sheetName) {
+        return workbook.getSheet(sheetName);
+    }
+
     public void setIgnoreRepeat(boolean ignoreRepeat) {
         this.ignoreRepeat = ignoreRepeat;
     }
 
-    /*    private class ColumnProperty implements Comparable<ColumnProperty> {
-    
-        public PropertyDescriptor propertyDescriptor;
-        public String convertor;
-        public String fmt;
-        public String columnName;
-        public int order;
-    
-        public int compareTo(ColumnProperty obj) {
-            return this.order - obj.order;
+    @Override
+    public void close() throws IOException {
+        if (pkg != null) {
+            workbook.close();
+            pkg.close();
         }
-    }*/
+    }
+
 }

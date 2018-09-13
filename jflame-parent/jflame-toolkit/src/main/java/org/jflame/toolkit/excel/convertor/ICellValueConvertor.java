@@ -42,6 +42,11 @@ public interface ICellValueConvertor<T> {
      * @author yucan.zhang
      */
     public enum CellConvertorEnum {
-        none,bool, date, number,string;
+        none,
+        bool,
+        date,
+        number,
+        string,
+        calendar;
     }
 }

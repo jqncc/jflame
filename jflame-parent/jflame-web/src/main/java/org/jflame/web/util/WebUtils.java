@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -322,26 +321,6 @@ public class WebUtils {
             ip = IPAddressHelper.getHostIP();
         }
         return ip;
-    }
-
-    /**
-     * 导出excel文件到浏览器
-     * 
-     * @param data 数据集Map
-     * @param propertyNames 要导出的Key
-     * @param titles 标题名与propertyNames key顺序对应
-     * @param fileName 文件名,浏览器要显示的文件名
-     * @param response
-     * @throws IOException
-     */
-    @Deprecated
-    public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] propertyNames,
-            String[] titles, String fileName, HttpServletResponse response) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ExcelCreator.export(data, propertyNames, titles, out);
-        setFileDownloadHeader(response, fileName, out.size());
-        out.writeTo(response.getOutputStream());
-        out.close();
     }
 
     /**

@@ -76,19 +76,19 @@ public final class NumberHelper {
         }
         String trimmed = StringUtils.trim(text);
 
-        if (Byte.class == targetClass) {
+        if (Byte.class == targetClass || byte.class == targetClass) {
             return (T) (isHexNumber(trimmed) ? Byte.decode(trimmed) : Byte.valueOf(trimmed));
-        } else if (Short.class == targetClass) {
+        } else if (Short.class == targetClass || short.class == targetClass) {
             return (T) (isHexNumber(trimmed) ? Short.decode(trimmed) : Short.valueOf(trimmed));
-        } else if (Integer.class == targetClass) {
+        } else if (Integer.class == targetClass || int.class == targetClass) {
             return (T) (isHexNumber(trimmed) ? Integer.decode(trimmed) : Integer.valueOf(trimmed));
-        } else if (Long.class == targetClass) {
+        } else if (Long.class == targetClass || long.class == targetClass) {
             return (T) (isHexNumber(trimmed) ? Long.decode(trimmed) : Long.valueOf(trimmed));
         } else if (BigInteger.class == targetClass) {
             return (T) (isHexNumber(trimmed) ? decodeBigInteger(trimmed) : new BigInteger(trimmed));
-        } else if (Float.class == targetClass) {
+        } else if (Float.class == targetClass || float.class == targetClass) {
             return (T) Float.valueOf(trimmed);
-        } else if (Double.class == targetClass) {
+        } else if (Double.class == targetClass || double.class == targetClass) {
             return (T) Double.valueOf(trimmed);
         } else if (BigDecimal.class == targetClass || Number.class == targetClass) {
             return (T) new BigDecimal(trimmed);
@@ -112,25 +112,25 @@ public final class NumberHelper {
 
         if (targetClass.isInstance(number)) {
             return (T) number;
-        } else if (Byte.class == targetClass) {
+        } else if (Byte.class == targetClass || byte.class == targetClass) {
             long value = number.longValue();
             if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
                 throw new IllegalArgumentException("值" + number + "超出范围" + targetClass.getName());
             }
             return (T) Byte.valueOf(number.byteValue());
-        } else if (Short.class == targetClass) {
+        } else if (Short.class == targetClass || short.class == targetClass) {
             long value = number.longValue();
             if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
                 throw new IllegalArgumentException("值" + number + "超出范围" + targetClass.getName());
             }
             return (T) Short.valueOf(number.shortValue());
-        } else if (Integer.class == targetClass) {
+        } else if (Integer.class == targetClass || int.class == targetClass) {
             long value = number.longValue();
             if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
                 throw new IllegalArgumentException("值" + number + "超出范围" + targetClass.getName());
             }
             return (T) Integer.valueOf(number.intValue());
-        } else if (Long.class == targetClass) {
+        } else if (Long.class == targetClass || long.class == targetClass) {
             BigInteger bigInt = null;
             if (number instanceof BigInteger) {
                 bigInt = (BigInteger) number;
@@ -152,9 +152,9 @@ public final class NumberHelper {
                 // original value is not a Big* number - use standard long conversion
                 return (T) BigInteger.valueOf(number.longValue());
             }
-        } else if (Float.class == targetClass) {
+        } else if (Float.class == targetClass || float.class == targetClass) {
             return (T) Float.valueOf(number.floatValue());
-        } else if (Double.class == targetClass) {
+        } else if (Double.class == targetClass || double.class == targetClass) {
             return (T) Double.valueOf(number.doubleValue());
         } else if (BigDecimal.class == targetClass) {
             // always use BigDecimal(String) here to avoid unpredictability of BigDecimal(double)

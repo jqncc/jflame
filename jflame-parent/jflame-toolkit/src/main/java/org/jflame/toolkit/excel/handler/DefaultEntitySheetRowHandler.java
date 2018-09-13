@@ -1,10 +1,11 @@
 package org.jflame.toolkit.excel.handler;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
@@ -19,9 +20,9 @@ import org.jflame.toolkit.exception.ConvertException;
  */
 public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEntitySheetRowHandler<T> {
 
-    // PropertyDescriptor[] properties = null;
-    List<ExcelColumnProperty> columnPropertys = null;
+    private List<ExcelColumnProperty> columnPropertys = null;
     private Class<T> entityClazz;
+    private int propertySize;
 
     /**
      * 构造函数
@@ -30,26 +31,33 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
      * @param dataClass 数据类型
      */
     public DefaultEntitySheetRowHandler(List<ExcelColumnProperty> columnPropertys, Class<T> dataClass) {
-        // this.properties = properties;
         this.columnPropertys = columnPropertys;
         this.entityClazz = dataClass;
+        propertySize = columnPropertys.size();
     }
+
+    private Cell currentCell = null;
+    private Object currentValue;
+    private ExcelColumnProperty currentProperty;
+    private int cellIndex = 0;
 
     @Override
     public void fillRow(T rowData, Row excelSheetRow) {
-        Cell cell = null;
-        int cellIndex = 0;
-        int size = columnPropertys.size();
-        for (cellIndex = 0; cellIndex < size; cellIndex++) {
-            cell = excelSheetRow.createCell(cellIndex);
-            setPropertyToCell(rowData, columnPropertys.get(cellIndex), cell);
+        cellIndex = 0;
+        for (cellIndex = 0; cellIndex < propertySize; cellIndex++) {
+            currentCell = excelSheetRow.createCell(cellIndex);
+            currentProperty = columnPropertys.get(cellIndex);
+            try {
+                currentValue = currentProperty.getPropertyDescriptor().getReadMethod().invoke(rowData);
+                if (currentValue != null && !StringUtils.EMPTY.equals(currentValue)) {
+                    currentCell.setCellType(CellType.STRING);
+                    currentCell.setCellValue(ExcelConvertorSupport.convertToCellValue(currentProperty, currentValue));
+                }
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                throw new ExcelAccessException(e);
+            }
         }
     }
-
-    /* @Override
-    public PropertyDescriptor[] getProperties() {
-        return properties;
-    }*/
 
     @Override
     public List<ExcelColumnProperty> getColumnPropertys() {
@@ -64,55 +72,30 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ExcelAccessException("failed to new instance for " + entityClazz, e);
         }
-        List<ExcelColumnProperty> lstDescriptors = getColumnPropertys();
-        int size = lstDescriptors.size();
-        ExcelColumnProperty cProperty;
-        Object newValue = null;
-        for (int i = 0; i < size; i++) {
-            if (excelSheetRow.getCell(i) == null) {
+        // List<ExcelColumnProperty> lstDescriptors = getColumnPropertys();
+        // int size = columnPropertys.size();
+        // ExcelColumnProperty cProperty;
+        currentValue = null;
+        for (cellIndex = 0; cellIndex < propertySize; cellIndex++) {
+            if (excelSheetRow.getCell(cellIndex) == null) {
                 continue;
             }
-            cProperty = lstDescriptors.get(i);
+            currentProperty = columnPropertys.get(cellIndex);
             try {
-                newValue = ExcelConvertorSupport.convertValueFromCellValue(cProperty, excelSheetRow.getCell(i));
-                if (newValue != null) {
-                    cProperty.getPropertyDescriptor().getWriteMethod().invoke(newObj, newValue);
+                currentValue = ExcelConvertorSupport.extractFromCellValue(currentProperty,
+                        excelSheetRow.getCell(cellIndex));
+                if (currentValue != null) {
+                    currentProperty.getPropertyDescriptor().getWriteMethod().invoke(newObj, currentValue);
                 }
             } catch (ConvertException e) {
-                String errMsg = String.format("第%d行,'%s'值转换失败", excelSheetRow.getRowNum(), cProperty.getName());
+                String errMsg = String.format("第%d行,'%s'值转换失败", excelSheetRow.getRowNum(), currentProperty.getName());
                 throw new ExcelAccessException(errMsg, e);
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                String errMsg = String.format("第%d行,'%s'赋值失败", excelSheetRow.getRowNum(), cProperty.getName());
+                String errMsg = String.format("第%d行,'%s'赋值失败", excelSheetRow.getRowNum(), currentProperty.getName());
                 throw new ExcelAccessException(errMsg, e);
             }
         }
         return newObj;
-    }
-
-    private void setPropertyToCell(T object, ExcelColumnProperty cproperty, Cell cell) {
-        Method methodGetX;
-        Object propertyValue;
-        try {
-            methodGetX = cproperty.getPropertyDescriptor().getReadMethod();
-            propertyValue = methodGetX.invoke(object);
-            if (propertyValue != null && !"".equals(propertyValue)) {
-                cell.setCellType(Cell.CELL_TYPE_STRING);
-                cell.setCellValue(ExcelConvertorSupport.convertToCellValue(cproperty, propertyValue));
-            }
-            /* for (PropertyDescriptor pd : properties) {
-                if (pd.getName().equals(cproperty.propertyName)) {
-                    methodGetX = pd.getReadMethod();
-                    propertyValue = methodGetX.invoke(object);
-                    if (propertyValue != null && !"".equals(propertyValue)) {
-                        cell.setCellType(Cell.CELL_TYPE_STRING);
-                        cell.setCellValue(ExcelConvertorSupport.convertToCellValue(cproperty.convert, propertyValue,
-                                cproperty.fmt));
-                    }
-                }
-            }*/
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new ExcelAccessException(e);
-        }
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
@@ -36,30 +37,36 @@ public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String
         importKeys = keys;
     }
 
+    private int cellIndex;
+    private Cell cell;
+    private Entry<String,Object> entry;
+    private Iterator<Entry<String,Object>> it;
+
     @Override
     public void fillRow(LinkedHashMap<String,Object> rowData, Row excelSheetRow) {
-        int cellIndex = 0;
-        Cell cell;
-        Iterator<Entry<String,Object>> it = rowData.entrySet().iterator();
-        Entry<String,Object> entry;
+        it = rowData.entrySet().iterator();
+        cellIndex = 0;
         while (it.hasNext()) {
             entry = it.next();
             if (!isExcude(entry.getKey())) {
                 cell = excelSheetRow.createCell(cellIndex++);
-                setValueToCell(entry.getValue(), cell);
+                cell.setCellType(CellType.STRING);
+                cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, entry.getValue()));
             }
         }
     }
+
+    private LinkedHashMap<String,Object> dataMap = null;
 
     @Override
     public LinkedHashMap<String,Object> extractRow(Row excelSheetRow) {
         if (importKeys == null || importKeys.length == 0) {
             throw new ExcelAccessException("未指定要导入的map keys");
         }
-        LinkedHashMap<String,Object> dataMap = new LinkedHashMap<>();
-        for (int i = 0; i < importKeys.length; i++) {
-            dataMap.put(importKeys[i],
-                    ExcelConvertorSupport.getCellValue(excelSheetRow.getCell(i, Row.RETURN_NULL_AND_BLANK)));
+        dataMap = new LinkedHashMap<>();
+        for (cellIndex = 0; cellIndex < importKeys.length; cellIndex++) {
+            dataMap.put(importKeys[cellIndex], ExcelConvertorSupport
+                    .getCellValue(excelSheetRow.getCell(cellIndex, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK)));
         }
         return dataMap;
     }
@@ -70,11 +77,6 @@ public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String
         } else {
             return ArrayUtils.contains(excludeKeys, key);
         }
-    }
-
-    void setValueToCell(Object propertyValue, Cell cell) {
-        cell.setCellType(Cell.CELL_TYPE_STRING);
-        cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, propertyValue));
     }
 
     public void setExcludeKeys(String[] excludeKeys) {
