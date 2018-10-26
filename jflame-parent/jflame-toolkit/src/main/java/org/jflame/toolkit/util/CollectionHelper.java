@@ -48,7 +48,9 @@ public final class CollectionHelper {
      */
     @SuppressWarnings("unchecked")
     public static <E> E[] toArray(Collection<E> collection) {
-        E[] arr = (E[]) Array.newInstance(collection.iterator().next().getClass(), collection.size());
+        E[] arr = (E[]) Array.newInstance(collection.iterator()
+                .next()
+                .getClass(), collection.size());
         return collection.toArray(arr);
     }
 
@@ -73,7 +75,8 @@ public final class CollectionHelper {
         int len = newSet.size();
         int i = 0;
 
-        final Class<?> type1 = arr1.getClass().getComponentType();
+        final Class<?> type1 = arr1.getClass()
+                .getComponentType();
         T[] joinedArray = (T[]) Array.newInstance(type1, len);
 
         for (T t : newSet) {
@@ -124,6 +127,9 @@ public final class CollectionHelper {
      * @return string
      */
     public static <E> String toString(Collection<E> collection) {
+        if (collection == null) {
+            return null;
+        }
         return StringUtils.join(collection, ',');
     }
 

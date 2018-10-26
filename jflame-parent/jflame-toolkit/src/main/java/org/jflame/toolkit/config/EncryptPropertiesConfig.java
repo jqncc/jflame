@@ -1,4 +1,4 @@
-package org.jflame.web.config;
+package org.jflame.toolkit.config;
 
 import java.util.Arrays;
 

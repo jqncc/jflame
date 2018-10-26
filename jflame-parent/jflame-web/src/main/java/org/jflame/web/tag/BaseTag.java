@@ -6,8 +6,8 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import org.jflame.toolkit.config.ISysConfig;
 import org.jflame.toolkit.reflect.SpiFactory;
-import org.jflame.web.config.ISysConfig;
 
 
 public abstract class BaseTag extends SimpleTagSupport  {

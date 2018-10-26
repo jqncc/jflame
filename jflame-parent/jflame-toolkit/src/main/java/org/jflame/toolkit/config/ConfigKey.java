@@ -1,4 +1,4 @@
-package org.jflame.web.config;
+package org.jflame.toolkit.config;
 
 /**
  * 配置参数封装类

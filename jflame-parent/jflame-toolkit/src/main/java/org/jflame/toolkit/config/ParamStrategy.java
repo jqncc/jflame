@@ -1,5 +1,5 @@
 
-package org.jflame.web.config;
+package org.jflame.toolkit.config;
 
 public interface ParamStrategy {
 

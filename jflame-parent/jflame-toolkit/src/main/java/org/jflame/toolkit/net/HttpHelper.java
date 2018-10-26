@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -186,6 +185,9 @@ public final class HttpHelper {
                 }
             }
             response = getResponse(conn);
+        } catch (IOException e) {
+            response.setStatus(1000);
+            response.setMessage(e.getMessage());
         } catch (Exception e) {
             response.setStatus(HttpURLConnection.HTTP_INTERNAL_ERROR);
             response.setMessage(e.getMessage());
@@ -323,11 +325,16 @@ public final class HttpHelper {
             if (CollectionHelper.isNotEmpty(params)) {
                 for (NameValuePair paramKv : params) {
                     if (StringHelper.isNotEmpty(paramKv.getKey())) {
-                        paramStrBuf.append(prefix).append(boundary).append(newLine);
-                        paramStrBuf.append("Content-Disposition: form-data; name=\"").append(paramKv.getKey())
-                                .append("\"").append(newLine);
+                        paramStrBuf.append(prefix)
+                                .append(boundary)
+                                .append(newLine);
+                        paramStrBuf.append("Content-Disposition: form-data; name=\"")
+                                .append(paramKv.getKey())
+                                .append("\"")
+                                .append(newLine);
                         paramStrBuf.append(newLine);
-                        paramStrBuf.append(paramKv.getValue()).append(newLine);
+                        paramStrBuf.append(paramKv.getValue())
+                                .append(newLine);
                     }
                 }
                 IOHelper.writeText(paramStrBuf.toString(), outStream, getCharset());
@@ -338,20 +345,30 @@ public final class HttpHelper {
                     if (StringHelper.isEmpty(fileParam.getKey())) {
                         throw new IllegalArgumentException("表单文件域名称不能为空", null);
                     }
-                    if (!fileParam.getValue().exists()) {
-                        throw new FileNotFoundException("文件不存在:" + fileParam.getValue().getName());
+                    if (!fileParam.getValue()
+                            .exists()) {
+                        throw new FileNotFoundException("文件不存在:" + fileParam.getValue()
+                                .getName());
                     }
                     paramStrBuf.setLength(0);
-                    paramStrBuf.append(prefix).append(boundary).append(newLine);
-                    paramStrBuf.append("Content-Disposition: form-data; name=\"").append(fileParam.getKey())
-                            .append("\";");
-                    paramStrBuf.append("filename=\"").append(fileParam.getValue().getName()).append("\"")
+                    paramStrBuf.append(prefix)
+                            .append(boundary)
                             .append(newLine);
-                    paramStrBuf.append("Content-Type: application/octet-stream; charset=").append(getCharset())
+                    paramStrBuf.append("Content-Disposition: form-data; name=\"")
+                            .append(fileParam.getKey())
+                            .append("\";");
+                    paramStrBuf.append("filename=\"")
+                            .append(fileParam.getValue()
+                                    .getName())
+                            .append("\"")
+                            .append(newLine);
+                    paramStrBuf.append("Content-Type: application/octet-stream; charset=")
+                            .append(getCharset())
                             .append(newLine);
                     paramStrBuf.append(newLine);
                     IOHelper.writeText(paramStrBuf.toString(), outStream, getCharset());
-                    try (InputStream fileStream = Files.newInputStream(fileParam.getValue().toPath())) {
+                    try (InputStream fileStream = Files.newInputStream(fileParam.getValue()
+                            .toPath())) {
                         IOHelper.copy(fileStream, outStream);
                     } catch (IOException e) {
                         throw e;
@@ -663,7 +680,8 @@ public final class HttpHelper {
         if (cookieName != null) {
             HttpCookie cookie = new HttpCookie(cookieName, cookieValue);
             try {
-                cookieManager.getCookieStore().add(new URL(requestUrl).toURI(), cookie);
+                cookieManager.getCookieStore()
+                        .add(new URL(requestUrl).toURI(), cookie);
             } catch (URISyntaxException | MalformedURLException e) {
                 throw new RuntimeException("设置cookie失败,url不正确", e);
             }
@@ -672,11 +690,15 @@ public final class HttpHelper {
 
     String getCookies(URI uri) {
         // List<HttpCookie> cookiess = cookieManager.getCookieStore().getCookies();
-        List<HttpCookie> cookies = cookieManager.getCookieStore().get(uri);
+        List<HttpCookie> cookies = cookieManager.getCookieStore()
+                .get(uri);
         if (cookies != null) {
             StringBuilder strBuf = new StringBuilder();
             for (HttpCookie httpCookie : cookies) {
-                strBuf.append(';').append(httpCookie.getName()).append('=').append(httpCookie.getValue());
+                strBuf.append(';')
+                        .append(httpCookie.getName())
+                        .append('=')
+                        .append(httpCookie.getValue());
             }
             if (strBuf.length() > 1) {
                 strBuf.deleteCharAt(0);
@@ -697,8 +719,11 @@ public final class HttpHelper {
             StringBuilder strBuf = new StringBuilder(20);
             try {
                 for (NameValuePair kv : params) {
-                    strBuf.append('&').append(kv.getKey()).append('=')
-                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                    strBuf.append('&')
+                            .append(kv.getKey())
+                            .append('=')
+                            .append(URLEncoder.encode(kv.getValue()
+                                    .toString(), StandardCharsets.UTF_8.name()));
                 }
             } catch (UnsupportedEncodingException e) {
                 // ignore
@@ -720,8 +745,11 @@ public final class HttpHelper {
             StringBuilder strBuf = new StringBuilder(20);
             try {
                 for (Entry<String,Object> kv : params.entrySet()) {
-                    strBuf.append('&').append(kv.getKey()).append('=')
-                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                    strBuf.append('&')
+                            .append(kv.getKey())
+                            .append('=')
+                            .append(URLEncoder.encode(kv.getValue()
+                                    .toString(), StandardCharsets.UTF_8.name()));
                 }
             } catch (UnsupportedEncodingException e) {
                 // ignore
@@ -812,7 +840,8 @@ public final class HttpHelper {
         if (this.requestProperty.getHeaders() == null) {
             this.requestProperty.setHeaders(headers);
         } else {
-            this.requestProperty.getHeaders().putAll(headers);
+            this.requestProperty.getHeaders()
+                    .putAll(headers);
         }
         return this;
     }
@@ -824,10 +853,7 @@ public final class HttpHelper {
      * @param value header field value
      */
     public HttpHelper addHeader(String headField, String value) {
-        if (this.requestProperty.getHeaders() == null) {
-            this.requestProperty.setHeaders(new HashMap<String,String>());
-        }
-        this.requestProperty.getHeaders().put(headField, value);
+        this.requestProperty.addHeader(headField, value);
         return this;
     }
 

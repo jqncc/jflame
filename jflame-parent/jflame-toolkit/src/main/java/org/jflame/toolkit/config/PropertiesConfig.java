@@ -1,4 +1,4 @@
-package org.jflame.web.config;
+package org.jflame.toolkit.config;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -97,7 +97,7 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
      * @param paramKey 参数名
      * @param value 参数值
      */
-    public void addParam(String paramKey, Object value) {
+    public void addParam(Object paramKey, Object value) {
         properties.put(paramKey, value);
     }
 
@@ -106,7 +106,7 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
      * 
      * @param m 参数map
      */
-    public void addParams(Map<String,? extends Object> m) {
+    public void addParams(Map<? extends Object,? extends Object> m) {
         properties.putAll(m);
     }
 

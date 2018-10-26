@@ -11,9 +11,9 @@ import javax.servlet.http.HttpSession;
 
 import org.jflame.toolkit.common.bean.CallResult;
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
+import org.jflame.toolkit.config.DefaultConfigKeys;
+import org.jflame.toolkit.config.ServletParamConfig;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.DefaultConfigKeys;
-import org.jflame.web.config.ServletParamConfig;
 import org.jflame.web.util.WebUtils;
 
 @SuppressWarnings("serial")

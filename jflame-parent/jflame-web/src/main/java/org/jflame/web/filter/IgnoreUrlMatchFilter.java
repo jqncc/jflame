@@ -10,9 +10,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.jflame.toolkit.config.DefaultConfigKeys;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.config.DefaultConfigKeys;
 import org.jflame.web.util.WebUtils;
 
 /**

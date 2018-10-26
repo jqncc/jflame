@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.1.3-beta</version>
+		<version>1.1.4-beta</version>
 	</parent>
 
 	<dependencies>
@@ -36,17 +36,11 @@
 			<optional>true</optional>
 		</dependency>
 		<!-- excel操作 start -->
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>3.17</version>
-			<optional>true</optional>
-		</dependency>
-		<!-- office2007 -->
+
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.17</version>
+			<version>4.0.0</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- excel end -->
@@ -116,17 +110,4 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

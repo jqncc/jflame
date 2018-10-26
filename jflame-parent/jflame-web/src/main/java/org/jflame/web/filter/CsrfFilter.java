@@ -18,10 +18,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jflame.toolkit.config.DefaultConfigKeys;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.toolkit.valid.ValidatorHelper;
-import org.jflame.web.config.DefaultConfigKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

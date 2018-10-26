@@ -8,7 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.jflame.web.config.ConfigKey;
+import org.jflame.toolkit.config.ConfigKey;
 
 public class CharacterEncodingFilter extends OncePerRequestFilter {
 

@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.jflame.web.config.FilterParamConfig;
+import org.jflame.toolkit.config.FilterParamConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

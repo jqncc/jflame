@@ -1,4 +1,4 @@
-package org.jflame.web.config;
+package org.jflame.toolkit.config;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.jflame.toolkit.util.NumberHelper;

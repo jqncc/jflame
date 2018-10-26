@@ -1,5 +1,6 @@
 package org.jflame.toolkit.net.http;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jflame.toolkit.net.HttpHelper.HttpMethod;
@@ -97,6 +98,13 @@ public class RequestProperty {
 
     public void setHeaders(Map<String,String> headers) {
         this.headers = headers;
+    }
+
+    public void addHeader(String headField, String value) {
+        if (headers == null) {
+            headers = new HashMap<>();
+        }
+        headers.put(headField, value);
     }
 
 }

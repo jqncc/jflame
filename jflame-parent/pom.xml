@@ -22,7 +22,7 @@
 		<version.jstl>1.2</version.jstl>
 		<version.servlet>3.0.1</version.servlet>
 		<version.jsp>2.2.1-b03</version.jsp>
-		<version.jdk>1.7</version.jdk>
+		<version.jdk>1.8</version.jdk>
 		<version.fileupload>1.3</version.fileupload>
 	</properties>
 	<dependencies>
@@ -62,6 +62,15 @@
 	<!-- <dependencyManagement> <dependencies> </dependencies> </dependencyManagement> -->
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${version.jdk}</source>
+					<target>${version.jdk}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
 			<!-- sources源码包插件 -->
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>

@@ -68,7 +68,7 @@ public class ExcelAnnotationResolver {
     /**
      * 获取指定属性名的属性.排序按照propertyNames的顺序
      * 
-     * @paramdataClass Class&lt;? extends IExcelEntity&gt;
+     * @param dataClass Class&lt;? extends IExcelEntity&gt;
      * @param propertyNames 指定的属性名数据组
      * @return excel column注解属性
      */
@@ -84,7 +84,8 @@ public class ExcelAnnotationResolver {
         PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
         for (String property : propertyNames) {
             for (PropertyDescriptor pd : properties) {
-                if (pd.getName().equals(property)) {
+                if (pd.getName()
+                        .equals(property)) {
                     tmpAnns = null;
                     tmpReadMethod = pd.getReadMethod();
                     if (tmpReadMethod.isAnnotationPresent(clazz)) {

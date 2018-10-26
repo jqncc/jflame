@@ -51,6 +51,7 @@ import org.jflame.toolkit.util.IOHelper;
  *      //输出到文件流
  *      xlsCreator.write(out);
  *  }
+ *  }
  * </pre>
  * 
  * 静态方法示例:
@@ -186,8 +187,10 @@ public class ExcelCreator implements Closeable {
             cell = row.createCell(i);
             cell.setCellStyle(defaultTitleStyle);
             cell.setCellType(CellType.STRING);
-            cell.setCellValue(columns.get(i).getName());
-            sheet.setColumnWidth(i, columns.get(i).getWidth());
+            cell.setCellValue(columns.get(i)
+                    .getName());
+            sheet.setColumnWidth(i, columns.get(i)
+                    .getWidth());
         }
     }
 
@@ -208,7 +211,8 @@ public class ExcelCreator implements Closeable {
             if (sheetRowHandler == null) {
                 /* 获取有ExcelColumn注解的属性 */
                 List<ExcelColumnProperty> columnPropertys = null;
-                Class<? extends IExcelEntity> dataClass = dataList.get(0).getClass();
+                Class<? extends IExcelEntity> dataClass = dataList.get(0)
+                        .getClass();
                 /* PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
                 if (properties == null) {
                     throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
@@ -338,7 +342,8 @@ public class ExcelCreator implements Closeable {
             Row row = null;
             ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
             for (Object[] rowData : data) {
-                row = workbook.getSheetAt(0).createRow(rowIndex++);
+                row = workbook.getSheetAt(0)
+                        .createRow(rowIndex++);
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }

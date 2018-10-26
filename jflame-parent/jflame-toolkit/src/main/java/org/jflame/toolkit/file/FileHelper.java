@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 
@@ -86,7 +87,8 @@ public final class FileHelper {
      */
     public static String getFilename(final String filePath) {
         Path p = Paths.get(filePath);
-        return p.getFileName().toString();
+        return p.getFileName()
+                .toString();
     }
 
     /**
@@ -104,7 +106,7 @@ public final class FileHelper {
                 return includePoint ? (filename.substring(i)).toLowerCase() : (filename.substring(i + 1)).toLowerCase();
             }
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -347,7 +349,8 @@ public final class FileHelper {
      * @return 返回文件流InputStream
      */
     public static InputStream readFileFromClassPath(String filePath) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        ClassLoader classLoader = Thread.currentThread()
+                .getContextClassLoader();
         if (classLoader == null) {
             classLoader = FileHelper.class.getClassLoader();
         }
