@@ -2,6 +2,9 @@ package org.jflame.toolkit.util;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -256,6 +259,22 @@ public final class DateHelper {
      * @param endTime 时间2
      * @return
      */
+    public static long intervalSecond(Date startTime, Date endTime) {
+        long differTime = endTime.getTime() - startTime.getTime();
+        if (differTime > 0) {
+            return TimeUnit.MILLISECONDS.toSeconds(differTime);
+        } else {
+            return 0 - TimeUnit.MILLISECONDS.toSeconds(Math.abs(differTime));
+        }
+    }
+
+    /**
+     * 计算两个日期间隔分钟数.startTime大于endTime时返回负数<br>
+     * 
+     * @param startTime 时间1
+     * @param endTime 时间2
+     * @return
+     */
     public static long intervalMinutes(Date startTime, Date endTime) {
         long differTime = endTime.getTime() - startTime.getTime();
         if (differTime > 0) {
@@ -353,6 +372,32 @@ public final class DateHelper {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         return cal.getTime();
+    }
+
+    /**
+     * Instant转Date
+     * 
+     * @param instant
+     * @return
+     */
+    public static Date from(Instant instant) {
+        try {
+            return new Date(instant.toEpochMilli());
+        } catch (ArithmeticException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+    /**
+     * Date转LocalDateTime
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDateTime toLocalDateTime(Date date) {
+        Instant instant = date.toInstant();
+        ZoneId zone = ZoneId.systemDefault();
+        return LocalDateTime.ofInstant(instant, zone);
     }
 
 }

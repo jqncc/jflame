@@ -162,7 +162,12 @@ public final class StringHelper {
         }
         StringBuilder strBuf = new StringBuilder(20);
         for (Entry<String,String> kv : paramMap.entrySet()) {
-            strBuf.append('&').append(kv.getKey()).append('=').append(kv.getValue());
+            if (kv.getValue() != null) {
+                strBuf.append('&')
+                        .append(kv.getKey())
+                        .append('=')
+                        .append(kv.getValue());
+            }
         }
         strBuf.deleteCharAt(0);
         return strBuf.toString();
@@ -430,7 +435,8 @@ public final class StringHelper {
      * @return
      */
     public static String uuid() {
-        return StringUtils.remove(UUID.randomUUID().toString(), '-');
+        return StringUtils.remove(UUID.randomUUID()
+                .toString(), '-');
     }
 
     /**

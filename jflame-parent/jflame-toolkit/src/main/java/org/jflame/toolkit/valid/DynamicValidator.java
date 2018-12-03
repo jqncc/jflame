@@ -34,10 +34,12 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
     public void initialize(DynamicValid constraintAnnotation) {
         rules = constraintAnnotation.rules();
         nullable = constraintAnnotation.nullable();
-        if (constraintAnnotation.params().length() > 1) {
+        if (constraintAnnotation.params()
+                .length() > 1) {
             paramMap = new HashMap<>();
-            if (rules.length == 1 && constraintAnnotation.params().indexOf(":") == 0) {
-                paramMap.put(rules[0].name(), new String[]{ constraintAnnotation.params() });
+            if (rules.length == 1 && constraintAnnotation.params()
+                    .indexOf(":") == 0) {
+                paramMap.put(rules[0].name(), new String[] { constraintAnnotation.params() });
             } else {
                 if (StringHelper.isNotEmpty(constraintAnnotation.params())) {
                     String paramText = StringUtils.deleteWhitespace(constraintAnnotation.params());
@@ -51,12 +53,12 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                     for (Entry<String,Object> kv : tempMap.entrySet()) {
                         if (kv.getValue() instanceof JSONObject) {
                             String v = ((JSONObject) kv.getValue()).getString(kv.getKey());
-                            paramMap.put(kv.getKey(), new String[]{ v });
+                            paramMap.put(kv.getKey(), new String[] { v });
                         } else if (kv.getValue() instanceof JSONArray) {
                             List<String> list = ((JSONArray) kv.getValue()).toJavaList(String.class);
                             paramMap.put(kv.getKey(), CollectionHelper.toArray(list));
                         } else {
-                            paramMap.put(kv.getKey(), new String[]{ String.valueOf(kv.getValue()) });
+                            paramMap.put(kv.getKey(), new String[] { String.valueOf(kv.getValue()) });
                         }
                     }
                 }
@@ -146,12 +148,12 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         for (Entry<String,Object> kv : tempMap.entrySet()) {
             if (kv.getValue() instanceof JSONObject) {
                 String v = ((JSONObject) kv.getValue()).getString(kv.getKey());
-                paramMap.put(kv.getKey(), new String[]{ v });
+                paramMap.put(kv.getKey(), new String[] { v });
             } else if (kv.getValue() instanceof JSONArray) {
                 List<String> list = ((JSONArray) kv.getValue()).toJavaList(String.class);
                 paramMap.put(kv.getKey(), CollectionHelper.toArray(list));
             } else {
-                paramMap.put(kv.getKey(), new String[]{ String.valueOf(kv.getValue()) });
+                paramMap.put(kv.getKey(), new String[] { String.valueOf(kv.getValue()) });
             }
         }
         System.out.println(paramMap);

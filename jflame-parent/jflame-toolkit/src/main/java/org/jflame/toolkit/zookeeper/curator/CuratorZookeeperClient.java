@@ -43,32 +43,36 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
      */
     public CuratorZookeeperClient(String url, String authority, int sessionTimeout, int connectionTimeout) {
         super(url);
-        Builder builder = CuratorFrameworkFactory.builder().connectString(url)
-                .retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000)).connectionTimeoutMs(connectionTimeout)
+        Builder builder = CuratorFrameworkFactory.builder()
+                .connectString(url)
+                .retryPolicy(new RetryNTimes(1000 * 60 * 60 * 2, 2000))
+                .connectionTimeoutMs(connectionTimeout)
                 .sessionTimeoutMs(sessionTimeout);
         if (authority != null && !authority.isEmpty()) {
             builder = builder.authorization("digest", authority.getBytes());
         }
         client = builder.build();
-        client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+        client.getConnectionStateListenable()
+                .addListener(new ConnectionStateListener() {
 
-            public void stateChanged(CuratorFramework client, ConnectionState state) {
-                if (state == ConnectionState.LOST) {
-                    CuratorZookeeperClient.this.stateChanged(StateListener.DISCONNECTED);
-                } else if (state == ConnectionState.CONNECTED) {
-                    CuratorZookeeperClient.this.stateChanged(StateListener.CONNECTED);
-                } else if (state == ConnectionState.RECONNECTED) {
-                    CuratorZookeeperClient.this.stateChanged(StateListener.RECONNECTED);
-                }
-            }
-        });
+                    public void stateChanged(CuratorFramework client, ConnectionState state) {
+                        if (state == ConnectionState.LOST) {
+                            CuratorZookeeperClient.this.stateChanged(StateListener.DISCONNECTED);
+                        } else if (state == ConnectionState.CONNECTED) {
+                            CuratorZookeeperClient.this.stateChanged(StateListener.CONNECTED);
+                        } else if (state == ConnectionState.RECONNECTED) {
+                            CuratorZookeeperClient.this.stateChanged(StateListener.RECONNECTED);
+                        }
+                    }
+                });
         client.start();
     }
 
     @Override
     public void delete(String path) {
         try {
-            client.delete().forPath(path);
+            client.delete()
+                    .forPath(path);
         } catch (NoNodeException e) {
             // ignore
         } catch (Exception e) {
@@ -79,7 +83,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     @Override
     public List<String> getChildren(String path) {
         try {
-            return client.getChildren().forPath(path);
+            return client.getChildren()
+                    .forPath(path);
         } catch (NoNodeException e) {
             return null;
         } catch (Exception e) {
@@ -89,7 +94,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
 
     @Override
     public boolean isConnected() {
-        return client.getZookeeperClient().isConnected();
+        return client.getZookeeperClient()
+                .isConnected();
     }
 
     @Override
@@ -111,8 +117,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
 
         public void process(WatchedEvent event) throws Exception {
             if (listener != null) {
-                listener.childChanged(event.getPath(),
-                        client.getChildren().usingWatcher(this).forPath(event.getPath()));
+                listener.childChanged(event.getPath(), client.getChildren()
+                        .usingWatcher(this)
+                        .forPath(event.getPath()));
             }
         }
     }
@@ -124,7 +131,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     @Override
     public List<String> addTargetChildListener(String path, CuratorWatcher listener) {
         try {
-            return client.getChildren().usingWatcher(listener).forPath(path);
+            return client.getChildren()
+                    .usingWatcher(listener)
+                    .forPath(path);
         } catch (NoNodeException e) {
             return null;
         } catch (Exception e) {
@@ -139,7 +148,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     @Override
     public boolean isExist(String path) {
         try {
-            return client.checkExists().forPath(path) != null;
+            return client.checkExists()
+                    .forPath(path) != null;
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
@@ -149,9 +159,13 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     public String create(String path, Serializable data, CreateMode mode) {
         try {
             if (data != null) {
-                return client.create().withMode(mode).forPath(path);
+                return client.create()
+                        .withMode(mode)
+                        .forPath(path);
             } else {
-                return client.create().withMode(mode).forPath(path, SerializationUtils.serialize(data));
+                return client.create()
+                        .withMode(mode)
+                        .forPath(path, SerializationUtils.serialize(data));
             }
         } catch (NodeExistsException e) {
             return path;
@@ -163,7 +177,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     @Override
     public Object getData(String path) {
         try {
-            byte[] nodeData = client.getData().forPath(path);
+            byte[] nodeData = client.getData()
+                    .forPath(path);
             if (nodeData != null) {
                 return SerializationUtils.deserialize(nodeData);
             }
@@ -173,6 +188,10 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
+    }
+
+    public CuratorFramework getClient() {
+        return client;
     }
 
 }

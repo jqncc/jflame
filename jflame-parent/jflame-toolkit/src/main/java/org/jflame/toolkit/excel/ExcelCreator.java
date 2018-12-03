@@ -255,7 +255,14 @@ public class ExcelCreator implements Closeable {
      * @param propertyNames 数据对象的属性名,顺序应与标题对应
      */
     public <T> void fillEntityData(final List<? extends IExcelEntity> data, String[] propertyNames) {
-        fillEntityData(getSheet(0), data, propertyNames, null);
+        Sheet sheet;
+        try {
+            sheet = getSheet(0);
+        } catch (IllegalArgumentException e) {
+            sheet = createSheet();
+        }
+
+        fillEntityData(sheet, data, propertyNames, null);
     }
 
     /**
@@ -264,7 +271,13 @@ public class ExcelCreator implements Closeable {
      * @param data 数据集
      */
     public void fillEntityData(final List<? extends IExcelEntity> data) {
-        fillEntityData(getSheet(0), data, null, null);
+        Sheet sheet;
+        try {
+            sheet = getSheet(0);
+        } catch (IllegalArgumentException e) {
+            sheet = createSheet();
+        }
+        fillEntityData(sheet, data, null, null);
     }
 
     /**
@@ -480,6 +493,13 @@ public class ExcelCreator implements Closeable {
      */
     public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
             HttpServletResponse response) throws IOException {
+        // ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        // ExcelCreator.export(data, outStream, false);
+        // ServletOutputStream out = response.getOutputStream();
+        // setFileDownloadHeader(response, fileName, outStream.size());
+        // out.write(outStream.toByteArray());
+        // out.flush();
+        response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
         ExcelCreator.export(data, out, false);
@@ -496,6 +516,13 @@ public class ExcelCreator implements Closeable {
      */
     public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] titles, String fileName,
             HttpServletResponse response) throws IOException {
+        /* ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        ExcelCreator.export(data, titles, outStream, false);
+        ServletOutputStream out = response.getOutputStream();
+        setFileDownloadHeader(response, fileName, outStream.size());
+        out.write(outStream.toByteArray());
+        out.flush();*/
+        response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
         ExcelCreator.export(data, titles, out, false);
@@ -543,6 +570,5 @@ public class ExcelCreator implements Closeable {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType("applicatoin/octet-stream");
         // response.setHeader("Content-Length", String.valueOf(fileSize));
-        response.setHeader("Transfer-Encoding", "chunked");
     }
 }

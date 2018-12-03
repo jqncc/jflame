@@ -28,7 +28,7 @@ public class PropertiesConfig extends BaseParamStrategy implements ISysConfig {
     private boolean valueConvert = false;// 是否对属性值做转换,
 
     public PropertiesConfig() {
-
+        properties = new Properties();
     }
 
     /**

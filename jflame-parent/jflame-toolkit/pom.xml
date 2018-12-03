@@ -8,9 +8,8 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.1.4-beta</version>
+		<version>1.1.5-beta</version>
 	</parent>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -36,7 +35,6 @@
 			<optional>true</optional>
 		</dependency>
 		<!-- excel操作 start -->
-
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
@@ -109,5 +107,23 @@
 			<version>2.12.0</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>2.12.0</version>
+            <optional>true</optional>
+        </dependency>
+		<dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>1.8.14.RELEASE</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+            <optional>true</optional>
+        </dependency>
 	</dependencies>
 </project>
