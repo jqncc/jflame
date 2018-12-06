@@ -170,7 +170,7 @@ public final class DateHelper {
      */
     public static Date setDate(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, dayOfMonth);
+        calendar.set(year, month, dayOfMonth);
         return calendar.getTime();
     }
 
