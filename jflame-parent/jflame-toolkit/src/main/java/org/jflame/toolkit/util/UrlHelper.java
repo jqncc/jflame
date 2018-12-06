@@ -7,23 +7,39 @@ import java.util.Map;
 public final class UrlHelper {
 
     /**
-     * 判断是否是一个正确的url地址
+     * 是否是一个不包含查询参数的url
      * 
      * @param urlTxt
      * @return
      */
-    public static boolean isURL(String urlTxt) {
-        if (urlTxt == null || urlTxt.length() == 0) {
-            return true;
+    public static boolean isNoQueryURL(String urlTxt) {
+        if (StringHelper.isEmpty(urlTxt)) {
+            return false;
         }
-
         try {
-            new java.net.URL(urlTxt.toString());
+            java.net.URL url = new java.net.URL(urlTxt);
+            return url.getQuery() == null;
         } catch (MalformedURLException e) {
             return false;
         }
+    }
 
-        return true;
+    /**
+     * 判断是否是一个正确的url地址
+     * 
+     * @param urlTxt url地址
+     * @return
+     */
+    public static boolean isURL(String urlTxt) {
+        if (StringHelper.isEmpty(urlTxt)) {
+            return false;
+        }
+        try {
+            new java.net.URL(urlTxt);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 
     /**
@@ -52,7 +68,8 @@ public final class UrlHelper {
             }
             fullUrl += url;
         }
-        fullUrl = fullUrl.replace('\\', urlSplit).replaceAll("/{2,}", "/");
+        fullUrl = fullUrl.replace('\\', urlSplit)
+                .replaceAll("/{2,}", "/");
 
         if (firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
             fullUrl = firstUrl + fullUrl.substring(1);
@@ -76,7 +93,8 @@ public final class UrlHelper {
         if (StringHelper.isEmpty(url)) {
             return false;
         }
-        return URI.create(url).isAbsolute();
+        return URI.create(url)
+                .isAbsolute();
     }
 
     /**

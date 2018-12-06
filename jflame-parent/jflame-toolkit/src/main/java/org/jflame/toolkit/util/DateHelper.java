@@ -178,7 +178,7 @@ public final class DateHelper {
      * 指定年 月 日 小时 分 秒 返回日期date
      * 
      * @param year 同Calendar.YEAR
-     * @param month 同Calendar.MONTH
+     * @param month 同Calendar.MONTH. 月份是从0开始
      * @param dayOfMonth 同Calendar.DAY_OF_MONTH
      * @param hour 同Calendar.HOUR
      * @param minute 同Calendar.MINUTE
@@ -187,7 +187,7 @@ public final class DateHelper {
      */
     public static Date setDate(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, dayOfMonth - 1, hour, minute, second);
+        calendar.set(year, month, dayOfMonth, hour, minute, second);
         return calendar.getTime();
     }
 
@@ -215,10 +215,7 @@ public final class DateHelper {
     public static Date getStartTimeOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        /* calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);*/
-        calendar.clear(Calendar.HOUR_OF_DAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.clear(Calendar.MINUTE);
         calendar.clear(Calendar.SECOND);
         return calendar.getTime();

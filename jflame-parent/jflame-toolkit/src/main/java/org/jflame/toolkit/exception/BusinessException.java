@@ -1,5 +1,7 @@
 package org.jflame.toolkit.exception;
 
+import org.jflame.toolkit.common.bean.BaseResult;
+
 /**
  * 业务层异常
  * 
@@ -44,5 +46,9 @@ public class BusinessException extends RuntimeException {
     public BusinessException(String message, int statusCode, Throwable exception) {
         super(message, exception);
         this.statusCode = statusCode;
+    }
+
+    public BusinessException(BaseResult exceptionInfo) {
+        this(exceptionInfo.getMessage(), exceptionInfo.getStatus());
     }
 }

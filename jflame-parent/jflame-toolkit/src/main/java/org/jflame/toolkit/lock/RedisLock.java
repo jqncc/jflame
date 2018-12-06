@@ -47,12 +47,12 @@ public class RedisLock implements DistributedLock {
      * 
      * @param redisTemplate StringRedisTemplate
      * @param lockName 锁名,最终锁名"redis:lock:lockName"
-     * @param lockExpire 锁超时时间,单位秒
+     * @param lockExpire 锁超时时间,单位毫秒
      */
     public RedisLock(RedisTemplate<String,String> redisTemplate, String lockName, int lockExpire) {
         this.redisTemplate = redisTemplate;
         this.lockKey = lockKeyPrefix + lockName;
-        this.lockExpire = lockExpire;
+        this.lockExpire = lockExpire / 1000;
         if (lockExpire <= 0) {
             throw new IllegalArgumentException("锁的过期时间必须大于0");
         }

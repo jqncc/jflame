@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
+import org.jflame.toolkit.util.UrlHelper;
 import org.jflame.toolkit.zookeeper.curator.CuratorZookeeperClient;
 
 public class ZookeeperLock implements DistributedLock {
@@ -17,7 +18,7 @@ public class ZookeeperLock implements DistributedLock {
 
     public ZookeeperLock(CuratorZookeeperClient zkClient, String lockName) {
         super();
-        this.lockKey = lockKeyPrefix + lockName;
+        this.lockKey = UrlHelper.mergeUrl(lockKeyPrefix, lockName);
         this.zkClient = zkClient.getClient();
     }
 

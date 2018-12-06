@@ -87,6 +87,7 @@ public class ExcelCreator implements Closeable {
 
     private boolean isAutoCreateTitleRow = true;
     private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
+    private int rowIndex = 0;
 
     /**
      * 构造函数,默认生成office2003工作表.
@@ -150,7 +151,7 @@ public class ExcelCreator implements Closeable {
      * @param titleNames 标题列的名称
      */
     public void createTitleRow(Sheet sheet, String[] titleNames) {
-        Row row = sheet.createRow((short) 0);
+        Row row = sheet.createRow(rowIndex++);
         Cell cell;
         int defaultWidth = 20 * 256;
         for (int i = 0; i < titleNames.length; i++) {
@@ -177,10 +178,10 @@ public class ExcelCreator implements Closeable {
     }
 
     private void createTitleRow(Sheet sheet, List<ExcelColumnProperty> columns) {
-        if (columns == null || columns.isEmpty()) {
+        if (CollectionHelper.isEmpty(columns)) {
             return;
         }
-        Row row = sheet.createRow((short) 0);
+        Row row = sheet.createRow(rowIndex++);
         Cell cell;
         int size = columns.size();
         for (int i = 0; i < size; i++) {
@@ -236,9 +237,9 @@ public class ExcelCreator implements Closeable {
 
             // 填充数据
             Row row = null;
-            int rowIndex = 0;
+            // int rowIndex = 0;
             for (T rowData : dataList) {
-                row = sheet.createRow(++rowIndex);
+                row = sheet.createRow(rowIndex++);
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }
@@ -299,7 +300,7 @@ public class ExcelCreator implements Closeable {
      */
     public void fillMapData(Sheet sheet, final List<LinkedHashMap<String,Object>> data, String[] excludeKeys) {
         if (data != null && !data.isEmpty()) {
-            int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
             Row row = null;
             MapSheetRowHandler rowHandler = new MapSheetRowHandler();
             rowHandler.setExcludeKeys(excludeKeys);
@@ -331,7 +332,7 @@ public class ExcelCreator implements Closeable {
      */
     public void fillArrayData(Sheet sheet, final List<Object[]> data) {
         if (data != null && !data.isEmpty()) {
-            int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
             Row row = null;
             ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
             for (Object[] rowData : data) {
@@ -351,7 +352,7 @@ public class ExcelCreator implements Closeable {
      */
     public void fillArrayData(final List<Object[]> data) {
         if (data != null && !data.isEmpty()) {
-            int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
             Row row = null;
             ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
             for (Object[] rowData : data) {
@@ -451,6 +452,10 @@ public class ExcelCreator implements Closeable {
         this.cellStyle = cellStyle;
     }
 
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
+
     /**
      * 导出实体类数据到单表的便捷方法.
      * 
@@ -466,9 +471,9 @@ public class ExcelCreator implements Closeable {
             creator.fillEntityData(data);
             creator.write(out);
             out.flush();
-            if (isCloseOutStream) {
-                IOHelper.closeQuietly(out);
-            }
+        }
+        if (isCloseOutStream) {
+            IOHelper.closeQuietly(out);
         }
     }
 

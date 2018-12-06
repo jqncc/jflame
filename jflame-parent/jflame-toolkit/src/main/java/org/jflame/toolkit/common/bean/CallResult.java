@@ -1,6 +1,5 @@
 package org.jflame.toolkit.common.bean;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 
 /**
@@ -11,7 +10,7 @@ import java.text.MessageFormat;
  * @see ResultEnum
  * @author zyc
  */
-public class CallResult<T> implements Serializable {
+public class CallResult<T> implements BaseResult {
 
     private static final long serialVersionUID = 1L;
 
@@ -77,7 +76,7 @@ public class CallResult<T> implements Serializable {
         this.data = data;
     }
 
-    public void setResult(ResultEnum err) {
+    public void setResult(BaseResult err) {
         this.status = err.getStatus();
         this.message = err.getMessage();
     }
@@ -112,17 +111,19 @@ public class CallResult<T> implements Serializable {
      * 400=提交的数据错误，即参数错误 <br>
      * 401=身份验证失败,如登录失败等 <br>
      * 403=无权限访问 <br>
-     * 500=执行错误,通常是程序执行抛出异常了
+     * 500=执行错误,通常是程序执行抛出异常了<br>
+     * 0=执行失败,通常是无异常判定为操作失败
      */
-    public enum ResultEnum {
+    public enum ResultEnum implements BaseResult {
         SUCCESS(200),
         PARAM_ERROR(400),
         NO_AUTH(401),
         FORBIDDEN(403),
-        SERVER_ERROR(500);
+        SERVER_ERROR(500),
+        FAILED(0);
 
         private int status;
-        private final static String[] initMsgs = { "执行成功","提交的数据错误","身份验证失败","无权限访问","执行错误" };
+        private final static String[] initMsgs = { "执行成功","提交的数据错误","身份验证失败","无权限访问","执行错误","执行失败" };
 
         private ResultEnum(int status) {
             this.status = status;
@@ -149,6 +150,8 @@ public class CallResult<T> implements Serializable {
                     return initMsgs[3];
                 case 500:
                     return initMsgs[4];
+                case 0:
+                    return initMsgs[5];
                 default:
                     break;
             }
