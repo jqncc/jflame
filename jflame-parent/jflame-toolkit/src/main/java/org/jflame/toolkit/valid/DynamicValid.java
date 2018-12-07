@@ -103,9 +103,18 @@ public @interface DynamicValid {
          */
         safeChar,
         noContain,
+        /**
+         * 长度范围
+         */
         size,
-        min,
-        max,
+        /**
+         * 最小长度
+         */
+        minLen,
+        /**
+         * 最大长度
+         */
+        maxLen,
         regex
     }
 

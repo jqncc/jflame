@@ -69,9 +69,11 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         boolean flag = false;
-        if (nullable && (value == null || "".equals(value))) {
-            return true;
+
+        if (StringHelper.isEmpty(value)) {
+            return nullable;
         }
+
         String[] params = null;
         for (ValidRule rule : rules) {
             flag = false;
@@ -106,10 +108,10 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                 case noContain:
                     flag = !StringHelper.containsAny(value, params[0].split(","));
                     break;
-                case min:
+                case minLen:
                     flag = ValidatorHelper.minLength(value, Integer.parseInt(params[0]));
                     break;
-                case max:
+                case maxLen:
                     flag = ValidatorHelper.maxLength(value, Integer.parseInt(params[0]));
                     break;
                 case size:
