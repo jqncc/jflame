@@ -3,6 +3,7 @@ package org.jflame.toolkit.util;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +64,10 @@ public final class MapHelper {
                 if (map.containsKey(propertyName)) {
                     value = map.get(propertyName);
                     args[0] = value;
-                    descriptor.getWriteMethod().invoke(newObj, args);
+                    if (descriptor.getWriteMethod() != null) {
+                        descriptor.getWriteMethod()
+                                .invoke(newObj, args);
+                    }
                 }
             }
             return newObj;
@@ -79,7 +83,7 @@ public final class MapHelper {
      * @param beanObj bean对象
      * @return
      */
-    public static Map<String,Object> convertBeanToMap(Object beanObj) {
+    public static Map<String,Object> convertBeanToMap(Serializable beanObj) {
         if (beanObj == null) {
             throw new IllegalArgumentException("不能转换为null的对象");
         }
@@ -93,8 +97,10 @@ public final class MapHelper {
             for (PropertyDescriptor pd : propertyDescriptors) {
                 if (!clz.equals(pd.getName())) {
                     readMethod = pd.getReadMethod();
-                    value = readMethod.invoke(beanObj, new Object[0]);
-                    resultMap.put(pd.getName(), value);
+                    if (readMethod != null) {
+                        value = readMethod.invoke(beanObj, new Object[0]);
+                        resultMap.put(pd.getName(), value);
+                    }
                 }
             }
         } catch (Exception e) {
