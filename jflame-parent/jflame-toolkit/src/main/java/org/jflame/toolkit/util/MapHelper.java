@@ -5,9 +5,13 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.exception.ConvertException;
 
 /**
@@ -81,21 +85,26 @@ public final class MapHelper {
      * 将javabean对象转为map
      * 
      * @param beanObj bean对象
+     * @param excludes 要排除的属性名
      * @return
      */
-    public static Map<String,Object> convertBeanToMap(Serializable beanObj) {
+    public static Map<String,Object> convertBeanToMap(Serializable beanObj, String... excludes) {
         if (beanObj == null) {
             throw new IllegalArgumentException("不能转换为null的对象");
         }
         Map<String,Object> resultMap = new HashMap<>();
-        final String clz = "class";
+        Set<String> excludeProps = new HashSet<>();
+        excludeProps.add("class");
+        if (ArrayUtils.isNotEmpty(excludes)) {
+            Collections.addAll(excludeProps, excludes);
+        }
         Method readMethod;
         Object value;
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(beanObj.getClass());
             PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
             for (PropertyDescriptor pd : propertyDescriptors) {
-                if (!clz.equals(pd.getName())) {
+                if (!excludeProps.contains(pd.getName())) {
                     readMethod = pd.getReadMethod();
                     if (readMethod != null) {
                         value = readMethod.invoke(beanObj, new Object[0]);

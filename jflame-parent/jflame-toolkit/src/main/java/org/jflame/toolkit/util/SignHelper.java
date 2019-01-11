@@ -1,5 +1,6 @@
 package org.jflame.toolkit.util;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -34,17 +35,24 @@ public class SignHelper {
             sortedMap = new TreeMap<>(mapData);
         }
         final char[] splitChars = { '=','&' };
+        boolean hasExclude = ArrayUtils.isNotEmpty(excludeKeys);
         for (Entry<String,?> kv : sortedMap.entrySet()) {
-            if (excludeKeys != null && excludeKeys.length > 0 && ArrayUtils.contains(excludeKeys, kv.getKey())) {
+            if (hasExclude && ArrayUtils.contains(excludeKeys, kv.getKey())) {
                 continue;
             }
             if (kv.getValue() != null) {
                 str.append(kv.getKey())
-                        .append(splitChars[0])
-                        .append(kv.getValue())
-                        .append(splitChars[1]);
+                        .append(splitChars[0]);
+                if (kv.getValue() instanceof BigDecimal) {
+                    str.append(((BigDecimal) kv.getValue()).stripTrailingZeros()
+                            .toPlainString());
+                } else {
+                    str.append(kv.getValue());
+                }
+                str.append(splitChars[1]);
             }
         }
+        // System.out.println("sign:" + str.toString());
         return DigestHelper.md5Hex(str.toString());
     }
 }

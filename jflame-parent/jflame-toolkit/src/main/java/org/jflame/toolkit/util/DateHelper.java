@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -377,12 +378,19 @@ public final class DateHelper {
      * @param instant
      * @return
      */
-    public static Date from(Instant instant) {
-        try {
-            return new Date(instant.toEpochMilli());
-        } catch (ArithmeticException ex) {
-            throw new IllegalArgumentException(ex);
-        }
+    public static Date fromInstant(Instant instant) {
+        return Date.from(instant);
+    }
+
+    /**
+     * LocalDateTime转Date
+     * 
+     * @param localDateTime
+     * @return
+     */
+    public static Date fromLocalDateTime(LocalDateTime localDateTime) {
+        return fromInstant(localDateTime.atZone(ZoneId.systemDefault())
+                .toInstant());
     }
 
     /**
@@ -397,4 +405,97 @@ public final class DateHelper {
         return LocalDateTime.ofInstant(instant, zone);
     }
 
+    /**
+     * 根据时间表达式得出天数
+     * 
+     * @param express 举例:1d=1天
+     * @return
+     */
+    public static long dayExpression(String express) {
+        return timeExpression(express, TimeUnit.DAYS);
+    }
+
+    /**
+     * 根据时间表达式得出小时数
+     * 
+     * @param express 举例:30h=30小时
+     * @return
+     */
+    public static long hourExpression(String express) {
+        return timeExpression(express, TimeUnit.HOURS);
+    }
+
+    /**
+     * 根据时间表达式得出分钟数
+     * 
+     * @param express 举例:24m=24分钟
+     * @return
+     */
+    public static long minuteExpression(String express) {
+        return timeExpression(express, TimeUnit.MINUTES);
+    }
+
+    /**
+     * 根据时间表达式得出秒数
+     * 
+     * @param express 举例:24m=24分钟
+     * @return
+     */
+    public static long secondExpression(String express) {
+        return timeExpression(express, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 根据时间表达式得出具体时间值.<br>
+     * 注:如时间单位大于表达式所表示的时间返回0
+     * 
+     * @param expression 时间表达式,举例:1d=1天,30h=30小时,24m=24分钟,5s=5秒
+     * @param timeUnit 返回值的时间单位
+     * @return
+     */
+    public static long timeExpression(String expression, TimeUnit timeUnit) {
+        String fmt = "^[1-9]\\d*[d|h|m|s]";
+        Pattern pattern = Pattern.compile(fmt, Pattern.CASE_INSENSITIVE);
+        if (pattern.matcher(expression)
+                .matches()) {
+            char c = StringHelper.endChar(expression.toLowerCase());
+            int time = Integer.parseInt(expression.substring(0, expression.length() - 1));
+            long s;
+            if (c == 'h') {
+                if (timeUnit == TimeUnit.HOURS) {
+                    return time;
+                } else {
+                    s = time * 3600;
+                }
+            } else if (c == 'd') {
+                if (timeUnit == TimeUnit.DAYS) {
+                    return time;
+                } else {
+                    s = time * 3600 * 24;
+                }
+            } else if (c == 'm') {
+                if (timeUnit == TimeUnit.MINUTES) {
+                    return time;
+                } else {
+                    s = time * 60;
+                }
+            } else {
+                if (timeUnit == TimeUnit.SECONDS) {
+                    return time;
+                } else {
+                    s = time;
+                }
+            }
+            if (timeUnit == TimeUnit.HOURS) {
+                return TimeUnit.SECONDS.toHours(s);
+            } else if (timeUnit == TimeUnit.MINUTES) {
+                return TimeUnit.SECONDS.toMinutes(s);
+            } else if (timeUnit == TimeUnit.SECONDS) {
+                return s;
+            } else if (timeUnit == TimeUnit.DAYS) {
+                return TimeUnit.SECONDS.toDays(s);
+            }
+        }
+        throw new IllegalArgumentException("无法解析时间表达式" + expression);
+    }
 }

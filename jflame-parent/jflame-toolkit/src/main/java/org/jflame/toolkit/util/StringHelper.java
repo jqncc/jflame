@@ -156,12 +156,12 @@ public final class StringHelper {
      * @see #buildMapFromUrlParam(String)
      * @return url参数字符串, 如:x=1&amp;y=2
      */
-    public static String buildUrlParamFromMap(Map<String,String> paramMap) {
+    public static String buildUrlParamFromMap(Map<String,Object> paramMap) {
         if (paramMap == null || paramMap.isEmpty()) {
             return null;
         }
         StringBuilder strBuf = new StringBuilder(20);
-        for (Entry<String,String> kv : paramMap.entrySet()) {
+        for (Entry<String,Object> kv : paramMap.entrySet()) {
             if (kv.getValue() != null) {
                 strBuf.append('&')
                         .append(kv.getKey())
@@ -427,6 +427,16 @@ public final class StringHelper {
      */
     public static String removeAny(String str, String... set) {
         return CharSetUtils.delete(str, set);
+    }
+
+    /**
+     * 返回字符串最后一个字符
+     * 
+     * @param str
+     * @return
+     */
+    public static char endChar(String str) {
+        return str.charAt(str.length() - 1);
     }
 
     /**

@@ -3,8 +3,10 @@ package org.jflame.toolkit.excel;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -87,7 +89,9 @@ public class ExcelCreator implements Closeable {
 
     private boolean isAutoCreateTitleRow = true;
     private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
-    private int rowIndex = 0;
+    // private int rowIndex = 0;
+
+    private Map<Sheet,Integer> rowIndexMap = new HashMap<>();
 
     /**
      * 构造函数,默认生成office2003工作表.
@@ -151,7 +155,7 @@ public class ExcelCreator implements Closeable {
      * @param titleNames 标题列的名称
      */
     public void createTitleRow(Sheet sheet, String[] titleNames) {
-        Row row = sheet.createRow(rowIndex++);
+        Row row = sheet.createRow(getAndMoveRowIndex(sheet));
         Cell cell;
         int defaultWidth = 20 * 256;
         for (int i = 0; i < titleNames.length; i++) {
@@ -181,7 +185,7 @@ public class ExcelCreator implements Closeable {
         if (CollectionHelper.isEmpty(columns)) {
             return;
         }
-        Row row = sheet.createRow(rowIndex++);
+        Row row = sheet.createRow(getAndMoveRowIndex(sheet));
         Cell cell;
         int size = columns.size();
         for (int i = 0; i < size; i++) {
@@ -239,7 +243,7 @@ public class ExcelCreator implements Closeable {
             Row row = null;
             // int rowIndex = 0;
             for (T rowData : dataList) {
-                row = sheet.createRow(rowIndex++);
+                row = sheet.createRow(getAndMoveRowIndex(sheet));
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }
@@ -305,7 +309,7 @@ public class ExcelCreator implements Closeable {
             MapSheetRowHandler rowHandler = new MapSheetRowHandler();
             rowHandler.setExcludeKeys(excludeKeys);
             for (LinkedHashMap<String,Object> rowData : data) {
-                row = sheet.createRow(rowIndex++);
+                row = sheet.createRow(getAndMoveRowIndex(sheet));
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }
@@ -336,7 +340,7 @@ public class ExcelCreator implements Closeable {
             Row row = null;
             ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
             for (Object[] rowData : data) {
-                row = sheet.createRow(rowIndex++);
+                row = sheet.createRow(getAndMoveRowIndex(sheet));
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }
@@ -357,7 +361,7 @@ public class ExcelCreator implements Closeable {
             ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
             for (Object[] rowData : data) {
                 row = workbook.getSheetAt(0)
-                        .createRow(rowIndex++);
+                        .createRow(getAndMoveRowIndex(workbook.getSheetAt(0)));
                 if (cellStyle != null) {
                     row.setRowStyle(cellStyle);
                 }
@@ -426,6 +430,23 @@ public class ExcelCreator implements Closeable {
         defaultTitleStyle.setFont(titleCellFont);
     }
 
+    /**
+     * 取得sheet当前行索引并下移一行
+     * 
+     * @param sheet
+     * @return
+     */
+    private int getAndMoveRowIndex(Sheet sheet) {
+        Integer index = rowIndexMap.get(sheet);
+        if (index == null) {
+            rowIndexMap.put(sheet, 1);
+            return 0;
+        } else {
+            rowIndexMap.put(sheet, index + 1);
+            return index;
+        }
+    }
+
     public boolean isAutoCreateTitleRow() {
         return isAutoCreateTitleRow;
     }
@@ -452,8 +473,17 @@ public class ExcelCreator implements Closeable {
         this.cellStyle = cellStyle;
     }
 
+    /**
+     * 设置第一个sheet的行索引
+     * 
+     * @param rowIndex
+     */
     public void setRowIndex(int rowIndex) {
-        this.rowIndex = rowIndex;
+        rowIndexMap.put(workbook.getSheetAt(0), rowIndex);
+    }
+
+    public void setRowIndex(Sheet sheet, int rowIndex) {
+        rowIndexMap.put(sheet, rowIndex);
     }
 
     /**

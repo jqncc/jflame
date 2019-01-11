@@ -8,10 +8,15 @@ import org.jflame.toolkit.common.bean.BaseResult;
  * @author zyc
  * @version 1.0
  */
-public class BusinessException extends RuntimeException {
+public class BusinessException extends RuntimeException implements BaseResult {
 
     private static final long serialVersionUID = 8128513200524494718L;
     private int statusCode;// 异常状态码
+
+    @Override
+    public int getStatus() {
+        return statusCode;
+    }
 
     public int getStatusCode() {
         return statusCode;
@@ -51,4 +56,5 @@ public class BusinessException extends RuntimeException {
     public BusinessException(BaseResult exceptionInfo) {
         this(exceptionInfo.getMessage(), exceptionInfo.getStatus());
     }
+
 }

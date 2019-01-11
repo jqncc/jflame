@@ -1,5 +1,10 @@
 package org.jflame.toolkit.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jflame.toolkit.common.bean.pair.IKeyValuePair;
+
 /**
  * 枚举工具类.
  * 
@@ -43,5 +48,25 @@ public final class EnumHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * 将实现了IKeyValuePair接口的枚举所有值转为以枚举name为key,getValue()为值的map
+     * 
+     * @param enumClazz 实现了IKeyValuePair接口的枚举
+     * @return
+     */
+    public static <E extends Enum<E> & IKeyValuePair<K,V>,K,V> Map<String,V> pairToMap(Class<E> enumClazz) {
+        if (IKeyValuePair.class.isAssignableFrom(enumClazz)) {
+            E[] enums = enumClazz.getEnumConstants();
+            Map<String,V> map = new HashMap<>(enums.length);
+            for (E e : enums) {
+                IKeyValuePair<K,V> pair = (IKeyValuePair<K,V>) e;
+                map.put(e.name(), pair.getValue());
+            }
+            return map;
+        } else {
+            throw new IllegalArgumentException("参数enumClazz必须实现接口IKeyValuePair");
+        }
     }
 }

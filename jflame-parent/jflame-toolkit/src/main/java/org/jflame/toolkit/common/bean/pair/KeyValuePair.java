@@ -101,7 +101,8 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
             E[] enums = enumClazz.getEnumConstants();
             for (E e : enums) {
                 IKeyValuePair<K,?> pair = (IKeyValuePair<K,?>) e;
-                if (pair.getKey().equals(key)) {
+                if (pair.getKey()
+                        .equals(key)) {
                     return e;
                 }
             }
@@ -156,8 +157,11 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
             StringBuilder strBuf = new StringBuilder(20);
             try {
                 for (IKeyValuePair<T,R> kv : list) {
-                    strBuf.append('&').append(kv.getKey()).append('=')
-                            .append(URLEncoder.encode(kv.getValue().toString(), StandardCharsets.UTF_8.name()));
+                    strBuf.append('&')
+                            .append(kv.getKey())
+                            .append('=')
+                            .append(URLEncoder.encode(kv.getValue()
+                                    .toString(), StandardCharsets.UTF_8.name()));
                 }
             } catch (UnsupportedEncodingException e) {
                 // ignore

@@ -10,7 +10,7 @@ import java.text.MessageFormat;
  * @see ResultEnum
  * @author zyc
  */
-public class CallResult<T> implements BaseResult {
+public class CallResult<T> extends SimpleResult {
 
     private static final long serialVersionUID = 1L;
 
@@ -18,6 +18,9 @@ public class CallResult<T> implements BaseResult {
     private String message; // 结果描述
     private T data; // 返回数据
 
+    /**
+     * 构造函数,status默认成功
+     */
     public CallResult() {
         this(ResultEnum.SUCCESS);
     }
@@ -112,7 +115,7 @@ public class CallResult<T> implements BaseResult {
      * 401=身份验证失败,如登录失败等 <br>
      * 403=无权限访问 <br>
      * 500=执行错误,通常是程序执行抛出异常了<br>
-     * 0=执行失败,通常是无异常判定为操作失败
+     * -1=执行失败,通常是无异常判定为操作失败
      */
     public enum ResultEnum implements BaseResult {
         SUCCESS(200),
@@ -120,7 +123,7 @@ public class CallResult<T> implements BaseResult {
         NO_AUTH(401),
         FORBIDDEN(403),
         SERVER_ERROR(500),
-        FAILED(0);
+        FAILED(-1);
 
         private int status;
         private final static String[] initMsgs = { "执行成功","提交的数据错误","身份验证失败","无权限访问","执行错误","执行失败" };

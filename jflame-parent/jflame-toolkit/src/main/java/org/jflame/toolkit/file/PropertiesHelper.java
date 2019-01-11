@@ -62,7 +62,7 @@ public final class PropertiesHelper {
      */
     public String getProperty(String key) {
         String value = getValue(key);
-        return value;
+        return value != null ? value.trim() : value;
     }
 
     /**
@@ -73,7 +73,7 @@ public final class PropertiesHelper {
      */
     public String getProperty(String key, String defaultValue) {
         String value = getValue(key);
-        return value != null ? value : defaultValue;
+        return value != null ? value.trim() : defaultValue;
     }
 
     /**
@@ -83,7 +83,7 @@ public final class PropertiesHelper {
      */
     public Integer getInteger(String key) {
         String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Integer.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Integer.valueOf(value.trim());
     }
 
     /**
@@ -94,7 +94,7 @@ public final class PropertiesHelper {
      */
     public Integer getInteger(String key, Integer defaultValue) {
         String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Integer.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Integer.valueOf(value.trim()) : defaultValue;
     }
 
     /**
@@ -104,7 +104,7 @@ public final class PropertiesHelper {
      */
     public Double getDouble(String key) {
         String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Double.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Double.valueOf(value.trim());
     }
 
     /**
@@ -115,7 +115,7 @@ public final class PropertiesHelper {
      */
     public Double getDouble(String key, Integer defaultValue) {
         String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Double.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Double.valueOf(value.trim()) : defaultValue;
     }
 
     /**
@@ -125,7 +125,7 @@ public final class PropertiesHelper {
      */
     public Boolean getBoolean(String key) {
         String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Boolean.valueOf(value);
+        return StringHelper.isEmpty(value) ? null : Boolean.valueOf(value.trim());
     }
 
     /**
@@ -136,7 +136,7 @@ public final class PropertiesHelper {
      */
     public Boolean getBoolean(String key, boolean defaultValue) {
         String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Boolean.valueOf(value) : defaultValue;
+        return StringHelper.isNotEmpty(value) ? Boolean.valueOf(value.trim()) : defaultValue;
     }
 
     /**
@@ -200,8 +200,8 @@ public final class PropertiesHelper {
                     if (matchervalue != null) {
                         // 替换特殊字符\$
                         if (StringHelper.containsAny(matchervalue, '\\', '$')) {
-                            matcher.appendReplacement(buffer,
-                                    matchervalue.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$"));
+                            matcher.appendReplacement(buffer, matchervalue.replaceAll("\\\\", "\\\\\\\\")
+                                    .replaceAll("\\$", "\\\\\\$"));
                         } else {
                             matcher.appendReplacement(buffer, matchervalue);
                         }

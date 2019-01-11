@@ -27,4 +27,5 @@ public interface BaseResult extends Serializable {
     default public void setCallResult(CallResult<?> result) {
         result.setResult(getStatus(), getMessage());
     }
+
 }

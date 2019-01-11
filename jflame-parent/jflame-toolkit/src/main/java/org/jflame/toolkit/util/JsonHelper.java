@@ -53,7 +53,8 @@ public final class JsonHelper {
     public static String toJsonWidthExclude(Object obj, String... excludeFields) {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
         for (String field : excludeFields) {
-            filter.getExcludes().add(field);
+            filter.getExcludes()
+                    .add(field);
         }
         return JSON.toJSONString(obj, filter);
     }
@@ -68,7 +69,8 @@ public final class JsonHelper {
     public static String toJsonWidthInclude(Object obj, String... includeFields) {
         SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
         for (String field : includeFields) {
-            filter.getIncludes().add(field);
+            filter.getIncludes()
+                    .add(field);
         }
         return JSON.toJSONString(obj, filter);
     }
@@ -171,10 +173,4 @@ public final class JsonHelper {
         return new TypeReference<List<E>>(elementClazz) {
         };
     }
-
-    // public static void main(String[] args) {
-    // String aString="{\"name\":1}";
-    // Map<String,Integer> m=parseMap(aString, String.class, Integer.class);
-    // System.out.println(m.isEmpty());
-    // }
 }
