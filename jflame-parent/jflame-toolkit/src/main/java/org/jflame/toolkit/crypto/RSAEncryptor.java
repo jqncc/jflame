@@ -21,13 +21,14 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.jflame.toolkit.codec.Base64;
+// import org.jflame.toolkit.codec.Base64;
 import org.jflame.toolkit.codec.Hex;
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.codec.TranscodeHelper;
@@ -131,7 +132,9 @@ public class RSAEncryptor extends BaseEncryptor {
         if (StringHelper.isEmpty(plainText)) {
             return plainText;
         }
-        return Base64.encodeBase64String(doencrypt(plainText, publicKey));
+        return Base64.getEncoder()
+                .encodeToString(doencrypt(plainText, publicKey));
+        // return Base64.encodeBase64String(doencrypt(plainText, publicKey));
     }
 
     /**
@@ -161,7 +164,8 @@ public class RSAEncryptor extends BaseEncryptor {
         if (StringHelper.isEmpty(cipherBase64)) {
             return cipherBase64;
         }
-        byte[] cipherBytes = Base64.decodeBase64(cipherBase64);
+        byte[] cipherBytes = Base64.getDecoder()
+                .decode(cipherBase64);
         byte[] plainBytes = decrypt(cipherBytes, privateKey);
         try {
             return new String(plainBytes, getCharset());
@@ -236,7 +240,8 @@ public class RSAEncryptor extends BaseEncryptor {
         }
         // 文本
         try {
-            byte[] keyBytes = Base64.decodeBase64(keyOrFile);
+            byte[] keyBytes = Base64.getDecoder()
+                    .decode(keyOrFile);
             KeyFactory keyFactory = KeyFactory.getInstance(Algorithm.RSA.name());
             if (isPublicKey) {
                 X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);

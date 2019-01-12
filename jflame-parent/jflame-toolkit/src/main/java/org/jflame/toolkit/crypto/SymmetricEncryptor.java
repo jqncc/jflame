@@ -12,7 +12,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jflame.toolkit.codec.Base64;
 import org.jflame.toolkit.codec.Hex;
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.codec.TranscodeHelper;
@@ -137,7 +136,9 @@ public class SymmetricEncryptor extends BaseEncryptor {
         } catch (UnsupportedEncodingException e) {
             throw new EncryptException(e);
         }
-        return Base64.encodeBase64URLSafeString(ciphertext);
+        return java.util.Base64.getUrlEncoder()
+                .encodeToString(ciphertext);
+        // return Base64.encodeBase64URLSafeString(ciphertext);
     }
 
     /**

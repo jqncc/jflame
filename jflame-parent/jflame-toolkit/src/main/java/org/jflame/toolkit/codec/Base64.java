@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import org.jflame.toolkit.util.CharsetHelper;
 
+@Deprecated
 public class Base64 extends BaseNCodec {
 
     /**

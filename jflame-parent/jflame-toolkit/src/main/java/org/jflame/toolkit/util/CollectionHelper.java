@@ -4,10 +4,10 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -96,7 +96,7 @@ public final class CollectionHelper {
         if (iterator != null) {
             while (iterator.hasNext()) {
                 Object candidate = iterator.next();
-                if (ObjectUtils.equals(candidate, element)) {
+                if (Objects.equals(candidate, element)) {
                     return true;
                 }
             }
@@ -113,7 +113,7 @@ public final class CollectionHelper {
      */
     public static <E> boolean contains(Collection<E> collection, E element) {
         for (E object : collection) {
-            if (ObjectUtils.equals(object, element)) {
+            if (Objects.equals(object, element)) {
                 return true;
             }
         }

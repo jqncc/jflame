@@ -22,7 +22,9 @@ public final class TranscodeHelper {
      * @return 返回字符串
      */
     public static String encodeBase64String(byte[] base64Data) {
-        return Base64.encodeBase64String(base64Data);
+        // return Base64.encodeBase64String(base64Data);
+        return java.util.Base64.getEncoder()
+                .encodeToString(base64Data);
     }
 
     /**
@@ -39,7 +41,7 @@ public final class TranscodeHelper {
         } else {
             bytes = str.getBytes(charset);
         }
-        return Base64.encodeBase64String(bytes);
+        return encodeBase64String(bytes);
     }
 
     /**
@@ -49,7 +51,9 @@ public final class TranscodeHelper {
      * @return
      */
     public static byte[] encodeBase64(byte[] base64Data) {
-        return Base64.encodeBase64(base64Data);
+        // return Base64.encodeBase64(base64Data);
+        return java.util.Base64.getEncoder()
+                .encode(base64Data);
     }
 
     /**
@@ -59,7 +63,9 @@ public final class TranscodeHelper {
      * @return
      */
     public static byte[] dencodeBase64(String base64String) {
-        return Base64.decodeBase64(base64String);
+        // return Base64.decodeBase64(base64String);
+        return java.util.Base64.getDecoder()
+                .decode(base64String);
     }
 
     /**
@@ -69,7 +75,9 @@ public final class TranscodeHelper {
      * @return
      */
     public static byte[] dencodeBase64(byte[] base64Data) {
-        return Base64.decodeBase64(base64Data);
+        // return Base64.decodeBase64(base64Data);
+        return java.util.Base64.getDecoder()
+                .decode(base64Data);
     }
 
     /**

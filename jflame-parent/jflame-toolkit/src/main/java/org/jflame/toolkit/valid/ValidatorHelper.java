@@ -220,7 +220,7 @@ public final class ValidatorHelper {
      * @return
      */
     public static boolean isNumber(String str) {
-        return NumberUtils.isNumber(str);
+        return NumberUtils.isCreatable(str);
     }
 
     /**
@@ -328,7 +328,8 @@ public final class ValidatorHelper {
         Map<String,String> errorMap = new HashMap<>();
         while (it.hasNext()) {
             ConstraintViolation<T> cv = (ConstraintViolation<T>) it.next();
-            errorMap.put(cv.getPropertyPath().toString(), cv.getMessage());
+            errorMap.put(cv.getPropertyPath()
+                    .toString(), cv.getMessage());
         }
         return errorMap;
     }

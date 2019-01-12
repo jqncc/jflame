@@ -55,7 +55,8 @@ public final strictfp class MathHelper {
      */
     public static final double add(Number num1, Number num2) {
         BigDecimal result = createBigDecimal(num1).add(createBigDecimal(num2));
-        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
     }
 
     /**
@@ -67,7 +68,8 @@ public final strictfp class MathHelper {
      */
     public static final double subtract(Number num1, Number num2) {
         BigDecimal result = createBigDecimal(num1).subtract(createBigDecimal(num2));
-        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
     }
 
     /**
@@ -79,7 +81,8 @@ public final strictfp class MathHelper {
      */
     public static final float subtract(float num1, float num2) {
         BigDecimal result = createBigDecimal(num1).subtract(createBigDecimal(num2));
-        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP).floatValue();
+        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP)
+                .floatValue();
     }
 
     /**
@@ -91,7 +94,8 @@ public final strictfp class MathHelper {
      */
     public static final double multiply(Number num1, Number num2) {
         BigDecimal result = createBigDecimal(num1).multiply(createBigDecimal(num2));
-        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return result.setScale(DEF_SCALE, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
     }
 
     /**
@@ -176,8 +180,8 @@ public final strictfp class MathHelper {
         BigDecimal result = createBigDecimal(num).divide(createBigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP);
         return result.doubleValue();
     }
-
+    /*
     public static void main(String[] args) {
         System.out.println(round(0.3959243086, 4));
-    }
+    }*/
 }

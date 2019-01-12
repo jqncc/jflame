@@ -73,8 +73,10 @@ public final class ExcelConvertorSupport {
         ICellValueConvertor convertor = customConvertors.get(convertorName);
         if (convertor == null) {
             for (ICellValueConvertor c : defaultConvertors.values()) {
-                if (!c.getConvertorName().equals(CellConvertorEnum.none.name())
-                        && c.getConvertorName().equals(convertorName)) {
+                if (!c.getConvertorName()
+                        .equals(CellConvertorEnum.none.name())
+                        && c.getConvertorName()
+                                .equals(convertorName)) {
                     convertor = c;
                 }
             }
@@ -108,12 +110,13 @@ public final class ExcelConvertorSupport {
         }
         ICellValueConvertor convertor = null;
         if (property != null) {
-            if (StringUtils.isNotEmpty(property.getConvert())
-                    && !CellConvertorEnum.none.name().equals(property.getConvert())) {
+            if (StringUtils.isNotEmpty(property.getConvert()) && !CellConvertorEnum.none.name()
+                    .equals(property.getConvert())) {
                 convertor = getConvertor(property.getConvert());
             }
             if (convertor == null) {
-                convertor = getDefaultConvertor(property.getPropertyDescriptor().getPropertyType());
+                convertor = getDefaultConvertor(property.getPropertyDescriptor()
+                        .getPropertyType());
             }
         } else {
             convertor = getDefaultConvertor(value.getClass());
@@ -135,14 +138,15 @@ public final class ExcelConvertorSupport {
         }
         ICellValueConvertor convertor;
         Object cellValue = getCellValue(cell);
-        if (StringUtils.isNotEmpty(property.getConvert())
-                && !CellConvertorEnum.none.name().equals(property.getConvert())) {
+        if (StringUtils.isNotEmpty(property.getConvert()) && !CellConvertorEnum.none.name()
+                .equals(property.getConvert())) {
             convertor = getConvertor(property.getConvert());
             if (convertor != null) {
                 return convertor.convertFromExcel(cellValue, property.getFmt());
             }
         }
-        convertor = getDefaultConvertor(property.getPropertyDescriptor().getPropertyType());
+        convertor = getDefaultConvertor(property.getPropertyDescriptor()
+                .getPropertyType());
         if (convertor != null) {
             return convertor.convertFromExcel(cellValue, property.getFmt());
         }
@@ -157,19 +161,19 @@ public final class ExcelConvertorSupport {
         if (curCell == null) {
             return null;
         }
-        if (curCell.getCellTypeEnum() == CellType.BOOLEAN) {
+        if (curCell.getCellType() == CellType.BOOLEAN) {
             return curCell.getBooleanCellValue();
-        } else if (curCell.getCellTypeEnum() == CellType.NUMERIC) {
+        } else if (curCell.getCellType() == CellType.NUMERIC) {
             if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(curCell)) {
                 return curCell.getDateCellValue();
             } else {
                 return curCell.getNumericCellValue();
             }
-        } else if (curCell.getCellTypeEnum() == CellType.FORMULA) {
+        } else if (curCell.getCellType() == CellType.FORMULA) {
             return curCell.getNumericCellValue();// 公式类型取计算结果
-        } else if (curCell.getCellTypeEnum() == CellType._NONE) {
+        } else if (curCell.getCellType() == CellType._NONE) {
             return null;
-        } else if (curCell.getCellTypeEnum() == CellType.BLANK) {
+        } else if (curCell.getCellType() == CellType.BLANK) {
             return StringUtils.EMPTY;
         } else {
             return curCell.getStringCellValue();

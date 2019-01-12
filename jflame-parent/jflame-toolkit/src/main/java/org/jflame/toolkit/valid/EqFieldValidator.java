@@ -36,7 +36,9 @@ public class EqFieldValidator implements ConstraintValidator<EqField,Object> {
             if (!flag) {
                 String messageTemplate = context.getDefaultConstraintMessageTemplate();
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(messageTemplate).addNode(eqField).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(messageTemplate)
+                        .addPropertyNode(eqField)
+                        .addConstraintViolation();
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
