@@ -5,6 +5,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.Provider;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -137,6 +138,7 @@ public class SymmetricEncryptor extends BaseEncryptor {
             throw new EncryptException(e);
         }
         return java.util.Base64.getUrlEncoder()
+                .withoutPadding()
                 .encodeToString(ciphertext);
         // return Base64.encodeBase64URLSafeString(ciphertext);
     }
@@ -178,7 +180,9 @@ public class SymmetricEncryptor extends BaseEncryptor {
         if (StringHelper.isEmpty(cipherBase64Text)) {
             return cipherBase64Text;
         }
-        byte[] cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
+        // byte[] cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
+        byte[] cipherBytes = Base64.getUrlDecoder()
+                .decode(cipherBase64Text);
         return doDencrypt(cipherBytes, password, ivParam);
     }
 

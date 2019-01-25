@@ -52,7 +52,7 @@ public class SignHelper {
                 str.append(splitChars[1]);
             }
         }
-        // System.out.println("sign:" + str.toString());
+        System.out.println("sign:" + str.toString());
         return DigestHelper.md5Hex(str.toString());
     }
 }

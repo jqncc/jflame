@@ -41,7 +41,7 @@ public class ExcelAnnotationResolver {
             }
             tmpAnns = null;
             tmpReadMethod = propDesc.getReadMethod();
-            if (tmpReadMethod.isAnnotationPresent(clazz)) {
+            if (tmpReadMethod != null && tmpReadMethod.isAnnotationPresent(clazz)) {
                 tmpAnns = tmpReadMethod.getAnnotation(clazz);
             }
             if (tmpAnns == null) {

@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
@@ -30,10 +32,6 @@ public final class ZipHelper {
      * @throws IOException
      */
     private static void zip(String srcRootDir, File file, ZipOutputStream zos) throws IOException {
-        if (file == null) {
-            return;
-        }
-
         // 如果是文件，则直接压缩该文件
         if (file.isFile()) {
             int count;
@@ -58,7 +56,8 @@ public final class ZipHelper {
             // 如果是目录，则压缩整个目录. 压缩目录中的文件或子目录
             File[] childFileList = file.listFiles();
             for (int n = 0; n < childFileList.length; n++) {
-                childFileList[n].getAbsolutePath().indexOf(file.getAbsolutePath());
+                childFileList[n].getAbsolutePath()
+                        .indexOf(file.getAbsolutePath());
                 zip(srcRootDir, childFileList[n], zos);
             }
         }
@@ -73,8 +72,8 @@ public final class ZipHelper {
      * @param isDelSameZipFile 如果已存在同名的压缩文件是否删除,不删除则抛出异常
      * @throws IOException
      */
-    public static void zip(String srcPath, String newZipPath, String newZipFileName, boolean isDelSameZipFile)
-            throws IOException {
+    public static void zip(String srcPath, String newZipPath, String newZipFileName, boolean isDelSameZipFile,
+            Charset charset) throws IOException {
         if (StringUtils.isEmpty(srcPath) || StringUtils.isEmpty(newZipPath) || StringUtils.isEmpty(newZipFileName)) {
             throw new IllegalArgumentException("参数不能为空");
         }
@@ -105,7 +104,7 @@ public final class ZipHelper {
             }
 
             cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
-            zos = new ZipOutputStream(cos);
+            zos = new ZipOutputStream(cos, charset == null ? StandardCharsets.UTF_8 : charset);
 
             // 如果只是压缩一个文件，则需要截取该文件的父目录
             String srcRootDir = srcPath;
@@ -139,16 +138,18 @@ public final class ZipHelper {
      * @param in 压缩文件流
      * @throws IOException
      */
-    public static void unzip(File unzipDir, InputStream in) throws IOException {
+    public static void unzip(File unzipDir, InputStream in, Charset charset) throws IOException {
         unzipDir.mkdirs();
         ZipEntry entry = null;
-        try (ZipInputStream zin = new ZipInputStream(in);) {
+
+        try (ZipInputStream zin = new ZipInputStream(in, charset == null ? StandardCharsets.UTF_8 : charset);) {
             while ((entry = zin.getNextEntry()) != null) {
                 File path = new File(unzipDir, entry.getName());
                 if (entry.isDirectory()) {
                     path.mkdirs();
                 } else {
-                    File parentFile = path.getAbsoluteFile().getParentFile();
+                    File parentFile = path.getAbsoluteFile()
+                            .getParentFile();
                     if (parentFile != null && !parentFile.equals(path.getAbsoluteFile())) {
                         parentFile.mkdirs();
                     }
@@ -169,18 +170,32 @@ public final class ZipHelper {
     }
 
     /**
-     * 解压文件
+     * 解压文件,使用UTF-8编码
      * 
-     * @param unzipDir 解压目录
-     * @param zipFile 压缩文件
+     * @param unzipDir 解压到目录
+     * @param zipFile 要解压的文件
      * @throws IOException
      */
     public static void unzip(File unzipDir, File zipFile) throws IOException {
+        unzip(unzipDir, zipFile, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 解压文件
+     * 
+     * @param unzipDir 解压到目录
+     * @param zipFile 要解压的文件
+     * @throws IOException
+     */
+    public static void unzip(File unzipDir, File zipFile, Charset charset) throws IOException {
         try (InputStream in = new BufferedInputStream(new FileInputStream(zipFile))) {
-            unzip(unzipDir, in);
+            unzip(unzipDir, in, charset);
         } catch (IOException e) {
             throw e;
         }
     }
 
+    /*  public static void main(String[] args) throws IOException {
+        unzip(new File("D:\\datacenter"), new File("d:\\1548060768585.zip"), Charset.forName("gbk"));
+    }*/
 }
