@@ -7,6 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.crypto.DigestHelper;
 
 public class SignHelper {
@@ -40,7 +41,7 @@ public class SignHelper {
             if (hasExclude && ArrayUtils.contains(excludeKeys, kv.getKey())) {
                 continue;
             }
-            if (kv.getValue() != null) {
+            if (kv.getValue() != null && !StringUtils.EMPTY.equals(kv.getValue())) {
                 str.append(kv.getKey())
                         .append(splitChars[0]);
                 if (kv.getValue() instanceof BigDecimal) {
@@ -52,7 +53,7 @@ public class SignHelper {
                 str.append(splitChars[1]);
             }
         }
-        System.out.println("sign:" + str.toString());
+        // System.out.println("sign:" + str.toString());
         return DigestHelper.md5Hex(str.toString());
     }
 }

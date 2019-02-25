@@ -16,7 +16,7 @@ import javax.validation.Payload;
  */
 @Constraint(validatedBy = { DynamicValidator.class })
 @Documented
-@Target({ ElementType.ANNOTATION_TYPE,ElementType.METHOD,ElementType.FIELD })
+@Target({ ElementType.ANNOTATION_TYPE,ElementType.METHOD,ElementType.FIELD,ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DynamicValid {
 

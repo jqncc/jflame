@@ -1,5 +1,6 @@
 package org.jflame.toolkit.test;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -43,7 +44,8 @@ public class ValidTest {
         Set<ConstraintViolation<Person>> errors = validator.validate(p);
         boolean severeError = false;
         for (ConstraintViolation<Person> violation : errors) {
-            Set<Class<? extends Payload>> payloads = violation.getConstraintDescriptor().getPayload();
+            Set<Class<? extends Payload>> payloads = violation.getConstraintDescriptor()
+                    .getPayload();
             for (Class<? extends Payload> payload : payloads) {
                 if (payload == Child.class) {
                     severeError = true;
@@ -57,10 +59,22 @@ public class ValidTest {
 
     @Test
     public void testValid() {
-        String[] tels = new String[]{ "123551","13124557854","12124557854","16542557844","1842557844","1642557844",
+        String[] tels = new String[] { "123551","13124557854","12124557854","16542557844","1842557844","1642557844",
                 "18x2557844" };
         for (String string : tels) {
             System.out.println(string + ":" + ValidatorHelper.isMobileOrTel(string, 0));
         }
+    }
+
+    @Test
+    public void testPerson() {
+        Person p = new Person();
+        p.setAge(13);
+        p.setHeight(120);
+        p.setName("charles");
+        p.setSex("男");
+        p.setWeight(new BigDecimal("300.23"));
+        Map<String,String> result = ValidatorHelper.validBean(p);
+        System.out.println(result);
     }
 }

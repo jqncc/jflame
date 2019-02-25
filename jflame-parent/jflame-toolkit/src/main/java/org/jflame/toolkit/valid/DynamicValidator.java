@@ -131,10 +131,10 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         return flag;
     }
 
-    public static void main(String[] args) {
+    /* public static void main(String[] args) {
         String x = "{size:1, min:[1,2]}";
         // String x = "{regex:\"[0-9]{1,3}\"}";
-
+    
         String paramText = StringUtils.deleteWhitespace(x);
         if (paramText.charAt(0) != '{') {
             paramText = '{' + paramText;
@@ -145,7 +145,7 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         Map<String,String[]> paramMap = new HashMap<>();
         //
         JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowSingleQuotes);
-
+    
         // Map<String,String> tempMap = JSON.parseObject(paramText, type, ~SerializerFeature.QuoteFieldNames.mask);
         for (Entry<String,Object> kv : tempMap.entrySet()) {
             if (kv.getValue() instanceof JSONObject) {
@@ -159,5 +159,5 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
             }
         }
         System.out.println(paramMap);
-    }
+    }*/
 }
