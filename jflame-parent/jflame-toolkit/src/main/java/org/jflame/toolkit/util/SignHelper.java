@@ -1,5 +1,6 @@
 package org.jflame.toolkit.util;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,6 +40,9 @@ public class SignHelper {
         boolean hasExclude = ArrayUtils.isNotEmpty(excludeKeys);
         for (Entry<String,?> kv : sortedMap.entrySet()) {
             if (hasExclude && ArrayUtils.contains(excludeKeys, kv.getKey())) {
+                continue;
+            }
+            if (kv.getValue().getClass().isArray()&& Array.getLength(kv.getValue())==0){
                 continue;
             }
             if (kv.getValue() != null && !StringUtils.EMPTY.equals(kv.getValue())) {
