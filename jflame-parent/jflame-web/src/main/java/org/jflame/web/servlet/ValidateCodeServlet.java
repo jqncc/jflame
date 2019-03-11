@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jflame.toolkit.config.DefaultConfigKeys;
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.config.ServletParamConfig;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils;
@@ -48,11 +48,27 @@ import org.slf4j.LoggerFactory;
 public class ValidateCodeServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(ValidateCodeServlet.class);
+    /**
+     * ValidateCodeServlet参数,验证码限定名称
+     */
+    private final ConfigKey<String[]> VALIDCODE_NAMES = new ConfigKey<>("names");
+    /**
+     * ValidateCodeServlet参数,验证码图片宽
+     */
+    private final ConfigKey<Integer> VALIDCODE_WIDTH = new ConfigKey<>("width", 80);
+    /**
+     * ValidateCodeServlet参数,验证码图片高
+     */
+    private final ConfigKey<Integer> VALIDCODE_HEIGTH = new ConfigKey<>("heigth", 24);
+    /**
+     * ValidateCodeServlet参数,验证码字符个数
+     */
+    private final ConfigKey<Integer> VALIDCODE_COUNT = new ConfigKey<>("count", 4);
 
     private int defaultWidth;// 缺省图片宽
     private int defaultHeight;// 缺省图片高
     private int defaultCount;// 缺省字符个数
-    private String[] codeRestrictNames = new String[]{ "validcode" };// 验证码限定名称，默认"validcode"
+    private String[] codeRestrictNames = new String[] { "validcode" };// 验证码限定名称，默认"validcode"
     private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public ValidateCodeServlet() {
@@ -169,12 +185,12 @@ public class ValidateCodeServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        String[] initNames = servletParam.getStringArray(DefaultConfigKeys.VALIDCODE_NAMES);
+        String[] initNames = servletParam.getStringArray(VALIDCODE_NAMES);
         if (initNames != null) {
             codeRestrictNames = ArrayUtils.addAll(codeRestrictNames, initNames);
         }
-        defaultWidth = servletParam.getInt(DefaultConfigKeys.VALIDCODE_WIDTH);
-        defaultHeight = servletParam.getInt(DefaultConfigKeys.VALIDCODE_HEIGTH);
-        defaultCount = servletParam.getInt(DefaultConfigKeys.VALIDCODE_COUNT);
+        defaultWidth = servletParam.getInt(VALIDCODE_WIDTH);
+        defaultHeight = servletParam.getInt(VALIDCODE_HEIGTH);
+        defaultCount = servletParam.getInt(VALIDCODE_COUNT);
     }
 }

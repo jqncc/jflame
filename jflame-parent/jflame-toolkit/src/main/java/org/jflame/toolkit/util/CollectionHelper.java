@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -52,6 +53,20 @@ public final class CollectionHelper {
                 .next()
                 .getClass(), collection.size());
         return collection.toArray(arr);
+    }
+
+    /**
+     * 从集合中多个元素
+     * 
+     * @param collection 集合
+     * @param removeElements 要删除的元素
+     * @return
+     */
+    public static <E> boolean removeAll(Collection<E> collection, E[] removeElements) {
+        if (collection == null || removeElements == null) {
+            throw new NullPointerException();
+        }
+        return collection.removeIf(p -> ArrayUtils.contains(removeElements, p));
     }
 
     /**

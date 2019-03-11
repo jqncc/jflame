@@ -28,7 +28,7 @@ public class CodeGeneratorIvm {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("d:/datecenter/benbox/");
+        gc.setOutputDir("d:/datecenter/cishop/");
         gc.setFileOverride(true);
         gc.setActiveRecord(false);// 开启 activeRecord 模式
         gc.setEnableCache(false);// XML 二级缓存
@@ -60,7 +60,7 @@ public class CodeGeneratorIvm {
         dsc.setUsername("dbuser");
         dsc.setPassword("321321");
         // dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_bss?characterEncoding=utf8");
-        dsc.setUrl("jdbc:mysql://10.18.200.94:3306/benbox?characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://10.18.200.94:3306/cis?characterEncoding=utf8");
         mpg.setDataSource(dsc);
 
         // 策略配置
@@ -78,9 +78,9 @@ public class CodeGeneratorIvm {
         // 自定义 mapper 父类
         // strategy.setSuperMapperClass("com.baomidou.demo.TestMapper");
         // 自定义 service 父类
-        strategy.setSuperServiceClass("com.ghgcn.benbox.service.ICrudService");
+        // strategy.setSuperServiceClass("com.ghgcn.benbox.service.ICrudService");
         // 自定义 service 实现类父类
-        strategy.setSuperServiceImplClass("com.ghgcn.benbox.service.impl.BaseServiceImpl");
+        strategy.setSuperServiceImplClass("org.lgtobacco.cishop.service.impl.BaseServiceImpl");
         // 自定义 controller 父类
         strategy.setSuperControllerClass("com.ghgcn.support.web.BaseController");
         // 【实体】是否生成字段常量（默认 false）
@@ -93,9 +93,9 @@ public class CodeGeneratorIvm {
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setModuleName("benbox");
-        pc.setParent("com.ghgcn");// 自定义包路径
-        pc.setController("action");// 这里是控制器包名，默认 web
+        pc.setModuleName("cishop");
+        pc.setParent("org.lgtobacco");// 自定义包路径
+        pc.setController("action");// 这里是控制器包名，默认 we
         mpg.setPackageInfo(pc);
 
         // 注入自定义配置，可以在 VM 中使用 cfg.abc 设置的值
@@ -113,7 +113,7 @@ public class CodeGeneratorIvm {
 
             @Override
             public String outputFile(TableInfo tableInfo) {
-                return "d:/datecenter/benbox/xml/" + tableInfo.getEntityName() + ".xml";
+                return "d:/datecenter/cishop/xml/" + tableInfo.getEntityName() + ".xml";
             }
 
         });

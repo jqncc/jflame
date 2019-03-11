@@ -79,7 +79,8 @@ public class WebUtils {
 
         public static boolean support(String mimeType) {
             for (MimeImages mn : MimeImages.values()) {
-                if (mn.name().equalsIgnoreCase(mimeType)) {
+                if (mn.name()
+                        .equalsIgnoreCase(mimeType)) {
                     return true;
                 }
             }
@@ -145,7 +146,8 @@ public class WebUtils {
      * @return true=是ajax请求
      */
     public static boolean isAjaxRequest(HttpServletRequest request) {
-        if (AJAX_REQUEST_FLAG.value().equalsIgnoreCase(request.getHeader(AJAX_REQUEST_FLAG.name()))) {
+        if (AJAX_REQUEST_FLAG.value()
+                .equalsIgnoreCase(request.getHeader(AJAX_REQUEST_FLAG.name()))) {
             return true;
         }
         return false;
@@ -163,7 +165,8 @@ public class WebUtils {
         boolean yes = false;
         if (headAccept != null && headAccept.indexOf(flag) >= 0) {
             yes = true;
-        } else if (request.getServletPath().endsWith(flag)) {
+        } else if (request.getServletPath()
+                .endsWith(flag)) {
             yes = true;
         }
         return yes;
@@ -236,6 +239,7 @@ public class WebUtils {
      * @param relativeUrls 要合并的url，相对路径
      * @return
      */
+    @Deprecated
     public static String mergeUrl(final String firstUrl, final String... relativeUrls) {
         if (firstUrl == null) {
             throw new IllegalArgumentException("argument 'firstUrl' must not be null");
@@ -255,7 +259,8 @@ public class WebUtils {
             }
             fullUrl += url;
         }
-        fullUrl = fullUrl.replace('\\', urlSplit).replaceAll("/{2,}", "/");
+        fullUrl = fullUrl.replace('\\', urlSplit)
+                .replaceAll("/{2,}", "/");
         if (firstUrl.length() > 1 && firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
             fullUrl = firstUrl + fullUrl.substring(1);
         } else {
@@ -274,11 +279,13 @@ public class WebUtils {
      * @param url url
      * @return
      */
+    @Deprecated
     public static boolean isAbsoluteUrl(String url) {
         if (StringHelper.isEmpty(url)) {
             return false;
         }
-        return URI.create(url).isAbsolute();
+        return URI.create(url)
+                .isAbsolute();
     }
 
     /**
@@ -351,7 +358,8 @@ public class WebUtils {
         Cookie[] cookies = request.getCookies();
         if (cookies != null && cookies.length > 0) {
             for (Cookie c : cookies) {
-                if (c.getName().equals(cookieName)) {
+                if (c.getName()
+                        .equals(cookieName)) {
                     return c.getValue();
                 }
             }

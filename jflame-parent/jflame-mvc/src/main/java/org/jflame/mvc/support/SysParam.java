@@ -1,6 +1,6 @@
 package org.jflame.mvc.support;
 
-import org.jflame.web.config.DefaultConfigKeys;
+import org.jflame.toolkit.config.CommonConfigKeys;
 import org.jflame.web.config.PropertiesConfig;
 
 public final class SysParam {
@@ -27,7 +27,7 @@ public final class SysParam {
      * @return
      */
     public static String getSavePath() {
-        return config.getString(DefaultConfigKeys.SAVE_PATH);
+        return config.getString(CommonConfigKeys.SAVE_PATH);
     }
 
     /**
@@ -36,7 +36,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgSavePath() {
-        return config.getString(DefaultConfigKeys.IMAGE_SAVE_PATH);
+        return config.getString(CommonConfigKeys.IMAGE_SAVE_PATH);
     }
 
     /**
@@ -45,7 +45,7 @@ public final class SysParam {
      * @return
      */
     public static String getImgServer() {
-        return config.getString(DefaultConfigKeys.IMAGE_SERVER);
+        return config.getString(CommonConfigKeys.IMAGE_SERVER);
     }
     
 }

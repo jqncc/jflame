@@ -28,7 +28,7 @@ public class CodeGenerator2 {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("d:/datecenter/zpcode/");
+        gc.setOutputDir("d:/datecenter/zpcode/zppay_1");
         gc.setFileOverride(true);
         gc.setActiveRecord(false);// 开启 activeRecord 模式
         gc.setEnableCache(false);// XML 二级缓存
@@ -41,7 +41,7 @@ public class CodeGenerator2 {
         // gc.setXmlName("%sDao");
         gc.setServiceName("I%sService");
         gc.setServiceImplName("%sServiceImpl");
-        gc.setControllerName("%sController");
+        // gc.setControllerName("%sController");
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
@@ -59,8 +59,8 @@ public class CodeGenerator2 {
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("dbuser");
         dsc.setPassword("321321");
-       // dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_bss?characterEncoding=utf8");
-         dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zpgo?characterEncoding=utf8");
+        // dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_bss?characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://10.18.200.94:3306/zp_pay_center?characterEncoding=utf8");
         mpg.setDataSource(dsc);
 
         // 策略配置
@@ -69,10 +69,10 @@ public class CodeGenerator2 {
         strategy.setDbColumnUnderline(true);// 全局下划线命名
         // strategy.setTablePrefix(new String[]{"bmd_", "mp_"});// 此处可以修改为您的表前缀
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-
-        strategy.setInclude(new String[]{ "admin_visit_log","operate_log","purchase_info","purchase_item","qr_info",
+        strategy.setInclude(new String[] { "merchant_remit_record","merchant_settle","merchant_settle_item" });
+        /* strategy.setInclude(new String[]{ "admin_visit_log","operate_log","purchase_info","purchase_item","qr_info",
                 "shelve_info","shelve_item","shop_admin","shop_admin_rel","stock_info","stock_item","unshelve_info",
-                "unshelve_item" }); // 需要生成的表
+                "unshelve_item" }); */// 需要生成的表
         // strategy.setExclude(new String[]{"ref_box_cigar"}); // 排除生成的表
         // 自定义实体父类
         // strategy.setSuperEntityClass("com.baomidou.demo.TestEntity");
@@ -92,13 +92,15 @@ public class CodeGenerator2 {
         // 【实体】是否为构建者模型（默认 false）
         // public User setName(String name) {this.name = name; return this;}
         // strategy.setEntityBuliderModel(true);
+
         mpg.setStrategy(strategy);
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setModuleName("zpgo");
+        pc.setModuleName("pay");
         pc.setParent("com.ghgcn");// 自定义包路径
-        pc.setController("storeapp.action");// 这里是控制器包名，默认 web
+        pc.setEntity("api.entity");
+        // pc.setController("storeapp.action");// 这里是控制器包名，默认 web
         mpg.setPackageInfo(pc);
 
         // 注入自定义配置，可以在 VM 中使用 cfg.abc 设置的值
@@ -116,7 +118,7 @@ public class CodeGenerator2 {
 
             @Override
             public String outputFile(TableInfo tableInfo) {
-                return "d:/datecenter/zpcode/xml/" + tableInfo.getEntityName() + ".xml";
+                return "d:/datecenter/zpcode/zppay/xml/" + tableInfo.getEntityName() + ".xml";
             }
 
         });

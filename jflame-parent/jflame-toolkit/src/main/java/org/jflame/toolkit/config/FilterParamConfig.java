@@ -4,9 +4,19 @@ import javax.servlet.FilterConfig;
 
 import org.jflame.toolkit.util.StringHelper;
 
+/**
+ * filter过滤器参数配置获取实现.
+ * <p>
+ * 如果在filter参数中未找到将向上查找ServletContext中参数
+ * 
+ * @author yucan.zhang
+ */
 public class FilterParamConfig extends BaseParamStrategy {
 
-    private FilterConfig filterConfig;
+    protected FilterConfig filterConfig;
+
+    public FilterParamConfig() {
+    }
 
     public FilterParamConfig(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
@@ -15,18 +25,12 @@ public class FilterParamConfig extends BaseParamStrategy {
     @SuppressWarnings("rawtypes")
     @Override
     protected String getParam(ConfigKey configKey) {
-        return filterConfig.getInitParameter(configKey.getName());
+        String value = filterConfig.getInitParameter(configKey.getName());
+        if (StringHelper.isEmpty(value)) {
+            value = filterConfig.getServletContext()
+                    .getInitParameter(configKey.getName());
+        }
+        return value;
     }
 
-    public String[] getStringArray(ConfigKey<String[]> configKey) {
-        return getValue(configKey, new Parser<String[]>() {
-            @Override
-            public String[] parse(String value) {
-                if (StringHelper.isNotEmpty(value)) {
-                    return StringHelper.split(value.trim());
-                }
-                return null;
-            }
-        });
-    }
 }

@@ -10,7 +10,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.jflame.toolkit.config.DefaultConfigKeys;
+import org.apache.commons.lang3.StringUtils;
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils;
@@ -18,11 +19,21 @@ import org.jflame.web.util.WebUtils;
 /**
  * 按匹配规则忽略过滤url的Filter抽象基类,使用正则表达式匹配,参数:<br>
  * 1.ignoreStatic[可选] 是否忽略静态资源文件,默认为true;<br>
- * 2.ignoreUrlPattern[可选] 要忽略的URL正则;<br>
+ * 2.ignoreUrlPattern[可选] 要忽略的URL匹配字符串,多个以逗号分隔.<br>
+ * 3.默认以ant风格的url匹配规则
  * 
  * @author yucan.zhang
  */
 public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
+
+    /**
+     * IgnoreUrlMatchFilter参数名,是否忽略静态文件,默认true
+     */
+    private final ConfigKey<Boolean> IGNORE_STATIC = new ConfigKey<>("ignoreStatic", true);
+    /**
+     * IgnoreUrlMatchFilter参数名,要忽略的url匹配规则
+     */
+    private final ConfigKey<String> IGNORE_PATTERN = new ConfigKey<>("ignorePattern");
 
     private boolean ignoreStatic;
     private String ignoreUrlPattern;
@@ -42,10 +53,12 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
 
     @Override
     protected final void internalInit(FilterConfig filterConfig) {
-        ignoreStatic = filterParam.getBoolean(DefaultConfigKeys.IGNORE_STATIC);
-        ignoreUrlPattern = filterParam.getString(DefaultConfigKeys.IGNORE_PATTERN);
+        ignoreStatic = filterParam.getBoolean(IGNORE_STATIC);
+        ignoreUrlPattern = filterParam.getString(IGNORE_PATTERN);
         if (StringHelper.isNotEmpty(ignoreUrlPattern)) {
-            matcher = new RegexUrlPatternMatcherStrategy(ignoreUrlPattern);
+            String[] urlPattern = StringUtils.deleteWhitespace(ignoreUrlPattern)
+                    .split(",");
+            matcher = new AntStyleUrlPatternMatcherStrategy(urlPattern);
         }
     }
 

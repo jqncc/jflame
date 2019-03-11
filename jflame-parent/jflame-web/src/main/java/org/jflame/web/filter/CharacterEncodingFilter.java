@@ -1,6 +1,7 @@
 package org.jflame.web.filter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -14,7 +15,8 @@ public class CharacterEncodingFilter extends OncePerRequestFilter {
 
     private String encoding;
     private boolean forceEncoding = false;
-    private final ConfigKey<String> CHARSET_ENCODE_ENCODING = new ConfigKey<>("encoding", "utf-8");
+    private final ConfigKey<String> CHARSET_ENCODE_ENCODING = new ConfigKey<>("encoding",
+            StandardCharsets.UTF_8.name());
     private final ConfigKey<Boolean> CHARSET_ENCODE_FORCE = new ConfigKey<>("forceEncoding", false);
 
     @Override

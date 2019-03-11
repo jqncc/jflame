@@ -9,7 +9,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jflame.toolkit.config.BaseParamStrategy;
+import org.jflame.toolkit.config.CommonConfigKeys;
 import org.jflame.toolkit.config.FilterParamConfig;
+import org.jflame.toolkit.config.PropertiesConfigHolder;
+import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,20 +25,33 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class OncePerRequestFilter implements Filter {
 
-    private static final Logger log = LoggerFactory.getLogger(OncePerRequestFilter.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     protected String alreadyFilteredFlag;
-    protected FilterParamConfig filterParam;
+    protected BaseParamStrategy filterParam;
     protected static final String ALREADY_FILTERED_SUFFIX = ".FILTERED";
 
     @Override
     public final void init(FilterConfig filterConfig) throws ServletException {
-        String name =filterConfig.getFilterName();
+        String name = filterConfig.getFilterName();
         if (name == null) {
             name = getClass().getName();
         }
-        alreadyFilteredFlag=name + ALREADY_FILTERED_SUFFIX;
-        filterParam = new FilterParamConfig(filterConfig);
+        alreadyFilteredFlag = name + ALREADY_FILTERED_SUFFIX;
+        initParamStrategy(filterConfig);
         internalInit(filterConfig);
+    }
+
+    private void initParamStrategy(FilterConfig filterConfig) {
+        String configFile = filterConfig.getServletContext()
+                .getInitParameter(CommonConfigKeys.CONFIG_FILE_KEY);
+        if (StringHelper.isNotEmpty(configFile)) {
+            String[] propertiesFile = StringUtils.deleteWhitespace(configFile)
+                    .split(",");
+            PropertiesConfigHolder.loadConfig(propertiesFile);
+            filterParam = PropertiesConfigHolder.getConfig();
+        } else {
+            filterParam = new FilterParamConfig(filterConfig);
+        }
     }
 
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
@@ -42,7 +60,7 @@ public abstract class OncePerRequestFilter implements Filter {
             log.trace("Filter '{}' already executed.  Proceeding without invoking this filter.", alreadyFilteredFlag);
             filterChain.doFilter(request, response);
         } else {
-            log.trace("Filter '{}' not yet executed.  Executing now.",alreadyFilteredFlag);
+            log.trace("Filter '{}' not yet executed.  Executing now.", alreadyFilteredFlag);
             request.setAttribute(alreadyFilteredFlag, Boolean.TRUE);
             try {
                 doFilterInternal(request, response, filterChain);

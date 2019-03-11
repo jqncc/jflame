@@ -3,16 +3,53 @@ package org.jflame.toolkit.zookeeper;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.zookeeper.CreateMode;
-
 public interface ZookeeperClient {
 
     /**
-     * 创建节点,默认持久节点
+     * 创建持久节点
      * 
      * @param path 节点路径
      */
     String create(String path);
+
+    // CreateMode.EPHEMERAL;CreateMode.EPHEMERAL_SEQUENTIAL,CreateMode.PERSISTENT,CreateMode.PERSISTENT_SEQUENTIAL
+    /**
+     * 创建临时节点
+     * 
+     * @param path 节点路径
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    String createEphemeral(String path, boolean isSequential);
+
+    /**
+     * 创建持久节点
+     * 
+     * @param path 节点路径
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    String createPersistent(String path, boolean isSequential);
+
+    /**
+     * 创建临时节点,并存储数据
+     * 
+     * @param path 节点路径
+     * @param data 节点数据,可序列化的对象
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    String createEphemeral(String path, Serializable data, boolean isSequential);
+
+    /**
+     * 创建持久节点,并存储数据
+     * 
+     * @param path 节点路径
+     * @param data 节点数据,可序列化的对象
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    String createPersistent(String path, Serializable data, boolean isSequential);
 
     /**
      * 创建节点
@@ -21,7 +58,7 @@ public interface ZookeeperClient {
      * @param mode zk模式
      * @return
      */
-    String create(String path, CreateMode mode);
+    // String create(String path, CreateMode mode);
 
     /**
      * 创建节点,并存入数据
@@ -31,7 +68,7 @@ public interface ZookeeperClient {
      * @param mode zk模式
      * @return 最终路径
      */
-    String create(String path, Serializable data, CreateMode mode);
+    // String create(String path, Serializable data, CreateMode mode);
 
     /**
      * 删除节点

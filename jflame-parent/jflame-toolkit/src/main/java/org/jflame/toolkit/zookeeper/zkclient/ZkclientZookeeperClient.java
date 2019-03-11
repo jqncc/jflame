@@ -127,7 +127,7 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
     @Override
     public String create(String path, Serializable data, CreateMode createMode) {
-        return client.create(path, data != null ? SerializationUtils.serialize(data) : null, createMode);
+        return client.create(path, data, createMode);
     }
 
     @Override
@@ -148,6 +148,9 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
         @Override
         public Object deserialize(byte[] bytes) throws ZkMarshallingError {
+            if (bytes == null) {
+                return null;
+            }
             return SerializationUtils.deserialize(bytes);
         }
 

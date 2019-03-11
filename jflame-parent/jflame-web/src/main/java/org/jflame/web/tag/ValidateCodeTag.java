@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.util.WebUtils;
+import org.jflame.toolkit.util.UrlHelper;
 
 /**
  * 图片验证码生成标签. 示例:
@@ -70,7 +70,7 @@ public class ValidateCodeTag extends UIHtmlTag {
     public void setUrl(String url) {
         String contextPath = getContextPath();
         if (!url.startsWith("http") && !url.startsWith(contextPath)) {
-            this.url = WebUtils.mergeUrl(contextPath, url);
+            this.url = UrlHelper.mergeUrl(contextPath, url);
         } else {
             this.url = url;
         }

@@ -11,26 +11,36 @@ import javax.servlet.http.HttpSession;
 
 import org.jflame.toolkit.common.bean.CallResult;
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
-import org.jflame.toolkit.config.DefaultConfigKeys;
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.config.ServletParamConfig;
+import org.jflame.toolkit.util.JsonHelper;
 import org.jflame.toolkit.util.StringHelper;
+import org.jflame.toolkit.util.UrlHelper;
 import org.jflame.web.util.WebUtils;
 
 @SuppressWarnings("serial")
 public class LogoutServlet extends HttpServlet {
 
     private String logoutPage;
+    private String logoutJson;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
+
+        ConfigKey<String> LOGOUT_PAGE_KEY = new ConfigKey<>("logoutPage");// 注销后跳转页面
+        ConfigKey<String> LOGOUT_JSON_KEY = new ConfigKey<>("logoutJson");// 注销后返回的json消息,ajax请求时使用
+
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        logoutPage = servletParam.getString(DefaultConfigKeys.LOGOUT_PAGE);
+        logoutPage = servletParam.getString(LOGOUT_PAGE_KEY);
         if (StringHelper.isNotEmpty(logoutPage)) {
             logoutPage = logoutPage.trim();
         }
+        logoutJson = servletParam.getString(LOGOUT_JSON_KEY);
+        if (StringHelper.isNotEmpty(logoutJson)) {
+            logoutJson = JsonHelper.toJson(new CallResult<>(ResultEnum.SUCCESS.getStatus(), "登出成功"));
+        }
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
         beforeLogout(request, resp);
@@ -39,7 +49,7 @@ public class LogoutServlet extends HttpServlet {
             session.invalidate();
         }
         if (WebUtils.isAjaxRequest(request)) {
-            WebUtils.outJson(resp, new CallResult(ResultEnum.SUCCESS));
+            WebUtils.outJson(resp, logoutJson);
         } else {
             forward(request, resp);
         }
@@ -51,12 +61,12 @@ public class LogoutServlet extends HttpServlet {
     }
 
     protected void forward(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        if (WebUtils.isAbsoluteUrl(logoutPage)) {
+        if (UrlHelper.isAbsoluteUrl(logoutPage)) {
             resp.sendRedirect(logoutPage);
         } else {
             String sitePath = WebUtils.getApplicationPath(request);
             if (logoutPage != null) {
-                sitePath = WebUtils.mergeUrl(sitePath, logoutPage);
+                sitePath = UrlHelper.mergeUrl(sitePath, logoutPage);
             }
             resp.sendRedirect(sitePath);
         }
@@ -68,6 +78,14 @@ public class LogoutServlet extends HttpServlet {
 
     public void setLogoutPage(String logoutPage) {
         this.logoutPage = logoutPage;
+    }
+
+    public String getLogoutJson() {
+        return logoutJson;
+    }
+
+    public void setLogoutJson(String logoutJson) {
+        this.logoutJson = logoutJson;
     }
 
 }

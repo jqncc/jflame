@@ -18,10 +18,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.config.DefaultConfigKeys;
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.toolkit.valid.ValidatorHelper;
+import org.jflame.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,15 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
 
     private final Logger logger = LoggerFactory.getLogger(CsrfFilter.class);
 
+    /**
+     * CsrfFilter参数,验证失败中转页面
+     */
+    ConfigKey<String> CSRF_ERROR_PAGE = new ConfigKey<>("csrf.errorpage");
+    /**
+     * CsrfFilter参数,白名单文件路径
+     */
+    ConfigKey<String> CSRF_WHITE_FILE = new ConfigKey<>("csrf.whitefile");
+
     private List<String> whiteUrls; // 白名单
     private String errorPage;// 错误转向页面
     private final String headerReferer = "Referer";
@@ -52,10 +62,12 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
         if (isWhiteReq(referurl, request)) {
             chain.doFilter(request, response);
         } else {
-            String url = request.getRequestURL().toString();
-            logger.warn("非法请求来源:url={},referer={}", url, referurl);
+            String url = request.getRequestURL()
+                    .toString();
+            logger.warn("非法请求来源:ip={},url={},referer={}", WebUtils.getRemoteClientIP(request), url, referurl);
             if (StringHelper.isNotEmpty(errorPage)) {
-                request.getRequestDispatcher(errorPage).forward(request, response);
+                request.getRequestDispatcher(errorPage)
+                        .forward(request, response);
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "非法请求来源");
             }
@@ -73,11 +85,14 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
         } else {
             URI refererUri = URI.create(referUrl);
             // 只比较域名
-            if (refererUri.getHost().equals(request.getServerName())) {
+            if (refererUri.getHost()
+                    .equals(request.getServerName())) {
                 isSafeUri = true;
             } else {
-                logger.debug("referer uri,host={},port={}", refererUri.getHost(), refererUri.getPort());
-                logger.debug("request uri,host={},port={}", request.getServerName(), request.getServerPort());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("referer uri,host={},port={}", refererUri.getHost(), refererUri.getPort());
+                    logger.debug("request uri,host={},port={}", request.getServerName(), request.getServerPort());
+                }
                 if (CollectionHelper.isNotEmpty(whiteUrls)) {
                     for (String urlRegex : whiteUrls) {
                         if (ValidatorHelper.regex(referUrl, urlRegex)) {
@@ -94,11 +109,10 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
 
     @Override
     protected void doInternalInit(FilterConfig filterConfig) {
-        String whiteFile = filterParam.getString(DefaultConfigKeys.CSRF_WHITE_FILE);
-        errorPage = filterParam.getString(DefaultConfigKeys.CSRF_ERROR_PAGE);
+        String whiteFile = filterParam.getString(CSRF_WHITE_FILE);
+        errorPage = filterParam.getString(CSRF_ERROR_PAGE);
 
         if (StringHelper.isNotEmpty(whiteFile)) {
-            // List<String> whiteUrlStrs = null;
             try {
                 URL url = CsrfFilter.class.getResource(whiteFile.trim());
                 if (url != null) {
@@ -114,21 +128,6 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
             } catch (IOException | URISyntaxException e) {
                 logger.error("csrf白名单读取失败", e);
             }
-            /* if (CollectionHelper.isNotEmpty(whiteUrlStrs)) {
-                whiteUrls = new ArrayList<>();
-                for (String urlStr : whiteUrlStrs) {
-                    if (StringUtils.isNotBlank(urlStr)) {
-                        if (!WebUtils.isAbsoluteUrl(urlStr)) {
-                            urlStr = "http://" + urlStr;
-                        }
-                        try {
-                            whiteUrls.add(URI.create(urlStr.trim()));
-                        } catch (IllegalArgumentException e) {
-                            logger.error("不是正确的URI地址" + urlStr, e);
-                        }
-                    }
-                }
-            }*/
         }
     }
 

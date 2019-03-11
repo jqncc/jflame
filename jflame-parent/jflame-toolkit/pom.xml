@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.1.6-beta</version>
+		<version>1.2.0-beta</version>
 	</parent>
 	<dependencies>
 		<dependency>
@@ -20,12 +20,6 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.49</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>javax.el-api</artifactId>
-			<version>3.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 		<!-- ftp操作 -->
 		<dependency>
@@ -47,12 +41,19 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>6.0.12.Final</version>
 		</dependency>
+		<!-- el3.0包tomcat8内置,使用org.glassfish/javax.el可替换 -->
 		<dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>3.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+		<!-- <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
             <version>3.0.1-b09</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency> -->
 		<!-- 第三方加密组件 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -67,14 +68,14 @@
 			<version>1.0-SNAPSHOT</version>
 			<optional>true</optional>
 		</dependency>
+		<!--<dependency> <groupId>net.coobird</groupId> <artifactId>thumbnailator</artifactId> 
+			<version>0.4.8</version> <optional>true</optional> </dependency> -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>${version.servlet}</version>
 			<scope>provided</scope>
 		</dependency>
-		<!--<dependency> <groupId>net.coobird</groupId> <artifactId>thumbnailator</artifactId> 
-			<version>0.4.8</version> <optional>true</optional> </dependency> -->
 		<dependency>
 			<groupId>org.apache.zookeeper</groupId>
 			<artifactId>zookeeper</artifactId>
@@ -122,7 +123,7 @@
 		<dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
-            <version>1.8.14.RELEASE</version>
+            <version>2.1.5.RELEASE</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -131,5 +132,11 @@
             <version>2.9.0</version>
             <optional>true</optional>
         </dependency>
+        
+       <!--  <dependency>
+    <groupId>io.lettuce</groupId>
+    <artifactId>lettuce-core</artifactId>
+    <version>5.1.4.RELEASE</version>
+</dependency> -->
 	</dependencies>
 </project>

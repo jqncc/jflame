@@ -9,21 +9,30 @@ import java.util.regex.Pattern;
  */
 public final class RegexUrlPatternMatcherStrategy implements UrlPatternMatcherStrategy {
 
-    private Pattern pattern;
+    private Pattern[] patterns;
 
     public RegexUrlPatternMatcherStrategy() {
     }
 
-    public RegexUrlPatternMatcherStrategy(final String pattern) {
-        this.setPattern(pattern);
+    public RegexUrlPatternMatcherStrategy(final String... patterns) {
+        this.setPattern(patterns);
     }
 
     public boolean matches(final String url) {
-        return this.pattern.matcher(url).find();
+        for (Pattern pattern : patterns) {
+            if (pattern.matcher(url)
+                    .find()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public void setPattern(String _pattern) {
-        this.pattern = Pattern.compile(_pattern);
+    public void setPattern(String... _patterns) {
+        patterns = new Pattern[_patterns.length];
+        for (int i = 0; i < _patterns.length; i++) {
+            patterns[i] = Pattern.compile(_patterns[i]);
+        }
     }
 }

@@ -4,14 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
+import org.jflame.toolkit.cache.RedisClient;
 
 /**
  * redis分布式锁
@@ -20,7 +15,7 @@ import redis.clients.jedis.JedisCluster;
  */
 public class RedisLock implements DistributedLock {
 
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisClient redisClient;
 
     private final int DEFAULT_WAIT_TIME = 5 * 1000;// 默认获取锁等待时间5秒
     private final String lockKeyPrefix = "redis:lock:";
@@ -29,7 +24,7 @@ public class RedisLock implements DistributedLock {
 
     private String lockKey;// 锁的键名
     private String lockValue;
-    private int lockExpire;// 锁超时时间,单位秒
+    private long lockExpire;// 锁超时时间,单位秒
 
     void buildLuaScript() {
         StringBuilder sb = new StringBuilder();
@@ -45,14 +40,14 @@ public class RedisLock implements DistributedLock {
     /**
      * 构造函数
      * 
-     * @param redisTemplate StringRedisTemplate
+     * @param _redisClient RedisClient
      * @param lockName 锁名,最终锁名"redis:lock:lockName"
-     * @param lockExpire 锁超时时间,单位毫秒
+     * @param lockExpire 锁超时时间,单位秒
      */
-    public RedisLock(RedisTemplate<String,String> redisTemplate, String lockName, int lockExpire) {
-        this.redisTemplate = redisTemplate;
+    public RedisLock(RedisClient _redisClient, String lockName, long expireInSecond) {
+        this.redisClient = _redisClient;
         this.lockKey = lockKeyPrefix + lockName;
-        this.lockExpire = lockExpire / 1000;
+        this.lockExpire = expireInSecond;
         if (lockExpire <= 0) {
             throw new IllegalArgumentException("锁的过期时间必须大于0");
         }
@@ -76,7 +71,7 @@ public class RedisLock implements DistributedLock {
                 .toString();
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < waitTime) {
-            if (OK.equalsIgnoreCase(setNX(lockKey, lockValue))) {
+            if (setNX(lockKey, lockValue)) {
                 locked = true; // 上锁成功结束请求
                 return true;
             }
@@ -95,38 +90,43 @@ public class RedisLock implements DistributedLock {
      */
     public synchronized void unlock() {
         if (locked) {
-            redisTemplate.execute(new RedisCallback<Boolean>() {
+            List<Object> keys = Arrays.asList(lockKey);
+            List<Object> values = Arrays.asList(lockValue);
+            Long result = (Long) redisClient.runScript(UNLOCK_LUASCRIPT, keys, values);
+            locked = result == 0;
 
+            /*redisClient.execute(new RedisCallback<Boolean>() {
+            
                 @Override
                 public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
                     Object nativeConnection = connection.getNativeConnection();
                     Long result = 0L;
-                    List<String> keys = Arrays.asList(lockKey);
-                    List<String> values = Arrays.asList(lockValue);
+                    
                     if (nativeConnection instanceof JedisCluster) {
                         result = (Long) ((JedisCluster) nativeConnection).eval(UNLOCK_LUASCRIPT, keys, values);
                     }
                     if (nativeConnection instanceof Jedis) {
                         result = (Long) ((Jedis) nativeConnection).eval(UNLOCK_LUASCRIPT, keys, values);
                     }
-
+            
                     locked = result == 0;
                     return result == 1;
                 }
-            });
+            });*/
         }
     }
 
-    final String NX = "NX";
+    // final String NX = "NX";
     // seconds — 以秒为单位设置 key 的过期时间，等效于EXPIRE key seconds
-    final String EX = "EX";
+    // final String EX = "EX";
     // 调用set后的返回值
-    final String OK = "OK";
+    // final String OK = "OK";
 
-    private String setNX(final String key, final String value) {
+    private boolean setNX(final String key, final String value) {
+        return redisClient.setIfAbsent(key, value, lockExpire, TimeUnit.SECONDS);
 
-        return redisTemplate.execute(new RedisCallback<String>() {
-
+        /*return redisClient.execute(new RedisCallback<String>() {
+        
             @Override
             public String doInRedis(RedisConnection connection) throws DataAccessException {
                 Object nativeConnection = connection.getNativeConnection();
@@ -141,10 +141,10 @@ public class RedisLock implements DistributedLock {
                 }
                 return result;
             }
-        });
+        });*/
     }
 
-    public int getLockExpire() {
+    public long getLockExpire() {
         return lockExpire;
     }
 

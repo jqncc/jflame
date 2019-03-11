@@ -163,7 +163,9 @@ public final class PropertiesHelper {
     private void loadProperties(String... resourcesPaths) throws IOException {
         for (String location : resourcesPaths) {
             if (StringHelper.isNotEmpty(location)) {
-                log.debug("加载资源文件{}", location);
+                if (log.isDebugEnabled()) {
+                    log.debug("加载资源文件{}", location);
+                }
                 InputStream inStream = null;
                 // 非绝对路径从classpath读取
                 if (isAbsolute(location)) {

@@ -88,7 +88,7 @@ public class ExcelAnnotationResolver {
                         .equals(property)) {
                     tmpAnns = null;
                     tmpReadMethod = pd.getReadMethod();
-                    if (tmpReadMethod.isAnnotationPresent(clazz)) {
+                    if (tmpReadMethod != null && tmpReadMethod.isAnnotationPresent(clazz)) {
                         tmpAnns = tmpReadMethod.getAnnotation(clazz);
                     }
                     if (tmpAnns == null) {

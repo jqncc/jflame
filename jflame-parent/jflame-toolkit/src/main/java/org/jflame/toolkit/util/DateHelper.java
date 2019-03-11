@@ -251,7 +251,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔分钟数.startTime大于endTime时返回负数<br>
+     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
      * 
      * @param startTime 时间1
      * @param endTime 时间2
@@ -267,7 +267,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔分钟数.startTime大于endTime时返回负数<br>
+     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
      * 
      * @param startTime 时间1
      * @param endTime 时间2
@@ -283,7 +283,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔小时数.startTime大于endTime时返回负数<br>
+     * 计算两个日期间隔小时数.startTime小于endTime时返回负数<br>
      * 注:整数计算,如55分钟内为0小时,79分钟为1小时
      * 
      * @param startTime 时间1
@@ -300,7 +300,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔天数.date1大于date2时返回负数
+     * 计算两个日期间隔天数.date1小于date2时返回负数
      * 
      * @param date1 时间1
      * @param date2 时间2
@@ -497,5 +497,15 @@ public final class DateHelper {
             }
         }
         throw new IllegalArgumentException("无法解析时间表达式" + expression);
+    }
+
+    /**
+     * 返回unix时间戳
+     * 
+     * @param date
+     * @return
+     */
+    public static long unixTimestamp(Date date) {
+        return date.getTime() / 1000;
     }
 }

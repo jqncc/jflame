@@ -2,8 +2,8 @@ package org.jflame.web.filter;
 
 /**
  * url匹配策略接口
+ * 
  * @author yucan.zhang
- *
  */
 public interface UrlPatternMatcherStrategy {
 
@@ -20,5 +20,5 @@ public interface UrlPatternMatcherStrategy {
      * 
      * @param pattern
      */
-    void setPattern(String pattern);
+    void setPattern(String... pattern);
 }

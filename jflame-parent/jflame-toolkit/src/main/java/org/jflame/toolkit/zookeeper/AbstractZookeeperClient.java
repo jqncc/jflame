@@ -1,5 +1,6 @@
 package org.jflame.toolkit.zookeeper;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,7 +56,53 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
     }
 
     public String create(String path) {
-        return create(path, null, CreateMode.PERSISTENT);
+        return createPersistent(path, null, false);
+    }
+
+    /**
+     * 创建临时节点
+     * 
+     * @param path 节点路径
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    public String createEphemeral(String path, boolean isSequential) {
+        return createEphemeral(path, null, isSequential);
+    }
+
+    /**
+     * 创建持久节点
+     * 
+     * @param path 节点路径
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    public String createPersistent(String path, boolean isSequential) {
+        return createPersistent(path, null, isSequential);
+    }
+
+    /**
+     * 创建临时节点,并存储数据
+     * 
+     * @param path 节点路径
+     * @param data 节点数据,可序列化的对象
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    public String createEphemeral(String path, Serializable data, boolean isSequential) {
+        return create(path, data, isSequential ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.EPHEMERAL);
+    }
+
+    /**
+     * 创建持久节点,并存储数据
+     * 
+     * @param path 节点路径
+     * @param data 节点数据,可序列化的对象
+     * @param isSequential 是否顺序编号
+     * @return
+     */
+    public String createPersistent(String path, Serializable data, boolean isSequential) {
+        return create(path, data, isSequential ? CreateMode.PERSISTENT_SEQUENTIAL : CreateMode.PERSISTENT);
     }
 
     /**
@@ -65,9 +112,9 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
      * @param mode zk模式
      * @return
      */
-    public String create(String path, CreateMode mode) {
+    /* public String create(String path, CreateMode mode) {
         return create(path, null, mode);
-    }
+    }*/
 
     public void addStateListener(StateListener listener) {
         stateListeners.add(listener);
@@ -130,7 +177,7 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
 
     // protected abstract void createPersistent(String path);
 
-    // protected abstract void createEphemeral(String path);
+    protected abstract String create(String path, Serializable data, CreateMode mode);
 
     protected abstract T createTargetChildListener(String path, ChildListener listener);
 
