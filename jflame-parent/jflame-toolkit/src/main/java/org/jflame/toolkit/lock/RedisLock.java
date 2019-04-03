@@ -42,7 +42,7 @@ public class RedisLock implements DistributedLock {
      * 
      * @param _redisClient RedisClient
      * @param lockName 锁名,最终锁名"redis:lock:lockName"
-     * @param lockExpire 锁超时时间,单位秒
+     * @param expireInSecond 锁超时时间,单位秒
      */
     public RedisLock(RedisClient _redisClient, String lockName, long expireInSecond) {
         this.redisClient = _redisClient;
@@ -92,7 +92,7 @@ public class RedisLock implements DistributedLock {
         if (locked) {
             List<Object> keys = Arrays.asList(lockKey);
             List<Object> values = Arrays.asList(lockValue);
-            Long result = (Long) redisClient.runScript(UNLOCK_LUASCRIPT, keys, values);
+            Long result = redisClient.runScript(UNLOCK_LUASCRIPT, keys, values, Long.class);
             locked = result == 0;
 
             /*redisClient.execute(new RedisCallback<Boolean>() {
@@ -146,6 +146,10 @@ public class RedisLock implements DistributedLock {
 
     public long getLockExpire() {
         return lockExpire;
+    }
+
+    public String getLockKey() {
+        return lockKey;
     }
 
 }

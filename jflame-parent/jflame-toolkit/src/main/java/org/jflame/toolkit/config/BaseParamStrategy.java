@@ -98,11 +98,6 @@ public abstract class BaseParamStrategy implements ParamStrategy {
         final String value = getParam(configKey);
         T result = null;
         if (StringHelper.isNotEmpty(value)) {
-            if (logger.isDebugEnabled()) {
-
-                logger.debug("No value found for property {}, returning default {}", configKey.getName(),
-                        configKey.getDefaultValue());
-            }
             result = parser.parse(value.trim());
         }
         return Objects.isNull(result) ? configKey.getDefaultValue() : result;

@@ -19,8 +19,9 @@ public final class RedisClientFactory {
         } else if (x instanceof RedisConnectionFactory) {
             RedisTemplate<byte[],byte[]> redisTemplate = new RedisTemplate<>();
             redisTemplate.setConnectionFactory((RedisConnectionFactory) x);
+            redisTemplate.afterPropertiesSet();
             return new SpringCacheClientImpl(redisTemplate);
         }
-        throw new IllegalArgumentException("无法生成RedisClient实例,参数只支付JedisConnection,RedisConnectionFactory类型");
+        throw new IllegalArgumentException("无法生成RedisClient实例,参数只支持JedisConnection,RedisConnectionFactory类型");
     }
 }

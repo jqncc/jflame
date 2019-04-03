@@ -11,7 +11,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数布尔值,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return Boolean
      */
     Boolean getBoolean(ConfigKey<Boolean> configKey);
@@ -19,7 +19,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数string值,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return string
      */
     String getString(ConfigKey<String> configKey);
@@ -27,7 +27,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数Long值,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return Long
      */
     Long getLong(ConfigKey<Long> configKey);
@@ -35,7 +35,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数Integer值,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return Integer
      */
     Integer getInt(ConfigKey<Integer> configKey);
@@ -43,7 +43,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数Double值,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return Double
      */
     Double getDouble(ConfigKey<Double> configKey);
@@ -51,7 +51,7 @@ public interface ParamStrategy {
     /**
      * 获取配置参数值,值是以逗号分隔的字符串,转为字符串数组,如果为null返回ConfigKey的缺省值
      * 
-     * @param ConfigKey
+     * @param configKey
      * @return String[]
      */
     String[] getStringArray(ConfigKey<String[]> configKey);
@@ -60,7 +60,7 @@ public interface ParamStrategy {
      * 获取配置参数,如果为null返回ConfigKey的缺省值
      * 
      * @param ConfigKey
-     * @param T 参数值泛型
+     * @param parser
      * @return
      */
     <T> T getValue(ConfigKey<T> ConfigKey, Parser<T> parser);

@@ -78,9 +78,9 @@ public class JedisConnection implements Closeable, AutoCloseable {
      * 构造函数,默认单机模式
      * 
      * @param hostName
-     * @param password
      * @param database
-     * @param poolConfig
+     * @param poolConfig 连接池配置
+     * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
     public JedisConnection(String hostName, int database, JedisPoolConfig poolConfig, boolean lazy) {
         this(RedisMode.single.name(), hostName, database, poolConfig, lazy);
@@ -93,7 +93,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
      * @param hostName Redis 主机连接信息.格式: ip:port,ip1:port1
      * @param database 数据库
      * @param poolConfig 连接池配置
-     * @param isLazy 是否延迟开启连接池直到第一次获取连接
+     * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
     public JedisConnection(String mode, String hostName, int database, JedisPoolConfig poolConfig, boolean lazy) {
         currentMode = RedisMode.valueOf(mode);
@@ -232,74 +232,6 @@ public class JedisConnection implements Closeable, AutoCloseable {
         if (sharded != null)
             sharded.close();
     }
-
-    /**
-     * JedisClient 构造器
-     */
-    /* public static class Builder {
-    
-        private RedisMode mode;
-        private String hosts;
-        private String password;
-        private String cluster;
-        private int database;
-        private JedisPoolConfig poolConfig;
-    
-        public Builder() {
-        }
-    
-        *//**
-           * 设置redis mode
-           * 
-           * @param mode RedisMode枚举
-           * @return
-           *//*
-            public Builder mode(String mode) {
-            if (mode != null) {
-            mode = mode.trim();
-            }
-            this.mode = RedisMode.valueOf(mode);
-            return this;
-            }
-            
-            public Builder mode(RedisMode mode) {
-            this.mode = mode;
-            return this;
-            }
-            
-            public Builder hosts(String hosts) {
-            if (StringHelper.isEmpty(hosts))
-            this.hosts = "127.0.0.1:6379";
-            else
-            this.hosts = hosts;
-            return this;
-            }
-            
-            public Builder password(String password) {
-            if (StringHelper.isEmpty(password))
-            this.password = password;
-            return this;
-            }
-            
-            public Builder cluster(String cluster) {
-            this.cluster = cluster;
-            return this;
-            }
-            
-            public Builder database(int database) {
-            this.database = database;
-            return this;
-            }
-            
-            public Builder poolConfig(JedisPoolConfig poolConfig) {
-            this.poolConfig = poolConfig;
-            return this;
-            }
-            
-            public JedisConnection newClient() {
-            return new JedisConnection(mode, hosts, password, cluster, database, poolConfig);
-            }
-            }*/
 
     /**
      * 为了变态的 jedis 接口设计，搞了五百多行垃圾代码

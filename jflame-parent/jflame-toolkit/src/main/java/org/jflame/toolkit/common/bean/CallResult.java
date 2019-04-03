@@ -71,6 +71,16 @@ public class CallResult<T> extends SimpleResult {
         this.message = message;
     }
 
+    public CallResult<T> status(int code) {
+        this.status = code;
+        return this;
+    }
+
+    public CallResult<T> message(String message) {
+        this.message = message;
+        return this;
+    }
+
     public T getData() {
         return data;
     }

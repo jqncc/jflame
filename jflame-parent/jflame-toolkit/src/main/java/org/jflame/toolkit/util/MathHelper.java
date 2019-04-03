@@ -33,6 +33,9 @@ public final strictfp class MathHelper {
      * @throws NumberFormatException 转换异常
      */
     public static final BigDecimal createBigDecimal(Number number) {
+        if (number instanceof BigDecimal) {
+            return (BigDecimal) number;
+        }
         return createBigDecimal(String.valueOf(number));
     }
 

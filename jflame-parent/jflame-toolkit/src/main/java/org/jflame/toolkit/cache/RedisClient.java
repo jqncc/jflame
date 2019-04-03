@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ public interface RedisClient {
     byte[] xxBytes = CharsetHelper.getUtf8Bytes("XX");
     byte[] exBytes = CharsetHelper.getUtf8Bytes("EX");
     byte[] pxBytes = CharsetHelper.getUtf8Bytes("PX");
+
+    String ok = "OK";
 
     default byte[] toBytes(Object obj) {
         if (obj instanceof byte[]) {
@@ -59,6 +62,17 @@ public interface RedisClient {
         return bytes;
     }
 
+    default <T> Map<byte[],byte[]> toBytes(Map<? extends Serializable,? extends Serializable> map) {
+        if (map == null) {
+            return null;
+        }
+        Map<byte[],byte[]> byteMap = new HashMap<>(map.size());
+        map.forEach((k, v) -> {
+            byteMap.put(toBytes(k), toBytes(v));
+        });
+        return byteMap;
+    }
+
     default <T> byte[][] toByteArray(Collection<?> set) {
         if (CollectionHelper.isEmpty(set)) {
             return null;
@@ -84,7 +98,7 @@ public interface RedisClient {
 
     @SuppressWarnings("unchecked")
     default <T extends Serializable> Set<T> fromBytes(Set<byte[]> bytes) {
-        if (CollectionHelper.isEmpty(bytes)) {
+        if (bytes == null) {
             return null;
         }
         Set<T> set = new HashSet<>(bytes.size());
@@ -117,12 +131,50 @@ public interface RedisClient {
 
     IGenericSerializer getSerializer();
 
+    /**
+     * 查看剩余过期时间,单位秒
+     * 
+     * @param key
+     * @return
+     */
+    long ttl(Object key);
+
+    /**
+     * 设置缓存
+     * 
+     * @param key
+     * @param value
+     */
     void set(Object key, Object value);
 
+    /**
+     * 设置缓存和缓存时间
+     * 
+     * @param key
+     * @param value
+     * @param timeout
+     * @param timeUnit
+     */
     void set(Object key, Object value, long timeout, TimeUnit timeUnit);
 
+    /**
+     * 设置缓存,只有在键不存在时才设置
+     * 
+     * @param key
+     * @param value
+     * @return
+     */
     boolean setIfAbsent(Object key, Object value);
 
+    /**
+     * 设置缓存和缓存时间,只有在键不存在时才设置
+     * 
+     * @param key
+     * @param value
+     * @param timeout
+     * @param timeUnit
+     * @return
+     */
     boolean setIfAbsent(Object key, Object value, long timeout, TimeUnit timeUnit);
 
     /**
@@ -146,15 +198,32 @@ public interface RedisClient {
      * 一次获取多个值
      * 
      * @param keys
-     * @param clazz 元素类型
      * @return
      */
     <T extends Serializable> List<T> multiGet(Collection<?> keys);
 
+    /**
+     * 删除一个缓存
+     * 
+     * @param key 要删除的缓存键
+     * @return
+     */
     boolean delete(Object key);
 
+    /**
+     * 删除多个缓存
+     * 
+     * @param keys 要删除的缓存键集合
+     * @return 返回成功删除的数量
+     */
     long delete(Collection<?> keys);
 
+    /**
+     * 判断缓存是否存在
+     * 
+     * @param key
+     * @return
+     */
     boolean exists(Object key);
 
     /**
@@ -170,7 +239,7 @@ public interface RedisClient {
      * 设置缓存在某个时间点过期
      * 
      * @param key
-     * @param date
+     * @param date 时间点
      * @return
      */
     boolean expireAt(Object key, Date date);
@@ -192,6 +261,13 @@ public interface RedisClient {
      */
     Long incr(Object key, long incrValue);
 
+    /**
+     * 值增加指定大小(浮点型),具有原子性
+     * 
+     * @param key
+     * @param incrValue
+     * @return
+     */
     Double incrByFloat(Object key, double incrValue);
 
     /**
@@ -207,11 +283,17 @@ public interface RedisClient {
      * 
      * @param key 哈希集key
      * @param fieldKey 要获取的条目key
-     * @param clazz 结果类型
      * @return
      */
     <T extends Serializable> T hget(Object key, Object fieldKey);
 
+    /**
+     * 获取哈希集中多个条目值
+     * 
+     * @param key
+     * @param fieldKeys
+     * @return
+     */
     <T extends Serializable> List<T> hmultiGet(Object key, Collection<?> fieldKeys);
 
     /**
@@ -241,7 +323,7 @@ public interface RedisClient {
     boolean hputIfAbsent(Object key, Object fieldKey, Object value);
 
     /**
-     * 将map所有项新增到哈希集
+     * 将map所有项新增到哈希集,map的key和value作为哈希项中的key和value
      * 
      * @param key 哈希集key
      * @param map
@@ -252,7 +334,6 @@ public interface RedisClient {
      * 获取哈希集中所有的值
      * 
      * @param key 哈希集key
-     * @param clazz 值类型
      * @return
      */
     <T extends Serializable> List<T> hvalues(Object key);
@@ -261,7 +342,6 @@ public interface RedisClient {
      * 获取哈希集中所有的键
      * 
      * @param key 哈希集key
-     * @param filedKeyClazz 键类型
      * @return
      */
     <T extends Serializable> Set<T> hkeys(Object key);
@@ -284,60 +364,70 @@ public interface RedisClient {
     long hsize(Object key);
 
     /**
-     * 新增元素到set无序集合.返回成功新增的个数不包括已经存在的值
+     * 新增元素到set无序集合.
      * 
-     * @param value
-     * @return
+     * @param values 要新增的值
+     * @return 返回成功新增的个数不包括已经存在的值
      */
-    long sadd(Object key, Serializable... value);
+    long sadd(Object key, Serializable... values);
 
     /**
-     * 对比多个set集合,获取第一个集合中不存在于其他集合的元素
+     * 取一个集合与给定多个集合的差集的元素
      * 
-     * @param firstSetKey
-     * @param keys
-     * @return
+     * @param key 第一个集合key,不存在的 key被视为空集
+     * @param keys 要比对的集合
+     * @return 返回第一个集合key中不存在于其他集合的元素
      */
-    <T extends Serializable> Set<T> sdiff(Object firstSetKey, Collection<?> keys);
+    <T extends Serializable> Set<T> sdiff(Object key, Collection<Object> keys);
 
     /**
-     * 对比两个set集合,获取第一个集合中不存在于另一集合的元素
+     * 取两个集合的差集的元素
      * 
-     * @param firstSetKey
      * @param key
-     * @return
+     * @param otherKey
+     * @return 返回第一个集合key中不存在另一集合otherKey的元素
      */
-    <T extends Serializable> Set<T> sdiff(Object firstSetKey, Object otherKey);
+    <T extends Serializable> Set<T> sdiff(Object key, Object otherKey);
 
     /**
-     * 对比两个set集合,获取第一个集合中不存在于另一集合的元素并存储到指定的集合中,如果目标集合存在则覆盖
+     * 取两个集合的差集的元素,并存储到指定的集合中,如果目标集合存在则覆盖
      * 
-     * @param firstSetKey
      * @param key
-     * @param destKey 目标集合key
+     * @param otherKey
+     * @param destKey 存储结果的目标集合key
      */
-    void sdiffAndStore(Object firstSetKey, Object key, Object destKey);
+    void sdiffAndStore(Object key, Object otherKey, Object destKey);
 
     /**
-     * 求集合交集,如果其中一个集合为空结果为空
+     * 求两个集合的交集,如果其中一个集合为空结果为空
      * 
-     * @param keys
-     * @return
+     * @param key
+     * @param otherKey
+     * @return 交集元素
      */
     <T extends Serializable> Set<T> sintersect(Object key, Object otherKey);
+
+    /**
+     * 求多个集合的交集,如果其中一个集合为空结果为空
+     * 
+     * @param keys
+     * @return 交集元素
+     */
+    <T extends Serializable> Set<T> sintersect(List<Object> keys);
 
     /**
      * 求集合的交集并将结果存储到指定集合中
      * 
      * @param keys
-     * @param destKey
+     * @param destKey 存储结果的集合key
      */
-    void sintersectAndStore(Object key, Object otherKey, Object destKey);
+    void sintersectAndStore(List<Object> keys, Object destKey);
 
     /**
      * 集合并集
      * 
-     * @param keys
+     * @param key
+     * @param otherKey
      * @return
      */
     <T extends Serializable> Set<T> sunion(Object key, Object otherKey);
@@ -345,7 +435,8 @@ public interface RedisClient {
     /**
      * 求集合并集并将结果存储到指定的集合中
      * 
-     * @param keys
+     * @param key
+     * @param otherKey
      * @param destKey
      */
     void sunionAndStore(Object key, Object otherKey, Object destKey);
@@ -432,10 +523,10 @@ public interface RedisClient {
      * 新增多个元素到有序集
      * 
      * @param key
-     * @param tuple
+     * @param memberScores 成员为key分数为value的map
      * @return
      */
-    long zsadd(Object key, Set<SortedSetTuple<Serializable>> tuple);
+    long zsadd(Object key, Map<Object,Double> memberScores);
 
     /**
      * 获取有序集的元素个数
@@ -448,6 +539,7 @@ public interface RedisClient {
     /**
      * 返回有序集key中， score值在 min和 max之间(包括等于 min或 max)的成员的数量
      * 
+     * @param key 有序集key
      * @param min 最小值
      * @param max 最大值
      * @return
@@ -469,7 +561,7 @@ public interface RedisClient {
      * 返回有序集 中，指定区间内的成员,其中成员的位置按 score值递增(从小到大)来排序.
      * <p>
      * 下标参数都以0起始,你可以使用负数下标，以-1表示最后一个成员,超出范围的下标并不会引起错误。比如说，<br>
-     * 当startIndex大于最大下标，或是 startIndex>endIndex 时，只是是返回一个空列表。<br>
+     * 当startIndex大于最大下标，或是 startIndex&gt;endIndex 时，只是是返回一个空列表。<br>
      * 当endIndex大于最大下标时,取值只到最大下标
      * 
      * @param startIndex 开始下标
@@ -481,30 +573,32 @@ public interface RedisClient {
     /**
      * 返回有序集中，所有 score值介于 min和 max之间(包括等 min或 max)的成员,有序集成员按 score值递增(从小到大)次序排列。
      * 
-     * @param key
-     * @param min
-     * @param max
+     * @param key sortedset key
+     * @param min 最小分数
+     * @param max 最大分数
      * @return
      */
-    <T extends Serializable> Set<T> zrangeByScore(Object key, double min, double max);
+    <T extends Serializable> Set<T> zsrangeByScore(Object key, double min, double max);
 
     /**
      * 从有序集中删除一个或多个元素
      * 
-     * @param key set key
+     * @param key sortedset key
      * @param members 要删除的元素
      * @return 返回成功删除的个数
      */
     long zsremove(Object key, Object... members);
 
     /**
-     * @param key
+     * 按给定的索引删除有序集中的元素
+     * 
+     * @param key sortedset key
      * @param start
      * @param end
      */
-    void removeRange(Object key, long start, long end);
+    long zsremove(Object key, long start, long end);
 
-    void removeRangeByScore(Object key, double minScore, double maxScore);
+    long zsremoveByScore(Object key, double minScore, double maxScore);
 
     /**
      * 将一个或多个值 插入到列表的表头,如果列表不存在则新建
@@ -564,11 +658,10 @@ public interface RedisClient {
      * 移除并返回列表的头元素(阻塞式),当给定列表内没有任何元素可供弹出的时候，连接将被阻塞，直到等待超时或发现可弹出元素为止.
      * 
      * @param key
-     * @param timeout
-     * @param timeUnit
+     * @param timeout 阻塞时间,单位秒
      * @return
      */
-    <T extends Serializable> T lpop(Object key, long timeout, TimeUnit timeUnit);
+    <T extends Serializable> T lBlockPop(Object key, int timeout);
 
     /**
      * 移除并返回列表的尾元素
@@ -582,11 +675,10 @@ public interface RedisClient {
      * 移除并返回列表的尾元素(阻塞式),当给定列表内没有任何元素可供弹出的时候，连接将被阻塞，直到等待超时或发现可弹出元素为止.
      * 
      * @param key
-     * @param timeout
-     * @param timeUnit
+     * @param timeout 阻塞时间,单位秒
      * @return
      */
-    <T extends Serializable> T rpop(Object key, long timeout, TimeUnit timeUnit);
+    <T extends Serializable> T rBlockPop(Object key, int timeout);
 
     /**
      * 返回列表的长度
@@ -666,12 +758,23 @@ public interface RedisClient {
     // Set<Object> keys(String pattern);
 
     /**
-     * 运行一个无返回结果的lua脚本命令
+     * 运行lua脚本命令.eval命令
+     * 
+     * @param luaScript lua脚本
+     * @param keys 脚本中的key
+     * @param args 脚本中的参数
+     * @param resultClazz 返回结果类型
+     */
+    public <T> T runScript(final String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz);
+
+    /**
+     * 运行lua脚本命令,缓存脚本在redis.evalsha命令
      * 
      * @param luaScript 脚本
      * @param keys 脚本中的key
      * @param args 脚本中的参数
+     * @return
      */
-    Object runScript(final String luaScript, List<Object> keys, List<Object> args);
+    <T> T runSHAScript(String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz);
 
 }

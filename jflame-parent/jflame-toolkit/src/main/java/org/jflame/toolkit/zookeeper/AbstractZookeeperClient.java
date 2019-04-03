@@ -105,17 +105,6 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
         return create(path, data, isSequential ? CreateMode.PERSISTENT_SEQUENTIAL : CreateMode.PERSISTENT);
     }
 
-    /**
-     * 创建节点
-     * 
-     * @param path 节点路径
-     * @param mode zk模式
-     * @return
-     */
-    /* public String create(String path, CreateMode mode) {
-        return create(path, null, mode);
-    }*/
-
     public void addStateListener(StateListener listener) {
         stateListeners.add(listener);
     }

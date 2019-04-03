@@ -8,14 +8,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import redis.clients.jedis.ShardedJedis;
+
 public class JedisSharedClientImpl implements RedisClient {
 
     private IGenericSerializer serializer;
-    private String ok = "OK";
     private JedisConnection conn;
 
     public JedisSharedClientImpl(JedisConnection conn) {
         this.conn = conn;
+        serializer = new FastJsonSerializer();
+    }
+
+    private ShardedJedis getJedis() {
+        return this.conn.getShardedJedis();
     }
 
     @Override
@@ -25,15 +31,12 @@ public class JedisSharedClientImpl implements RedisClient {
 
     @Override
     public void setSerializer(IGenericSerializer serializer) {
+        this.serializer = serializer;
     }
 
     @Override
     public IGenericSerializer getSerializer() {
-        return null;
-    }
-
-    @Override
-    public void set(Object key, Object value) {
+        return serializer;
     }
 
     @Override
@@ -163,11 +166,6 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Object firstSetKey, Collection<?> keys) {
-        return null;
-    }
-
-    @Override
     public <T extends Serializable> Set<T> sdiff(Object firstSetKey, Object otherKey) {
         return null;
     }
@@ -179,10 +177,6 @@ public class JedisSharedClientImpl implements RedisClient {
     @Override
     public <T extends Serializable> Set<T> sintersect(Object key, Object otherKey) {
         return null;
-    }
-
-    @Override
-    public void sintersectAndStore(Object key, Object otherKey, Object destKey) {
     }
 
     @Override
@@ -230,7 +224,7 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsadd(Object key, Set<SortedSetTuple<Serializable>> tuple) {
+    public long zsadd(Object key, Map<Object,Double> memberScores) {
         return 0;
     }
 
@@ -255,7 +249,7 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> zrangeByScore(Object key, double min, double max) {
+    public <T extends Serializable> Set<T> zsrangeByScore(Object key, double min, double max) {
         return null;
     }
 
@@ -265,11 +259,13 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public void removeRange(Object key, long start, long end) {
+    public long zsremove(Object key, long start, long end) {
+        return 0;
     }
 
     @Override
-    public void removeRangeByScore(Object key, double minScore, double maxScore) {
+    public long zsremoveByScore(Object key, double minScore, double maxScore) {
+        return 0;
     }
 
     @Override
@@ -303,7 +299,7 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lpop(Object key, long timeout, TimeUnit timeUnit) {
+    public <T extends Serializable> T lBlockPop(Object key, int timeout) {
         return null;
     }
 
@@ -313,7 +309,7 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rpop(Object key, long timeout, TimeUnit timeUnit) {
+    public <T extends Serializable> T rBlockPop(Object key, int timeout) {
         return null;
     }
 
@@ -346,7 +342,35 @@ public class JedisSharedClientImpl implements RedisClient {
     }
 
     @Override
-    public Object runScript(String luaScript, List<Object> keys, List<Object> args) {
+    public long ttl(Object key) {
+        return 0;
+    }
+
+    @Override
+    public void set(Object key, Object value) {
+    }
+
+    @Override
+    public <T extends Serializable> Set<T> sdiff(Object key, Collection<Object> keys) {
+        return null;
+    }
+
+    @Override
+    public <T extends Serializable> Set<T> sintersect(List<Object> keys) {
+        return null;
+    }
+
+    @Override
+    public void sintersectAndStore(List<Object> keys, Object destKey) {
+    }
+
+    @Override
+    public <T> T runScript(String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
+        return null;
+    }
+
+    @Override
+    public <T> T runSHAScript(String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
         return null;
     }
 

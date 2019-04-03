@@ -122,7 +122,7 @@ public class ExcelCreator implements Closeable {
      * @param excelVersion excel版本
      */
     public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow) {
-        workbook = new SXSSFWorkbook(500);
+        workbook = new SXSSFWorkbook(100);
         isAutoCreateTitleRow = isCreateTitleRow;
         if (isCreateTitleRow) {
             setTitleRowStyle();

@@ -122,7 +122,8 @@ public final class IPAddressHelper {
             if (ips != null) {
                 ipStrArray = new String[ips.size()];
                 for (int i = 0; i < ipStrArray.length; i++) {
-                    ipStrArray[i] = ips.get(i).getHostAddress();
+                    ipStrArray[i] = ips.get(i)
+                            .getHostAddress();
                 }
             }
         } catch (SocketException e) {
@@ -250,7 +251,7 @@ public final class IPAddressHelper {
         return (ipAddr & mask) == (cidrIpAddr & mask);
     }
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         System.out.println(getHostIP());
-    }*/
+    }
 }

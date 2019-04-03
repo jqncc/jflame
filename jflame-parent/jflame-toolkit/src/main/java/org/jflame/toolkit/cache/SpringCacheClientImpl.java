@@ -21,7 +21,7 @@ import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
-import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 public class SpringCacheClientImpl implements RedisClient {
 
@@ -30,12 +30,27 @@ public class SpringCacheClientImpl implements RedisClient {
 
     public SpringCacheClientImpl(RedisTemplate<byte[],byte[]> redisTemplate) {
         this.redisTemplate = redisTemplate;
+        serializer = new FastJsonSerializer();
+    }
+
+    @Override
+    public void setSerializer(IGenericSerializer serializer) {
+        this.serializer = serializer;
+    }
+
+    @Override
+    public IGenericSerializer getSerializer() {
+        return serializer;
     }
 
     @Override
     public void set(Object key, Object value) {
-        redisTemplate.opsForValue()
-                .set(toBytes(key), toBytes(value));
+        try {
+            redisTemplate.opsForValue()
+                    .set(toBytes(key), toBytes(value));
+        } catch (Exception e) {
+            throw new org.jflame.toolkit.exception.DataAccessException(e);
+        }
     }
 
     @Override
@@ -53,37 +68,19 @@ public class SpringCacheClientImpl implements RedisClient {
     @Override
     public boolean setIfAbsent(Object key, Object value, long timeout, TimeUnit timeUnit) {
         // spring-data-redis2.1.5以前版本未实现该接口
-        /* return redisTemplate.execute(new SessionCallback<Boolean>() {
-        
-            List<Object> exec = null;
-        
-            @SuppressWarnings({ "rawtypes","unchecked" })
-            @Override
-            public Boolean execute(RedisOperations operations) throws DataAccessException {
-                byte[] keyBytes = toBytes(key);
-                byte[] valueBytes = toBytes(value);
-                operations.multi();
-                operations.opsForValue()
-                        .setIfAbsent(keyBytes, valueBytes);
-                operations.expire(key, timeout, timeUnit);
-                exec = operations.exec();
-                if (exec.size() > 0) {
-                    return (Boolean) exec.get(0);
-                }
-                return false;
-            }
-        
-        });*/
         return redisTemplate.execute(new RedisCallback<Boolean>() {
 
             @Override
             public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
                 byte[] keyBytes = toBytes(key);
                 byte[] valueBytes = toBytes(value);
+                // connection.set(keyBytes, valueBytes, Expiration.from(timeout, timeUnit),
+                // SetOption.SET_IF_ABSENT);无返回值
                 Object obj = connection.execute("set", new byte[][] { keyBytes,valueBytes,nxBytes,pxBytes,
                         CharsetHelper.getUtf8Bytes(String.valueOf(timeUnit.toMillis(timeout))) });
                 if (obj != null) {
-                    return "OK".equals(obj);
+                    String r = CharsetHelper.getUtf8String((byte[]) obj);
+                    return ok.equals(r);
                 }
                 return false;
             }
@@ -115,12 +112,26 @@ public class SpringCacheClientImpl implements RedisClient {
 
     @Override
     public boolean delete(Object key) {
-        return redisTemplate.delete(toBytes(key));
+        // return redisTemplate.delete(toBytes(key));2.0以上版本才支持
+        return redisTemplate.execute(new RedisCallback<Boolean>() {
+
+            @Override
+            public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.del(toBytes(key)) > 0;
+            }
+        });
     }
 
     @Override
     public long delete(Collection<?> keys) {
-        return redisTemplate.delete(toBytes(keys));
+        // return redisTemplate.delete(toBytes(keys));2.0以上版本才支持返回数量
+        return redisTemplate.execute(new RedisCallback<Long>() {
+
+            @Override
+            public Long doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.del(toByteArray(keys));
+            }
+        });
     }
 
     @Override
@@ -239,7 +250,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Object firstSetKey, Collection<?> keys) {
+    public <T extends Serializable> Set<T> sdiff(Object firstSetKey, Collection<Object> keys) {
         Set<byte[]> valueBytes = getSetOpt(firstSetKey).diff(toBytes(keys));
         return fromBytes(valueBytes);
     }
@@ -262,8 +273,21 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void sintersectAndStore(Object key, Object otherKey, Object destKey) {
-        getSetOpt(key).intersectAndStore(toBytes(otherKey), toBytes(destKey));
+    public <T extends Serializable> Set<T> sintersect(List<Object> keys) {
+        if (keys != null && keys.size() >= 2) {
+            Object first = keys.remove(0);
+            Set<byte[]> valueBytes = getSetOpt(first).intersect(toBytes(keys));
+            return fromBytes(valueBytes);
+        }
+        return null;
+    }
+
+    @Override
+    public void sintersectAndStore(List<Object> keys, Object destKey) {
+        if (keys != null && keys.size() >= 2) {
+            Object first = keys.remove(0);
+            getSetOpt(first).intersectAndStore(toBytes(keys), toBytes(destKey));
+        }
     }
 
     @Override
@@ -272,12 +296,7 @@ public class SpringCacheClientImpl implements RedisClient {
         return fromBytes(valueBytes);
     }
 
-    /**
-     * 求集合并集并将结果存储到指定的集合中
-     * 
-     * @param keys
-     * @param destKey
-     */
+    @Override
     public void sunionAndStore(Object key, Object otherKey, Object destKey) {
         getSetOpt(key).unionAndStore(toBytes(otherKey), toBytes(destKey));
     }
@@ -325,10 +344,10 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsadd(Object key, Set<SortedSetTuple<Serializable>> tuples) {
+    public long zsadd(Object key, Map<Object,Double> memberScores) {
         Set<TypedTuple<byte[]>> springTuples = new HashSet<>();
-        for (SortedSetTuple<Serializable> t : tuples) {
-            springTuples.add(new DefaultTypedTuple<byte[]>(toBytes(t.getValue()), t.getScore()));
+        for (Map.Entry<Object,Double> kv : memberScores.entrySet()) {
+            springTuples.add(new DefaultTypedTuple<byte[]>(toBytes(kv.getKey()), kv.getValue()));
         }
         return getZsetOpt(key).add(springTuples);
     }
@@ -355,7 +374,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> zrangeByScore(Object key, double min, double max) {
+    public <T extends Serializable> Set<T> zsrangeByScore(Object key, double min, double max) {
         Set<byte[]> valueBytes = getZsetOpt(key).rangeByScore(min, max);
         return fromBytes(valueBytes);
     }
@@ -366,13 +385,15 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void removeRange(Object key, long start, long end) {
-        getZsetOpt(key).removeRange(start, end);
+    public long zsremove(Object key, long start, long end) {
+        return redisTemplate.opsForZSet()
+                .removeRange(toBytes(key), start, end);
     }
 
     @Override
-    public void removeRangeByScore(Object key, double minScore, double maxScore) {
-        getZsetOpt(key).removeRangeByScore(minScore, maxScore);
+    public long zsremoveByScore(Object key, double minScore, double maxScore) {
+        return redisTemplate.opsForZSet()
+                .removeRangeByScore(toBytes(key), minScore, maxScore);
     }
 
     private BoundListOperations<byte[],byte[]> getListOpt(Object key) {
@@ -421,8 +442,8 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lpop(Object key, long timeout, TimeUnit timeUnit) {
-        byte[] valueBytes = getListOpt(key).leftPop(timeout, timeUnit);
+    public <T extends Serializable> T lBlockPop(Object key, int timeout) {
+        byte[] valueBytes = getListOpt(key).leftPop(timeout, TimeUnit.SECONDS);
         return fromBytes(valueBytes);
     }
 
@@ -433,8 +454,8 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rpop(Object key, long timeout, TimeUnit timeUnit) {
-        byte[] valueBytes = getListOpt(key).rightPop(timeout, timeUnit);
+    public <T extends Serializable> T rBlockPop(Object key, int timeout) {
+        byte[] valueBytes = getListOpt(key).rightPop(timeout, TimeUnit.SECONDS);
         return fromBytes(valueBytes);
     }
 
@@ -471,18 +492,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void setSerializer(IGenericSerializer serializer) {
-        this.serializer = serializer;
-    }
-
-    @Override
-    public IGenericSerializer getSerializer() {
-        return serializer;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object runScript(final String luaScript, List<Object> keys, List<Object> args) {
+    public <T> T runScript(final String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
         Object[] argArray = null;
         if (CollectionHelper.isNotEmpty(args)) {
             argArray = new Object[args.size()];
@@ -490,12 +500,23 @@ public class SpringCacheClientImpl implements RedisClient {
                 argArray[i] = toBytes(args.get(i));
             }
         }
-        return redisTemplate.execute(RedisScript.of(luaScript), toBytes(keys), argArray);
+        DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
+        return redisTemplate.execute(script, toBytes(keys), argArray);
+    }
+
+    @Override
+    public <T> T runSHAScript(String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
+        return runScript(luaScript, keys, args, resultClazz);// redisTemplate 内部默认先使用evalsha命令
     }
 
     @Override
     public Object getNativeClient() {
         return redisTemplate;
+    }
+
+    @Override
+    public long ttl(Object key) {
+        return redisTemplate.getExpire(exBytes);
     }
 
     /*    @Override

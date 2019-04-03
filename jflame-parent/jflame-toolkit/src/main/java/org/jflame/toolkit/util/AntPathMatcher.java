@@ -424,14 +424,14 @@ public class AntPathMatcher {
      * <p>
      * For example:
      * <ul>
-     * <li>'{@code /docs/cvs/commit.html}' and '{@code /docs/cvs/commit.html} -> ''</li>
-     * <li>'{@code /docs/*}' and '{@code /docs/cvs/commit} -> '{@code cvs/commit}'</li>
-     * <li>'{@code /docs/cvs/*.html}' and '{@code /docs/cvs/commit.html} -> '{@code commit.html}'</li>
-     * <li>'{@code /docs/**}' and '{@code /docs/cvs/commit} -> '{@code cvs/commit}'</li>
-     * <li>'{@code /docs/**\/*.html}' and '{@code /docs/cvs/commit.html} -> '{@code cvs/commit.html}'</li>
-     * <li>'{@code /*.html}' and '{@code /docs/cvs/commit.html} -> '{@code docs/cvs/commit.html}'</li>
-     * <li>'{@code *.html}' and '{@code /docs/cvs/commit.html} -> '{@code /docs/cvs/commit.html}'</li>
-     * <li>'{@code *}' and '{@code /docs/cvs/commit.html} -> '{@code /docs/cvs/commit.html}'</li>
+     * <li>'{@code /docs/cvs/commit.html}' and '{@code /docs/cvs/commit.html} -&gt; ''</li>
+     * <li>'{@code /docs/*}' and '{@code /docs/cvs/commit} -&gt; '{@code cvs/commit}'</li>
+     * <li>'{@code /docs/cvs/*.html}' and '{@code /docs/cvs/commit.html} -&gt; '{@code commit.html}'</li>
+     * <li>'{@code /docs/**}' and '{@code /docs/cvs/commit} -&gt; '{@code cvs/commit}'</li>
+     * <li>'{@code /docs/**\/*.html}' and '{@code /docs/cvs/commit.html} -&gt; '{@code cvs/commit.html}'</li>
+     * <li>'{@code /*.html}' and '{@code /docs/cvs/commit.html} -&gt; '{@code docs/cvs/commit.html}'</li>
+     * <li>'{@code *.html}' and '{@code /docs/cvs/commit.html} -&gt; '{@code /docs/cvs/commit.html}'</li>
+     * <li>'{@code *}' and '{@code /docs/cvs/commit.html} -&gt; '{@code /docs/cvs/commit.html}'</li>
      * </ul>
      * <p>
      * Assumes that {@link #match} returns {@code true} for '{@code pattern}' and '{@code path}', but does
@@ -475,78 +475,48 @@ public class AntPathMatcher {
      * match (e.g., {@code *.html}). In that case, the second pattern will be merged into the first. Otherwise, an
      * {@code IllegalArgumentException} will be thrown.
      * <h3>Examples</h3>
-     * <table border="1">
-     * <tr>
-     * <th>Pattern 1</th>
-     * <th>Pattern 2</th>
-     * <th>Result</th>
-     * </tr>
-     * <tr>
-     * <td>{@code null}</td>
-     * <td>{@code null}</td>
-     * <td>&nbsp;</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels</td>
-     * <td>{@code null}</td>
-     * <td>/hotels</td>
-     * </tr>
-     * <tr>
-     * <td>{@code null}</td>
-     * <td>/hotels</td>
-     * <td>/hotels</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels</td>
-     * <td>/bookings</td>
-     * <td>/hotels/bookings</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels</td>
-     * <td>bookings</td>
-     * <td>/hotels/bookings</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels/*</td>
-     * <td>/bookings</td>
-     * <td>/hotels/bookings</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels/&#42;&#42;</td>
-     * <td>/bookings</td>
-     * <td>/hotels/&#42;&#42;/bookings</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels</td>
-     * <td>{hotel}</td>
-     * <td>/hotels/{hotel}</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels/*</td>
-     * <td>{hotel}</td>
-     * <td>/hotels/{hotel}</td>
-     * </tr>
-     * <tr>
-     * <td>/hotels/&#42;&#42;</td>
-     * <td>{hotel}</td>
-     * <td>/hotels/&#42;&#42;/{hotel}</td>
-     * </tr>
-     * <tr>
-     * <td>/*.html</td>
-     * <td>/hotels.html</td>
-     * <td>/hotels.html</td>
-     * </tr>
-     * <tr>
-     * <td>/*.html</td>
-     * <td>/hotels</td>
-     * <td>/hotels.html</td>
-     * </tr>
-     * <tr>
-     * <td>/*.html</td>
-     * <td>/*.txt</td>
-     * <td>{@code IllegalArgumentException}</td>
-     * </tr>
-     * </table>
+     * <p>
+     * <strong>Pattern 1</strong> | <strong>Pattern 2</strong> | <strong>Result</strong>
+     * </p>
+     * <p>
+     * {@code null} | {@code null} | &nbsp; |
+     * </p>
+     * <p>
+     * /hotels | {@code null} | /hotels |
+     * </p>
+     * <p>
+     * {@code null} | /hotels | /hotels |
+     * </p>
+     * <p>
+     * /hotels | /bookings | /hotels/bookings |
+     * </p>
+     * <p>
+     * /hotels | bookings | /hotels/bookings |
+     * </p>
+     * <p>
+     * /hotels/* | /bookings | /hotels/bookings |
+     * </p>
+     * <p>
+     * /hotels/&#42;&#42; | /bookings | /hotels/&#42;&#42;/bookings |
+     * </p>
+     * <p>
+     * /hotels | {hotel} | /hotels/{hotel} |
+     * </p>
+     * <p>
+     * /hotels/* | {hotel} | /hotels/{hotel} |
+     * </p>
+     * <p>
+     * /hotels/&#42;&#42; | {hotel} | /hotels/&#42;&#42;/{hotel} |
+     * </p>
+     * <p>
+     * /*.html | /hotels.html | /hotels.html |
+     * </p>
+     * <p>
+     * /*.html | /hotels | /hotels.html |
+     * </p>
+     * <p>
+     * /*.html | /*.txt | {@code IllegalArgumentException} |
+     * </p>
      * 
      * @param pattern1 the first pattern
      * @param pattern2 the second pattern
