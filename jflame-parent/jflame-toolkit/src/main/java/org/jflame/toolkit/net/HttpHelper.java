@@ -186,7 +186,7 @@ public final class HttpHelper {
             }
             response = getResponse(conn);
         } catch (IOException e) {
-            response.setStatus(1000);
+            response.setStatus(HttpURLConnection.HTTP_BAD_GATEWAY);
             response.setMessage(e.getMessage());
         } catch (Exception e) {
             response.setStatus(HttpURLConnection.HTTP_INTERNAL_ERROR);

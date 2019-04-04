@@ -18,7 +18,7 @@ import org.jflame.toolkit.util.DateHelper;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
-import redis.clients.util.SafeEncoder;
+import redis.clients.jedis.Pipeline;
 
 public class JedisClientImpl implements RedisClient {
 
@@ -33,6 +33,26 @@ public class JedisClientImpl implements RedisClient {
 
     private Jedis getJedis() {
         return this.conn.getJedis();
+    }
+
+    public interface PipelineCallBack<T> {
+
+        T doHandle(Pipeline pipeline, IGenericSerializer serializer);
+    }
+
+    /**
+     * 管道方式运行命令
+     * 
+     * @param callBack
+     * @return
+     */
+    public <T> T executePipeline(PipelineCallBack<T> callBack) {
+        try (Jedis client = getJedis()) {
+            Pipeline pipeline = client.pipelined();
+            return callBack.doHandle(pipeline, getSerializer());
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     interface CmdHandler<T> {
@@ -136,7 +156,6 @@ public class JedisClientImpl implements RedisClient {
             public T doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return fromBytes(client.get(keyBytes[0]));
             }
-
         });
     }
 
@@ -148,7 +167,6 @@ public class JedisClientImpl implements RedisClient {
             public T doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return fromBytes(client.getSet(keyBytes[0], toBytes(newValue)));
             }
-
         });
     }
 
@@ -196,7 +214,6 @@ public class JedisClientImpl implements RedisClient {
             public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return client.exists(keyBytes[0]);
             }
-
         });
     }
 
@@ -208,7 +225,6 @@ public class JedisClientImpl implements RedisClient {
             public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return client.expire(keyBytes[0], seconds) == 1L;
             }
-
         });
     }
 
@@ -256,7 +272,6 @@ public class JedisClientImpl implements RedisClient {
             public Double doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return client.incrByFloat(keyBytes[0], incrValue);
             }
-
         });
     }
 
@@ -268,7 +283,6 @@ public class JedisClientImpl implements RedisClient {
             public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
                 return client.persist(keyBytes[0]) == 1;
             }
-
         });
     }
 
@@ -281,7 +295,6 @@ public class JedisClientImpl implements RedisClient {
                 byte[] valueBytes = client.hget(keyBytes[0], toBytes(fieldKey));
                 return fromBytes(valueBytes);
             }
-
         });
     }
 
@@ -298,8 +311,8 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void hdelete(Object key, Object fieldKey) {
-        execute(key, new CmdHandler<Long>() {
+    public long hdelete(Object key, Object fieldKey) {
+        return execute(key, new CmdHandler<Long>() {
 
             @Override
             public Long doHandle(Jedis client, byte[]... keyBytes) {
@@ -541,7 +554,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> randomMembers(Object key, int count) {
+    public <T extends Serializable> List<T> srandomMembers(Object key, int count) {
         return execute(key, new CmdHandler<List<T>>() {
 
             @Override
@@ -879,57 +892,6 @@ public class JedisClientImpl implements RedisClient {
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
-    }
-
-    @SuppressWarnings({ "unchecked","rawtypes" })
-    <T> T deserializeResult(Object result, Class<T> resultClazz) {
-        if (result instanceof byte[]) {
-            if (serializer == null) {
-                return (T) result;
-            }
-            return fromBytes((byte[]) result);
-        }
-        if (result instanceof List) {
-            List results = new ArrayList();
-            for (Object obj : (List) result) {
-                results.add(deserializeResult(obj, resultClazz));
-            }
-            return (T) results;
-        }
-        return (T) result;
-    }
-
-    @SuppressWarnings("unchecked")
-    Object convertScriptResult(Object result, Class<?> javaType) {
-        if (result instanceof String) {
-            // evalsha converts byte[] to String. Convert back for consistency
-            return SafeEncoder.encode((String) result);
-        }
-        if (javaType == null) {
-            return CharsetHelper.getUtf8String((byte[]) result);
-        }
-        if (javaType.isAssignableFrom(Boolean.class)) {
-            // Lua false comes back as a null bulk reply
-            if (result == null) {
-                return Boolean.FALSE;
-            }
-            return ((Long) result == 1);
-        }
-        if (javaType.isAssignableFrom(List.class)) {
-            List<Object> resultList = (List<Object>) result;
-            List<Object> convertedResults = new ArrayList<Object>();
-            for (Object res : resultList) {
-                if (res instanceof String) {
-                    // evalsha converts byte[] to String. Convert back for
-                    // consistency
-                    convertedResults.add(SafeEncoder.encode((String) res));
-                } else {
-                    convertedResults.add(res);
-                }
-            }
-            return convertedResults;
-        }
-        return result;
     }
 
     @Override

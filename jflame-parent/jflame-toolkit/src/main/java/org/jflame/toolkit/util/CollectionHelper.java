@@ -2,11 +2,14 @@ package org.jflame.toolkit.util;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -172,5 +175,37 @@ public final class CollectionHelper {
             i++;
         }
         return null;
+    }
+
+    /**
+     * 按条件过滤集合,返回符合条件的子集List
+     * 
+     * @param collection
+     * @param predicate 条件
+     * @return
+     */
+    public static <T> List<T> subList(Collection<T> collection, Predicate<T> predicate) {
+        if (isEmpty(collection)) {
+            return Collections.emptyList();
+        }
+        return collection.stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 按条件过滤集合,返回符合条件的子集Set
+     * 
+     * @param collection
+     * @param predicate 条件
+     * @return
+     */
+    public static <T> Set<T> subSet(Collection<T> collection, Predicate<T> predicate) {
+        if (isEmpty(collection)) {
+            return Collections.emptySet();
+        }
+        return collection.stream()
+                .filter(predicate)
+                .collect(Collectors.toSet());
     }
 }

@@ -189,8 +189,8 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void hdelete(Object key, Object fieldKey) {
-        getHashOpt(key).delete(toBytes(fieldKey));
+    public long hdelete(Object key, Object fieldKey) {
+        return getHashOpt(key).delete(toBytes(fieldKey));
     }
 
     @Override
@@ -319,7 +319,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> randomMembers(Object key, int count) {
+    public <T extends Serializable> List<T> srandomMembers(Object key, int count) {
         List<byte[]> valueBytes = getSetOpt(key).randomMembers(count);
         return fromBytes(valueBytes);
     }

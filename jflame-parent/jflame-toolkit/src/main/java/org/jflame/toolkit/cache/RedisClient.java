@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
+import redis.clients.util.SafeEncoder;
+
 public interface RedisClient {
 
     byte[] nxBytes = CharsetHelper.getUtf8Bytes("NX");
@@ -302,7 +304,7 @@ public interface RedisClient {
      * @param key 哈希集key
      * @param fieldKey 删除项的key
      */
-    void hdelete(Object key, Object fieldKey);
+    long hdelete(Object key, Object fieldKey);
 
     /**
      * 新增项到哈希集中
@@ -477,7 +479,7 @@ public interface RedisClient {
      * @param count
      * @return
      */
-    <T extends Serializable> List<T> randomMembers(Object key, int count);
+    <T extends Serializable> List<T> srandomMembers(Object key, int count);
 
     /**
      * 从集合中删除一个或多个元素
@@ -776,5 +778,56 @@ public interface RedisClient {
      * @return
      */
     <T> T runSHAScript(String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz);
+
+    @SuppressWarnings({ "unchecked","rawtypes" })
+    default <T> T deserializeResult(Object result, Class<T> resultClazz) {
+        if (result instanceof byte[]) {
+            if (getSerializer() == null) {
+                return (T) result;
+            }
+            return fromBytes((byte[]) result);
+        }
+        if (result instanceof List) {
+            List results = new ArrayList();
+            for (Object obj : (List) result) {
+                results.add(deserializeResult(obj, resultClazz));
+            }
+            return (T) results;
+        }
+        return (T) result;
+    }
+
+    @SuppressWarnings("unchecked")
+    default Object convertScriptResult(Object result, Class<?> javaType) {
+        if (result instanceof String) {
+            // evalsha converts byte[] to String. Convert back for consistency
+            return SafeEncoder.encode((String) result);
+        }
+        if (javaType == null) {
+            return CharsetHelper.getUtf8String((byte[]) result);
+        }
+        if (javaType.isAssignableFrom(Boolean.class)) {
+            // Lua false comes back as a null bulk reply
+            if (result == null) {
+                return Boolean.FALSE;
+            }
+            return ((Long) result == 1);
+        }
+        if (javaType.isAssignableFrom(List.class)) {
+            List<Object> resultList = (List<Object>) result;
+            List<Object> convertedResults = new ArrayList<Object>();
+            for (Object res : resultList) {
+                if (res instanceof String) {
+                    // evalsha converts byte[] to String. Convert back for
+                    // consistency
+                    convertedResults.add(SafeEncoder.encode((String) res));
+                } else {
+                    convertedResults.add(res);
+                }
+            }
+            return convertedResults;
+        }
+        return result;
+    }
 
 }
