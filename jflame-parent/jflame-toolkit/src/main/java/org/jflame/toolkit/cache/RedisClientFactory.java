@@ -11,8 +11,6 @@ public final class RedisClientFactory {
             JedisConnection conn = (JedisConnection) x;
             if (conn.getCurrentMode() == RedisMode.cluster) {
                 return new JedisClusterClientImpl(conn);
-            } else if (conn.getCurrentMode() == RedisMode.sharded) {
-                return new JedisSharedClientImpl(conn);
             } else {
                 return new JedisClientImpl(conn);
             }

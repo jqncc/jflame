@@ -2,12 +2,8 @@ package org.jflame.toolkit.cache;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,10 +18,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
-import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
-import redis.clients.jedis.ShardedJedisPool;
-import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  * jedis各种模式的统一
@@ -40,7 +33,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
 
     private JedisPool single;// 单机模式
     private JedisCluster cluster;// 集群模式
-    private ShardedJedisPool sharded;// 分片模式
+    // private ShardedJedisPool sharded;// 分片模式
     private JedisSentinelPool sentinel;// 哨兵主从
     private RedisMode currentMode;
     private String[] hosts;
@@ -56,8 +49,8 @@ public class JedisConnection implements Closeable, AutoCloseable {
     public enum RedisMode {
         single,
         sentinel,
-        cluster,
-        sharded;
+        cluster
+        // sharded;
     }
 
     /**
@@ -117,7 +110,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
                     this.sentinel = new JedisSentinelPool(clusterName, nodes, poolConfig, connectionTimeout, password,
                             database);
                     break;
-                case sharded:
+                /*case sharded:
                     List<JedisShardInfo> shards = new ArrayList<>();
                     try {
                         for (String node : hosts)
@@ -126,7 +119,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
                         throw new JedisConnectionException(e);
                     }
                     this.sharded = new ShardedJedisPool(poolConfig, shards);
-                    break;
+                    break;*/
             }
             isInited.set(true);
         }
@@ -162,7 +155,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
         }
     }
 
-    public ShardedJedis getShardedJedis() {
+    /* public ShardedJedis getShardedJedis() {
         init();
         if (currentMode == RedisMode.sharded) {
             return sharded.getResource();
@@ -170,7 +163,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
             throw new DataAccessException("redis非sharded模式不可获取ShardedJedis");
         }
     }
-
+    */
     public JedisCluster getJedisCluster() {
         init();
         if (currentMode == RedisMode.cluster) {
@@ -215,8 +208,8 @@ public class JedisConnection implements Closeable, AutoCloseable {
             sentinel.close();
         if (cluster != null)
             cluster.close();
-        if (sharded != null)
-            sharded.close();
+        /*if (sharded != null)
+            sharded.close();*/
     }
 
     public RedisMode getCurrentMode() {

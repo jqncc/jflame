@@ -885,7 +885,7 @@ public class JedisClusterClientImpl implements RedisClient {
                 throw new DataAccessException(e);
             }
         } else {
-            throw new DataAccessException("暂不支持redis集群有多个不同key的LUA脚本");
+            throw new DataAccessException("集群模式不支持有多个不同key的脚本");
         }
     }
 
@@ -901,7 +901,7 @@ public class JedisClusterClientImpl implements RedisClient {
                 throw new DataAccessException(e);
             }
         } else {
-            throw new DataAccessException("暂不支持redis集群有多个不同key的LUA脚本");
+            throw new DataAccessException("集群模式不支持有多个不同key的脚本");
         }
     }
 
