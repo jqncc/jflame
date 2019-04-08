@@ -15,6 +15,7 @@ import org.jflame.toolkit.exception.DataAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.DateHelper;
+import org.jflame.toolkit.util.MapHelper;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.JedisCluster;
@@ -102,6 +103,23 @@ public class JedisClusterClientImpl implements RedisClient {
     }
 
     @Override
+    public void multiSet(Map<? extends Serializable,? extends Serializable> pair) {
+        if (MapHelper.isEmpty(pair)) {
+            return;
+        }
+        byte[][] kvBytes = toKeysValues(pair);
+
+        execute(kvBytes, new CmdHandler<Boolean>() {
+
+            @Override
+            public Boolean doHandle(JedisCluster client, byte[]... keyBytes) throws DataAccessException {
+                client.mset(keyBytes);
+                return true;
+            }
+        });
+    }
+
+    @Override
     public boolean setIfAbsent(Object key, Object value) {
         return execute(key, new CmdHandler<Boolean>() {
 
@@ -126,6 +144,23 @@ public class JedisClusterClientImpl implements RedisClient {
                     r = client.set(keyBytes[0], toBytes(value), nxBytes, exBytes, timeUnit.toSeconds(timeout));
                 }
                 return ok.equalsIgnoreCase(r);
+            }
+        });
+    }
+
+    @Override
+    public void multiSetIfAbsent(Map<? extends Serializable,? extends Serializable> pair) {
+        if (MapHelper.isEmpty(pair)) {
+            return;
+        }
+        byte[][] kvBytes = toKeysValues(pair);
+
+        execute(kvBytes, new CmdHandler<Boolean>() {
+
+            @Override
+            public Boolean doHandle(JedisCluster client, byte[]... keyBytes) throws DataAccessException {
+                client.msetnx(keyBytes);
+                return true;
             }
         });
     }
@@ -871,6 +906,10 @@ public class JedisClusterClientImpl implements RedisClient {
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
+    }
+
+    public Set<? extends Serializable> keys(String pattern) {
+        throw new DataAccessException("集群模式不支持keys命令");
     }
 
     @Override

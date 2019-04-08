@@ -26,6 +26,12 @@ public interface RedisClient {
 
     String ok = "OK";
 
+    /**
+     * 对象序列化为byte[]
+     * 
+     * @param obj
+     * @return
+     */
     default byte[] toBytes(Object obj) {
         if (obj instanceof byte[]) {
             return (byte[]) obj;
@@ -33,18 +39,12 @@ public interface RedisClient {
         return getSerializer().serialize(obj);
     }
 
-    /*
-    default Collection<byte[]> toBytes(Collection<?> set) {
-        Collection<byte[]> keyBytes = null;
-        if (CollectionHelper.isNotEmpty(set)) {
-            keyBytes = new ArrayList<>(set.size());
-            for (Object k : set) {
-                keyBytes.add(toBytes(k));
-            }
-        }
-        return keyBytes != null ? keyBytes : Collections.emptyList();
-    }*/
-
+    /**
+     * 集合序列化为List&lt;byte[]&gt;
+     * 
+     * @param set
+     * @return
+     */
     default List<byte[]> toBytes(Collection<?> set) {
         List<byte[]> keyBytes = null;
         if (CollectionHelper.isNotEmpty(set)) {
@@ -56,6 +56,12 @@ public interface RedisClient {
         return keyBytes != null ? keyBytes : Collections.emptyList();
     }
 
+    /**
+     * 数组序列化为byte[][]
+     * 
+     * @param array
+     * @return
+     */
     default <T> byte[][] toBytes(T[] array) {
         byte[][] bytes = new byte[array.length][];
         for (int i = 0; i < array.length; i++) {
@@ -64,6 +70,12 @@ public interface RedisClient {
         return bytes;
     }
 
+    /**
+     * map对象键和值序列化
+     * 
+     * @param map
+     * @return Map&lt;byte[],byte[]&gt;
+     */
     default <T> Map<byte[],byte[]> toBytes(Map<? extends Serializable,? extends Serializable> map) {
         if (map == null) {
             return null;
@@ -75,6 +87,12 @@ public interface RedisClient {
         return byteMap;
     }
 
+    /**
+     * 集合序列化为二维数组 byte[][]
+     * 
+     * @param set
+     * @return byte[][]
+     */
     default <T> byte[][] toByteArray(Collection<?> set) {
         if (CollectionHelper.isEmpty(set)) {
             return null;
@@ -88,6 +106,22 @@ public interface RedisClient {
             return bytes;
         }
 
+    }
+
+    /**
+     * 将map的键和值序列化为二维数组,按key0,value0,key1,value1...存放
+     * 
+     * @param pair
+     * @return
+     */
+    default byte[][] toKeysValues(Map<? extends Serializable,? extends Serializable> pair) {
+        byte[][] kvBytes = new byte[pair.size() * 2][];
+        int i = 0;
+        for (Map.Entry<? extends Serializable,? extends Serializable> kv : pair.entrySet()) {
+            kvBytes[i++] = toBytes(kv.getKey());
+            kvBytes[i++] = toBytes(kv.getValue());
+        }
+        return kvBytes;
     }
 
     @SuppressWarnings("unchecked")
@@ -154,10 +188,17 @@ public interface RedisClient {
      * 
      * @param key
      * @param value
-     * @param timeout
-     * @param timeUnit
+     * @param timeout 缓存时间
+     * @param timeUnit 时间单位
      */
     void set(Object key, Object value, long timeout, TimeUnit timeUnit);
+
+    /**
+     * 一次设置多个缓存.MSET是原子的，所以所有给定的keys是一次性set的,客户端不可能看到这种一部分keys被更新而另外的没有改变的情况.返回总是OK，因为MSET不会失败
+     * 
+     * @param pair 缓存键和值的map
+     */
+    void multiSet(Map<? extends Serializable,? extends Serializable> pair);
 
     /**
      * 设置缓存,只有在键不存在时才设置
@@ -178,6 +219,13 @@ public interface RedisClient {
      * @return
      */
     boolean setIfAbsent(Object key, Object value, long timeout, TimeUnit timeUnit);
+
+    /**
+     * 一次设置多个缓存,只要有一个key已经存在，MSETNX一个操作都不会执行.其他特性与mset一致{@link #multiSet(Map)}
+     * 
+     * @param pair
+     */
+    void multiSetIfAbsent(Map<? extends Serializable,? extends Serializable> pair);
 
     /**
      * 获取缓存值,结果反序列化为clazz指定的类型
@@ -757,7 +805,7 @@ public interface RedisClient {
      * @param pattern
      * @return
      */
-    // Set<Object> keys(String pattern);
+    Set<? extends Serializable> keys(String pattern);
 
     /**
      * 运行lua脚本命令.eval命令

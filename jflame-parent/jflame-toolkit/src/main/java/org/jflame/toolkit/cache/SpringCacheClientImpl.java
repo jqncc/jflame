@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.MapHelper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -60,6 +61,15 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
+    public void multiSet(Map<? extends Serializable,? extends Serializable> pair) {
+        if (MapHelper.isEmpty(pair)) {
+            return;
+        }
+        redisTemplate.opsForValue()
+                .multiSet(toBytes(pair));
+    }
+
+    @Override
     public boolean setIfAbsent(Object key, Object value) {
         return redisTemplate.opsForValue()
                 .setIfAbsent(toBytes(key), toBytes(value));
@@ -86,6 +96,15 @@ public class SpringCacheClientImpl implements RedisClient {
             }
         });
 
+    }
+
+    @Override
+    public void multiSetIfAbsent(Map<? extends Serializable,? extends Serializable> pair) {
+        if (MapHelper.isEmpty(pair)) {
+            return;
+        }
+        redisTemplate.opsForValue()
+                .multiSetIfAbsent(toBytes(pair));
     }
 
     @Override
@@ -519,10 +538,8 @@ public class SpringCacheClientImpl implements RedisClient {
         return redisTemplate.getExpire(exBytes);
     }
 
-    /*    @Override
-    public Set<Object> keys(String pattern) {
-        Set<byte[]> keySet = redisTemplate.keys(toBytes(pattern));
-        return fromBytes(keySet, Object.class);
-    }*/
-
+    public Set<? extends Serializable> keys(String pattern) {
+        Set<byte[]> valueBytes = redisTemplate.keys(toBytes(pattern));
+        return fromBytes(valueBytes);
+    }
 }
