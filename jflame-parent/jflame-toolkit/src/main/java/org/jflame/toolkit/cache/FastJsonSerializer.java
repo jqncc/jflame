@@ -19,8 +19,11 @@ public class FastJsonSerializer implements IGenericSerializer {
         if (object == null) {
             return new byte[0];
         }
+        if (object instanceof byte[]) {
+            return (byte[]) object;
+        }
         try {
-            return JSON.toJSONBytes(object, SerializerFeature.WriteClassName, SerializerFeature.WriteMapNullValue);
+            return JSON.toJSONBytes(object, SerializerFeature.WriteClassName);
         } catch (Exception ex) {
             throw new SerializeException("Could not serialize: " + ex.getMessage(), ex);
         }

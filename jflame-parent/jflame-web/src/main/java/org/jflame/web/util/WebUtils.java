@@ -16,7 +16,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.IExcelEntity;
-import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.EnumHelper;
 import org.jflame.toolkit.util.JsonHelper;
@@ -289,45 +288,49 @@ public class WebUtils {
     }
 
     /**
-     * 获取客户端ip地址，获取失败返回"unknown"
+     * 获取客户端ip地址
      * 
      * @param request HttpServletRequest
      * @return
      */
     public static String getRemoteClientIP(HttpServletRequest request) {
-        final String unknownip = "unknown";
         String ip = request.getHeader("x-forwarded-for");
-        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
+        if (isDisabledIp(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
-        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
+        if (isDisabledIp(ip)) {
             ip = request.getHeader("X-Forwarded-For");
         }
-        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
+        if (isDisabledIp(ip)) {
             ip = request.getHeader("WL-Proxy-Client-IP");
         }
-        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
+        if (isDisabledIp(ip)) {
             ip = request.getHeader("X-Real-IP");
         }
 
-        if (StringHelper.isEmpty(ip) || unknownip.equalsIgnoreCase(ip)) {
+        if (isDisabledIp(ip)) {
             ip = request.getRemoteAddr();
         }
         // 多个ip取第一个
         if (ip.indexOf(",") >= 0) {
             String[] ips = ip.split(",");
             for (String addr : ips) {
-                if (!unknownip.equalsIgnoreCase(addr)) {
+                if (!isDisabledIp(addr)) {
                     ip = addr;
                     break;
                 }
             }
         }
-        ip = ip.trim();
-        if ("0:0:0:0:0:0:0:1".equals(ip) || "127.0.0.1".equals(ip)) {
-            ip = IPAddressHelper.getHostIP();
-        }
         return ip;
+    }
+
+    private static boolean isDisabledIp(String ip) {
+        if (StringHelper.isNotEmpty(ip)) {
+            ip = ip.trim();
+        } else {
+            return true;
+        }
+        return "127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip) || "unknown".equalsIgnoreCase(ip);
     }
 
     /**

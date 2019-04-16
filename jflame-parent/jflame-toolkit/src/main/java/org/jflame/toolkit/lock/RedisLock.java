@@ -20,13 +20,13 @@ public class RedisLock implements DistributedLock {
     private final int DEFAULT_WAIT_TIME = 5 * 1000;// 默认获取锁等待时间5秒
     private final String lockKeyPrefix = "redis:lock:";
     private volatile boolean locked = false;
-    private String UNLOCK_LUASCRIPT;
+    private static String UNLOCK_LUASCRIPT;
 
     private String lockKey;// 锁的键名
     private String lockValue;
     private long lockExpire;// 锁超时时间,单位秒
 
-    void buildLuaScript() {
+    static {
         StringBuilder sb = new StringBuilder();
         sb.append("if redis.call(\"get\",KEYS[1]) == ARGV[1] ");
         sb.append("then ");
@@ -51,7 +51,6 @@ public class RedisLock implements DistributedLock {
         if (lockExpire <= 0) {
             throw new IllegalArgumentException("锁的过期时间必须大于0");
         }
-        buildLuaScript();
     }
 
     /**
@@ -90,9 +89,9 @@ public class RedisLock implements DistributedLock {
      */
     public synchronized void unlock() {
         if (locked) {
-            List<Object> keys = Arrays.asList(lockKey);
-            List<Object> values = Arrays.asList(lockValue);
-            Long result = redisClient.runScript(UNLOCK_LUASCRIPT, keys, values, Long.class);
+            List<String> keys = Arrays.asList(lockKey);
+            List<String> values = Arrays.asList(lockValue);
+            Long result = redisClient.runSHAScript(UNLOCK_LUASCRIPT, keys, values, Long.class);
             locked = result == 0;
 
             /*redisClient.execute(new RedisCallback<Boolean>() {

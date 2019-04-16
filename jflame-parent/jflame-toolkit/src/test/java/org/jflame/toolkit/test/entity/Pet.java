@@ -1,11 +1,12 @@
 package org.jflame.toolkit.test.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.jflame.toolkit.excel.ExcelColumn;
 import org.jflame.toolkit.excel.IExcelEntity;
 
-public class Pet implements IExcelEntity {
+public class Pet implements IExcelEntity, Serializable {
 
     private String name;
     private int age;
@@ -15,6 +16,10 @@ public class Pet implements IExcelEntity {
     private Date createDate;
 
     public Pet() {
+    }
+
+    public Pet(String name) {
+        this.name = name;
     }
 
     public Pet(String name, int age, String skin, Date birthday, double money) {
@@ -78,6 +83,39 @@ public class Pet implements IExcelEntity {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Pet [");
+        if (name != null) {
+            builder.append("name=")
+                    .append(name)
+                    .append(", ");
+        }
+        builder.append("age=")
+                .append(age)
+                .append(", ");
+        if (skin != null) {
+            builder.append("skin=")
+                    .append(skin)
+                    .append(", ");
+        }
+        if (birthday != null) {
+            builder.append("birthday=")
+                    .append(birthday)
+                    .append(", ");
+        }
+        builder.append("money=")
+                .append(money)
+                .append(", ");
+        if (createDate != null) {
+            builder.append("createDate=")
+                    .append(createDate);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
 }

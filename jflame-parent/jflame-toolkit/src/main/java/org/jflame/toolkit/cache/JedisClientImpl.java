@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.exception.DataAccessException;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.DateHelper;
@@ -19,7 +18,6 @@ import org.jflame.toolkit.util.MapHelper;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
 
 public class JedisClientImpl implements RedisClient {
 
@@ -36,47 +34,27 @@ public class JedisClientImpl implements RedisClient {
         return this.conn.getJedis();
     }
 
-    public interface PipelineCallBack<T> {
-
-        T doHandle(Pipeline pipeline, IGenericSerializer serializer);
-    }
-
-    /**
-     * 管道方式运行命令
-     * 
-     * @param callBack
-     * @return
-     */
-    public <T> T executePipeline(PipelineCallBack<T> callBack) {
-        try (Jedis client = getJedis()) {
-            Pipeline pipeline = client.pipelined();
-            return callBack.doHandle(pipeline, getSerializer());
-        } catch (Exception e) {
-            throw new DataAccessException(e);
-        }
-    }
-
     interface CmdHandler<T> {
 
         T doHandle(Jedis client, byte[]... keyBytes);
     }
 
-    private <T> T execute(Object key, CmdHandler<T> handler) throws DataAccessException {
+    private <T> T execute(Serializable key, CmdHandler<T> handler) throws RedisAccessException {
         if (key == null) {
             throw new NullPointerException("cache key not be null");
         }
         try (Jedis client = getJedis()) {
             return handler.doHandle(client, toBytes(key));
         } catch (Exception e) {
-            throw new DataAccessException(e);
+            throw new RedisAccessException(e);
         }
     }
 
-    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws DataAccessException {
+    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws RedisAccessException {
         try (Jedis client = getJedis()) {
             return handler.doHandle(client, toByteArray(key));
         } catch (Exception e) {
-            throw new DataAccessException(e);
+            throw new RedisAccessException(e);
         }
     }
 
@@ -91,11 +69,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void set(Object key, Object value) {
+    public void set(Serializable key, Serializable value) {
         execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 String reply = client.set(keyBytes[0], toBytes(value));
                 return ok.equals(reply);
             }
@@ -103,11 +81,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void set(Object key, Object value, long timeout, TimeUnit timeUnit) {
+    public void set(Serializable key, Serializable value, long timeout, TimeUnit timeUnit) {
         execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 if (timeUnit == TimeUnit.MILLISECONDS) {
                     client.psetex(toBytes(key), timeUnit.toMillis(timeout), toBytes(value));
                 } else {
@@ -127,7 +105,7 @@ public class JedisClientImpl implements RedisClient {
         execute(kvBytes, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 client.mset(keyBytes);
                 return true;
             }
@@ -135,11 +113,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean setIfAbsent(Object key, Object value) {
+    public boolean setIfAbsent(Serializable key, Serializable value) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 long r = client.setnx(keyBytes[0], toBytes(value));
                 return r == 1;
             }
@@ -148,11 +126,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean setIfAbsent(Object key, Object value, long timeout, TimeUnit timeUnit) {
+    public boolean setIfAbsent(Serializable key, Serializable value, long timeout, TimeUnit timeUnit) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 String r;
                 if (timeUnit == TimeUnit.MILLISECONDS) {
                     r = client.set(keyBytes[0], toBytes(value), nxBytes, pxBytes, timeUnit.toMillis(timeout));
@@ -175,7 +153,7 @@ public class JedisClientImpl implements RedisClient {
         execute(kvBytes, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 client.msetnx(keyBytes);
                 return true;
             }
@@ -183,33 +161,33 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T get(Object key) {
+    public <T extends Serializable> T get(Serializable key) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
-            public T doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public T doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return fromBytes(client.get(keyBytes[0]));
             }
         });
     }
 
     @Override
-    public <T extends Serializable> T getAndSet(Object key, T newValue) {
+    public <T extends Serializable> T getAndSet(Serializable key, T newValue) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
-            public T doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public T doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return fromBytes(client.getSet(keyBytes[0], toBytes(newValue)));
             }
         });
     }
 
     @Override
-    public <T extends Serializable> List<T> multiGet(Collection<?> keys) {
+    public <T extends Serializable> List<T> multiGet(Collection<? extends Serializable> keys) {
         return execute(keys, new CmdHandler<List<T>>() {
 
             @Override
-            public List<T> doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public List<T> doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 List<byte[]> valueBytes = client.mget(toByteArray(keys));
                 return fromBytes(valueBytes);
             }
@@ -218,11 +196,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean delete(Object key) {
+    public boolean delete(Serializable key) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.del(keyBytes[0]) > 0;
             }
 
@@ -230,44 +208,44 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long delete(Collection<?> keys) {
+    public long delete(Collection<? extends Serializable> keys) {
         return execute(keys, new CmdHandler<Long>() {
 
             @Override
-            public Long doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Long doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.del(keyBytes);
             }
         });
     }
 
     @Override
-    public boolean exists(Object key) {
+    public boolean exists(Serializable key) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.exists(keyBytes[0]);
             }
         });
     }
 
     @Override
-    public boolean expire(Object key, int seconds) {
+    public boolean expire(Serializable key, int seconds) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.expire(keyBytes[0], seconds) == 1L;
             }
         });
     }
 
     @Override
-    public boolean expireAt(Object key, Date date) {
+    public boolean expireAt(Serializable key, Date date) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.expireAt(keyBytes[0], DateHelper.unixTimestamp(date)) == 1L;
             }
 
@@ -275,11 +253,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Long incr(Object key) {
+    public Long incr(Serializable key) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
-            public Long doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Long doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.incr(keyBytes[0]);
             }
 
@@ -287,11 +265,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Long incr(Object key, long incrValue) {
+    public Long incr(Serializable key, long incrValue) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
-            public Long doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Long doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.incrBy(keyBytes[0], incrValue);
             }
 
@@ -299,33 +277,33 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Double incrByFloat(Object key, double incrValue) {
+    public Double incrByFloat(Serializable key, double incrValue) {
         return execute(key, new CmdHandler<Double>() {
 
             @Override
-            public Double doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Double doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.incrByFloat(keyBytes[0], incrValue);
             }
         });
     }
 
     @Override
-    public boolean persist(Object key) {
+    public boolean persist(Serializable key) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
-            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 return client.persist(keyBytes[0]) == 1;
             }
         });
     }
 
     @Override
-    public <T extends Serializable> T hget(Object key, final Object fieldKey) {
+    public <T extends Serializable> T hget(Serializable key, final Serializable fieldKey) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
-            public T doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public T doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 byte[] valueBytes = client.hget(keyBytes[0], toBytes(fieldKey));
                 return fromBytes(valueBytes);
             }
@@ -333,11 +311,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> hmultiGet(Object key, Collection<?> fieldKeys) {
+    public <T extends Serializable> List<T> hmultiGet(Serializable key, Collection<? extends Serializable> fieldKeys) {
         return execute(key, new CmdHandler<List<T>>() {
 
             @Override
-            public List<T> doHandle(Jedis client, byte[]... keyBytes) throws DataAccessException {
+            public List<T> doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
                 List<byte[]> valueBytes = client.hmget(keyBytes[0], toByteArray(fieldKeys));
                 return fromBytes(valueBytes);
             }
@@ -345,7 +323,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long hdelete(Object key, Object fieldKey) {
+    public long hdelete(Serializable key, Object fieldKey) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -356,7 +334,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void hput(final Object key, final Object fieldKey, final Object value) {
+    public void hput(final Serializable key, final Serializable fieldKey, final Serializable value) {
         execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -368,7 +346,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean hputIfAbsent(final Object key, final Object fieldKey, final Object value) {
+    public boolean hputIfAbsent(final Serializable key, final Serializable fieldKey, final Serializable value) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
@@ -380,7 +358,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void hputAll(Object key, final Map<? extends Serializable,? extends Serializable> map) {
+    public void hputAll(Serializable key, final Map<? extends Serializable,? extends Serializable> map) {
         execute(key, new CmdHandler<Boolean>() {
 
             @Override
@@ -392,7 +370,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> hvalues(Object key) {
+    public <T extends Serializable> List<T> hvalues(Serializable key) {
         return execute(key, new CmdHandler<List<T>>() {
 
             @Override
@@ -404,7 +382,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> hkeys(Object key) {
+    public <T extends Serializable> Set<T> hkeys(Serializable key) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -416,7 +394,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean hexists(Object key, Object fieldKey) {
+    public boolean hexists(Serializable key, Object fieldKey) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
@@ -427,7 +405,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long hsize(Object key) {
+    public long hsize(Serializable key) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -438,7 +416,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long sadd(Object key, Serializable... values) {
+    public long sadd(Serializable key, Serializable... values) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -449,7 +427,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Object key, Collection<Object> keys) {
+    public <T extends Serializable> Set<T> sdiff(Serializable key, Collection<? extends Serializable> keys) {
         List<Object> keyList = new ArrayList<>(keys);
         keyList.add(0, key);
         return execute(keyList, new CmdHandler<Set<T>>() {
@@ -463,7 +441,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Object key, Object otherKey) {
+    public <T extends Serializable> Set<T> sdiff(Serializable key, Serializable otherKey) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -475,7 +453,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void sdiffAndStore(Object key, Object otherKey, Object destKey) {
+    public void sdiffAndStore(Serializable key, Serializable otherKey, Serializable destKey) {
         execute(key, new CmdHandler<Object>() {
 
             @Override
@@ -487,7 +465,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sintersect(Object key, Object otherKey) {
+    public <T extends Serializable> Set<T> sintersect(Serializable key, Serializable otherKey) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -499,7 +477,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sintersect(List<Object> keys) {
+    public <T extends Serializable> Set<T> sintersect(List<? extends Serializable> keys) {
         if (keys != null && keys.size() >= 2) {
             return execute(keys, new CmdHandler<Set<T>>() {
 
@@ -514,7 +492,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void sintersectAndStore(List<Object> keys, Object destKey) {
+    public void sintersectAndStore(List<? extends Serializable> keys, Serializable destKey) {
         if (keys != null && keys.size() >= 2) {
             execute(keys, new CmdHandler<Object>() {
 
@@ -528,7 +506,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sunion(Object key, Object otherKey) {
+    public <T extends Serializable> Set<T> sunion(Serializable key, Serializable otherKey) {
         return execute(Arrays.asList(key, otherKey), new CmdHandler<Set<T>>() {
 
             @Override
@@ -540,7 +518,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void sunionAndStore(Object key, Object otherKey, Object destKey) {
+    public void sunionAndStore(Serializable key, Serializable otherKey, Serializable destKey) {
         execute(Arrays.asList(key, otherKey), new CmdHandler<Object>() {
 
             @Override
@@ -552,7 +530,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> smember(Object key) {
+    public <T extends Serializable> Set<T> smember(Serializable key) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -564,7 +542,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean smove(Object key, Object destKey, Serializable value) {
+    public boolean smove(Serializable key, Serializable destKey, Serializable value) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
@@ -576,7 +554,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T spop(Object key) {
+    public <T extends Serializable> T spop(Serializable key) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -588,7 +566,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> srandomMembers(Object key, int count) {
+    public <T extends Serializable> List<T> srandomMembers(Serializable key, int count) {
         return execute(key, new CmdHandler<List<T>>() {
 
             @Override
@@ -600,7 +578,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long sremove(Object key, Object... members) {
+    public long sremove(Serializable key, Object... members) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -611,7 +589,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long ssize(Object key) {
+    public long ssize(Serializable key) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -622,7 +600,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean zsadd(Object key, Serializable value, double score) {
+    public boolean zsadd(Serializable key, Serializable value, double score) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
@@ -634,9 +612,12 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsadd(Object key, Map<Object,Double> memberScores) {
+    public long zsadd(Serializable key, Map<? extends Serializable,Double> memberScores) {
         Map<byte[],Double> sMap = new HashMap<>();
-        for (Map.Entry<Object,Double> kv : memberScores.entrySet()) {
+        for (Map.Entry<? extends Serializable,Double> kv : memberScores.entrySet()) {
+            if (kv.getKey() == null) {
+                throw new IllegalArgumentException("不允许有null key");
+            }
             sMap.put(toBytes(kv.getKey()), kv.getValue());
         }
         return execute(key, new CmdHandler<Long>() {
@@ -649,7 +630,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zssize(Object key) {
+    public long zssize(Serializable key) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -660,7 +641,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zscount(Object key, double min, double max) {
+    public long zscount(Serializable key, double min, double max) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -671,7 +652,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Double zsincrScore(Object key, Serializable member, double incrScore) {
+    public Double zsincrScore(Serializable key, Serializable member, double incrScore) {
         return execute(key, new CmdHandler<Double>() {
 
             @Override
@@ -682,7 +663,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> zsrange(Object key, long startIndex, long endIndex) {
+    public <T extends Serializable> Set<T> zsrange(Serializable key, long startIndex, long endIndex) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -694,7 +675,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> zsrangeByScore(Object key, double min, double max) {
+    public <T extends Serializable> Set<T> zsrangeByScore(Serializable key, double min, double max) {
         return execute(key, new CmdHandler<Set<T>>() {
 
             @Override
@@ -706,7 +687,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremove(Object key, Object... members) {
+    public long zsremove(Serializable key, Object... members) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -717,7 +698,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremove(Object key, long start, long end) {
+    public long zsremove(Serializable key, long start, long end) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -728,7 +709,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremoveByScore(Object key, double minScore, double maxScore) {
+    public long zsremoveByScore(Serializable key, double minScore, double maxScore) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -739,7 +720,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long lpush(Object key, Object... values) {
+    public long lpush(Serializable key, Serializable... values) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -750,7 +731,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long lpushIfAbsent(Object key, Object value) {
+    public long lpushIfAbsent(Serializable key, Serializable value) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -761,7 +742,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long rpush(Object key, Object... values) {
+    public long rpush(Serializable key, Serializable... values) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -772,7 +753,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long rpushIfAbsent(Object key, Object value) {
+    public long rpushIfAbsent(Serializable key, Serializable value) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -783,7 +764,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long linsert(Object key, Object value, Object pivot) {
+    public long linsert(Serializable key, Serializable value, Serializable pivot) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -794,7 +775,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lpop(Object key) {
+    public <T extends Serializable> T lpop(Serializable key) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -806,7 +787,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lBlockPop(Object key, int timeout) {
+    public <T extends Serializable> T lBlockPop(Serializable key, int timeout) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -821,7 +802,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rpop(Object key) {
+    public <T extends Serializable> T rpop(Serializable key) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -833,7 +814,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rBlockPop(Object key, int timeout) {
+    public <T extends Serializable> T rBlockPop(Serializable key, int timeout) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -848,7 +829,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long lsize(Object key) {
+    public long lsize(Serializable key) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -859,7 +840,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> lrange(Object key, long start, long end) {
+    public <T extends Serializable> List<T> lrange(Serializable key, long start, long end) {
         return execute(key, new CmdHandler<List<T>>() {
 
             @Override
@@ -871,7 +852,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void ltrim(Object key, long start, long end) {
+    public void ltrim(Serializable key, long start, long end) {
         execute(key, new CmdHandler<Object>() {
 
             @Override
@@ -883,7 +864,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lindex(Object key, long index) {
+    public <T extends Serializable> T lindex(Serializable key, long index) {
         return execute(key, new CmdHandler<T>() {
 
             @Override
@@ -895,7 +876,7 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public void lset(Object key, long index, Object value) {
+    public void lset(Serializable key, long index, Serializable value) {
         execute(key, new CmdHandler<Object>() {
 
             @Override
@@ -907,7 +888,12 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Long lremove(Object key, long count, Object value) {
+    public Long lremove(Serializable key, Serializable value) {
+        return lremove(key, 0, value);
+    }
+
+    @Override
+    public Long lremove(Serializable key, long count, Serializable value) {
         return execute(key, new CmdHandler<Long>() {
 
             @Override
@@ -918,25 +904,27 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public <T> T runScript(final String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
+    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz) {
         try (Jedis client = getJedis()) {
             Object r = client.eval(CharsetHelper.getUtf8Bytes(luaScript), toBytes(keys), toBytes(args));
             Object cr = convertScriptResult(r, resultClazz);
             return deserializeResult(cr, resultClazz);
         } catch (Exception e) {
-            throw new DataAccessException(e);
+            throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public <T> T runSHAScript(final String luaScript, List<Object> keys, List<Object> args, Class<T> resultClazz) {
+    public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
+            List<? extends Serializable> args, Class<T> resultClazz) {
         try (Jedis client = getJedis()) {
             byte[] scriptBytes = client.scriptLoad(CharsetHelper.getUtf8Bytes(luaScript));
             Object r = client.evalsha(scriptBytes, toBytes(keys), toBytes(args));
             Object cr = convertScriptResult(r, resultClazz);
             return deserializeResult(cr, resultClazz);
         } catch (Exception e) {
-            throw new DataAccessException(e);
+            throw new RedisAccessException(e);
         }
     }
 
@@ -949,11 +937,11 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public long ttl(Object key) {
+    public long ttl(Serializable key) {
         try (Jedis client = getJedis()) {
             return client.ttl(toBytes(key));
         } catch (Exception e) {
-            throw new DataAccessException(e);
+            throw new RedisAccessException(e);
         }
     }
 

@@ -45,7 +45,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         super(url);
         Builder builder = CuratorFrameworkFactory.builder()
                 .connectString(url)
-                .retryPolicy(new RetryNTimes(1000 * 60 * 60 * 2, 2000))
+                .retryPolicy(new RetryNTimes(1000 * 60 * 30, 2000))
                 .connectionTimeoutMs(connectionTimeout)
                 .sessionTimeoutMs(sessionTimeout);
         if (authority != null && !authority.isEmpty()) {

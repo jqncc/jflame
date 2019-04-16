@@ -15,6 +15,7 @@ import org.apache.commons.lang3.CharSetUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.codec.TranscodeException;
+import org.jflame.toolkit.codec.TranscodeHelper;
 
 /**
  * 字符串工具类
@@ -150,13 +151,24 @@ public final class StringHelper {
     }
 
     /**
-     * 将map转为url参数字符串 如:key=value&amp;key1=value1
+     * 将map转为url参数字符串 如:key=value&amp;key1=value1,参数值不做url编码
      * 
      * @param paramMap Map&lt;String, String&gt;
      * @see #buildMapFromUrlParam(String)
      * @return url参数字符串, 如:x=1&amp;y=2
      */
     public static String buildUrlParamFromMap(Map<String,Object> paramMap) {
+        return buildUrlParamFromMap(paramMap, false);
+    }
+
+    /**
+     * 将map转为url参数字符串 如:key=value&amp;key1=value1
+     * 
+     * @param paramMap
+     * @param isUrlEncode 是否url编码
+     * @return
+     */
+    public static String buildUrlParamFromMap(Map<String,Object> paramMap, boolean isUrlEncode) {
         if (paramMap == null || paramMap.isEmpty()) {
             return null;
         }
@@ -166,7 +178,8 @@ public final class StringHelper {
                 strBuf.append('&')
                         .append(kv.getKey())
                         .append('=')
-                        .append(kv.getValue());
+                        .append(isUrlEncode ? TranscodeHelper.urlencode(kv.getValue()
+                                .toString()) : kv.getValue());
             }
         }
         strBuf.deleteCharAt(0);
