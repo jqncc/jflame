@@ -7,8 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.exception.DataAccessException;
+import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +64,12 @@ public class JedisConnection implements Closeable, AutoCloseable {
      * @param poolConfig 连接池配置
      * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
-    public JedisConnection(String hostName, int database, JedisPoolConfig poolConfig, boolean lazy) {
-        this(RedisMode.single.name(), hostName, database, poolConfig, lazy);
+    public JedisConnection(String hostName, int database, JedisPoolConfig poolConfig) {
+        this(RedisMode.single.name(), hostName, database, null, poolConfig);
+    }
+
+    public JedisConnection(String hostName, int database, String password, JedisPoolConfig poolConfig) {
+        this(RedisMode.single.name(), hostName, database, password, poolConfig);
     }
 
     /**
@@ -74,18 +81,17 @@ public class JedisConnection implements Closeable, AutoCloseable {
      * @param poolConfig 连接池配置
      * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
-    public JedisConnection(String mode, String hostName, int database, JedisPoolConfig poolConfig, boolean lazy) {
+    public JedisConnection(String mode, String hostName, int database, String password, JedisPoolConfig poolConfig) {
         currentMode = RedisMode.valueOf(mode);
         hostName = StringUtils.deleteWhitespace(hostName);
         hosts = hostName.split(",");
         this.database = database;
+        setPassword(password);
         this.poolConfig = poolConfig;
-        if (!lazy) {
-            init();
-        }
     }
 
-    private void init() {
+    @PostConstruct
+    public void init() {
         if (!isInited.get()) {
             String[] nodeInfo;
             switch (currentMode) {
@@ -249,7 +255,7 @@ public class JedisConnection implements Closeable, AutoCloseable {
     }
 
     public void setPassword(String password) {
-        if (password != null) {
+        if (StringHelper.isNotEmpty(password)) {
             this.password = password.trim();
         }
     }

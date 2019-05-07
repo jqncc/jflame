@@ -174,6 +174,7 @@ public class SpringCacheClientImpl implements RedisClient {
     @Override
     public boolean delete(Serializable key) {
         // return redisTemplate.delete(key);2.0以上版本才支持返回值
+        // redisTemplate.delete(key);
         try {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
 
@@ -223,6 +224,15 @@ public class SpringCacheClientImpl implements RedisClient {
     public boolean expire(Serializable key, int seconds) {
         try {
             return redisTemplate.expire(key, seconds, TimeUnit.SECONDS);
+        } catch (DataAccessException e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    @Override
+    public boolean expire(Serializable key, long timeout, TimeUnit timeUnit) {
+        try {
+            return redisTemplate.expire(key, timeout, timeUnit);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }

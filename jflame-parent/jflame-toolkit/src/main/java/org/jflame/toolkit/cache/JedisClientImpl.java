@@ -231,11 +231,19 @@ public class JedisClientImpl implements RedisClient {
 
     @Override
     public boolean expire(Serializable key, int seconds) {
+        return expire(key, seconds, TimeUnit.SECONDS);
+    }
+
+    public boolean expire(Serializable key, long timeout, TimeUnit timeUnit) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
             public Boolean doHandle(Jedis client, byte[]... keyBytes) throws RedisAccessException {
-                return client.expire(keyBytes[0], seconds) == 1L;
+                if (TimeUnit.SECONDS == timeUnit) {
+                    return client.expire(keyBytes[0], (int) timeout) == 1L;
+                } else {
+                    return client.expire(keyBytes[0], (int) timeUnit.toSeconds(timeout)) == 1L;
+                }
             }
         });
     }

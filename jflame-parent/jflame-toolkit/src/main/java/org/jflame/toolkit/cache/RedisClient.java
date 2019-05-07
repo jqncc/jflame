@@ -336,6 +336,8 @@ public interface RedisClient {
      */
     boolean expire(Serializable key, int seconds);
 
+    boolean expire(Serializable key, long timeout, TimeUnit timeUnit);
+
     /**
      * 设置缓存在某个时间点过期
      * 

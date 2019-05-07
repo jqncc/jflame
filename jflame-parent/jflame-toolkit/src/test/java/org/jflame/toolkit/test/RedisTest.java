@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.jflame.toolkit.cache.JedisConnection;
 import org.jflame.toolkit.cache.RedisClient;
 import org.jflame.toolkit.cache.RedisClientFactory;
 import org.jflame.toolkit.lock.RedisLock;
@@ -16,7 +17,6 @@ import org.jflame.toolkit.test.entity.Pet;
 import org.jflame.toolkit.util.DateHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -58,15 +58,29 @@ public class RedisTest {
         pet.setName("litte black dog");
         pet.setSkin("black");
         // jedis
-        // JedisConnection jedisConn = new JedisConnection(host, db, poolCfg, false);
+        JedisConnection jedisConn = new JedisConnection(host, db, poolCfg);
+        jedisConn.init();
         // spring redis
-        JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
+        /*JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
         jedisConn.setDatabase(db);
         jedisConn.setHostName(host);
         jedisConn.setUsePool(true);
-        jedisConn.afterPropertiesSet();
+        jedisConn.afterPropertiesSet();*/
 
         client = RedisClientFactory.createClient(jedisConn);
+    }
+
+    @Test
+    public void testDel() {
+        String hkey = "hashtest00";
+        client.hput(hkey, "deleted", "ok");
+        client.delete(hkey);
+        System.out.println(client.exists(hkey));
+    }
+
+    @Test
+    public void testset() {
+        client.set("bizappno", "payorderno", 10, TimeUnit.MINUTES);
     }
 
     /**
