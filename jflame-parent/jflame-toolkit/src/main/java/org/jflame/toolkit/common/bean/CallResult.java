@@ -99,6 +99,12 @@ public class CallResult<T> extends SimpleResult {
         this.message = msg;
     }
 
+    public CallResult<T> result(BaseResult err) {
+        this.status = err.getStatus();
+        this.message = err.getMessage();
+        return this;
+    }
+
     /**
      * 结果是否成功,即等于ErrorEnum.SUCCESS.
      * 

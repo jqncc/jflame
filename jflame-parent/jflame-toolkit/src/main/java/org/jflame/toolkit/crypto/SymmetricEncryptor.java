@@ -137,10 +137,12 @@ public class SymmetricEncryptor extends BaseEncryptor {
         } catch (UnsupportedEncodingException e) {
             throw new EncryptException(e);
         }
-        return java.util.Base64.getUrlEncoder()
+
+        return isEnableBase64UrlSafe() ? Base64.getUrlEncoder()
                 .withoutPadding()
-                .encodeToString(ciphertext);
-        // return Base64.encodeBase64URLSafeString(ciphertext);
+                .encodeToString(ciphertext)
+                : Base64.getEncoder()
+                        .encodeToString(ciphertext);
     }
 
     /**
@@ -180,8 +182,7 @@ public class SymmetricEncryptor extends BaseEncryptor {
         if (StringHelper.isEmpty(cipherBase64Text)) {
             return cipherBase64Text;
         }
-        // byte[] cipherBytes = TranscodeHelper.dencodeBase64(cipherBase64Text);
-        byte[] cipherBytes = Base64.getUrlDecoder()
+        byte[] cipherBytes = Base64.getDecoder()
                 .decode(cipherBase64Text);
         return doDencrypt(cipherBytes, password, ivParam);
     }

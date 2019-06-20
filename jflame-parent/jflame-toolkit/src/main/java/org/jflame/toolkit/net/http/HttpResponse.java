@@ -46,6 +46,14 @@ public class HttpResponse extends CallResult<byte[]> {
         return headers;
     }
 
+    public String getHeader(String headField) {
+        if (headers.containsKey(headField)) {
+            return headers.get(headField)
+                    .get(0);
+        }
+        return null;
+    }
+
     public void setHeaders(Map<String,List<String>> headers) {
         this.headers = headers;
     }

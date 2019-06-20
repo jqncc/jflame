@@ -74,14 +74,14 @@ public @interface Digit {
     int maxScale() default 0;
 
     /**
-     * 最大值
+     * 最小值
      * 
      * @return
      */
     String min() default "";
 
     /**
-     * 最小值
+     * 最大值
      * 
      * @return
      */

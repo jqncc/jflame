@@ -34,6 +34,7 @@ public abstract class BaseEncryptor {
     protected String curCipherStr;
     protected String charset;
     protected Cipher cipher;
+    private boolean isEnableBase64UrlSafe = true;// true,编码为base64时使用url安全编码
 
     /**
      * 构造函数,指定加密算法,填充模式.
@@ -79,7 +80,10 @@ public abstract class BaseEncryptor {
      * @author zyc
      */
     public enum Algorithm {
-        DES, DESede, AES, RSA
+        DES,
+        DESede,
+        AES,
+        RSA
     }
 
     /**
@@ -88,7 +92,12 @@ public abstract class BaseEncryptor {
      * @author zyc
      */
     public enum OpMode {
-        ECB, CBC, CFB, OFB, PCBC, NONE
+        ECB,
+        CBC,
+        CFB,
+        OFB,
+        PCBC,
+        NONE
     }
 
     /**
@@ -97,7 +106,12 @@ public abstract class BaseEncryptor {
      * @author zyc
      */
     public enum Padding {
-        PKCS1PADDING, PKCS5Padding, PKCS7Padding, NoPadding, ISO10126PADDING, OAEPWITHMD5ANDMGF1PADDING
+        PKCS1PADDING,
+        PKCS5Padding,
+        PKCS7Padding,
+        NoPadding,
+        ISO10126PADDING,
+        OAEPWITHMD5ANDMGF1PADDING
     }
 
     public Algorithm getAlgorithm() {
@@ -120,6 +134,14 @@ public abstract class BaseEncryptor {
      * protected void setOpMode(OpMode curOpMode) { this.curOpMode = curOpMode; } protected void setPadding(Padding
      * curPaddingMode) { this.curPadding = curPaddingMode; }
      */
+
+    public boolean isEnableBase64UrlSafe() {
+        return isEnableBase64UrlSafe;
+    }
+
+    public void setEnableBase64UrlSafe(boolean isEnableBase64UrlSafe) {
+        this.isEnableBase64UrlSafe = isEnableBase64UrlSafe;
+    }
 
     protected String getCipherStr() {
         String tram = curAlgorithm.name();

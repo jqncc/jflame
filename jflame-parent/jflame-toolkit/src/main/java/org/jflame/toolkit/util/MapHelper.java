@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.exception.ConvertException;
@@ -89,10 +90,23 @@ public final class MapHelper {
      * @return
      */
     public static Map<String,Object> convertBeanToMap(Serializable beanObj, String... excludes) {
+        return convertBeanToMap(beanObj, false, false, excludes);
+    }
+
+    /**
+     * 将javabean对象转为map
+     * 
+     * @param beanObj bean对象
+     * @param ignoreNullValue 是否忽略值为null的属性,true=忽略
+     * @param excludes 要排除的属性名
+     * @return
+     */
+    public static Map<String,Object> convertBeanToMap(Serializable beanObj, boolean ignoreNullValue,
+            boolean isSortedMap, String... excludes) {
         if (beanObj == null) {
             throw new IllegalArgumentException("不能转换为null的对象");
         }
-        Map<String,Object> resultMap = new HashMap<>();
+        Map<String,Object> resultMap = isSortedMap ? new TreeMap<>() : new HashMap<>();
         Set<String> excludeProps = new HashSet<>();
         excludeProps.add("class");
         if (ArrayUtils.isNotEmpty(excludes)) {
@@ -108,6 +122,9 @@ public final class MapHelper {
                     readMethod = pd.getReadMethod();
                     if (readMethod != null) {
                         value = readMethod.invoke(beanObj, new Object[0]);
+                        if (ignoreNullValue && value == null) {
+                            continue;
+                        }
                         resultMap.put(pd.getName(), value);
                     }
                 }
@@ -118,4 +135,16 @@ public final class MapHelper {
         return resultMap;
     }
 
+    /**
+     * 将javabean对象转按键自然排序的treemap
+     * 
+     * @param beanObj
+     * @param ignoreNullValue
+     * @param excludes
+     * @return
+     */
+    public static TreeMap<String,Object> convertBeanToSortedMap(Serializable beanObj, boolean ignoreNullValue,
+            String... excludes) {
+        return (TreeMap<String,Object>) convertBeanToMap(beanObj, ignoreNullValue, true, excludes);
+    }
 }

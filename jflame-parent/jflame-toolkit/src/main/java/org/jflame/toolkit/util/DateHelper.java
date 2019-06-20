@@ -3,6 +3,7 @@ package org.jflame.toolkit.util;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -267,7 +268,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
+     * 计算两个日期间隔分钟数.endTime小于startTime时返回负数<br>
      * 
      * @param startTime 时间1
      * @param endTime 时间2
@@ -283,7 +284,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔小时数.startTime小于endTime时返回负数<br>
+     * 计算两个日期间隔小时数.endTime小于startTime时返回负数<br>
      * 注:整数计算,如55分钟内为0小时,79分钟为1小时
      * 
      * @param startTime 时间1
@@ -300,7 +301,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔天数.date1小于date2时返回负数
+     * 计算两个日期间隔天数.date1大于date2时返回负数
      * 
      * @param date1 时间1
      * @param date2 时间2
@@ -403,6 +404,16 @@ public final class DateHelper {
         Instant instant = date.toInstant();
         ZoneId zone = ZoneId.systemDefault();
         return LocalDateTime.ofInstant(instant, zone);
+    }
+
+    /**
+     * date转localDate
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate toLocalDate(Date date) {
+        return toLocalDateTime(date).toLocalDate();
     }
 
     /**

@@ -11,7 +11,7 @@ public class XmlRequestBodyHandler implements RequestBodyHandler<Object> {
     @Override
     public byte[] handle(Object requestData, RequestProperty requestProperty) {
         if (requestData != null) {
-            String xml = XmlBeanHelper.toXml(requestData, requestProperty.getCharset());
+            String xml = XmlBeanHelper.toXml(requestData, requestProperty.getCharset(), true);
             try {
                 return xml.getBytes(requestProperty.getCharset());
             } catch (UnsupportedEncodingException e) {

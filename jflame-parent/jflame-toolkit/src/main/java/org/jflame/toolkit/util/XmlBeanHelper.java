@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -37,14 +38,51 @@ public final class XmlBeanHelper {
      * @throws ConvertException 转换异常
      */
     public static <T> String toXml(T bean, String encoding) {
+        return toXml(bean, encoding, false);
+    }
+
+    public static <T> String toXml(JAXBElement<T> beanEle, String encoding, boolean isIgnoreHeader) {
+        String result = null;
+        JAXBContext context;
+        try {
+            context = JAXBContext.newInstance(beanEle.getValue()
+                    .getClass());
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            if (encoding != null) {
+                marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
+            }
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, isIgnoreHeader);
+            StringWriter writer = new StringWriter();
+            marshaller.marshal(beanEle, writer);
+            result = writer.toString();
+        } catch (JAXBException e) {
+            throw new ConvertException(e);
+        }
+
+        return result;
+    }
+
+    /**
+     * JavaBean转换成xml
+     * 
+     * @param bean javabean
+     * @param encoding 字符编码
+     * @param isIgnoreHeader 是否忽略xml头 ,即&lt;?xml encoding?&gt;部分
+     * @return xml字符串
+     * @throws ConvertException 转换异常
+     */
+    public static <T> String toXml(T bean, String encoding, boolean isIgnoreHeader) {
         String result = null;
         JAXBContext context;
         try {
             context = JAXBContext.newInstance(bean.getClass());
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
-
+            if (encoding != null) {
+                marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
+            }
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, isIgnoreHeader);
             StringWriter writer = new StringWriter();
             marshaller.marshal(bean, writer);
             result = writer.toString();

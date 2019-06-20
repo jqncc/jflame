@@ -52,6 +52,7 @@ import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.StringHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,12 +261,12 @@ public final class HttpHelper {
     /**
      * 发起请求,http body字符串参数
      * 
-     * @param bodyParam http body参数字符串
+     * @param bodyParamText http body参数字符串
      * @return HttpResponse
      */
-    private HttpResponse sendTextRequest(String bodyParam) {
-        log.debug("发起http请求:url={},方式={},body参数={}", requestUrl, getMethod(), bodyParam);
-        return sendRequest(bodyParam, new TextRequestBodyHandler());
+    public HttpResponse sendTextRequest(String bodyParamText) {
+        log.debug("发起http请求:url={},方式={},body参数={}", requestUrl, getMethod(), bodyParamText);
+        return sendRequest(bodyParamText, new TextRequestBodyHandler());
     }
 
     /**
@@ -447,6 +448,7 @@ public final class HttpHelper {
         result.setStatus(httpConn.getResponseCode());
         log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
         result.setHeaders(httpConn.getHeaderFields());
+        System.out.println(httpConn.getHeaderField("encryptKey"));
         String respCharset = detectCharset(httpConn.getContentType());
         if (StringHelper.isNotEmpty(respCharset)) {
             result.setCharset(respCharset);

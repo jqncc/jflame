@@ -17,6 +17,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -134,7 +136,24 @@ public class RSAEncryptor extends BaseEncryptor {
         }
         return Base64.getEncoder()
                 .encodeToString(doencrypt(plainText, publicKey));
-        // return Base64.encodeBase64String(doencrypt(plainText, publicKey));
+    }
+
+    public String encryptToBase64(final String plainText, final PublicKey publicKey) throws EncryptException {
+        if (StringHelper.isEmpty(plainText)) {
+            return plainText;
+        }
+
+        byte[] contBytes = null;
+        try {
+            contBytes = plainText.getBytes(getCharset());
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException("字符编码错误" + getCharset(), e);
+        }
+
+        byte[] cryptBytes = docrypt(publicKey, contBytes, Cipher.ENCRYPT_MODE);
+
+        return Base64.getEncoder()
+                .encodeToString(cryptBytes);
     }
 
     /**
@@ -167,6 +186,20 @@ public class RSAEncryptor extends BaseEncryptor {
         byte[] cipherBytes = Base64.getDecoder()
                 .decode(cipherBase64);
         byte[] plainBytes = decrypt(cipherBytes, privateKey);
+        try {
+            return new String(plainBytes, getCharset());
+        } catch (UnsupportedEncodingException e) {
+            throw new EncryptException("字符编码错误" + getCharset(), e);
+        }
+    }
+
+    public String dencryptBase64(final String cipherBase64, final PrivateKey privateKey) throws EncryptException {
+        if (StringHelper.isEmpty(cipherBase64)) {
+            return cipherBase64;
+        }
+        byte[] cipherBytes = Base64.getDecoder()
+                .decode(cipherBase64);
+        byte[] plainBytes = docrypt(privateKey, cipherBytes, Cipher.DECRYPT_MODE);
         try {
             return new String(plainBytes, getCharset());
         } catch (UnsupportedEncodingException e) {
@@ -288,12 +321,12 @@ public class RSAEncryptor extends BaseEncryptor {
         return curAlgorithm == Algorithm.RSA;
     }
 
-    public static void main(String[] args) {
+    /* public static void main(String[] args) {
         RSAEncryptor encryptor = new RSAEncryptor();
         // encryptor.generateKeyPair("d:\\pub.key", "d:\\zp_pri.key");
-
+    
         String et = encryptor.encryptToBase64("中国人加密", "d:\\pub.key");
         String dt = encryptor.dencryptBase64(et, "d:\\zp_pri.key");
         System.out.println(dt);
-    }
+    }*/
 }
