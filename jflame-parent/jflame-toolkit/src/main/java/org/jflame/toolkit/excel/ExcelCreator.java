@@ -11,6 +11,16 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
+import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
+import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
+import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
+import org.jflame.toolkit.excel.handler.ISheetRowHandler;
+import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
+import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.IOHelper;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,15 +31,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
-import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
-import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
-import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
-import org.jflame.toolkit.excel.handler.ISheetRowHandler;
-import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.CollectionHelper;
-import org.jflame.toolkit.util.IOHelper;
 
 /**
  * <p>
@@ -88,6 +89,7 @@ public class ExcelCreator implements Closeable {
     private CellStyle titleStyle;
 
     private boolean isAutoCreateTitleRow = true;
+
     private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
     // private int rowIndex = 0;
 
@@ -123,6 +125,24 @@ public class ExcelCreator implements Closeable {
      */
     public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow) {
         workbook = new SXSSFWorkbook(100);
+        isAutoCreateTitleRow = isCreateTitleRow;
+        if (isCreateTitleRow) {
+            setTitleRowStyle();
+        }
+    }
+
+    /**
+     * 构造函数.指定excel版本和是否创建标题参数
+     * 
+     * @param excelVersion excel版本
+     * @param isCreateTitleRow 否自动创建标题行
+     * @param rowAccessWindowSize 内存缓冲行数,超过数据将写入磁盘.&gt;0
+     */
+    public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow, int rowAccessWindowSize) {
+        if (rowAccessWindowSize == 0) {
+            throw new IllegalArgumentException("rowAccessWindowSize !=0");
+        }
+        workbook = new SXSSFWorkbook(rowAccessWindowSize);
         isAutoCreateTitleRow = isCreateTitleRow;
         if (isCreateTitleRow) {
             setTitleRowStyle();
@@ -409,6 +429,21 @@ public class ExcelCreator implements Closeable {
         if (output != null) {
             workbook.write(output);
         }
+    }
+
+    /**
+     * 写入工作薄到到HttpServletResponse,下载excel
+     * 
+     * @param response
+     * @param fileName
+     * @throws IOException
+     */
+    public void write(HttpServletResponse response, String fileName) throws IOException {
+        response.reset();
+        setFileDownloadHeader(response, fileName);
+        ServletOutputStream out = response.getOutputStream();
+        workbook.write(out);
+        out.flush();
     }
 
     @Override

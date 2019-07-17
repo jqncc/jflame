@@ -1,6 +1,7 @@
 package org.jflame.toolkit.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -207,5 +208,18 @@ public final class CollectionHelper {
         return collection.stream()
                 .filter(predicate)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * 用给定元素生成一个List
+     * 
+     * @param elements
+     * @return
+     */
+    @SafeVarargs
+    public static <T> List<T> newList(T... elements) {
+        ArrayList<T> lst = new ArrayList<>(elements.length);
+        Collections.addAll(lst, elements);
+        return lst;
     }
 }

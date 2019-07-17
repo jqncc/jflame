@@ -102,7 +102,7 @@ public final class XmlBeanHelper {
      * @throws ConvertException 转换异常
      */
     @SuppressWarnings("unchecked")
-    public static <T> T toBean(String xml, Class<T> beanClass) {
+    public static <T> T toBean(String xml, Class<T>... beanClass) {
         T t = null;
         try {
             JAXBContext context = JAXBContext.newInstance(beanClass);

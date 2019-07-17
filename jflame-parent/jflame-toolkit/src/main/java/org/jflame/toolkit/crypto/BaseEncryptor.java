@@ -86,6 +86,14 @@ public abstract class BaseEncryptor {
         RSA
     }
 
+    public enum HMACAlgorithm {
+        HmacMD5,
+        HmacSHA1,
+        HmacSHA256,
+        HmacSHA384,
+        HmacSHA512;
+    }
+
     /**
      * 块加密模式枚举：ECB, CBC, CFB, OFB,PCBC, NONE
      * 

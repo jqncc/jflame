@@ -182,8 +182,14 @@ public class SymmetricEncryptor extends BaseEncryptor {
         if (StringHelper.isEmpty(cipherBase64Text)) {
             return cipherBase64Text;
         }
-        byte[] cipherBytes = Base64.getDecoder()
-                .decode(cipherBase64Text);
+        byte[] cipherBytes;
+        if (isEnableBase64UrlSafe()) {
+            cipherBytes = Base64.getUrlDecoder()
+                    .decode(cipherBase64Text);
+        } else {
+            cipherBytes = Base64.getDecoder()
+                    .decode(cipherBase64Text);
+        }
         return doDencrypt(cipherBytes, password, ivParam);
     }
 

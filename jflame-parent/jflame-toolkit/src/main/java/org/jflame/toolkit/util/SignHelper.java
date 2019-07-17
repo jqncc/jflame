@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.jflame.toolkit.crypto.DigestHelper;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SignHelper {
 
@@ -16,8 +18,10 @@ public class SignHelper {
         return mapParamSign(mapData, null);
     }
 
+    static final char[] splitChars = { '=','&' };
+
     /**
-     * map参数签名
+     * map参数签名,null值忽略
      *
      * @param mapData 待签名的map
      * @param excludeKeys 不参与签名的map key
@@ -35,7 +39,7 @@ public class SignHelper {
         } else {
             sortedMap = new TreeMap<>(mapData);
         }
-        final char[] splitChars = { '=','&' };
+
         boolean hasExclude = ArrayUtils.isNotEmpty(excludeKeys);
         boolean isArray = false;
         for (Entry<String,?> kv : sortedMap.entrySet()) {
@@ -43,7 +47,7 @@ public class SignHelper {
                 continue;
             }
             // 值为null忽略
-            if (kv.getValue() == null) {
+            if (kv.getValue() == null || StringUtils.EMPTY.equals(kv.getValue())) {
                 continue;
             }
             // 数组长度为0忽略
@@ -65,7 +69,6 @@ public class SignHelper {
                 str.append(kv.getValue());
             }
             str.append(splitChars[1]);
-
         }
         // System.out.println("=====sign:" + str.toString());
         return DigestHelper.md5Hex(str.toString());

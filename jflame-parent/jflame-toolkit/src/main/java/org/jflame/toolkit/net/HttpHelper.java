@@ -42,6 +42,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
+import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.net.http.HttpResponse;
 import org.jflame.toolkit.net.http.RequestProperty;
 import org.jflame.toolkit.net.http.handler.JsonRequestBodyHandler;
@@ -419,7 +420,7 @@ public final class HttpHelper {
         if (response.success()) {
             return response.getResponseAsJson(resultClazz);
         }
-        throw new RuntimeException(response.toString());
+        throw new BusinessException(response.getMessage(), response.getStatus());
     }
 
     /**
@@ -446,9 +447,11 @@ public final class HttpHelper {
     private HttpResponse getResponse(HttpURLConnection httpConn) throws IOException {
         HttpResponse result = new HttpResponse();
         result.setStatus(httpConn.getResponseCode());
-        log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
+        if (log.isDebugEnabled()) {
+            log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
+        }
         result.setHeaders(httpConn.getHeaderFields());
-        System.out.println(httpConn.getHeaderField("encryptKey"));
+        // System.out.println(httpConn.getHeaderField("encryptKey"));
         String respCharset = detectCharset(httpConn.getContentType());
         if (StringHelper.isNotEmpty(respCharset)) {
             result.setCharset(respCharset);
@@ -472,7 +475,7 @@ public final class HttpHelper {
                     throw e;
                 }
             }
-            log.error("请求失败," + result);
+            log.error("请求失败,status:{},message:{}", result.getStatus(), result.getMessage());
         }
         return result;
     }

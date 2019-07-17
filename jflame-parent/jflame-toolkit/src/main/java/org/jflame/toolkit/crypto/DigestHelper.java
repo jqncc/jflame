@@ -11,10 +11,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.jflame.toolkit.codec.Hex;
 import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.crypto.BaseEncryptor.HMACAlgorithm;
 import org.jflame.toolkit.util.CharsetHelper;
 
 /**
- * 消息摘要加密算法工具类，支持md5/SHA-1/SHA-256/SHA512/HmacMD5.
+ * 消息摘要加密算法工具类，支持md5/SHA-1/SHA-256/SHA512/Hmac.
  * 
  * @author zyc
  */
@@ -160,18 +161,10 @@ public class DigestHelper {
         return md5Hex(data).substring(8, 24);
     }
 
-    /**
-     * HmacMD5加密字节数组,指定密钥.
-     * 
-     * @param plainBytes 明文
-     * @param keyBytes 密钥
-     * @return 密文字节数组
-     * @throws EncryptException 加密异常
-     */
-    public static byte[] hmacMD5(byte[] plainBytes, byte[] keyBytes) throws EncryptException {
+    public static byte[] hmac(HMACAlgorithm algorithm, byte[] plainBytes, byte[] keyBytes) throws EncryptException {
         try {
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "HmacMD5");
-            Mac mac = Mac.getInstance(secretKey.getAlgorithm());
+            Mac mac = Mac.getInstance(algorithm.name());
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, mac.getAlgorithm());
             mac.init(secretKey);
             // 执行消息摘要 data是摘要后的结果
             byte[] data = mac.doFinal(plainBytes);
@@ -182,15 +175,69 @@ public class DigestHelper {
     }
 
     /**
-     * HmacMD5加密字符串.
+     * HmacMD5加密字节数组,指定密钥.
+     * 
+     * @param plainBytes 明文
+     * @param keyBytes 密钥
+     * @return 密文字节数组
+     * @throws EncryptException 加密异常
+     */
+    public static byte[] hmacMD5(byte[] plainBytes, byte[] keyBytes) throws EncryptException {
+        return hmac(HMACAlgorithm.HmacMD5, plainBytes, keyBytes);
+    }
+
+    /**
+     * 计算HmacMD5消息摘要
      * 
      * @param plainText 明文
      * @param key 密钥
-     * @return 密文 16进制字符串
+     * @return 密文 hex
      * @throws EncryptException 加密异常
      */
     public static String hmacMD5Hex(String plainText, String key) throws EncryptException {
         byte[] macData = hmacMD5(CharsetHelper.getUtf8Bytes(plainText), CharsetHelper.getUtf8Bytes(key));
+        return TranscodeHelper.encodeHexString(macData);
+    }
+
+    /**
+     * 计算hmacSHA1消息摘要
+     * 
+     * @param plainText 明文
+     * @param key 密钥
+     * @return 密文hex
+     * @throws EncryptException
+     */
+    public static String hmacSHA(String plainText, String key) throws EncryptException {
+        byte[] macData = hmac(HMACAlgorithm.HmacSHA1, CharsetHelper.getUtf8Bytes(plainText),
+                CharsetHelper.getUtf8Bytes(key));
+        return TranscodeHelper.encodeHexString(macData);
+    }
+
+    /**
+     * 计算hmacSHA256消息摘要
+     * 
+     * @param plainText 明文
+     * @param key 密钥
+     * @return 密文hex
+     * @throws EncryptException
+     */
+    public static String hmacSHA256(String plainText, String key) throws EncryptException {
+        byte[] macData = hmac(HMACAlgorithm.HmacSHA256, CharsetHelper.getUtf8Bytes(plainText),
+                CharsetHelper.getUtf8Bytes(key));
+        return TranscodeHelper.encodeHexString(macData);
+    }
+
+    /**
+     * 计算hmacSHA512消息摘要
+     * 
+     * @param plainText 明文
+     * @param key 密钥
+     * @return 密文hex
+     * @throws EncryptException
+     */
+    public static String hmacSHA512(String plainText, String key) throws EncryptException {
+        byte[] macData = hmac(HMACAlgorithm.HmacSHA512, CharsetHelper.getUtf8Bytes(plainText),
+                CharsetHelper.getUtf8Bytes(key));
         return TranscodeHelper.encodeHexString(macData);
     }
 
