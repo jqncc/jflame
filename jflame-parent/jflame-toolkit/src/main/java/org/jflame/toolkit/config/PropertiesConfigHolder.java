@@ -23,7 +23,7 @@ public class PropertiesConfigHolder {
     }
 
     public static String getString(final ConfigKey<String> configKey) {
-        return config.getParam(configKey);
+        return config.getString(configKey);
     }
 
     public static String getString(String configKey) {

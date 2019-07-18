@@ -24,6 +24,7 @@ public interface CommonConfigKeys {
     /**
      * 图片读取或保存路径
      */
+    @Deprecated
     ConfigKey<String> IMAGE_SAVE_PATH = new ConfigKey<>("image.save.path");
 
     ConfigKey<String> IMAGE_SERVER = new ConfigKey<>("image.server");

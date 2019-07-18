@@ -62,7 +62,6 @@ public class MemberInfo implements Serializable {
      */
     private String appNo;
 
-   
     public String getUserId() {
         return userId;
     }
@@ -154,6 +153,7 @@ public class MemberInfo implements Serializable {
         this.birthday = birthday;
     }
 
+    // @Transient
     public String getIdcard() {
         return idcard;
     }

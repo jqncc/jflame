@@ -21,6 +21,12 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.49</version>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.8</version>
+			<optional>true</optional>
+		</dependency>
 		<!-- ftp操作 -->
 		<dependency>
 			<groupId>commons-net</groupId>
@@ -43,17 +49,13 @@
 		</dependency>
 		<!-- el3.0包tomcat8内置,使用org.glassfish/javax.el可替换 -->
 		<dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-		<!-- <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>3.0.1-b09</version>
-            <scope>provided</scope>
-        </dependency> -->
+			<groupId>javax.el</groupId>
+			<artifactId>javax.el-api</artifactId>
+			<version>3.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- <dependency> <groupId>org.glassfish</groupId> <artifactId>javax.el</artifactId> 
+			<version>3.0.1-b09</version> <scope>provided</scope> </dependency> -->
 		<!-- 第三方加密组件 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -115,28 +117,25 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>2.12.0</version>
-            <optional>true</optional>
-        </dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<version>2.12.0</version>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-            <version>1.8.20.RELEASE</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.9.0</version>
-            <optional>true</optional>
-        </dependency>
-        
-       <!--  <dependency>
-    <groupId>io.lettuce</groupId>
-    <artifactId>lettuce-core</artifactId>
-    <version>5.1.4.RELEASE</version>
-</dependency> -->
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.8.20.RELEASE</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.9.0</version>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- <dependency> <groupId>io.lettuce</groupId> <artifactId>lettuce-core</artifactId> 
+			<version>5.1.4.RELEASE</version> </dependency> -->
 	</dependencies>
 </project>

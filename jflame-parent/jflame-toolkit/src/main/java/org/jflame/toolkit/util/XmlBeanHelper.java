@@ -101,6 +101,7 @@ public final class XmlBeanHelper {
      * @return T
      * @throws ConvertException 转换异常
      */
+    @SafeVarargs
     @SuppressWarnings("unchecked")
     public static <T> T toBean(String xml, Class<T>... beanClass) {
         T t = null;

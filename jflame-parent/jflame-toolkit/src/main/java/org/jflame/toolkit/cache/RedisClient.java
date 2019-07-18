@@ -578,6 +578,7 @@ public interface RedisClient {
      * 
      * @param key
      * @param count
+     * @param T 返回的集合元素类型
      * @return
      */
     <T extends Serializable> List<T> srandomMembers(Serializable key, int count);

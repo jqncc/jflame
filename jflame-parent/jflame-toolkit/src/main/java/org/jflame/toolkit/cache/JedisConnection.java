@@ -9,9 +9,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.exception.DataAccessException;
 import org.jflame.toolkit.util.StringHelper;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,15 +60,22 @@ public class JedisConnection implements Closeable, AutoCloseable {
     /**
      * 构造函数,默认单机模式
      * 
-     * @param hostName
-     * @param database
+     * @param hostName Redis主机连接信息.格式: ip:port,ip1:port1
+     * @param database 数据库
      * @param poolConfig 连接池配置
-     * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
     public JedisConnection(String hostName, int database, JedisPoolConfig poolConfig) {
         this(RedisMode.single.name(), hostName, database, null, poolConfig);
     }
 
+    /**
+     * 构造函数,默认单机模式
+     * 
+     * @param hostName Redis主机连接信息.格式: ip:port,ip1:port1
+     * @param database 数据库
+     * @param password 连接密码
+     * @param poolConfig 连接池配置
+     */
     public JedisConnection(String hostName, int database, String password, JedisPoolConfig poolConfig) {
         this(RedisMode.single.name(), hostName, database, password, poolConfig);
     }
@@ -75,11 +83,10 @@ public class JedisConnection implements Closeable, AutoCloseable {
     /**
      * 构造函数
      * 
-     * @param mode RedisMode 运行模式
-     * @param hostName Redis 主机连接信息.格式: ip:port,ip1:port1
+     * @param mode RedisMode运行模式
+     * @param hostName Redis主机连接信息.格式: ip:port,ip1:port1
      * @param database 数据库
      * @param poolConfig 连接池配置
-     * @param lazy 是否延迟开启连接池直到第一次获取连接
      */
     public JedisConnection(String mode, String hostName, int database, String password, JedisPoolConfig poolConfig) {
         currentMode = RedisMode.valueOf(mode);

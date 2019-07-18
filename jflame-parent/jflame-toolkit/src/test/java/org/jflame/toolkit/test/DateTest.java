@@ -1,12 +1,9 @@
 package org.jflame.toolkit.test;
 
-import java.util.Arrays;
 import java.util.Date;
 
 import org.jflame.toolkit.util.DateHelper;
 import org.junit.Test;
-
-import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 
 public class DateTest {
 
@@ -24,9 +21,12 @@ public class DateTest {
         p.setSkin("red");
         String x = JSON.toJSONString(p, SerializerFeature.BrowserCompatible);
         System.out.println(x);*/
-        GenericFastJsonRedisSerializer serializer = new GenericFastJsonRedisSerializer();
+        /* GenericFastJsonRedisSerializer serializer = new GenericFastJsonRedisSerializer();
         byte[] x = { 12,1,3,4 };
         byte[] y = serializer.serialize(x);
-        System.out.println(Arrays.toString(y));
+        System.out.println(Arrays.toString(y));*/
+        Date enDate = DateHelper.parseDate("2019-05-26 10:22:22", DateHelper.YYYY_MM_DD_HH_mm_ss);
+        long dt = DateHelper.intervalMinutes(enDate, new Date());
+        System.out.println(dt);
     }
 }
