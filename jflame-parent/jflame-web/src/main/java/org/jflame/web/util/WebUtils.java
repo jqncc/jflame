@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.IExcelEntity;
+import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.EnumHelper;
 import org.jflame.toolkit.util.JsonHelper;
@@ -287,6 +288,8 @@ public class WebUtils {
                 .isAbsolute();
     }
 
+    private static String[] localips = { "127.0.0.1","0:0:0:0:0:0:0:1" };
+
     /**
      * 获取客户端ip地址
      * 
@@ -321,6 +324,10 @@ public class WebUtils {
                 }
             }
         }
+        ip = ip.trim();
+        if (ArrayUtils.contains(localips, ip)) {
+            ip = IPAddressHelper.getHostIP();
+        }
         return ip;
     }
 
@@ -330,7 +337,7 @@ public class WebUtils {
         } else {
             return true;
         }
-        return "127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip) || "unknown".equalsIgnoreCase(ip);
+        return localips[0].equals(ip) || localips[1].equals(ip) || "unknown".equalsIgnoreCase(ip);
     }
 
     /**

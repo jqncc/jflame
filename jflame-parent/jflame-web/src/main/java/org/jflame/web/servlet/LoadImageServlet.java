@@ -20,6 +20,7 @@ import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils.MimeImages;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,10 @@ public class LoadImageServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        savePath = servletParam.getString(CommonConfigKeys.IMAGE_SAVE_PATH);
+        savePath = servletParam.getString(CommonConfigKeys.SAVE_PATH);
         if (StringHelper.isEmpty(savePath)) {
             try {
-                savePath = PropertiesConfigHolder.getString(CommonConfigKeys.IMAGE_SAVE_PATH);
+                savePath = PropertiesConfigHolder.getString(CommonConfigKeys.SAVE_PATH);
             } catch (NullPointerException e) {
                 savePath = null;
             }
