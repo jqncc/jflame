@@ -326,7 +326,7 @@ public class WebUtils {
         }
         ip = ip.trim();
         if (ArrayUtils.contains(localips, ip)) {
-            ip = IPAddressHelper.getHostIP();
+            ip = IPAddressHelper.getLocalIP();
         }
         return ip;
     }

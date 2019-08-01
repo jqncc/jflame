@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 /**
  * io工具类
@@ -162,6 +163,10 @@ public final class IOHelper {
      */
     public static String readText(InputStream input, String charset) throws IOException {
         return readText(input, charset, false);
+    }
+
+    public static String readText(InputStream input, Charset charset) throws IOException {
+        return readText(input, charset.name(), false);
     }
 
     /**

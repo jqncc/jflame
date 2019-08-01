@@ -6,14 +6,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.jflame.toolkit.exception.ConvertException;
+
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.jflame.toolkit.exception.ConvertException;
 
 /**
  * 日期时间操作工具类.
@@ -69,6 +73,18 @@ public final class DateHelper {
     }
 
     /**
+     * 格式化时间,新时间类型支持LocalDate,LocalTime,LocalDateTime
+     * 
+     * @param date 时间
+     * @param pattern 格式
+     * @return
+     */
+    public static String format(TemporalAccessor date, String pattern) {
+        return DateTimeFormatter.ofPattern(pattern)
+                .format(date);
+    }
+
+    /**
      * 格式化当前时间
      * 
      * @param pattern 格式
@@ -115,9 +131,28 @@ public final class DateHelper {
     }
 
     /**
+     * 解析时间字符串转为LocalDateTime时间对象
+     * 
+     * @param dateStr 时间字符串
+     * @param patterns 格式
+     * @return
+     * @throws ConvertException 解析失败
+     */
+    public static LocalDateTime parseLocalDateTime(String dateStr, String... patterns) throws ConvertException {
+        for (String pattern : patterns) {
+            try {
+                return LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+            }
+        }
+        throw new ConvertException("转为LocalDateTime失败");
+    }
+
+    /**
      * 返回当前时间的全格式字符串，格式为:yyyy-MM-dd HH:mm:ss
      * 
-     * @return
+     * @return 格式为:yyyy-MM-dd HH:mm:ss的字符串
      */
     public static String fullNow() {
         return formatNow(YYYY_MM_DD_HH_mm_ss);

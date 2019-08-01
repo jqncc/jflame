@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -11,9 +12,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 文件和文件名操作工具类.另参见:java.nio.Files
@@ -359,6 +361,19 @@ public final class FileHelper {
             filePath = filePath.substring(1);
         }
         return classLoader.getResourceAsStream(filePath);
+    }
+
+    /**
+     * 从classpath读取文件,返回文本字符串
+     * 
+     * @param filePath
+     * @param charset
+     * @return
+     * @throws IOException
+     */
+    public static String readTextFromClassPath(String filePath, Charset charset) throws IOException {
+        InputStream stream = readFileFromClassPath(filePath);
+        return IOHelper.readText(stream, charset == null ? Charset.defaultCharset() : charset);
     }
 
     // public static void main(String[] args) {

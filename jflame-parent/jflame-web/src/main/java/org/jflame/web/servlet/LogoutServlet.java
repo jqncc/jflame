@@ -36,7 +36,7 @@ public class LogoutServlet extends HttpServlet {
             logoutPage = logoutPage.trim();
         }
         logoutJson = servletParam.getString(LOGOUT_JSON_KEY);
-        if (StringHelper.isNotEmpty(logoutJson)) {
+        if (StringHelper.isEmpty(logoutJson)) {
             logoutJson = JsonHelper.toJson(new CallResult<>(ResultEnum.SUCCESS.getStatus(), "登出成功"));
         }
     }
