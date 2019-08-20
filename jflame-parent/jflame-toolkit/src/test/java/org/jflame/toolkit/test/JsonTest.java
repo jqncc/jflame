@@ -3,6 +3,10 @@ package org.jflame.toolkit.test;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Date;
+
+import org.jflame.toolkit.test.entity.MemberInfo;
+import org.jflame.toolkit.util.JsonHelper;
 
 import org.junit.Test;
 
@@ -23,7 +27,7 @@ public class JsonTest {
                 MemberInfo.class);
         System.out.println(member2);
     }
-    
+    */
     @Test
     public void testJackson() {
         MemberInfo member = new MemberInfo();
@@ -33,7 +37,7 @@ public class JsonTest {
         member.setNickName("nickna");
         member.setIdcard("542254445");
         System.out.println(JsonHelper.toJson(member));
-    }*/
+    }
 
     @Test
     public void testbase64() throws UnsupportedEncodingException {

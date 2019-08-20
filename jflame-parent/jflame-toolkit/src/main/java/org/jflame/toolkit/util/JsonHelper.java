@@ -50,8 +50,8 @@ public final class JsonHelper {
      * @param excludeFields 要排除的属性
      * @return
      */
-    public static String toJsonWidthExclude(Object obj, String... excludeFields) {
-        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
+    public static String toJsonExcludeField(Object obj, String... excludeFields) {
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter();
         for (String field : excludeFields) {
             filter.getExcludes()
                     .add(field);
@@ -66,12 +66,8 @@ public final class JsonHelper {
      * @param includeFields 要包含的属性
      * @return
      */
-    public static String toJsonWidthInclude(Object obj, String... includeFields) {
-        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(obj.getClass());
-        for (String field : includeFields) {
-            filter.getIncludes()
-                    .add(field);
-        }
+    public static String toJsonIncludeField(Object obj, String... includeFields) {
+        SimplePropertyPreFilter filter = new SimplePropertyPreFilter(includeFields);
         return JSON.toJSONString(obj, filter);
     }
 

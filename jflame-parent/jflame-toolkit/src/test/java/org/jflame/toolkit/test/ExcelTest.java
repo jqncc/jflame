@@ -54,13 +54,13 @@ public class ExcelTest extends TestCase {
             p.setBirthday(new Date());
             p.setMoney(i * 2.3);
             p.setName("猫咪名" + i);
-            p.setStreak(i % 2 == 0 ? "灰白相间" : "纯白");
+            p.setStreak(i % 2 == 0 ? "灰白\r\n相间" : "纯白");
             p.setSkin("猫的皮肤");
             p.setWeight(5.4f * i);
             p.setCreateDate(new Date());
             pets.add(p);
         }
-        File f = new File("D:\\datacenter\\2.xlxs");
+        File f = new File("D:\\datacenter\\2.xlsx");
         try (ExcelCreator creator = new ExcelCreator()) {
             creator.createSheet();
             creator.fillEntityData(pets);
@@ -102,7 +102,7 @@ public class ExcelTest extends TestCase {
                 f.createNewFile();
             }
             FileOutputStream out = new FileOutputStream(f);
-            ExcelCreator.export(pets, new String[]{ "age","name","birthday","skin","salary" }, out);
+            ExcelCreator.export(pets, new String[] { "age","name","birthday","skin","salary" }, out);
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -129,7 +129,8 @@ public class ExcelTest extends TestCase {
             } catch (ExcelAccessException e) {
                 e.printStackTrace();
                 Map<Integer,String> xMap = xlsImport.getErrorMap();
-                System.out.println(xMap.values().toString());
+                System.out.println(xMap.values()
+                        .toString());
             }
         }
         // List<Integer> resultIndexs=xlsImport.getCurRowIndexs();

@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -554,4 +555,25 @@ public final class DateHelper {
     public static long unixTimestamp(Date date) {
         return date.getTime() / 1000;
     }
+
+    /**
+     * 取参数date年的第一天时间
+     * 
+     * @param date 时间
+     * @return LocalDate
+     */
+    public static LocalDate getFirstDayOfYear(LocalDate date) {
+        return date.with(TemporalAdjusters.firstDayOfYear());
+    }
+
+    /**
+     * 取参数date年的最后一天时间
+     * 
+     * @param date 时间
+     * @return LocalDate
+     */
+    public static LocalDate getLastDayOfYear(LocalDate date) {
+        return date.with(TemporalAdjusters.lastDayOfYear());
+    }
+
 }

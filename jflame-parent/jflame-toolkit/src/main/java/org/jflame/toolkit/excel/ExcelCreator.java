@@ -96,7 +96,7 @@ public class ExcelCreator implements Closeable {
     private Map<Sheet,Integer> rowIndexMap = new HashMap<>();
 
     /**
-     * 构造函数,默认生成office2003工作表.
+     * 构造函数,默认生成office2007工作表.
      */
     public ExcelCreator() {
         this(ExcelVersion.office2007, true);
@@ -432,6 +432,19 @@ public class ExcelCreator implements Closeable {
     }
 
     /**
+     * 写入工作薄到一个输入流,并关闭资源
+     * 
+     * @param output
+     * @throws IOException
+     */
+    public void writeAndClose(OutputStream output) throws IOException {
+        if (output != null) {
+            workbook.write(output);
+        }
+        close();
+    }
+
+    /**
      * 写入工作薄到到HttpServletResponse,下载excel
      * 
      * @param response
@@ -442,8 +455,7 @@ public class ExcelCreator implements Closeable {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
-        workbook.write(out);
-        out.flush();
+        writeAndClose(out);
     }
 
     @Override

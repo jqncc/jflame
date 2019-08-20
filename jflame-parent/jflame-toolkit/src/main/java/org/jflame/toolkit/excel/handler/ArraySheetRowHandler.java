@@ -1,10 +1,13 @@
 package org.jflame.toolkit.excel.handler;
 
+import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
+
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 public class ArraySheetRowHandler implements ISheetRowHandler<Object[]> {
 
@@ -19,7 +22,15 @@ public class ArraySheetRowHandler implements ISheetRowHandler<Object[]> {
         for (cellIndex = 0; cellIndex < rowData.length; cellIndex++) {
             cell = excelSheetRow.createCell(cellIndex);
             cell.setCellType(CellType.STRING);
-            cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, rowData[cellIndex]));
+            cell.getCellStyle()
+                    .setWrapText(true);
+            String cellValue = ExcelConvertorSupport.convertToCellValue(null, rowData[cellIndex]);
+            if (cellValue.indexOf(CharUtils.LF) >= 0) {
+                cell.setCellValue(new XSSFRichTextString(cellValue));
+            } else {
+                cell.setCellValue(cellValue);
+            }
+
         }
     }
 

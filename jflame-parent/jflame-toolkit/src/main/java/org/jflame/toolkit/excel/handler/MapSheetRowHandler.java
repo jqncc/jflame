@@ -4,12 +4,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import org.jflame.toolkit.excel.ExcelAccessException;
+import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
+
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.jflame.toolkit.excel.ExcelAccessException;
-import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 /**
  * excel单行数据与LinkedHashMap转换处理器. <br>
@@ -44,14 +47,23 @@ public class MapSheetRowHandler implements ISheetRowHandler<LinkedHashMap<String
 
     @Override
     public void fillRow(LinkedHashMap<String,Object> rowData, Row excelSheetRow) {
-        it = rowData.entrySet().iterator();
+        it = rowData.entrySet()
+                .iterator();
         cellIndex = 0;
         while (it.hasNext()) {
             entry = it.next();
             if (!isExcude(entry.getKey())) {
                 cell = excelSheetRow.createCell(cellIndex++);
                 cell.setCellType(CellType.STRING);
-                cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, entry.getValue()));
+                cell.getCellStyle()
+                        .setWrapText(true);
+                // cell.setCellValue(ExcelConvertorSupport.convertToCellValue(null, entry.getValue()));
+                String cellValue = ExcelConvertorSupport.convertToCellValue(null, entry.getValue());
+                if (cellValue.indexOf(CharUtils.LF) >= 0) {
+                    cell.setCellValue(new XSSFRichTextString(cellValue));
+                } else {
+                    cell.setCellValue(cellValue);
+                }
             }
         }
     }

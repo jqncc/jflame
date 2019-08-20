@@ -114,6 +114,12 @@ public class CallResult<T> extends SimpleResult {
         return status == ResultEnum.SUCCESS.getStatus();
     }
 
+    public static <T> CallResult<T> success(T data) {
+        CallResult<T> result = new CallResult<>(ResultEnum.SUCCESS);
+        result.setData(data);
+        return result;
+    }
+
     public static <T> CallResult<T> error(String message) {
         CallResult<T> result = new CallResult<>(ResultEnum.SERVER_ERROR.getStatus(), message);
         return result;
@@ -169,7 +175,7 @@ public class CallResult<T> extends SimpleResult {
                     return initMsgs[3];
                 case 500:
                     return initMsgs[4];
-                case 0:
+                case -1:
                     return initMsgs[5];
                 default:
                     break;

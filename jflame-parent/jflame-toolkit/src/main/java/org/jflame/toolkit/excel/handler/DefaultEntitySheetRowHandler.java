@@ -3,15 +3,18 @@ package org.jflame.toolkit.excel.handler;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
 import org.jflame.toolkit.exception.ConvertException;
+
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 /**
  * excel单行数据与实体bean转换处理器.
@@ -46,12 +49,21 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
         cellIndex = 0;
         for (cellIndex = 0; cellIndex < propertySize; cellIndex++) {
             currentCell = excelSheetRow.createCell(cellIndex);
+            currentCell.getCellStyle()
+                    .setWrapText(true);
             currentProperty = columnPropertys.get(cellIndex);
             try {
-                currentValue = currentProperty.getPropertyDescriptor().getReadMethod().invoke(rowData);
+                currentValue = currentProperty.getPropertyDescriptor()
+                        .getReadMethod()
+                        .invoke(rowData);
                 if (currentValue != null && !StringUtils.EMPTY.equals(currentValue)) {
                     currentCell.setCellType(CellType.STRING);
-                    currentCell.setCellValue(ExcelConvertorSupport.convertToCellValue(currentProperty, currentValue));
+                    String cellValue = ExcelConvertorSupport.convertToCellValue(currentProperty, currentValue);
+                    if (cellValue.indexOf(CharUtils.LF) >= 0) {
+                        currentCell.setCellValue(new XSSFRichTextString(cellValue));
+                    } else {
+                        currentCell.setCellValue(cellValue);
+                    }
                 }
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                 throw new ExcelAccessException(e);
@@ -85,7 +97,9 @@ public class DefaultEntitySheetRowHandler<T extends IExcelEntity> extends BaseEn
                 currentValue = ExcelConvertorSupport.extractFromCellValue(currentProperty,
                         excelSheetRow.getCell(cellIndex));
                 if (currentValue != null) {
-                    currentProperty.getPropertyDescriptor().getWriteMethod().invoke(newObj, currentValue);
+                    currentProperty.getPropertyDescriptor()
+                            .getWriteMethod()
+                            .invoke(newObj, currentValue);
                 }
             } catch (ConvertException e) {
                 String errMsg = String.format("第%d行,'%s'值转换失败", excelSheetRow.getRowNum(), currentProperty.getName());
