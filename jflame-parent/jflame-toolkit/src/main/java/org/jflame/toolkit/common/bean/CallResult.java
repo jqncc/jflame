@@ -81,6 +81,11 @@ public class CallResult<T> extends SimpleResult {
         return this;
     }
 
+    public CallResult<T> data(T data) {
+        this.data = data;
+        return this;
+    }
+
     public T getData() {
         return data;
     }

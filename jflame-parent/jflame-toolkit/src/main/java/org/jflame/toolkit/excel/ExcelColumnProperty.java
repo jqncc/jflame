@@ -2,11 +2,15 @@ package org.jflame.toolkit.excel;
 
 import java.beans.PropertyDescriptor;
 
+import org.jflame.toolkit.convert.Converter;
+import org.jflame.toolkit.convert.ObjectToTextConverter;
+
 /**
  * ExcelColumn注解属性封装类
  * 
  * @author yucan.zhang
  */
+@SuppressWarnings("rawtypes")
 public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
 
     private PropertyDescriptor propertyDescriptor;
@@ -14,7 +18,10 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
     private int order;
     private int width = 256 * 20;
     private String fmt;
+    @Deprecated
     private String convert;
+    private ObjectToTextConverter writeConverter;
+    private Converter readConverter;
 
     public String getName() {
         return name;
@@ -62,6 +69,22 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
 
     public void setPropertyDescriptor(PropertyDescriptor propertyDescriptor) {
         this.propertyDescriptor = propertyDescriptor;
+    }
+
+    public ObjectToTextConverter getWriteConverter() {
+        return writeConverter;
+    }
+
+    public void setWriteConverter(ObjectToTextConverter writeConverter) {
+        this.writeConverter = writeConverter;
+    }
+
+    public Converter getReadConverter() {
+        return readConverter;
+    }
+
+    public void setReadConverter(Converter readConverter) {
+        this.readConverter = readConverter;
     }
 
     public int compareTo(ExcelColumnProperty obj) {

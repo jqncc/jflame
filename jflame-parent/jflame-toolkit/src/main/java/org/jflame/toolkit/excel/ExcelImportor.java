@@ -11,6 +11,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.jflame.toolkit.excel.handler.ArrayToExcelRowReader;
+import org.jflame.toolkit.excel.handler.EntityToExcelReader;
+import org.jflame.toolkit.excel.validator.DefaultValidator;
+import org.jflame.toolkit.excel.validator.IValidator;
+import org.jflame.toolkit.util.CollectionHelper;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -18,14 +24,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jflame.toolkit.excel.convertor.ExcelConvertorSupport;
-import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
-import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
-import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
-import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
-import org.jflame.toolkit.excel.validator.DefaultValidator;
-import org.jflame.toolkit.excel.validator.IValidator;
-import org.jflame.toolkit.util.CollectionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +107,7 @@ public class ExcelImportor implements Closeable {
      * @return
      */
     public <T extends IExcelEntity> LinkedHashSet<T> importSheet(final Class<T> dataClass) {
-        return importSheet(workbook.getSheetAt(0), dataClass, null, null);
+        return importSheet(workbook.getSheetAt(0), dataClass, null);
     }
 
     /**
@@ -120,7 +118,7 @@ public class ExcelImportor implements Closeable {
      * @return
      */
     public <T extends IExcelEntity> LinkedHashSet<T> importSheet(final Class<T> dataClass, IValidator<T> validator) {
-        return importSheet(workbook.getSheetAt(0), dataClass, validator, null);
+        return importSheet(workbook.getSheetAt(0), dataClass, validator);
     }
 
     /**
@@ -134,23 +132,7 @@ public class ExcelImportor implements Closeable {
      * @return 返回为LinkedHashSet类型的数据集
      */
     public <T extends IExcelEntity> LinkedHashSet<T> importSheet(Sheet sheet, final Class<T> dataClass) {
-        return importSheet(sheet, dataClass, null, null);
-    }
-
-    /**
-     * 导入指定的excel工作表数据,并转换为相应的对象集合. 要转换属性及顺序由dataClass的excelColumn注解决定. <br>
-     * 使用自定义验证器验证.使用默认单行数据转换器
-     * 
-     * @param sheet 工作表
-     * @param dataClass 转换类型
-     * @param <T> dataClass泛型类型
-     * @param validator 验证规则类
-     * @exception ExcelAccessException
-     * @return 返回为LinkedHashSet类型的数据集
-     */
-    public <T extends IExcelEntity> LinkedHashSet<T> importSheet(Sheet sheet, final Class<T> dataClass,
-            IValidator<T> validator) {
-        return importSheet(sheet, dataClass, validator, null);
+        return importSheet(sheet, dataClass, null);
     }
 
     /**
@@ -160,13 +142,12 @@ public class ExcelImportor implements Closeable {
      * @param dataClass 转换类型class
      * @param <T> dataClass泛型类型
      * @param validator 指定数据验证类,为null使用DefaultValidator验证
-     * @param sheetRowHandler 自定义单行数据转换器,缺省使用{@link DefaultEntitySheetRowHandler}
      * @see DefaultValidator
      * @exception ExcelAccessException
      * @return 返回为LinkedHashSet类型的不重复元素数据集
      */
     public <T extends IExcelEntity> LinkedHashSet<T> importSheet(Sheet xsheet, final Class<T> dataClass,
-            IValidator<T> validator, final BaseEntitySheetRowHandler<T> sheetRowHandler) {
+            IValidator<T> validator) {
         if (dataClass == null) {
             throw new IllegalArgumentException("参数dataClass不能为null");
         }
@@ -174,24 +155,17 @@ public class ExcelImportor implements Closeable {
             validator = new DefaultValidator<T>();
         }
         Sheet sheet = xsheet == null ? workbook.getSheetAt(0) : xsheet;
-        BaseEntitySheetRowHandler<T> rowHandler = null;
+
         LinkedHashSet<T> results = new LinkedHashSet<>();
         curRowIndexs.clear();
         errorMap.clear();
-        if (sheetRowHandler == null) {
-            /* PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
-            if (properties == null) {
-                throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
-            }*/
-            List<ExcelColumnProperty> lstDescriptors = annotResolver.getColumnPropertysByAnnons(dataClass);
 
-            if (CollectionHelper.isEmpty(lstDescriptors)) {
-                throw new ExcelAccessException("没有找到要转换的属性");
-            }
-            rowHandler = new DefaultEntitySheetRowHandler<>(lstDescriptors, dataClass);
-        } else {
-            rowHandler = sheetRowHandler;
+        List<ExcelColumnProperty> lstDescriptors = annotResolver.resolveExcelColumnProperty(dataClass, false);
+
+        if (CollectionHelper.isEmpty(lstDescriptors)) {
+            throw new ExcelAccessException("没有找到要转换的属性");
         }
+        EntityToExcelReader<T> rowHandler = new EntityToExcelReader<>(lstDescriptors, dataClass);
 
         Row curRow;
         T newObj = null;
@@ -248,7 +222,7 @@ public class ExcelImportor implements Closeable {
      */
     public List<Object[]> importSheet(final Sheet sheet) {
         List<Object[]> results = new ArrayList<>();
-        ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
+        ArrayToExcelRowReader rowHandler = new ArrayToExcelRowReader();
         Row curRow;
         Iterator<Row> rowIterator = sheet.rowIterator();
         while (rowIterator.hasNext()) {

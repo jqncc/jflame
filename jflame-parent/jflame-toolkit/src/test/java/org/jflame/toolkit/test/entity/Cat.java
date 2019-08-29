@@ -4,10 +4,9 @@ import org.jflame.toolkit.excel.ExcelColumn;
 
 public class Cat extends Pet {
 
-    @ExcelColumn(name = "花纹", order = 7)
+    private static final long serialVersionUID = 6485997342160820822L;
+    @ExcelColumn(name = "花纹", order = 9)
     private String streak;
-    @ExcelColumn(name = "重量", order = 8)
-    private float weight;
 
     public String getStreak() {
         return streak;
@@ -17,12 +16,20 @@ public class Cat extends Pet {
         this.streak = streak;
     }
 
-    public float getWeight() {
-        return weight;
-    }
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Cat [");
+        if (streak != null) {
+            builder.append("streak=")
+                    .append(streak)
+                    .append(", ");
+        }
 
-    public void setWeight(float weight) {
-        this.weight = weight;
+        builder.append(super.toString());
+
+        builder.append("]");
+        return builder.toString();
     }
 
 }

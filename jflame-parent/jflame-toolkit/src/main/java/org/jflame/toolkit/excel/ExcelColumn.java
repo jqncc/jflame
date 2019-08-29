@@ -6,6 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jflame.toolkit.convert.Converter;
+import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.excel.handler.NullConverter;
+
 /**
  * excel注解,用于实体类数据转为excel文件.
  * 
@@ -44,10 +48,10 @@ public @interface ExcelColumn {
      */
     public String fmt() default "";
 
-    /**
-     * 值转换器
-     * 
-     * @return
-     */
-    public String convert() default "none";
+    @SuppressWarnings("rawtypes")
+    public Class<? extends ObjectToTextConverter> writeConverter() default NullConverter.class;
+
+    @SuppressWarnings("rawtypes")
+    public Class<? extends Converter> readConverter() default NullConverter.class;
+
 }

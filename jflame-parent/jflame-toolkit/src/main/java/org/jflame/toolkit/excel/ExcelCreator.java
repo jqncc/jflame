@@ -11,12 +11,9 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.excel.convertor.ICellValueConvertor;
-import org.jflame.toolkit.excel.handler.ArraySheetRowHandler;
-import org.jflame.toolkit.excel.handler.BaseEntitySheetRowHandler;
-import org.jflame.toolkit.excel.handler.DefaultEntitySheetRowHandler;
-import org.jflame.toolkit.excel.handler.ISheetRowHandler;
-import org.jflame.toolkit.excel.handler.MapSheetRowHandler;
+import org.jflame.toolkit.excel.handler.ArrayToExcelRowWriter;
+import org.jflame.toolkit.excel.handler.EntityToExcelWriter;
+import org.jflame.toolkit.excel.handler.MapToExcelRowWriter;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
@@ -25,8 +22,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -70,8 +65,6 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
  * </pre>
  * 
  * @see ExcelColumn
- * @see ICellValueConvertor
- * @see ISheetRowHandler
  * @author zyc
  */
 public class ExcelCreator implements Closeable {
@@ -82,71 +75,34 @@ public class ExcelCreator implements Closeable {
         office2007
     }
 
-    // private Workbook workbook;
     private SXSSFWorkbook workbook;
     private CellStyle defaultTitleStyle;
-    private CellStyle cellStyle;
     private CellStyle titleStyle;
-
-    private boolean isAutoCreateTitleRow = true;
-
-    private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
-    // private int rowIndex = 0;
-
+    // private boolean isAutoCreateTitleRow = true;
     private Map<Sheet,Integer> rowIndexMap = new HashMap<>();
 
     /**
      * 构造函数,默认生成office2007工作表.
      */
     public ExcelCreator() {
-        this(ExcelVersion.office2007, true);
+        this(100);
     }
 
     /**
-     * 构造函数.指定要excel版本
+     * 构造函数.是否创建标题参数
      * 
-     * @param excelVersion 要生成的excel版本
-     */
-    @Deprecated
-    public ExcelCreator(ExcelVersion excelVersion) {
-        /*if (excelVersion == ExcelVersion.office2007) {
-            workbook = new XSSFWorkbook();
-        } else {
-            workbook = new HSSFWorkbook();
-        }*/
-        this(excelVersion, true);
-    }
-
-    /**
-     * 构造函数.指定excel版本和是否创建标题参数
-     * 
-     * @param isCreateTitleRow 是否自动创建标题行
-     * @param excelVersion excel版本
-     */
-    public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow) {
-        workbook = new SXSSFWorkbook(100);
-        isAutoCreateTitleRow = isCreateTitleRow;
-        if (isCreateTitleRow) {
-            setTitleRowStyle();
-        }
-    }
-
-    /**
-     * 构造函数.指定excel版本和是否创建标题参数
-     * 
-     * @param excelVersion excel版本
      * @param isCreateTitleRow 否自动创建标题行
-     * @param rowAccessWindowSize 内存缓冲行数,超过数据将写入磁盘.&gt;0
+     * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认100行
      */
-    public ExcelCreator(ExcelVersion excelVersion, boolean isCreateTitleRow, int rowAccessWindowSize) {
+    public ExcelCreator(int rowAccessWindowSize) {
         if (rowAccessWindowSize == 0) {
-            throw new IllegalArgumentException("rowAccessWindowSize !=0");
+            rowAccessWindowSize = 100;
         }
         workbook = new SXSSFWorkbook(rowAccessWindowSize);
-        isAutoCreateTitleRow = isCreateTitleRow;
-        if (isCreateTitleRow) {
+        // isAutoCreateTitleRow = isCreateTitleRow;
+        /*if (isCreateTitleRow) {
             setTitleRowStyle();
-        }
+        }*/
     }
 
     /**
@@ -174,7 +130,7 @@ public class ExcelCreator implements Closeable {
      * @param sheet excel sheet
      * @param titleNames 标题列的名称
      */
-    public void createTitleRow(Sheet sheet, String[] titleNames) {
+    private void createTitleRow(Sheet sheet, String[] titleNames) {
         Row row = sheet.createRow(getAndMoveRowIndex(sheet));
         Cell cell;
         int defaultWidth = 20 * 256;
@@ -189,7 +145,6 @@ public class ExcelCreator implements Closeable {
             cell.setCellValue(titleNames[i]);
             sheet.setColumnWidth(i, defaultWidth);
         }
-        isAutoCreateTitleRow = false;
     }
 
     /**
@@ -197,9 +152,9 @@ public class ExcelCreator implements Closeable {
      * 
      * @param titleNames 标题列的名称
      */
-    public void createTitleRow(String[] titleNames) {
+    /*   public void createTitleRow(String[] titleNames) {
         createTitleRow(getSheet(0), titleNames);
-    }
+    }*/
 
     private void createTitleRow(Sheet sheet, List<ExcelColumnProperty> columns) {
         if (CollectionHelper.isEmpty(columns)) {
@@ -224,70 +179,29 @@ public class ExcelCreator implements Closeable {
      * 
      * @param sheet 要填充的工作表
      * @param dataList 实体数据集合
-     * @param propertyNames 数据对象的属性名.传入null为空数组将根据实体数据excel注解自动创建
-     * @param sheetRowHandler 自定义单行数据转换器,缺省使用{@link DefaultEntitySheetRowHandler}
      * @exception ExcelAccessException
      */
-    @SuppressWarnings("unchecked")
-    public <T extends IExcelEntity> void fillEntityData(Sheet sheet, final List<T> dataList,
-            final String[] propertyNames, final BaseEntitySheetRowHandler<T> sheetRowHandler) {
-        BaseEntitySheetRowHandler<T> rowHandler;
+    public <T extends IExcelEntity> void fillEntityData(final Sheet sheet, final List<T> dataList) {
+        /* 获取有ExcelColumn注解的属性 */
         if (CollectionHelper.isNotEmpty(dataList)) {
-            if (sheetRowHandler == null) {
-                /* 获取有ExcelColumn注解的属性 */
-                List<ExcelColumnProperty> columnPropertys = null;
-                Class<? extends IExcelEntity> dataClass = dataList.get(0)
-                        .getClass();
-                /* PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
-                if (properties == null) {
-                    throw new ExcelAccessException("bean属性内省异常,类名:" + dataClass.getName());
-                }*/
-                // propertyNames为空则从实体类在提取所有
-                if (ArrayUtils.isEmpty(propertyNames)) {
-                    columnPropertys = annotResolver.getColumnPropertysByAnnons(dataClass);
-                } else {
-                    columnPropertys = annotResolver.getColumnPropertysByName(dataClass, propertyNames);
-                }
-                if (CollectionHelper.isEmpty(columnPropertys)) {
-                    throw new ExcelAccessException("没有找到要导入的属性");
-                }
-                rowHandler = new DefaultEntitySheetRowHandler<>(columnPropertys, (Class<T>) dataClass);
-            } else {
-                rowHandler = sheetRowHandler;
-            }
-            if (isAutoCreateTitleRow) {
-                createTitleRow(sheet, rowHandler.getColumnPropertys());
+            Class<? extends IExcelEntity> dataClass = dataList.get(0)
+                    .getClass();
+            List<ExcelColumnProperty> columnPropertys = ExcelAnnotationResolver.resolveExcelColumnProperty(dataClass,
+                    true);
+            if (CollectionHelper.isEmpty(columnPropertys)) {
+                throw new ExcelAccessException("没有找到要导入的属性");
             }
 
+            EntityToExcelWriter<T> rowHandler = new EntityToExcelWriter<>(columnPropertys);
+            // 创建标题行
+            createTitleRow(sheet, columnPropertys);
             // 填充数据
             Row row = null;
-            // int rowIndex = 0;
             for (T rowData : dataList) {
                 row = sheet.createRow(getAndMoveRowIndex(sheet));
-                if (cellStyle != null) {
-                    row.setRowStyle(cellStyle);
-                }
                 rowHandler.fillRow(rowData, row);
             }
         }
-    }
-
-    /**
-     * 将实体数据集合填充到填充第一个工作表,并指定被填充的属性.
-     * 
-     * @param data 数据集
-     * @param <T> 含相关excel注解的实体bean类型
-     * @param propertyNames 数据对象的属性名,顺序应与标题对应
-     */
-    public <T> void fillEntityData(final List<? extends IExcelEntity> data, String[] propertyNames) {
-        Sheet sheet;
-        try {
-            sheet = getSheet(0);
-        } catch (IllegalArgumentException e) {
-            sheet = createSheet();
-        }
-
-        fillEntityData(sheet, data, propertyNames, null);
     }
 
     /**
@@ -296,43 +210,34 @@ public class ExcelCreator implements Closeable {
      * @param data 数据集
      */
     public void fillEntityData(final List<? extends IExcelEntity> data) {
-        Sheet sheet;
-        try {
-            sheet = getSheet(0);
-        } catch (IllegalArgumentException e) {
-            sheet = createSheet();
+        if (CollectionHelper.isNotEmpty(data)) {
+            Sheet sheet;
+            try {
+                sheet = getSheet(0);
+            } catch (IllegalArgumentException e) {
+                sheet = createSheet();
+            }
+            fillEntityData(sheet, data);
         }
-        fillEntityData(sheet, data, null, null);
-    }
-
-    /**
-     * 将实体数据集合填充到指定工作表,根据实体类注解决定被填充属性.
-     * 
-     * @param sheet 指定工作表sheet
-     * @param data 数据集
-     */
-    public void fillEntityData(Sheet sheet, final List<? extends IExcelEntity> data) {
-        fillEntityData(sheet, data, null, null);
     }
 
     /**
      * 将map数据集合填充到指定工作表.
      * 
      * @param sheet 要填充的工作表
+     * @param titles 标题行数组,可以为空
      * @param data LinkedHashMap类型数据集合
      * @param excludeKeys 需要排除的键名,即不填充进excel
      */
-    public void fillMapData(Sheet sheet, final List<LinkedHashMap<String,Object>> data, String[] excludeKeys) {
-        if (data != null && !data.isEmpty()) {
-            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+    public void fillMapData(final Sheet sheet, final String[] titles, final List<LinkedHashMap<String,Object>> data) {
+        if (ArrayUtils.isNotEmpty(titles)) {
+            createTitleRow(sheet, titles);
+        }
+        if (CollectionHelper.isNotEmpty(data)) {
             Row row = null;
-            MapSheetRowHandler rowHandler = new MapSheetRowHandler();
-            rowHandler.setExcludeKeys(excludeKeys);
+            MapToExcelRowWriter rowHandler = new MapToExcelRowWriter();
             for (LinkedHashMap<String,Object> rowData : data) {
                 row = sheet.createRow(getAndMoveRowIndex(sheet));
-                if (cellStyle != null) {
-                    row.setRowStyle(cellStyle);
-                }
                 rowHandler.fillRow(rowData, row);
             }
         }
@@ -341,29 +246,30 @@ public class ExcelCreator implements Closeable {
     /**
      * 将map数据集合填充到第一个工作表.
      * 
+     * @param titles 标题行数组,可以为空
      * @param data 要填充的数据
      * @param excludeKeys 需要排除的键名,即不填充进excel
      */
-    public void fillMapData(final List<LinkedHashMap<String,Object>> data, String[] excludeKeys) {
-        fillMapData(workbook.getSheetAt(0), data, excludeKeys);
+    public void fillMapData(final String[] titles, final List<LinkedHashMap<String,Object>> data) {
+        fillMapData(workbook.getSheetAt(0), titles, data);
     }
 
     /**
      * 将Object[]数据集合填充到工作表.
      * 
      * @param sheet 要填充的工作表
+     * @param titles 标题行数组,可以为空
      * @param data List&lt;Object[]&gt;
      */
-    public void fillArrayData(Sheet sheet, final List<Object[]> data) {
-        if (data != null && !data.isEmpty()) {
-            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+    public void fillArrayData(final Sheet sheet, final String[] titles, final List<Object[]> data) {
+        if (ArrayUtils.isNotEmpty(titles)) {
+            createTitleRow(sheet, titles);
+        }
+        if (CollectionHelper.isNotEmpty(data)) {
             Row row = null;
-            ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
+            ArrayToExcelRowWriter rowHandler = new ArrayToExcelRowWriter();
             for (Object[] rowData : data) {
                 row = sheet.createRow(getAndMoveRowIndex(sheet));
-                if (cellStyle != null) {
-                    row.setRowStyle(cellStyle);
-                }
                 rowHandler.fillRow(rowData, row);
             }
         }
@@ -374,17 +280,18 @@ public class ExcelCreator implements Closeable {
      * 
      * @param data List&lt;Object[]&gt;
      */
-    public void fillArrayData(final List<Object[]> data) {
-        if (data != null && !data.isEmpty()) {
-            // int rowIndex = isAutoCreateTitleRow ? 0 : 1;
+    public void fillArrayData(final String[] titles, final List<Object[]> data) {
+        if (CollectionHelper.isNotEmpty(data)) {
+            Sheet sheet;
+            try {
+                sheet = getSheet(0);
+            } catch (IllegalArgumentException e) {
+                sheet = createSheet();
+            }
             Row row = null;
-            ArraySheetRowHandler rowHandler = new ArraySheetRowHandler();
+            ArrayToExcelRowWriter rowHandler = new ArrayToExcelRowWriter();
             for (Object[] rowData : data) {
-                row = workbook.getSheetAt(0)
-                        .createRow(getAndMoveRowIndex(workbook.getSheetAt(0)));
-                if (cellStyle != null) {
-                    row.setRowStyle(cellStyle);
-                }
+                row = sheet.createRow(getAndMoveRowIndex(sheet));
                 rowHandler.fillRow(rowData, row);
             }
         }
@@ -425,23 +332,14 @@ public class ExcelCreator implements Closeable {
      * @param output 输出流
      * @throws IOException IOException
      */
-    public void write(OutputStream output) throws IOException {
+    public void write(OutputStream output) throws ExcelAccessException {
         if (output != null) {
-            workbook.write(output);
+            try {
+                workbook.write(output);
+            } catch (IOException e) {
+                throw new ExcelAccessException("excel写入异常", e);
+            }
         }
-    }
-
-    /**
-     * 写入工作薄到一个输入流,并关闭资源
-     * 
-     * @param output
-     * @throws IOException
-     */
-    public void writeAndClose(OutputStream output) throws IOException {
-        if (output != null) {
-            workbook.write(output);
-        }
-        close();
     }
 
     /**
@@ -455,17 +353,21 @@ public class ExcelCreator implements Closeable {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
-        writeAndClose(out);
+        write(out);
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (workbook != null) {
-            workbook.dispose();
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void setTitleRowStyle() {
+    /*private void setTitleRowStyle() {
         if (defaultTitleStyle == null) {
             defaultTitleStyle = workbook.createCellStyle();
         }
@@ -475,7 +377,7 @@ public class ExcelCreator implements Closeable {
         titleCellFont.setBold(true);
         titleCellFont.setColor(IndexedColors.GREEN.getIndex());
         defaultTitleStyle.setFont(titleCellFont);
-    }
+    }*/
 
     /**
      * 取得sheet当前行索引并下移一行
@@ -494,31 +396,22 @@ public class ExcelCreator implements Closeable {
         }
     }
 
-    public boolean isAutoCreateTitleRow() {
+    /*public boolean isAutoCreateTitleRow() {
         return isAutoCreateTitleRow;
     }
-
+    
     public void setAutoCreateTitleRow(boolean isCreateTitleRow) {
         this.isAutoCreateTitleRow = isCreateTitleRow;
-    }
+    }*/
 
     /**
      * 设置标题行样式.
      * 
      * @param titleStyle 标题行样式
      */
-    public void setTitleStyle(CellStyle titleStyle) {
+    /* public void setTitleStyle(CellStyle titleStyle) {
         this.titleStyle = titleStyle;
-    }
-
-    /**
-     * 设置单元格样式.
-     * 
-     * @param cellStyle 单元格样式
-     */
-    public void setCellStyle(CellStyle cellStyle) {
-        this.cellStyle = cellStyle;
-    }
+    }*/
 
     /**
      * 设置第一个sheet的行索引
@@ -539,18 +432,26 @@ public class ExcelCreator implements Closeable {
      * @param data 要导出数据集
      * @param out 文件输出流
      * @param isCloseOutStream 是否关闭输出流
-     * @throws IOException IOException
+     * @throws ExcelAccessException
      */
     public static void export(final List<? extends IExcelEntity> data, OutputStream out, boolean isCloseOutStream)
-            throws IOException {
-        try (ExcelCreator creator = new ExcelCreator()) {
+            throws ExcelAccessException {
+        ExcelCreator creator = null;
+        try {
+            creator = new ExcelCreator();
             creator.createSheet();
             creator.fillEntityData(data);
             creator.write(out);
             out.flush();
-        }
-        if (isCloseOutStream) {
-            IOHelper.closeQuietly(out);
+        } catch (IOException e) {
+            throw new ExcelAccessException(e);
+        } finally {
+            if (creator != null) {
+                creator.close();
+            }
+            if (isCloseOutStream) {
+                IOHelper.closeQuietly(out);
+            }
         }
     }
 
@@ -561,12 +462,12 @@ public class ExcelCreator implements Closeable {
      * @param out 文件输出流
      * @throws IOException IOException
      */
-    public static void export(final List<? extends IExcelEntity> data, OutputStream out) throws IOException {
+    public static void export(final List<? extends IExcelEntity> data, OutputStream out) throws ExcelAccessException {
         ExcelCreator.export(data, out, true);
     }
 
     /**
-     * 实体数据生成excel文件,并输出到HttpServletResponse
+     * 实体数据生成excel文件,并输出到HttpServletResponse下载流
      * 
      * @param data List&lt;? extends IExcelEntity&gt;实体数据集
      * @param fileName 文件名,浏览器要显示的文件名
@@ -574,13 +475,7 @@ public class ExcelCreator implements Closeable {
      * @throws IOException
      */
     public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
-            HttpServletResponse response) throws IOException {
-        // ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        // ExcelCreator.export(data, outStream, false);
-        // ServletOutputStream out = response.getOutputStream();
-        // setFileDownloadHeader(response, fileName, outStream.size());
-        // out.write(outStream.toByteArray());
-        // out.flush();
+            HttpServletResponse response) throws ExcelAccessException, IOException {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
@@ -597,13 +492,7 @@ public class ExcelCreator implements Closeable {
      * @throws IOException
      */
     public static void exportExcel(final List<LinkedHashMap<String,Object>> data, String[] titles, String fileName,
-            HttpServletResponse response) throws IOException {
-        /* ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        ExcelCreator.export(data, titles, outStream, false);
-        ServletOutputStream out = response.getOutputStream();
-        setFileDownloadHeader(response, fileName, outStream.size());
-        out.write(outStream.toByteArray());
-        out.flush();*/
+            HttpServletResponse response) throws ExcelAccessException, IOException {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
@@ -611,43 +500,49 @@ public class ExcelCreator implements Closeable {
     }
 
     /**
-     * 导出map键值对集合数据到单表的便捷方法.<br>
+     * 导出map键值对集合数据到单表的便捷方法,导出完成后将关闭输出流
      * 
      * @param data 要导出数据集
      * @param titles 标题
      * @param out 文件输出流
-     * @throws IOException IOException
+     * @throws ExcelAccessException
      */
     public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out)
-            throws IOException {
+            throws ExcelAccessException {
         export(data, titles, out, true);
     }
 
     /**
-     * 导出map键值对集合数据到单表的便捷方法.<br>
-     * 注:请自行关闭方法输出流
+     * 导出map键值对集合数据到单表的便捷方法.
      * 
      * @param data 要导出数据集
      * @param titles 标题
      * @param out 输出流,请自行关闭方法类不做处理
-     * @param isCloseOutStream 是否关闭输出流
-     * @throws IOException
+     * @param isCloseOutStream 完成后是否关闭输出流,true为关闭,如果为false请务必手动请关闭输出流
+     * @throws ExcelAccessException
      */
-    public static void export(final List<LinkedHashMap<String,Object>> data, String[] titles, OutputStream out,
-            boolean isCloseOutStream) throws IOException {
-        try (ExcelCreator creator = new ExcelCreator()) {
+    public static void export(final List<LinkedHashMap<String,Object>> data, final String[] titles, OutputStream out,
+            boolean isCloseOutStream) throws ExcelAccessException {
+        ExcelCreator creator = null;
+        try {
+            creator = new ExcelCreator();
             creator.createSheet();
-            creator.createTitleRow(titles);
-            creator.fillMapData(data, new String[0]);
+            creator.fillMapData(titles, data);
             creator.write(out);
             out.flush();
+        } catch (IOException e) {
+            throw new ExcelAccessException(e);
+        } finally {
+            if (creator != null) {
+                creator.close();
+            }
             if (isCloseOutStream) {
                 IOHelper.closeQuietly(out);
             }
         }
     }
 
-    private static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
+    public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
         String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType("applicatoin/octet-stream");

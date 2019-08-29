@@ -2,13 +2,20 @@ package org.jflame.toolkit.excel;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.jflame.toolkit.convert.Converter;
+import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.excel.handler.NullConverter;
+import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.reflect.BeanHelper;
+import org.jflame.toolkit.util.StringHelper;
+
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * ExcelColumn注解解析类
@@ -24,7 +31,8 @@ public class ExcelAnnotationResolver {
      * @param dataClass Class&lt;? extends IExcelEntity&gt;
      * @return excel column注解属性
      */
-    public List<ExcelColumnProperty> getColumnPropertysByAnnons(Class<? extends IExcelEntity> dataClass) {
+    public static List<ExcelColumnProperty> resolveExcelColumnProperty(Class<? extends IExcelEntity> dataClass,
+            boolean isWrite) {
         List<ExcelColumnProperty> as = new ArrayList<ExcelColumnProperty>();
 
         final Class<ExcelColumn> clazz = ExcelColumn.class;
@@ -54,10 +62,12 @@ public class ExcelAnnotationResolver {
                 newProperty = new ExcelColumnProperty();
                 newProperty.setPropertyDescriptor(propDesc);
                 newProperty.setOrder(tmpAnns.order());
-                newProperty.setConvert(tmpAnns.convert());
+                // newProperty.setConvert(tmpAnns.convert());
                 newProperty.setFmt(tmpAnns.fmt());
                 newProperty.setName(tmpAnns.name());
                 newProperty.setWidth(tmpAnns.width());
+                setConverter(isWrite, newProperty, tmpAnns);
+
                 as.add(newProperty);
             }
         }
@@ -72,8 +82,8 @@ public class ExcelAnnotationResolver {
      * @param propertyNames 指定的属性名数据组
      * @return excel column注解属性
      */
-    public List<ExcelColumnProperty> getColumnPropertysByName(Class<? extends IExcelEntity> dataClass,
-            String[] propertyNames) {
+    /*  public List<ExcelColumnProperty> getColumnPropertysByName(Class<? extends IExcelEntity> dataClass,
+            String[] propertyNames, boolean isWrite) {
         List<ExcelColumnProperty> as = new ArrayList<ExcelColumnProperty>();
         final Class<ExcelColumn> clazz = ExcelColumn.class;
         ExcelColumnProperty newProperty;
@@ -101,11 +111,12 @@ public class ExcelAnnotationResolver {
                         newProperty = new ExcelColumnProperty();
                         newProperty.setPropertyDescriptor(pd);
                         newProperty.setOrder(tmpAnns.order());
-                        newProperty.setConvert(tmpAnns.convert());
+                        // newProperty.setConvert(tmpAnns.convert());
                         newProperty.setFmt(tmpAnns.fmt());
                         newProperty.setName(tmpAnns.name());
                         newProperty.setWidth(tmpAnns.width());
                         newProperty.setOrder(i++);
+                        setConverter(isWrite, newProperty, tmpAnns);
                         as.add(newProperty);
                     }
                 }
@@ -113,5 +124,57 @@ public class ExcelAnnotationResolver {
         }
         Collections.sort(as);
         return as;
+    }*/
+
+    @SuppressWarnings("rawtypes")
+    private static void setConverter(boolean isWrite, ExcelColumnProperty newProperty, ExcelColumn tmpAnns) {
+        if (isWrite) {
+            if (tmpAnns.writeConverter() != NullConverter.class) {
+                ObjectToTextConverter converter = null;
+                if (StringHelper.isNotEmpty(tmpAnns.fmt())) {
+                    try {
+                        converter = tmpAnns.writeConverter()
+                                .getConstructor(String.class)
+                                .newInstance(tmpAnns.fmt());
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                            | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (converter == null) {
+                    try {
+                        converter = tmpAnns.writeConverter()
+                                .newInstance();
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        throw new BusinessException(e);
+                    }
+                }
+                newProperty.setWriteConverter(converter);
+            }
+        } else {
+            if (tmpAnns.readConverter() != NullConverter.class) {
+                Converter<?,?> converter = null;
+                if (StringHelper.isNotEmpty(tmpAnns.fmt())) {
+                    try {
+                        converter = tmpAnns.readConverter()
+                                .getConstructor(String.class)
+                                .newInstance(tmpAnns.fmt());
+                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                            | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (converter == null) {
+                    try {
+                        converter = tmpAnns.readConverter()
+                                .newInstance();
+
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        throw new BusinessException(e);
+                    }
+                }
+                newProperty.setReadConverter(converter);
+            }
+        }
     }
 }

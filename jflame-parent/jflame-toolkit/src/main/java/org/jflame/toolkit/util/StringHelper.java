@@ -10,12 +10,14 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jflame.toolkit.codec.TranscodeException;
+import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.common.Chars;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharSetUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.codec.TranscodeException;
-import org.jflame.toolkit.codec.TranscodeHelper;
 
 /**
  * 字符串工具类
@@ -81,7 +83,7 @@ public final class StringHelper {
      * @return 字符串数组
      */
     public static String[] split(String str) {
-        return StringUtils.split(str, ',');
+        return StringUtils.split(str, Chars.COMMA);
     }
 
     /**
@@ -92,7 +94,7 @@ public final class StringHelper {
      * @return
      */
     public static String join(Object[] array) {
-        return StringUtils.join(array, ',');
+        return StringUtils.join(array, Chars.COMMA);
     }
 
     /**
@@ -103,7 +105,7 @@ public final class StringHelper {
      * @return
      */
     public static String join(Collection<?> array) {
-        return StringUtils.join(array, ',');
+        return StringUtils.join(array, Chars.COMMA);
     }
 
     /**
@@ -175,9 +177,9 @@ public final class StringHelper {
         StringBuilder strBuf = new StringBuilder(20);
         for (Entry<String,Object> kv : paramMap.entrySet()) {
             if (kv.getValue() != null) {
-                strBuf.append('&')
+                strBuf.append(Chars.AND)
                         .append(kv.getKey())
-                        .append('=')
+                        .append(Chars.EQUAL)
                         .append(isUrlEncode ? TranscodeHelper.urlencode(kv.getValue()
                                 .toString()) : kv.getValue());
             }
@@ -485,8 +487,8 @@ public final class StringHelper {
 
     /**
      * 使用utf-8解码字符串 <br>
-     * 废除,请使用CharsetHelper
      * 
+     * @deprecated 废除,请使用CharsetHelper
      * @param string
      * @return
      */
@@ -497,8 +499,8 @@ public final class StringHelper {
 
     /**
      * 将byte[]使用utf-8编码为字符串 <br>
-     * 废除,请使用CharsetHelper
      * 
+     * @deprecated 废除,请使用CharsetHelper
      * @param bytes byte[]
      * @return
      */

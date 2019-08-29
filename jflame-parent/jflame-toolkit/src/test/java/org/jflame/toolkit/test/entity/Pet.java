@@ -1,6 +1,8 @@
 package org.jflame.toolkit.test.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.jflame.toolkit.excel.ExcelColumn;
@@ -8,12 +10,18 @@ import org.jflame.toolkit.excel.IExcelEntity;
 
 public class Pet implements IExcelEntity, Serializable {
 
+    private static final long serialVersionUID = -3318368228016050296L;
     private String name;
     private int age;
+    @ExcelColumn(name = "体重", order = 7)
+    private double weight;
     private String skin;
     private Date birthday;
-    private double money;
-    private Date createDate;
+    private BigDecimal money;
+    @ExcelColumn(name = "创建时间", order = 8, fmt = "yyyy年MM月dd日 HH:mm:ss")
+    private LocalDateTime createDate;
+    @ExcelColumn(name = "防疫是否合格", order = 6)
+    private Boolean hasCert;
 
     public Pet() {
     }
@@ -22,7 +30,7 @@ public class Pet implements IExcelEntity, Serializable {
         this.name = name;
     }
 
-    public Pet(String name, int age, String skin, Date birthday, double money) {
+    public Pet(String name, int age, String skin, Date birthday, BigDecimal money) {
         super();
         this.name = name;
         this.age = age;
@@ -68,21 +76,36 @@ public class Pet implements IExcelEntity, Serializable {
     }
 
     @ExcelColumn(name = "价格", order = 5)
-    public double getMoney() {
+    public BigDecimal getMoney() {
         return money;
     }
 
-    public void setMoney(double money) {
+    public void setMoney(BigDecimal money) {
         this.money = money;
     }
 
-    @ExcelColumn(name = "创建时间", order = 6)
-    public Date getCreateDate() {
+    public LocalDateTime getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(LocalDateTime createDate) {
         this.createDate = createDate;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public Boolean getHasCert() {
+        return hasCert;
+    }
+
+    public void setHasCert(Boolean hasCert) {
+        this.hasCert = hasCert;
     }
 
     @Override
@@ -96,6 +119,8 @@ public class Pet implements IExcelEntity, Serializable {
         }
         builder.append("age=")
                 .append(age)
+                .append(", weight=")
+                .append(weight)
                 .append(", ");
         if (skin != null) {
             builder.append("skin=")
@@ -107,12 +132,19 @@ public class Pet implements IExcelEntity, Serializable {
                     .append(birthday)
                     .append(", ");
         }
-        builder.append("money=")
-                .append(money)
-                .append(", ");
+        if (money != null) {
+            builder.append("money=")
+                    .append(money)
+                    .append(", ");
+        }
         if (createDate != null) {
             builder.append("createDate=")
-                    .append(createDate);
+                    .append(createDate)
+                    .append(", ");
+        }
+        if (hasCert != null) {
+            builder.append("hasCert=")
+                    .append(hasCert);
         }
         builder.append("]");
         return builder.toString();

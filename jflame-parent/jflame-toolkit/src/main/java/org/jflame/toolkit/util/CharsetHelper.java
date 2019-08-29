@@ -16,25 +16,7 @@ public class CharsetHelper {
      * gbk18030编码
      */
     public static final Charset GBK_18030 = Charset.forName("GB18030");
-    /**
-     * UTF-8编码名.<br>
-     * 废除,请使用StandardCharsets.UTF_8
-     */
-    @Deprecated
-    public static final String UTF_8 = "UTF-8";
-    /**
-     * UTF-16编码名.<br>
-     * 废除,请使用StandardCharsets.UTF_16
-     */
-    @Deprecated
-    public static final String UTF_16 = "UTF-16";
 
-    /**
-     * ISO-8859-1编码名 .<br>
-     * 废除,请使用StandardCharsets.ISO_8859_1
-     */
-    @Deprecated
-    public static final String ISO_8859_1 = "ISO-8859-1";
     /**
      * gbk编码
      */

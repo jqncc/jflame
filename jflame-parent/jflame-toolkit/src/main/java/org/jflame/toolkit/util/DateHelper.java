@@ -5,18 +5,22 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.jflame.toolkit.exception.ConvertException;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -30,13 +34,17 @@ import org.apache.commons.lang3.time.DateUtils;
 public final class DateHelper {
 
     /**
-     * 时间格式yyyy-MM-dd
+     * 日期格式yyyy-MM-dd
      */
     public static final String YYYY_MM_DD = "yyyy-MM-dd";
     /**
-     * 时间格式yyyy-MM-dd HH:mm:ss
+     * 日期格式yyyyMMdd
      */
-    public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYYMMDD = "yyyyMMdd";
+    /**
+     * 日期格式yyyy/MM/dd
+     */
+    public static final String YYYYMMDD_OBLIQUE = "yyyy/MM/dd";
     /**
      * 中文日期格式yyyy年MM月dd日
      */
@@ -49,7 +57,18 @@ public final class DateHelper {
      * 时间格式HH:mm:ss
      */
     public static final String HH_mm_ss = "HH:mm:ss";
-
+    /**
+     * 时间格式HH:mm
+     */
+    public static final String HH_mm = "HH:mm";
+    /**
+     * 时间格式yyyy-MM-dd HH:mm:ss
+     */
+    public static final String YYYY_MM_DD_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
+    /**
+     * 时间格式yyyy-MM-dd'T'HH:mm:ss
+     */
+    public static final String YYYY_MM_DD_T_HH_mm_ss = "yyyy-MM-dd'T'HH:mm:ss";
     /**
      * 时间格式yyyyMMddHHmmss
      */
@@ -58,6 +77,17 @@ public final class DateHelper {
      * 时间格式yyyyMMddHHmmssSSS
      */
     public static final String yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
+    /**
+     * 常用日期格式数组
+     */
+    public static final String[] SHORT_PATTEN = { YYYY_MM_DD,YYYYMMDD,CN_YYYY_MM_DD,YYYYMMDD_OBLIQUE };
+    /**
+     * 常用时间格式数组
+     */
+    public static final String[] TIME_PATTEN = { HH_mm_ss,HH_mm,CN_HH_mm_ss };
+
+    public static final String[] LONG_PATTEN = { YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,YYYY_MM_DD_T_HH_mm_ss,
+            yyyyMMddHHmmssSSS };
 
     @Deprecated
     public static final String[] formats = { YYYY_MM_DD,CN_YYYY_MM_DD,YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,HH_mm_ss };
@@ -116,7 +146,7 @@ public final class DateHelper {
     }
 
     /**
-     * 解析时间字符串转为时间对象
+     * 解析时间字符串转为Date,尝试多种格式解析,返回首个可解析的时间
      * 
      * @param dateStr 时间字符串
      * @param patterns 格式
@@ -132,10 +162,10 @@ public final class DateHelper {
     }
 
     /**
-     * 解析时间字符串转为LocalDateTime时间对象
+     * 解析时间字符串转为LocalDateTime,尝试多种格式解析,返回首个可解析的时间
      * 
      * @param dateStr 时间字符串
-     * @param patterns 格式
+     * @param patterns 格式数组
      * @return
      * @throws ConvertException 解析失败
      */
@@ -147,7 +177,45 @@ public final class DateHelper {
                 e.printStackTrace();
             }
         }
-        throw new ConvertException("转为LocalDateTime失败");
+        throw new ConvertException(dateStr + "转为LocalDateTime失败,patten:" + Arrays.toString(patterns));
+    }
+
+    /**
+     * 解析时间字符串转为LocalDate,尝试多种格式解析,返回首个可解析的时间
+     * 
+     * @param dateStr 时间字符串
+     * @param patterns 格式数组
+     * @return
+     * @throws ConvertException 解析失败
+     */
+    public static LocalDate parseLocalDate(String dateStr, String... patterns) throws ConvertException {
+        for (String pattern : patterns) {
+            try {
+                return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+            }
+        }
+        throw new ConvertException(dateStr + "转为LocalDate失败,patten:" + Arrays.toString(patterns));
+    }
+
+    /**
+     * 解析时间字符串转为LocalTime,尝试多种格式解析,返回首个可解析的时间
+     * 
+     * @param dateStr 时间字符串
+     * @param patterns 格式数组
+     * @return
+     * @throws ConvertException 解析失败
+     */
+    public static LocalTime parseLocalTime(String dateStr, String... patterns) throws ConvertException {
+        for (String pattern : patterns) {
+            try {
+                return LocalTime.parse(dateStr, DateTimeFormatter.ofPattern(pattern));
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+            }
+        }
+        throw new ConvertException(dateStr + "转为LocalDate失败,patten:" + Arrays.toString(patterns));
     }
 
     /**
@@ -557,6 +625,16 @@ public final class DateHelper {
     }
 
     /**
+     * 返回当前时间的unix时间戳
+     * 
+     * @return
+     */
+    public static long unixTimestamp() {
+        return Instant.now()
+                .getEpochSecond();
+    }
+
+    /**
      * 取参数date年的第一天时间
      * 
      * @param date 时间
@@ -574,6 +652,54 @@ public final class DateHelper {
      */
     public static LocalDate getLastDayOfYear(LocalDate date) {
         return date.with(TemporalAdjusters.lastDayOfYear());
+    }
+
+    /**
+     * 解析字符串为Date或Date的子类
+     * 
+     * @param text 时间字符串
+     * @param pattern 格式
+     * @param dateClazz Date或Date的子类
+     * @return
+     * @throws ConvertException
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Date> T parseDate(final String text, final Optional<String> pattern,
+            final Class<T> dateClazz) throws ConvertException {
+        Date val;
+
+        // 未指定固定格式器，使用所有支持格式处理
+        if (dateClazz == Date.class) {
+            if (!pattern.isPresent()) {
+                val = DateHelper.parseDate(text, ArrayUtils.addAll(LONG_PATTEN, SHORT_PATTEN));
+            } else {
+                val = DateHelper.parseDate(text, pattern.get());
+            }
+            return (T) val;
+        } else if (dateClazz == Timestamp.class) {
+            if (!pattern.isPresent()) {
+                val = DateHelper.parseDate(text, ArrayUtils.addAll(LONG_PATTEN, SHORT_PATTEN));
+            } else {
+                val = DateHelper.parseDate(text, pattern.get());
+            }
+            return (T) (new Timestamp(val.getTime()));
+        } else if (dateClazz == java.sql.Date.class) {
+            if (!pattern.isPresent()) {
+                val = DateHelper.parseDate(text, SHORT_PATTEN);
+            } else {
+                val = DateHelper.parseDate(text, pattern.get());
+            }
+            return (T) (new java.sql.Date(val.getTime()));
+        } else if (dateClazz == java.sql.Time.class) {
+            if (!pattern.isPresent()) {
+                val = DateHelper.parseDate(text, TIME_PATTEN);
+            } else {
+                val = DateHelper.parseDate(text, pattern.get());
+            }
+            return (T) (new java.sql.Time(val.getTime()));
+        } else {
+            throw new IllegalArgumentException("不支持的时间转换类型" + dateClazz);
+        }
     }
 
 }

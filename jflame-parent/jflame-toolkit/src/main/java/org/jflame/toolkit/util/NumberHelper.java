@@ -161,8 +161,8 @@ public final class NumberHelper {
             // (see BigDecimal javadoc for details)
             return (T) new BigDecimal(number.toString());
         } else {
-            throw new IllegalArgumentException("Could not convert number [" + number + "] of type ["
-                    + number.getClass().getName() + "] to unsupported target class [" + targetClass.getName() + "]");
+            throw new IllegalArgumentException("Could not convert number [" + number + "] of type [" + number.getClass()
+                    .getName() + "] to unsupported target class [" + targetClass.getName() + "]");
         }
     }
 
@@ -208,5 +208,19 @@ public final class NumberHelper {
 
         BigInteger result = new BigInteger(value.substring(index), radix);
         return (negative ? result.negate() : result);
+    }
+
+    /**
+     * 判断给定的Class是不是数字类型,即Number子类或基础数字类型
+     * 
+     * @param clazz
+     * @return
+     */
+    public static boolean isNumberType(Class<?> clazz) {
+        if (Number.class.isAssignableFrom(clazz)) {
+            return true;
+        }
+        return clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class
+                || clazz == float.class || clazz == double.class;
     }
 }

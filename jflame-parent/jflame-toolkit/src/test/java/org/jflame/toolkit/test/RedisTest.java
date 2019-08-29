@@ -1,5 +1,7 @@
 package org.jflame.toolkit.test;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,8 +56,8 @@ public class RedisTest {
 
         pet.setAge(20);
         pet.setBirthday(new Date());
-        pet.setCreateDate(new Date());
-        pet.setMoney(3000.2d);
+        pet.setCreateDate(LocalDateTime.now());
+        pet.setMoney(new BigDecimal("300.2"));
         pet.setName("litte black dog");
         pet.setSkin("black");
         // jedis
@@ -107,7 +109,7 @@ public class RedisTest {
         System.out.println("cachePet ttl 2:" + ttl2);
 
         cachePet.setAge(1);
-        cachePet.setMoney(399.5d);
+        cachePet.setMoney(new BigDecimal("663"));
         cachePet.setSkin("blue");
 
         Pet cacheOldPet = client.getAndSet(cachePet.getName(), cachePet);
@@ -171,7 +173,7 @@ public class RedisTest {
         // set
         String setkey = "noorderset",otherSetKey = "otherSetKey";
         Pet nPet = new Pet("noOrderSet");
-        Pet oPet = new Pet("biggirl", 24, "white", DateHelper.setDate(1994, 4, 1), 200);
+        Pet oPet = new Pet("biggirl", 24, "white", DateHelper.setDate(1994, 4, 1), new BigDecimal("200"));
         client.sadd(setkey, pet);
         client.sadd(setkey, nPet);
         long i = client.sadd(setkey, new Pet("noOrderSet"));
@@ -188,7 +190,7 @@ public class RedisTest {
         String sortedsetKey = "sortedsetKey";
         client.zsadd(sortedsetKey, nPet, 300d);
         client.zsadd(sortedsetKey, nPet, 400d);
-        client.zsadd(sortedsetKey, oPet, oPet.getMoney());
+        client.zsadd(sortedsetKey, oPet, 55);
         System.out.println("zs size:" + client.zssize(sortedsetKey));
         System.out.println("zs score 299-400 size:" + client.zscount(sortedsetKey, 300, 400));
 
