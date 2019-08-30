@@ -1,7 +1,5 @@
 package org.jflame.toolkit.excel.validator;
 
-import java.util.Map;
-
 /**
  * excel单元格验证规则接口
  * 
@@ -24,6 +22,6 @@ public interface IExcelValidator<T> {
      * @param rowEntityMap 行索引与对象的map
      * @throws ExcelValidationException 验证异常时抛出
      */
-    void validList(Map<Integer,T> rowEntityMap) throws ExcelValidationException;
+    // void validList(Map<Integer,T> rowEntityMap) throws ExcelValidationException;
 
 }

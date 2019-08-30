@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
  * 
  * @author yucan.zhang
  */
-public class EntityToExcelReader<T extends IExcelEntity> implements IExcelRowReader<T> {
+public class EntityRowReader<T extends IExcelEntity> implements IExcelRowReader<T> {
 
     private List<ExcelColumnProperty> columnPropertys = null;
     private Class<T> entityClazz;
@@ -30,7 +30,7 @@ public class EntityToExcelReader<T extends IExcelEntity> implements IExcelRowRea
      * @param columnPropertys ExcelColumnProperty集合
      * @param dataClass 数据类型
      */
-    public EntityToExcelReader(List<ExcelColumnProperty> columnPropertys, Class<T> dataClass) {
+    public EntityRowReader(List<ExcelColumnProperty> columnPropertys, Class<T> dataClass) {
         this.columnPropertys = columnPropertys;
         this.entityClazz = dataClass;
         propertySize = columnPropertys.size();

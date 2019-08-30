@@ -14,7 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 @SuppressWarnings("rawtypes")
-public class ArrayToExcelRowWriter implements IExcelRowWriter<Object[]> {
+public class ArrayRowWriter implements IExcelRowWriter<Object[]> {
 
     private Cell cell;
     private Object currentValue;

@@ -4,7 +4,7 @@ import org.jflame.toolkit.excel.ExcelUtils;
 
 import org.apache.poi.ss.usermodel.Row;
 
-public class ArrayToExcelRowReader implements IExcelRowReader<Object[]> {
+public class ArrayRowReader implements IExcelRowReader<Object[]> {
 
     private int firstIndex;
     private int lastIndex;

@@ -13,8 +13,8 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.excel.handler.ArrayToExcelRowWriter;
-import org.jflame.toolkit.excel.handler.EntityToExcelWriter;
+import org.jflame.toolkit.excel.handler.ArrayRowWriter;
+import org.jflame.toolkit.excel.handler.EntityRowWriter;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
@@ -126,7 +126,7 @@ public class ExcelCreator implements Closeable {
             if (currentSheet == null) {
                 selectSheet(0);
             }
-            EntityToExcelWriter<T> rowHandler = new EntityToExcelWriter<>(columnPropertys);
+            EntityRowWriter<T> rowHandler = new EntityRowWriter<>(columnPropertys);
             // 创建标题行
             createTitleRow(currentSheet, columnPropertys);
             // 填充数据
@@ -154,7 +154,7 @@ public class ExcelCreator implements Closeable {
         }
         if (CollectionHelper.isNotEmpty(data)) {
             Row row = null;
-            ArrayToExcelRowWriter rowHandler = new ArrayToExcelRowWriter();
+            ArrayRowWriter rowHandler = new ArrayRowWriter();
             for (Object[] rowData : data) {
                 row = currentSheet.createRow(getAndMoveRowIndex());
                 rowHandler.fillRow(rowData, row);

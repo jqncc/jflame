@@ -101,7 +101,6 @@ public class ExcelTest extends TestCase {
         ExcelImportor xlsImport = null;
         try {
             xlsImport = new ExcelImportor("D:\\datacenter\\cat20000.xlsx");
-            xlsImport.setStepValid(false);
             xlsImport.setStartRowIndex(1);
             List<Cat> results = xlsImport.importSheet(Cat.class);
             for (Cat pet : results) {

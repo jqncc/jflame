@@ -13,9 +13,29 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.temporal.Temporal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
+import org.jflame.toolkit.convert.Converter;
+import org.jflame.toolkit.convert.TextToBoolConverter;
+import org.jflame.toolkit.convert.TextToDateConverter;
+import org.jflame.toolkit.convert.TextToNumberConverterFactory;
+import org.jflame.toolkit.convert.TextToTemporalConverterFactory;
+import org.jflame.toolkit.excel.ExcelAccessException;
+import org.jflame.toolkit.excel.ExcelColumnProperty;
+import org.jflame.toolkit.excel.ExcelUtils;
+import org.jflame.toolkit.excel.IExcelEntity;
+import org.jflame.toolkit.excel.validator.DefaultExcelValidator;
+import org.jflame.toolkit.excel.validator.ExcelValidationException;
+import org.jflame.toolkit.excel.validator.IExcelValidator;
+import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.NumberHelper;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -65,6 +85,9 @@ public class CsvReader implements Closeable {
      * Use a backslash character before the text qualifier to represent an occurance of the text qualifier.
      */
     public static final int ESCAPE_MODE_BACKSLASH = 2;
+
+    private boolean stepValid = true;// 是否执行单行验证,验证失败即中断
+    private boolean allowDuplicate = true;// 是否允许重复数据
 
     /**
      * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file as the data source.
@@ -1124,6 +1147,76 @@ public class CsvReader implements Closeable {
         return result;
     }
 
+    @SuppressWarnings({ "unchecked","rawtypes" })
+    public <T extends IExcelEntity> List<T> readEntityData(final Class<T> dataClass, IExcelValidator<T> validator)
+            throws ExcelAccessException, ExcelValidationException {
+        if (validator == null) {
+            validator = new DefaultExcelValidator<T>();
+        }
+
+        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false);
+        if (CollectionHelper.isEmpty(lstDescriptors)) {
+            throw new CsvAccessException("没有找到要转换的属性");
+        }
+
+        T newObj = null;
+        List<T> results = new ArrayList<>();
+        String colValue;
+        Object currentValue;
+
+        try {
+            readHeaders();
+            while (readRecord()) {
+                newObj = dataClass.newInstance();
+                for (ExcelColumnProperty colProperty : lstDescriptors) {
+                    colValue = get(colProperty.getName());
+                    if (colProperty.getReadConverter() != null) {
+                        currentValue = colProperty.getReadConverter()
+                                .convert(colValue);
+                    } else {
+                        Converter readConverter = getReadConverter(colProperty.getPropertyDescriptor()
+                                .getPropertyType(), colProperty.getFmt());
+                        colProperty.setReadConverter(readConverter);
+                        currentValue = readConverter.convert(colValue);
+                    }
+                    colProperty.getPropertyDescriptor()
+                            .getWriteMethod()
+                            .invoke(newObj, currentValue);
+                }
+                // 单行验证
+                if (stepValid) {
+                    validator.valid(newObj, (int) getCurrentRecord());
+                }
+
+                if (!allowDuplicate) {
+                    if (results.contains(newObj)) {
+                        throw new ExcelAccessException("重复数据 第" + getCurrentRecord() + "行");
+                    }
+                }
+                results.add(newObj);
+            }
+        } catch (Exception e) {
+            throw new CsvAccessException("failed to new instance for " + dataClass, e);
+        }
+
+        return results;
+    }
+
+    @SuppressWarnings({ "unchecked","rawtypes" })
+    private static Converter getReadConverter(Class<?> needClazz, String fmt) {
+        if (NumberHelper.isNumberType(needClazz)) {
+            return new TextToNumberConverterFactory().getConverter((Class<Number>) needClazz);
+        } else if (Date.class.isAssignableFrom(needClazz)) {
+            return new TextToDateConverter(needClazz, Optional.ofNullable(fmt));
+        } else if (Temporal.class.isAssignableFrom(needClazz)) {
+            return new TextToTemporalConverterFactory(fmt).getConverter((Class<Temporal>) needClazz);
+        } else if (needClazz == Boolean.class || needClazz == boolean.class) {
+            return new TextToBoolConverter();
+        }
+
+        throw new ConvertException("csv 不支持的转换字符串到" + needClazz);
+    }
+
     /**
      * Returns the column header value for a given column index.
      * 
@@ -1406,6 +1499,14 @@ public class CsvReader implements Closeable {
         if (closed) {
             throw new CsvAccessException("CsvReader实例已经关闭");
         }
+    }
+
+    public void setStepValid(boolean stepValid) {
+        this.stepValid = stepValid;
+    }
+
+    public void setAllowDuplicate(boolean allowDuplicate) {
+        this.allowDuplicate = allowDuplicate;
     }
 
     protected void finalize() {

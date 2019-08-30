@@ -20,7 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
  * 
  * @author yucan.zhang
  */
-public class EntityToExcelWriter<T extends IExcelEntity> implements IExcelRowWriter<T> {
+public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<T> {
 
     private int propertySize;
     private Cell currentCell = null;
@@ -35,7 +35,7 @@ public class EntityToExcelWriter<T extends IExcelEntity> implements IExcelRowWri
      * @param columnPropertys ExcelColumnProperty集合
      * @param dataClass 数据类型
      */
-    public EntityToExcelWriter(List<ExcelColumnProperty> columnPropertys) {
+    public EntityRowWriter(List<ExcelColumnProperty> columnPropertys) {
         this.columnPropertys = columnPropertys;
         propertySize = columnPropertys.size();
     }

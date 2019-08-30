@@ -1,7 +1,6 @@
 package org.jflame.toolkit.excel.validator;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -38,10 +37,10 @@ public class ExcelValidationException extends ExcelAccessException {
      * @param excelRowIndex 发生异常的excel行索引
      * @param constraintViolations 验证异常
      */
-    public ExcelValidationException(Map<Integer,Set<? extends ConstraintViolation<?>>> rowIndexAndViolations) {
+    /* public ExcelValidationException(Map<Integer,Set<? extends ConstraintViolation<?>>> rowIndexAndViolations) {
         this(buildErrMsgs(rowIndexAndViolations));
     }
-
+    
     private static String buildErrMsgs(Map<Integer,Set<? extends ConstraintViolation<?>>> rowIndexAndViolations) {
         StringBuilder stringBuilder = new StringBuilder();
         rowIndexAndViolations.forEach((k, v) -> {
@@ -49,7 +48,7 @@ public class ExcelValidationException extends ExcelAccessException {
                     .append(';');
         });
         return stringBuilder.toString();
-    }
+    }*/
 
     private static String buildErrMsg(int excelRowIndex, Set<? extends ConstraintViolation<?>> errors) {
         String err = "第" + (excelRowIndex + 1) + "行 ";

@@ -1,8 +1,5 @@
 package org.jflame.toolkit.excel.validator;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -32,7 +29,7 @@ public class DefaultExcelValidator<T extends IExcelEntity> implements IExcelVali
         }
     }
 
-    @Override
+    /*  @Override
     public void validList(Map<Integer,T> rowEntityMap) throws ExcelValidationException {
         Set<ConstraintViolation<T>> errors;
         Map<Integer,Set<? extends ConstraintViolation<?>>> errMap = new HashMap<>();
@@ -45,6 +42,6 @@ public class DefaultExcelValidator<T extends IExcelEntity> implements IExcelVali
         if (!errMap.isEmpty()) {
             throw new ExcelValidationException(errMap);
         }
-    }
+    }*/
 
 }
