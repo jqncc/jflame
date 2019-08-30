@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
+import org.jflame.toolkit.excel.ExcelUtils;
 import org.jflame.toolkit.excel.IExcelEntity;
 
 import org.apache.commons.lang3.CharUtils;
@@ -51,11 +51,11 @@ public class EntityToExcelWriter<T extends IExcelEntity> implements IExcelRowWri
                         .getReadMethod()
                         .invoke(rowData);
                 if (currentValue == null || StringUtils.EMPTY.equals(currentValue)) {
-                    currentCell.setCellValue(StringUtils.EMPTY);
+                    currentCell.setCellType(CellType.BLANK);
                     continue;
                 }
                 currentCell.setCellType(CellType.STRING);
-                stringValue = ExcelConvertorSupport.convertToCellValue(currentProperty, currentValue);
+                stringValue = ExcelUtils.convertToCellValue(currentProperty, currentValue);
                 // 支持换行符
                 if (stringValue.indexOf(CharUtils.LF) >= 0) {
                     currentCell.getCellStyle()

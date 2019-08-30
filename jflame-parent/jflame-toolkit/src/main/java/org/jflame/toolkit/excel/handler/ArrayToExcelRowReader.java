@@ -1,6 +1,6 @@
 package org.jflame.toolkit.excel.handler;
 
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
+import org.jflame.toolkit.excel.ExcelUtils;
 
 import org.apache.poi.ss.usermodel.Row;
 
@@ -16,7 +16,7 @@ public class ArrayToExcelRowReader implements IExcelRowReader<Object[]> {
         lastIndex = excelSheetRow.getLastCellNum();
         newObjs = new Object[lastIndex - firstIndex];
         for (int i = firstIndex, j = 0; i < lastIndex; i++, j++) {
-            newObjs[j] = ExcelConvertorSupport
+            newObjs[j] = ExcelUtils
                     .getCellValue(excelSheetRow.getCell(i, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK));
         }
         return newObjs;

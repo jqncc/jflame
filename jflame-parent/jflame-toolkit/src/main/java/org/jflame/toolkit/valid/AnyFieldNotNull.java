@@ -10,7 +10,7 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * 判断多个属性中必须有一个不为空
+ * 验证注解.用于标记类中多个属性必须有一个不为空
  * 
  * @author yucan.zhang
  */
@@ -35,7 +35,7 @@ public @interface AnyFieldNotNull {
     String[] fields();
 
     /**
-     * 空字符串是否作为null
+     * 空字符串是否作为null,默认false
      * 
      * @return
      */

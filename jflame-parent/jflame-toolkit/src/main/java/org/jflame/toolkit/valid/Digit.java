@@ -20,7 +20,7 @@ import javax.validation.Payload;
 import org.jflame.toolkit.valid.Digit.List;
 
 /**
- * 数字验证注解,支持类型float,double,BigDecimal
+ * 数字验证注解,支持类型Number子类
  * 
  * @author yucan.zhang
  */

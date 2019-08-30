@@ -4,17 +4,16 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.jflame.toolkit.excel.handler.ArrayToExcelRowReader;
 import org.jflame.toolkit.excel.handler.EntityToExcelReader;
-import org.jflame.toolkit.excel.validator.DefaultValidator;
-import org.jflame.toolkit.excel.validator.IValidator;
+import org.jflame.toolkit.excel.validator.DefaultExcelValidator;
+import org.jflame.toolkit.excel.validator.ExcelValidationException;
+import org.jflame.toolkit.excel.validator.IExcelValidator;
 import org.jflame.toolkit.util.CollectionHelper;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -48,18 +47,15 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * @see ExcelColumn
- * @see ExcelConvertorSupport#registerConvertor(ICellValueConvertor...)
  * @author zyc
  */
 public class ExcelImportor implements Closeable {
 
     private final Logger log = LoggerFactory.getLogger(ExcelImportor.class);
     private boolean stepValid = true;// 是否执行单行验证,验证失败即中断
-    private boolean ignoreRepeat = true;// 忽略重复数据,重复只导入一行.如果不忽略,发现重复数据时将停止导入
+    private boolean allowDuplicate = true;// 是否允许重复数据
     private int startRowIndex = 1;
-    private Map<Integer,String> errorMap = new HashMap<>();
     private List<Integer> curRowIndexs = new ArrayList<Integer>();
-    private ExcelAnnotationResolver annotResolver = new ExcelAnnotationResolver();
     private Workbook workbook;
     private OPCPackage pkg;
 
@@ -106,7 +102,8 @@ public class ExcelImportor implements Closeable {
      * @param dataClass
      * @return
      */
-    public <T extends IExcelEntity> LinkedHashSet<T> importSheet(final Class<T> dataClass) {
+    public <T extends IExcelEntity> List<T> importSheet(final Class<T> dataClass)
+            throws ExcelAccessException, ExcelValidationException {
         return importSheet(workbook.getSheetAt(0), dataClass, null);
     }
 
@@ -117,7 +114,8 @@ public class ExcelImportor implements Closeable {
      * @param validator 自定义验证器
      * @return
      */
-    public <T extends IExcelEntity> LinkedHashSet<T> importSheet(final Class<T> dataClass, IValidator<T> validator) {
+    public <T extends IExcelEntity> List<T> importSheet(final Class<T> dataClass, IExcelValidator<T> validator)
+            throws ExcelAccessException, ExcelValidationException {
         return importSheet(workbook.getSheetAt(0), dataClass, validator);
     }
 
@@ -129,47 +127,45 @@ public class ExcelImportor implements Closeable {
      * @param dataClass 转换类型
      * @param <T> dataClass 泛型类型
      * @exception ExcelAccessException
-     * @return 返回为LinkedHashSet类型的数据集
+     * @return
      */
-    public <T extends IExcelEntity> LinkedHashSet<T> importSheet(Sheet sheet, final Class<T> dataClass) {
+    public <T extends IExcelEntity> List<T> importSheet(Sheet sheet, final Class<T> dataClass)
+            throws ExcelAccessException, ExcelValidationException {
         return importSheet(sheet, dataClass, null);
     }
 
     /**
      * 导入excel工作表数据转换为指定类型的对象集合.
      * 
-     * @param xsheet 工作表,null时导入第一张sheet
+     * @param sheet 工作表,null时导入第一张sheet
      * @param dataClass 转换类型class
-     * @param <T> dataClass泛型类型
      * @param validator 指定数据验证类,为null使用DefaultValidator验证
-     * @see DefaultValidator
-     * @exception ExcelAccessException
-     * @return 返回为LinkedHashSet类型的不重复元素数据集
+     * @param <T> IExcelEntity
+     * @exception ExcelAccessException 导入出错
+     * @exception ExcelValidationException 单元格数据验证异常
+     * @return
+     * @see DefaultExcelValidator
      */
-    public <T extends IExcelEntity> LinkedHashSet<T> importSheet(Sheet xsheet, final Class<T> dataClass,
-            IValidator<T> validator) {
-        if (dataClass == null) {
-            throw new IllegalArgumentException("参数dataClass不能为null");
-        }
+    public <T extends IExcelEntity> List<T> importSheet(Sheet sheet, final Class<T> dataClass,
+            IExcelValidator<T> validator) throws ExcelAccessException, ExcelValidationException {
         if (validator == null) {
-            validator = new DefaultValidator<T>();
+            validator = new DefaultExcelValidator<T>();
         }
-        Sheet sheet = xsheet == null ? workbook.getSheetAt(0) : xsheet;
 
-        LinkedHashSet<T> results = new LinkedHashSet<>();
-        curRowIndexs.clear();
-        errorMap.clear();
-
-        List<ExcelColumnProperty> lstDescriptors = annotResolver.resolveExcelColumnProperty(dataClass, false);
-
+        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false);
         if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new ExcelAccessException("没有找到要转换的属性");
         }
-        EntityToExcelReader<T> rowHandler = new EntityToExcelReader<>(lstDescriptors, dataClass);
 
+        EntityToExcelReader<T> rowHandler = new EntityToExcelReader<>(lstDescriptors, dataClass);
+        Sheet currentSheet = sheet == null ? workbook.getSheetAt(0) : sheet;
+
+        curRowIndexs.clear();
         Row curRow;
         T newObj = null;
-        Iterator<Row> rowIterator = sheet.rowIterator();
+        List<T> results = new ArrayList<>(sheet.getLastRowNum());
+
+        Iterator<Row> rowIterator = currentSheet.rowIterator();
         while (rowIterator.hasNext()) {
             curRow = rowIterator.next();
             if (curRow.getRowNum() < startRowIndex) {
@@ -178,22 +174,17 @@ public class ExcelImportor implements Closeable {
             newObj = rowHandler.extractRow(curRow);
             // 单行验证
             if (stepValid) {
-                if (!validator.valid(newObj, curRow.getRowNum())) {
-                    errorMap = validator.getErrors();
-                    throw new ExcelAccessException("数据验证失败");
-                }
+                validator.valid(newObj, curRow.getRowNum());
             }
-            if (results.add(newObj)) {
-                curRowIndexs.add(curRow.getRowNum());
-            } else {
-                if (ignoreRepeat) {
-                    log.warn("重复数据,忽略不导入.行数:{},对象:{}", (curRow.getRowNum() + 1), newObj);
-                } else {
-                    errorMap.put(curRow.getRowNum(), "重复的数据");
+
+            if (!allowDuplicate) {
+                if (results.contains(newObj)) {
                     log.error("重复数据停止导入,行数:{},对象:{}", (curRow.getRowNum() + 1), newObj);
-                    throw new ExcelAccessException("重复数据");
+                    throw new ExcelAccessException("重复数据 第" + (curRow.getRowNum() + 1) + "行");
                 }
             }
+            results.add(newObj);
+            curRowIndexs.add(curRow.getRowNum());
         }
         // 整体验证
         if (!stepValid && !results.isEmpty()) {
@@ -204,12 +195,7 @@ public class ExcelImportor implements Closeable {
                 validMap.put(curRowIndexs.get(s), iterator.next());
                 s++;
             }
-            if (!validator.validList(validMap)) {
-                errorMap = validator.getErrors();
-                results = null;
-                curRowIndexs.clear();
-                throw new ExcelAccessException("数据验证失败");
-            }
+            validator.validList(validMap);
         }
         return results;
     }
@@ -220,7 +206,7 @@ public class ExcelImportor implements Closeable {
      * @param sheet excel sheet
      * @return Object[]列表
      */
-    public List<Object[]> importSheet(final Sheet sheet) {
+    public List<Object[]> importSheet(final Sheet sheet) throws ExcelAccessException, ExcelValidationException {
         List<Object[]> results = new ArrayList<>();
         ArrayToExcelRowReader rowHandler = new ArrayToExcelRowReader();
         Row curRow;
@@ -270,15 +256,6 @@ public class ExcelImportor implements Closeable {
         this.startRowIndex = startRowIndex;
     }
 
-    /**
-     * 获取最近一次数据导入的验证结果.
-     * 
-     * @return 出错行索引与错误信息map
-     */
-    public Map<Integer,String> getErrorMap() {
-        return errorMap;
-    }
-
     public Workbook getWorkbook() {
         return workbook;
     }
@@ -291,15 +268,22 @@ public class ExcelImportor implements Closeable {
         return workbook.getSheet(sheetName);
     }
 
-    public void setIgnoreRepeat(boolean ignoreRepeat) {
-        this.ignoreRepeat = ignoreRepeat;
+    /**
+     * 设置是否允许重复数据,数据重复使用对象equals方法比较,所以如果需要去重导入对象类型应重写equals
+     * 
+     * @param ignoreRepeat true=允许
+     */
+    public void setAllowDuplicate(boolean ignoreRepeat) {
+        this.allowDuplicate = ignoreRepeat;
     }
 
     @Override
     public void close() throws IOException {
         if (pkg != null) {
-            workbook.close();
             pkg.close();
+        }
+        if (workbook != null) {
+            workbook.close();
         }
     }
 

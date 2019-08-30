@@ -4,6 +4,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Map;
 
+/**
+ * url工具类
+ * 
+ * @author yucan.zhang
+ */
 public final class UrlHelper {
 
     /**

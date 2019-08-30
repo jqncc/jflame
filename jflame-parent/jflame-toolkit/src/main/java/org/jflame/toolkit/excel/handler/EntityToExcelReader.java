@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
+import org.jflame.toolkit.excel.ExcelUtils;
 import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.exception.ConvertException;
 
@@ -52,7 +52,7 @@ public class EntityToExcelReader<T extends IExcelEntity> implements IExcelRowRea
                     continue;
                 }
                 currentProperty = columnPropertys.get(cellIndex);
-                currentValue = ExcelConvertorSupport.extractValueFromCell(currentProperty,
+                currentValue = ExcelUtils.extractValueFromCell(currentProperty,
                         excelSheetRow.getCell(cellIndex));
                 if (currentValue != null) {
                     currentProperty.getPropertyDescriptor()

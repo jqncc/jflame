@@ -56,9 +56,9 @@ public @interface DynamicValid {
     boolean nullable() default false;
 
     /**
-     * 规则所需参数,格式说明:<br>
-     * 规则名1:参数,规则名:参数. 如:rules={ValidRule.min,ValidRule.regex} param="min:1,regex:\"\\\\d{1,13}\""; 参数表示
-     * 数字:1,字符串:"1",数组:[1,2]
+     * 规则所需参数. 格式说明: 规则名1:规则参数,规则名2:规则参数.<br>
+     * 如:rules={ValidRule.min,ValidRule.regex} param="min:1,regex:\"\\\\d{1,13}\"";<br>
+     * 参数表示: 数字:1,字符串:"1",数组:[1,2]
      * 
      * @return
      */

@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 import org.jflame.toolkit.codec.TranscodeException;
 import org.jflame.toolkit.codec.TranscodeHelper;
-import org.jflame.toolkit.common.Chars;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharSetUtils;
@@ -83,7 +82,7 @@ public final class StringHelper {
      * @return 字符串数组
      */
     public static String[] split(String str) {
-        return StringUtils.split(str, Chars.COMMA);
+        return StringUtils.split(str, CharsetHelper.COMMA);
     }
 
     /**
@@ -94,7 +93,7 @@ public final class StringHelper {
      * @return
      */
     public static String join(Object[] array) {
-        return StringUtils.join(array, Chars.COMMA);
+        return StringUtils.join(array, CharsetHelper.COMMA);
     }
 
     /**
@@ -105,7 +104,7 @@ public final class StringHelper {
      * @return
      */
     public static String join(Collection<?> array) {
-        return StringUtils.join(array, Chars.COMMA);
+        return StringUtils.join(array, CharsetHelper.COMMA);
     }
 
     /**
@@ -177,9 +176,9 @@ public final class StringHelper {
         StringBuilder strBuf = new StringBuilder(20);
         for (Entry<String,Object> kv : paramMap.entrySet()) {
             if (kv.getValue() != null) {
-                strBuf.append(Chars.AND)
+                strBuf.append(CharsetHelper.AND)
                         .append(kv.getKey())
-                        .append(Chars.EQUAL)
+                        .append(CharsetHelper.EQUAL)
                         .append(isUrlEncode ? TranscodeHelper.urlencode(kv.getValue()
                                 .toString()) : kv.getValue());
             }

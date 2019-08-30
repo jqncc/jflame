@@ -11,13 +11,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.HashMap;
+
+import org.jflame.toolkit.util.CharsetHelper;
 
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * csv文件读取解析类
+ * csv文件读取解析类.
+ * <p>
+ * 摘自:{@link https://www.csvreader.com/}
  */
 public class CsvReader implements Closeable {
 
@@ -33,7 +38,7 @@ public class CsvReader implements Closeable {
     private ColumnBuffer columnBuffer = new ColumnBuffer();
     private RawRecordBuffer rawBuffer = new RawRecordBuffer();
     private boolean[] isQualified = null;
-    private String rawRecord = "";
+    private String rawRecord = StringUtils.EMPTY;
     private HeadersHolder headersHolder = new HeadersHolder();
 
     // these are all more or less global loop variables
@@ -96,12 +101,12 @@ public class CsvReader implements Closeable {
      * @param delimiter The character to use as the column delimiter.
      */
     public CsvReader(String fileName, char delimiter) throws FileNotFoundException {
-        this(fileName, delimiter, Charset.forName("ISO-8859-1"));
+        this(fileName, delimiter, StandardCharsets.UTF_8);
     }
 
     /**
      * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file as the data source.&nbsp;Uses a comma as
-     * the column delimiter and ISO-8859-1 as the {@link java.nio.charset.Charset Charset}.
+     * the column delimiter and utf-8 as the {@link java.nio.charset.Charset Charset}.
      * 
      * @param fileName The path to the file to use as the data source.
      */
@@ -421,6 +426,12 @@ public class CsvReader implements Closeable {
         }
     }
 
+    /**
+     * 返回当前行数组
+     * 
+     * @return
+     * @throws IOException
+     */
     public String[] getValues() throws IOException {
         checkClosed();
 
@@ -1000,7 +1011,6 @@ public class CsvReader implements Closeable {
 
             if (startedColumn || lastLetter == userSettings.Delimiter) {
                 endColumn();
-
                 endRecord();
             }
         }
@@ -1233,11 +1243,8 @@ public class CsvReader implements Closeable {
     private void appendLetter(char letter) {
         if (columnBuffer.Position == columnBuffer.Buffer.length) {
             int newLength = columnBuffer.Buffer.length * 2;
-
             char[] holder = new char[newLength];
-
             System.arraycopy(columnBuffer.Buffer, 0, holder, 0, columnBuffer.Position);
-
             columnBuffer.Buffer = holder;
         }
         columnBuffer.Buffer[columnBuffer.Position++] = letter;
@@ -1272,9 +1279,7 @@ public class CsvReader implements Closeable {
     private void endRecord() throws IOException {
         // this flag is used as a loop exit condition
         // during parsing
-
         hasReadNextLine = true;
-
         currentRecord++;
     }
 
@@ -1306,34 +1311,25 @@ public class CsvReader implements Closeable {
      */
     public boolean skipRecord() throws IOException {
         checkClosed();
-
         boolean recordRead = false;
-
         if (hasMoreData) {
             recordRead = readRecord();
-
             if (recordRead) {
                 currentRecord--;
             }
         }
-
         return recordRead;
     }
 
     /**
-     * Skips the next line of data using the standard end of line characters and does not do any column delimited
-     * parsing.
+     * 跳过下一行数据，并且不执行任何列分隔的解析。
      * 
      * @return Whether a line was successfully skipped or not.
      * @exception IOException Thrown if an error occurs while reading data from the source stream.
      */
     public boolean skipLine() throws IOException {
         checkClosed();
-
-        // clear public column values for current line
-
         columnsCount = 0;
-
         boolean skippedLine = false;
 
         if (hasMoreData) {
@@ -1344,20 +1340,15 @@ public class CsvReader implements Closeable {
                     checkDataLength();
                 } else {
                     skippedLine = true;
-
                     // grab the current letter as a char
-
                     char currentLetter = dataBuffer.Buffer[dataBuffer.Position];
-
                     if (currentLetter == Letters.CR || currentLetter == Letters.LF) {
                         foundEol = true;
                     }
 
                     // keep track of the last letter because we need
                     // it for several key decisions
-
                     lastLetter = currentLetter;
-
                     if (!foundEol) {
                         dataBuffer.Position++;
                     }
@@ -1366,7 +1357,6 @@ public class CsvReader implements Closeable {
             } while (hasMoreData && !foundEol);
 
             columnBuffer.Position = 0;
-
             dataBuffer.LineStart = dataBuffer.Position + 1;
         }
 
@@ -1387,9 +1377,6 @@ public class CsvReader implements Closeable {
         }
     }
 
-    /**
-     * 
-     */
     private void close(boolean closing) {
         if (!closed) {
             if (closing) {
@@ -1415,18 +1402,12 @@ public class CsvReader implements Closeable {
         }
     }
 
-    /**
-     * @exception IOException Thrown if this object has already been closed.
-     */
-    private void checkClosed() throws IOException {
+    private void checkClosed() {
         if (closed) {
-            throw new IOException("This instance of the CsvReader class has already been closed.");
+            throw new CsvAccessException("CsvReader实例已经关闭");
         }
     }
 
-    /**
-     * 
-     */
     protected void finalize() {
         close(false);
     }
@@ -1510,29 +1491,11 @@ public class CsvReader implements Closeable {
         }
     }
 
-    private class Letters {
-
-        public static final char LF = '\n';
-
-        public static final char CR = '\r';
-
-        public static final char QUOTE = '"';
-
-        public static final char COMMA = ',';
+    private class Letters extends CharsetHelper {
 
         public static final char SPACE = ' ';
 
-        public static final char TAB = '\t';
-
         public static final char POUND = '#';
-
-        public static final char BACKSLASH = '\\';
-
-        public static final char NULL = '\0';
-
-        public static final char BACKSPACE = '\b';
-
-        public static final char FORM_FEED = '\f';
 
         public static final char ESCAPE = '\u001B'; // ASCII/ANSI escape
 
@@ -1545,7 +1508,7 @@ public class CsvReader implements Closeable {
 
         // having these as publicly accessible members will prevent
         // the overhead of the method call that exists on properties
-        public boolean CaseSensitive;
+        // public boolean CaseSensitive;
 
         public char TextQualifier;
 
@@ -1580,7 +1543,7 @@ public class CsvReader implements Closeable {
         public boolean CaptureRawRecord;
 
         public UserSettings() {
-            CaseSensitive = true;
+            // CaseSensitive = true;
             TextQualifier = Letters.QUOTE;
             TrimWhitespace = true;
             UseTextQualifier = true;

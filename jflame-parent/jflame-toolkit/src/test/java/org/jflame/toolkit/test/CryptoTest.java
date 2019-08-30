@@ -2,7 +2,7 @@ package org.jflame.toolkit.test;
 
 import java.security.KeyPair;
 
-import org.jflame.toolkit.codec.Base64;
+import org.jflame.toolkit.codec.TranscodeHelper;
 import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
 import org.jflame.toolkit.crypto.BaseEncryptor.OpMode;
 import org.jflame.toolkit.crypto.BaseEncryptor.Padding;
@@ -30,9 +30,9 @@ public class CryptoTest {
         // ECB/OAEPWITHMD5ANDMGF1PADDING
         RSAEncryptor rsa1 = new RSAEncryptor(OpMode.ECB, Padding.OAEPWITHMD5ANDMGF1PADDING);
         KeyPair kv1 = rsa1.generateKeyPair(null, null);
-        String pubKey1 = Base64.encodeBase64String(kv1.getPublic()
+        String pubKey1 = TranscodeHelper.encodeBase64String(kv1.getPublic()
                 .getEncoded());
-        String priKey1 = Base64.encodeBase64String(kv1.getPrivate()
+        String priKey1 = TranscodeHelper.encodeBase64String(kv1.getPrivate()
                 .getEncoded());
         String cihper1 = rsa1.encryptToHex(content, pubKey1);
         System.out.println("公钥加密:" + cihper1);

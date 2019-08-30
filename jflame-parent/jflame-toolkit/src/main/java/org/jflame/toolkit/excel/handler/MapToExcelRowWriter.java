@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jflame.toolkit.convert.ObjectToTextConverter;
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
+import org.jflame.toolkit.excel.ExcelUtils;
 
 import org.apache.commons.lang3.CharUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -46,7 +46,7 @@ public class MapToExcelRowWriter implements IExcelRowWriter<LinkedHashMap<String
             if (columnConvertMap.containsKey(cellIndex)) {
                 converter = columnConvertMap.get(cellIndex);
             } else {
-                converter = ExcelConvertorSupport.getDefaultWriteConverter(entry.getValue()
+                converter = ExcelUtils.getDefaultWriteConverter(entry.getValue()
                         .getClass(), null);
                 columnConvertMap.put(cellIndex, converter);
             }

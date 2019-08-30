@@ -3,7 +3,7 @@ package org.jflame.toolkit.excel.handler;
 import java.util.Map;
 
 import org.jflame.toolkit.convert.ObjectToTextConverter;
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
+import org.jflame.toolkit.excel.ExcelUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharUtils;
@@ -36,7 +36,7 @@ public class ArrayToExcelRowWriter implements IExcelRowWriter<Object[]> {
                 if (columnConvertMap.containsKey(cellIndex)) {
                     converter = columnConvertMap.get(cellIndex);
                 } else {
-                    converter = ExcelConvertorSupport.getDefaultWriteConverter(currentValue.getClass(), null);
+                    converter = ExcelUtils.getDefaultWriteConverter(currentValue.getClass(), null);
                     columnConvertMap.put(cellIndex, converter);
                 }
 

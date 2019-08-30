@@ -12,8 +12,6 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.jflame.toolkit.common.Chars;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -151,7 +149,7 @@ public final class CollectionHelper {
         if (collection == null) {
             return null;
         }
-        return StringUtils.join(collection, Chars.COMMA);
+        return StringUtils.join(collection, CharsetHelper.COMMA);
     }
 
     /**

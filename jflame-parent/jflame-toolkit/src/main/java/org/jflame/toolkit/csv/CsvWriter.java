@@ -15,13 +15,11 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.common.Chars;
 import org.jflame.toolkit.convert.ObjectToTextConverter;
-import org.jflame.toolkit.excel.ExcelAnnotationResolver;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
-import org.jflame.toolkit.excel.ExcelConvertorSupport;
-import org.jflame.toolkit.excel.ExcelCreator;
+import org.jflame.toolkit.excel.ExcelUtils;
 import org.jflame.toolkit.excel.IExcelEntity;
+import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +79,7 @@ public class CsvWriter implements Closeable {
      * @param fileName csv文件路径
      */
     public CsvWriter(String fileName) {
-        this(fileName, Chars.COMMA, StandardCharsets.UTF_8);
+        this(fileName, CharsetHelper.COMMA, StandardCharsets.UTF_8);
     }
 
     /**
@@ -112,7 +110,7 @@ public class CsvWriter implements Closeable {
     }
 
     public CsvWriter(OutputStream outputStream) {
-        this(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), Chars.COMMA);
+        this(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), CharsetHelper.COMMA);
     }
 
     /**
@@ -247,7 +245,7 @@ public class CsvWriter implements Closeable {
         if (!textQualify && userSettings.UseTextQualifier
                 && (content.indexOf(userSettings.TextQualifier) > -1 || content.indexOf(userSettings.Delimiter) > -1
                         || (!useCustomRecordDelimiter
-                                && (content.indexOf(Chars.LF) > -1 || content.indexOf(Chars.CR) > -1))
+                                && (content.indexOf(CharsetHelper.LF) > -1 || content.indexOf(CharsetHelper.CR) > -1))
                         || (useCustomRecordDelimiter && content.indexOf(userSettings.RecordDelimiter) > -1)
                         || (firstColumn && content.length() > 0 && content.charAt(0) == userSettings.Comment) ||
                         // check for empty first column, which if on its own line must
@@ -259,14 +257,14 @@ public class CsvWriter implements Closeable {
         if (userSettings.UseTextQualifier && !textQualify && content.length() > 0 && preserveSpaces) {
             char firstLetter = content.charAt(0);
 
-            if (firstLetter == SPACE || firstLetter == Chars.TAB) {
+            if (firstLetter == SPACE || firstLetter == CharsetHelper.TAB) {
                 textQualify = true;
             }
 
             if (!textQualify && content.length() > 1) {
                 char lastLetter = content.charAt(content.length() - 1);
 
-                if (lastLetter == SPACE || lastLetter == Chars.TAB) {
+                if (lastLetter == SPACE || lastLetter == CharsetHelper.TAB) {
                     textQualify = true;
                 }
             }
@@ -311,8 +309,8 @@ public class CsvWriter implements Closeable {
                         StringUtils.EMPTY + Letters.BACKSLASH + Letters.CR);
                     content = replace(content, StringUtils.EMPTY + Letters.LF,
                         StringUtils.EMPTY + Letters.BACKSLASH + Letters.LF);*/
-                    content = StringUtils.replace(content, StringUtils.CR, BACKSLASH + Chars.CR);
-                    content = StringUtils.replace(content, StringUtils.LF, BACKSLASH + Chars.LF);
+                    content = StringUtils.replace(content, StringUtils.CR, BACKSLASH + CharsetHelper.CR);
+                    content = StringUtils.replace(content, StringUtils.LF, BACKSLASH + CharsetHelper.LF);
                 }
 
                 if (firstColumn && content.length() > 0 && content.charAt(0) == userSettings.Comment) {
@@ -342,7 +340,7 @@ public class CsvWriter implements Closeable {
      * @param content The data for the new column.
      * @exception CsvAccessException Thrown if an error occurs while writing data to the destination stream.
      */
-    public void write(String content) {
+    public void write(String content) throws CsvAccessException {
         write(content, false);
     }
 
@@ -368,9 +366,9 @@ public class CsvWriter implements Closeable {
      * 
      * @param values Values to be written.
      * @param 是否保留内容首尾空格,true=保留,false删除首尾空格
-     * @throws IOException Thrown if an error occurs while writing data to the destination stream.
+     * @throws CsvAccessException Thrown if an error occurs while writing data to the destination stream.
      */
-    public void writeRecord(String[] values, boolean preserveSpaces) {
+    public void writeRecord(String[] values, boolean preserveSpaces) throws CsvAccessException {
         if (values != null && values.length > 0) {
             for (int i = 0; i < values.length; i++) {
                 write(values[i], preserveSpaces);
@@ -394,8 +392,7 @@ public class CsvWriter implements Closeable {
         if (CollectionHelper.isNotEmpty(dataList)) {
             Class<? extends IExcelEntity> dataClass = dataList.get(0)
                     .getClass();
-            List<ExcelColumnProperty> columnPropertys = ExcelAnnotationResolver.resolveExcelColumnProperty(dataClass,
-                    true);
+            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true);
             if (CollectionHelper.isEmpty(columnPropertys)) {
                 throw new CsvAccessException("没有找到要导入的属性");
             }
@@ -412,7 +409,7 @@ public class CsvWriter implements Closeable {
                         if (currentValue == null || StringUtils.EMPTY.equals(currentValue)) {
                             write(StringUtils.EMPTY);
                         } else {
-                            write(ExcelConvertorSupport.convertToCellValue(currentProperty, currentValue));
+                            write(ExcelUtils.convertToCellValue(currentProperty, currentValue));
                         }
                     }
                     endRecord();
@@ -434,7 +431,7 @@ public class CsvWriter implements Closeable {
                     if (columnConvertMap.containsKey(index)) {
                         converter = columnConvertMap.get(index);
                     } else {
-                        converter = ExcelConvertorSupport.getDefaultWriteConverter(rowData[index].getClass(), null);
+                        converter = ExcelUtils.getDefaultWriteConverter(rowData[index].getClass(), null);
                         columnConvertMap.put(index, converter);
                     }
                     write(converter.convert(rowData[index]));
@@ -553,10 +550,10 @@ public class CsvWriter implements Closeable {
         public boolean ForceQualifier;
 
         public UserSettings() {
-            TextQualifier = Chars.QUOTE;
+            TextQualifier = CharsetHelper.QUOTE;
             UseTextQualifier = true;
-            Delimiter = Chars.COMMA;
-            RecordDelimiter = Chars.NULL;
+            Delimiter = CharsetHelper.COMMA;
+            RecordDelimiter = CharsetHelper.NULL;
             Comment = POUND;
             EscapeMode = ESCAPE_MODE_DOUBLED;
             ForceQualifier = false;
@@ -606,9 +603,15 @@ public class CsvWriter implements Closeable {
     public static <T extends IExcelEntity> void writeCsv(HttpServletResponse response, String fileName,
             List<T> dataList) throws CsvAccessException, IOException {
         response.reset();
-        ExcelCreator.setFileDownloadHeader(response, fileName);
+        setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
         writeCsv(out, dataList);
+    }
+
+    static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
+        String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
+        // response.setContentType("applicatoin/octet-stream");
     }
 
     /* public static String replace(String original, String pattern, String replace) {

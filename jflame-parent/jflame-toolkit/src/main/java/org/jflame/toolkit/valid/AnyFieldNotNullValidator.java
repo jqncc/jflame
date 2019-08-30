@@ -3,11 +3,12 @@ package org.jflame.toolkit.valid;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jflame.toolkit.reflect.ReflectionHelper;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
- * 属性相等比较
+ * 判断多个属性中必须有一个不为空
  * 
  * @see EqField
  * @author yucan.zhang

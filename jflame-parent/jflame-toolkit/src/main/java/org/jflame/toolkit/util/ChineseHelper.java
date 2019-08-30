@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 汉字工具类.
  * 
@@ -37,8 +39,9 @@ public final class ChineseHelper {
     }
 
     /**
-     * 取得给定汉字串的首字母串,即声母串.废除,读取汉字不全
+     * 取得给定汉字串的首字母串,即声母串.
      * 
+     * @deprecated 废除,读取汉字不全
      * @param str 汉字
      * @return 声母
      * @throws UnsupportedEncodingException 不支持的编码异常
@@ -46,7 +49,7 @@ public final class ChineseHelper {
     @Deprecated
     public static String getAllFirstLetter(String str) throws UnsupportedEncodingException {
         if (str == null || str.isEmpty()) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         char[] charArr = new char[str.length()];

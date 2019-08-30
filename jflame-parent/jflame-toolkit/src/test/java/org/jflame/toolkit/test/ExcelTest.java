@@ -7,17 +7,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelCreator;
 import org.jflame.toolkit.excel.ExcelImportor;
+import org.jflame.toolkit.excel.validator.ExcelValidationException;
 import org.jflame.toolkit.test.entity.Cat;
-import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.MathHelper;
 
 import junit.framework.TestCase;
@@ -65,40 +62,11 @@ public class ExcelTest extends TestCase {
         }
         long t = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
         System.out.println("耗时:" + t);
-        System.in.read();
-        // 快捷静态方法导出
-        // try( FileOutputStream out =new FileOutputStream("e:\\1.xls")) {
-        // ExcelCreator.export(pets, out);
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-    }
 
-    /**
-     * map数据导出
-     */
-    public void testExportMap() {
-        List<LinkedHashMap<String,Object>> pets = new ArrayList<>(300);
-        for (int i = 0; i < 300; i++) {
-            LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
-            m.put("age", 18);
-            m.put("name", "唯唯诺诺" + i);
-            m.put("birthday", new Date());
-            m.put("skin", "白皮肤");
-            m.put("salary", new BigDecimal("322" + i));
-            pets.add(m);
-        }
-        File f = new File("D:\\datacenter\\mapexport.xls");
-        try {
-            if (!f.exists()) {
-                f.createNewFile();
-            }
-            FileOutputStream out = new FileOutputStream(f);
-            // 使用快捷静态方法
-            ExcelCreator.export(pets, new String[] { "年龄","姓名","生日","皮肤","薪资" }, out);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // 快捷静态方法导出
+
+        // ExcelCreator.export(pets, "D:\\datacenter\\cat20001.xlsx");
+
     }
 
     /**
@@ -135,19 +103,14 @@ public class ExcelTest extends TestCase {
             xlsImport = new ExcelImportor("D:\\datacenter\\cat20000.xlsx");
             xlsImport.setStepValid(false);
             xlsImport.setStartRowIndex(1);
-            LinkedHashSet<Cat> results = xlsImport.importSheet(Cat.class);
+            List<Cat> results = xlsImport.importSheet(Cat.class);
             for (Cat pet : results) {
                 System.out.println(pet);
             }
+        } catch (ExcelValidationException e) {
+            System.out.println(e.getMessage());
         } catch (ExcelAccessException e) {
-            // 验证错误
-            Map<Integer,String> xMap = xlsImport.getErrorMap();
-            if (MapHelper.isNotEmpty(xMap)) {
-                System.out.println(xMap.values()
-                        .toString());
-            } else {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         } finally {
             xlsImport.close();
         }
