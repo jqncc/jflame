@@ -3,7 +3,7 @@ jflame是java开发的一些经验积累,是一个造轮子的项目,谈不上�
 
 
 ## 子项目介绍
-子项目有: jflame-toolkit, jflame-web, jflame-db, jflame-mvc.
+子项目有: jflame-toolkit, jflame-web, jflame-db, jflame-examples.
 
 ### jflame-toolkit
 工具包,不依赖于具体框架或环境的工具包,对常用的一些技术做抽象和封装.依赖apache commons-lang3,二者互为补充.已有功能:
@@ -13,7 +13,7 @@ jflame是java开发的一些经验积累,是一个造轮子的项目,谈不上�
 
 3. 分布式锁,基于redis和zookeeper实现,zookeeper锁的实现则使用curator已有实现.
 
-4. excel导入导出工具,通过注解方式轻松的实现报表数据的导出,基于apache poi(这货不管怎么玩实在吃内存).
+4. excel / csv 导入导出工具,通过注解方式轻松的实现数据的导出
 
 5. 参数验证加强,提供一个静态工具类实现常用验证规则,外加bean-validator的一些规则补充.
 
@@ -34,5 +34,3 @@ web环境下常用功能(与mvc框架无关).跨域解决CorsFilter,csrf过滤,u
 ### jflame-db
 一个基于spring-jdbc的简易ORM,通过注解和一个万能dao搞定db操作,由于mybatis在小公司还是主流所以目前暂停维护中
 
-### jflame-mvc
-脚手架项目,目前暂停中
