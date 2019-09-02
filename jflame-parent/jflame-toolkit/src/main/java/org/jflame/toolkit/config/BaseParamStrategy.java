@@ -3,10 +3,11 @@ package org.jflame.toolkit.config;
 import java.util.Objects;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.jflame.toolkit.util.NumberHelper;
-import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.toolkit.util.NumberHelper;
+import org.jflame.toolkit.util.StringHelper;
 
 public abstract class BaseParamStrategy implements ParamStrategy {
 
@@ -89,6 +90,24 @@ public abstract class BaseParamStrategy implements ParamStrategy {
                     return StringHelper.split(value);
                 }
                 return null;
+            }
+        });
+    }
+
+    public int[] getIntArray(ConfigKey<int[]> configKey) {
+        return getValue(configKey, new Parser<int[]>() {
+
+            @Override
+            public int[] parse(String value) {
+                if (StringHelper.isNotEmpty(value)) {
+                    String[] strArr = StringHelper.split(value);
+                    int[] intArr = new int[strArr.length];
+                    for (int i = 0; i < strArr.length; i++) {
+                        intArr[i] = Integer.parseInt(strArr[i].trim());
+                    }
+                    return intArr;
+                }
+                return new int[0];
             }
         });
     }

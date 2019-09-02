@@ -4,7 +4,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.config.CommonConfigKeys;
+
 import org.jflame.toolkit.config.PropertiesConfigHolder;
 import org.jflame.toolkit.util.StringHelper;
 
@@ -15,13 +15,17 @@ import org.jflame.toolkit.util.StringHelper;
  */
 public class ConfigrationLoaderListener implements ServletContextListener {
 
+    /**
+     * 配置文件路径在ServletContext(web.xml)参数名
+     */
+    final String CONFIG_FILE_KEY = "configFile";
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         String configFile = sce.getServletContext()
-                .getInitParameter(CommonConfigKeys.CONFIG_FILE_KEY);
+                .getInitParameter(CONFIG_FILE_KEY);
         if (StringHelper.isNotEmpty(configFile)) {
-            String[] propertiesFile = StringUtils.deleteWhitespace(configFile)
-                    .split(",");
+            String[] propertiesFile = StringHelper.split(StringUtils.deleteWhitespace(configFile));
             PropertiesConfigHolder.loadConfig(propertiesFile);
         } else {
             sce.getServletContext()

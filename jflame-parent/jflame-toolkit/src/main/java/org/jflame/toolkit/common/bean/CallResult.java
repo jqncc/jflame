@@ -81,7 +81,20 @@ public class CallResult<T> extends SimpleResult {
         return this;
     }
 
+    public CallResult<T> paramErrorMessage(String message) {
+        this.status = ResultEnum.PARAM_ERROR.getStatus();
+        this.message = message;
+        return this;
+    }
+
+    /**
+     * 设置结果数据,并设置状态为成功
+     * 
+     * @param data
+     * @return 返回设置后的CallResult
+     */
     public CallResult<T> data(T data) {
+        this.status = ResultEnum.SUCCESS.getStatus();
         this.data = data;
         return this;
     }

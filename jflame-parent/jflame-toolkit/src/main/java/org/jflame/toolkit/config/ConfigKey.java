@@ -8,9 +8,9 @@ package org.jflame.toolkit.config;
  */
 public final class ConfigKey<E> {
 
-    private final String name;
+    private final String name;// 配置参数名
 
-    private final E defaultValue;
+    private final E defaultValue;// 配置参数值
 
     public ConfigKey(final String name) {
         this(name, null);

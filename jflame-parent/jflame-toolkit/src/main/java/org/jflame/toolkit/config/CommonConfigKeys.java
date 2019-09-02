@@ -8,11 +8,6 @@ package org.jflame.toolkit.config;
 public interface CommonConfigKeys {
 
     /**
-     * 配置文件路径在ServletContext(web.xml)参数名
-     */
-    public final static String CONFIG_FILE_KEY = "configFile";
-
-    /**
      * 是否debug模式
      */
     ConfigKey<Boolean> DEBUGMODE = new ConfigKey<>("debugmode", false);

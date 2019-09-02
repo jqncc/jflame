@@ -1,20 +1,15 @@
 package org.jflame.web.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
-import org.jflame.toolkit.excel.ExcelCreator;
-import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.EnumHelper;
@@ -103,17 +98,37 @@ public class WebUtils {
     public final static String SESSION_USER_KEY = "current_user";
 
     /**
-     * 设置让浏览器弹出下载对话框的Header.
+     * 文件下载设置http header
      * 
      * @param response HttpServletResponse
-     * @param fileName 下载后的文件名.
+     * @param fileName 下载显示文件名
      * @param fileSize 文件大小
      */
-    public static void setFileDownloadHeader(HttpServletResponse response, String fileName, long fileSize) {
+    public static void setFileDownloadHeader(HttpServletResponse response, String fileName, Long fileSize) {
         String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType(MIME_TYPE_STREAM);
-        response.setHeader("Content-Length", String.valueOf(fileSize));
+        if (fileSize != null && fileSize > 0) {
+            response.setHeader("Content-Length", String.valueOf(fileSize));
+        }
+    }
+
+    /**
+     * 文件下载设置http header
+     * 
+     * @param response 输出流HttpServletResponse
+     * @param contentType 文件类型contentType
+     * @param fileName 下载显示文件名
+     * @param fileSize 文件大小
+     */
+    public static void setFileDownloadHeader(HttpServletResponse response, String contentType, String fileName,
+            Long fileSize) {
+        String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
+        response.setContentType(contentType == null ? MIME_TYPE_STREAM : contentType);
+        if (fileSize != null && fileSize > 0) {
+            response.setHeader("Content-Length", String.valueOf(fileSize));
+        }
     }
 
     /**
@@ -232,62 +247,6 @@ public class WebUtils {
         return url;
     }
 
-    /**
-     * 合并url，自动补充url分隔符/和纠正url.<b>不适合文件系统路径合并</b>
-     * 
-     * @param firstUrl 首个url，可以是绝对或相对路径,如果不以协议或/开头将补充/
-     * @param relativeUrls 要合并的url，相对路径
-     * @return
-     */
-    @Deprecated
-    public static String mergeUrl(final String firstUrl, final String... relativeUrls) {
-        if (firstUrl == null) {
-            throw new IllegalArgumentException("argument 'firstUrl' must not be null");
-        }
-        String fullUrl = "";
-        final char urlSplit = '/';
-        if (relativeUrls.length == 0) {
-            if (isAbsoluteUrl(firstUrl) && urlSplit != firstUrl.charAt(0)) {
-                return firstUrl;
-            } else {
-                return urlSplit + fullUrl;
-            }
-        }
-        for (String url : relativeUrls) {
-            if (url.charAt(0) != urlSplit) {
-                fullUrl += urlSplit;
-            }
-            fullUrl += url;
-        }
-        fullUrl = fullUrl.replace('\\', urlSplit)
-                .replaceAll("/{2,}", "/");
-        if (firstUrl.length() > 1 && firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
-            fullUrl = firstUrl + fullUrl.substring(1);
-        } else {
-            fullUrl = firstUrl + fullUrl;
-        }
-        if (!isAbsoluteUrl(fullUrl) && urlSplit != fullUrl.charAt(0)) {
-            fullUrl = urlSplit + fullUrl;
-        }
-
-        return fullUrl;
-    }
-
-    /**
-     * 判断是否是绝对路径的url.
-     * 
-     * @param url url
-     * @return
-     */
-    @Deprecated
-    public static boolean isAbsoluteUrl(String url) {
-        if (StringHelper.isEmpty(url)) {
-            return false;
-        }
-        return URI.create(url)
-                .isAbsolute();
-    }
-
     private static String[] localips = { "127.0.0.1","0:0:0:0:0:0:0:1" };
 
     /**
@@ -338,23 +297,6 @@ public class WebUtils {
             return true;
         }
         return localips[0].equals(ip) || localips[1].equals(ip) || "unknown".equalsIgnoreCase(ip);
-    }
-
-    /**
-     * 导出excel文件到浏览器
-     * 
-     * @param data 数据集
-     * @param fileName 文件名,浏览器要显示的文件名
-     * @param response
-     * @throws IOException
-     */
-    @Deprecated
-    public static void exportExcel(final List<? extends IExcelEntity> data, String fileName,
-            HttpServletResponse response) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ExcelCreator.export(data, out);
-        setFileDownloadHeader(response, fileName, out.size());
-        out.writeTo(response.getOutputStream());
     }
 
     /**

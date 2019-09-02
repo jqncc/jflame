@@ -13,9 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jflame.toolkit.config.CommonConfigKeys;
 import org.jflame.toolkit.config.PropertiesConfigHolder;
 import org.jflame.toolkit.config.ServletParamConfig;
@@ -24,13 +21,16 @@ import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils.MimeImages;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * 读取本地图片输出servlet.
+ * 文件下载servlet
  */
 @SuppressWarnings("serial")
-public class LoadImageServlet extends HttpServlet {
+public class DownloadServlet extends HttpServlet {
 
-    private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
+    private final Logger log = LoggerFactory.getLogger(DownloadServlet.class);
     private String savePath;
 
     @Override
@@ -75,9 +75,7 @@ public class LoadImageServlet extends HttpServlet {
         }
         if (isNotFound) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            if (log.isDebugEnabled()) {
-                log.debug("图片不存在:{}", imgRelativePath);
-            }
+            log.info("not found image:{}", imgRelativePath);
         }
     }
 

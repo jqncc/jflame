@@ -9,14 +9,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.config.BaseParamStrategy;
-import org.jflame.toolkit.config.CommonConfigKeys;
-import org.jflame.toolkit.config.FilterParamConfig;
-import org.jflame.toolkit.config.PropertiesConfigHolder;
-import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.toolkit.config.BaseParamStrategy;
+import org.jflame.toolkit.config.FilterParamConfig;
 
 /**
  * 继承该类的过滤器每个请求只被过滤一次.部分容器或servlet版本会导致请求被过滤多次
@@ -42,16 +39,7 @@ public abstract class OncePerRequestFilter implements Filter {
     }
 
     private void initParamStrategy(FilterConfig filterConfig) {
-        String configFile = filterConfig.getServletContext()
-                .getInitParameter(CommonConfigKeys.CONFIG_FILE_KEY);
-        if (StringHelper.isNotEmpty(configFile)) {
-            String[] propertiesFile = StringUtils.deleteWhitespace(configFile)
-                    .split(",");
-            PropertiesConfigHolder.loadConfig(propertiesFile);
-            filterParam = PropertiesConfigHolder.getConfig();
-        } else {
-            filterParam = new FilterParamConfig(filterConfig);
-        }
+        filterParam = new FilterParamConfig(filterConfig);
     }
 
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
