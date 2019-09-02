@@ -1,5 +1,6 @@
 package org.jflame.toolkit.cache;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
+import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.DateHelper;
@@ -18,53 +21,34 @@ import org.jflame.toolkit.util.MapHelper;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
+/**
+ * 基于jedis的RedisClient实现
+ * 
+ * @author yucan.zhang
+ */
 public class JedisClientImpl implements RedisClient {
 
-    private IGenericSerializer serializer;
+    private IGenericRedisSerializer serializer;
 
     private JedisConnection conn;
 
     public JedisClientImpl(JedisConnection conn) {
+        this(conn, new FastJsonRedisSerializer());
+    }
+
+    public JedisClientImpl(JedisConnection conn, IGenericRedisSerializer serializer) {
         this.conn = conn;
-        serializer = new FastJsonSerializer();
+        this.serializer = serializer;
     }
 
     private Jedis getJedis() {
         return this.conn.getJedis();
     }
 
-    interface CmdHandler<T> {
-
-        T doHandle(Jedis client, byte[]... keyBytes);
-    }
-
-    private <T> T execute(Serializable key, CmdHandler<T> handler) throws RedisAccessException {
-        if (key == null) {
-            throw new NullPointerException("cache key not be null");
-        }
-        try (Jedis client = getJedis()) {
-            return handler.doHandle(client, toBytes(key));
-        } catch (Exception e) {
-            throw new RedisAccessException(e);
-        }
-    }
-
-    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws RedisAccessException {
-        try (Jedis client = getJedis()) {
-            return handler.doHandle(client, toByteArray(key));
-        } catch (Exception e) {
-            throw new RedisAccessException(e);
-        }
-    }
-
     @Override
-    public void setSerializer(IGenericSerializer serializer) {
-        this.serializer = serializer;
-    }
-
-    @Override
-    public IGenericSerializer getSerializer() {
+    public IGenericRedisSerializer getSerializer() {
         return serializer;
     }
 
@@ -351,6 +335,21 @@ public class JedisClientImpl implements RedisClient {
             }
         });
 
+    }
+
+    @Override
+    public void hput(Serializable key, Serializable fieldKey, Serializable value, int expireInSecond) {
+        executePipeline(key, new PipelineHandler<Object>() {
+
+            @Override
+            public Object doHandle(Pipeline pipeline, byte[]... keyBytes) {
+                pipeline.hset(keyBytes[0], toBytes(fieldKey), toBytes(value));
+                pipeline.expire(keyBytes[0], expireInSecond);
+                pipeline.sync();
+                return null;
+            }
+
+        });
     }
 
     @Override
@@ -963,4 +962,60 @@ public class JedisClientImpl implements RedisClient {
             }
         });
     }
+
+    interface CmdHandler<T> {
+
+        T doHandle(Jedis client, byte[]... keyBytes);
+    }
+
+    interface PipelineHandler<T> {
+
+        T doHandle(Pipeline pipeline, byte[]... keyBytes);
+    }
+
+    private <T> T execute(Serializable key, CmdHandler<T> handler) throws RedisAccessException {
+        if (key == null) {
+            throw new NullPointerException("cache key not be null");
+        }
+        try (Jedis client = getJedis()) {
+            return handler.doHandle(client, toBytes(key));
+        } catch (Exception e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    private <T> T executePipeline(Serializable key, PipelineHandler<T> handler) throws RedisAccessException {
+        if (key == null) {
+            throw new NullPointerException("cache key not be null");
+        }
+        Jedis client = null;
+        Pipeline pipeline = null;
+        try {
+            client = getJedis();
+            pipeline = client.pipelined();
+            return handler.doHandle(pipeline, toBytes(key));
+        } catch (Exception e) {
+            throw new RedisAccessException(e);
+        } finally {
+            if (pipeline != null) {
+                try {
+                    pipeline.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (client != null) {
+                client.close();
+            }
+        }
+    }
+
+    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws RedisAccessException {
+        try (Jedis client = getJedis()) {
+            return handler.doHandle(client, toByteArray(key));
+        } catch (Exception e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
+import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.DateHelper;
@@ -21,12 +23,12 @@ import redis.clients.jedis.JedisCluster;
 
 public class JedisClusterClientImpl implements RedisClient {
 
-    private IGenericSerializer serializer;
+    private IGenericRedisSerializer serializer;
     private JedisConnection conn;
 
     public JedisClusterClientImpl(JedisConnection conn) {
         this.conn = conn;
-        serializer = new FastJsonSerializer();
+        serializer = new FastJsonRedisSerializer();
     }
 
     private JedisCluster getJedis() {
@@ -39,37 +41,8 @@ public class JedisClusterClientImpl implements RedisClient {
     }
 
     @Override
-    public void setSerializer(IGenericSerializer serializer) {
-        this.serializer = serializer;
-    }
-
-    @Override
-    public IGenericSerializer getSerializer() {
+    public IGenericRedisSerializer getSerializer() {
         return serializer;
-    }
-
-    interface CmdHandler<T> {
-
-        T doHandle(JedisCluster client, byte[]... keyBytes);
-    }
-
-    private <T> T execute(Serializable key, CmdHandler<T> handler) throws RedisAccessException {
-        if (key == null) {
-            throw new NullPointerException("cache key not be null");
-        }
-        try (JedisCluster client = getJedis()) {
-            return handler.doHandle(client, toBytes(key));
-        } catch (Exception e) {
-            throw new RedisAccessException(e);
-        }
-    }
-
-    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws RedisAccessException {
-        try (JedisCluster client = getJedis()) {
-            return handler.doHandle(client, toByteArray(key));
-        } catch (Exception e) {
-            throw new RedisAccessException(e);
-        }
     }
 
     @Override
@@ -352,6 +325,20 @@ public class JedisClusterClientImpl implements RedisClient {
                 return client.hset(keyBytes[0], toBytes(fieldKey), toBytes(value));
             }
         });
+    }
+
+    @Override
+    public void hput(Serializable key, Serializable fieldKey, Serializable value, int expireInSecond) {
+        execute(key, new CmdHandler<Long>() {
+
+            @Override
+            public Long doHandle(JedisCluster client, byte[]... keyBytes) {
+                Long l = client.hset(keyBytes[0], toBytes(fieldKey), toBytes(value));
+                client.expire(keyBytes[0], expireInSecond);
+                return l;
+            }
+        });
+
     }
 
     @Override
@@ -956,6 +943,30 @@ public class JedisClusterClientImpl implements RedisClient {
             }
         } else {
             throw new RedisAccessException("集群模式不支持有多个不同key的脚本");
+        }
+    }
+
+    interface CmdHandler<T> {
+
+        T doHandle(JedisCluster client, byte[]... keyBytes);
+    }
+
+    private <T> T execute(Serializable key, CmdHandler<T> handler) throws RedisAccessException {
+        if (key == null) {
+            throw new NullPointerException("cache key not be null");
+        }
+        try (JedisCluster client = getJedis()) {
+            return handler.doHandle(client, toBytes(key));
+        } catch (Exception e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    private <T> T execute(Collection<?> key, CmdHandler<T> handler) throws RedisAccessException {
+        try (JedisCluster client = getJedis()) {
+            return handler.doHandle(client, toByteArray(key));
+        } catch (Exception e) {
+            throw new RedisAccessException(e);
         }
     }
 

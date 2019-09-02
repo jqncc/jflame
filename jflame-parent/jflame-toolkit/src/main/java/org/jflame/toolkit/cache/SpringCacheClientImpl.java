@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.MapHelper;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -27,28 +25,36 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 
-@SuppressWarnings({ "rawtypes","unchecked" })
+import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
+import org.jflame.toolkit.cache.serialize.SpringRedisSerializer;
+import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.MapHelper;
+
+/**
+ * 基于spring-data-redis实现RedisClient
+ * 
+ * @author yucan.zhang
+ */
+@SuppressWarnings("unchecked")
 public class SpringCacheClientImpl implements RedisClient {
 
     private RedisTemplate<Serializable,Serializable> redisTemplate;
-    private IGenericSerializer serializer;
+    private IGenericRedisSerializer serializer;
 
     public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
-        this.redisTemplate = new RedisTemplate<>();
+        this(redisConnection, new GenericFastJsonRedisSerializer());
+    }
+
+    public SpringCacheClientImpl(RedisConnectionFactory redisConnection, RedisSerializer<Object> serializer) {
+        redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnection);
-        GenericFastJsonRedisSerializer redisJsonSerializer = new GenericFastJsonRedisSerializer();
-        redisTemplate.setDefaultSerializer(redisJsonSerializer);
+        redisTemplate.setDefaultSerializer(serializer);
         redisTemplate.afterPropertiesSet();
-        serializer = new FastJsonSerializer();
+        this.serializer = new SpringRedisSerializer(serializer);
     }
 
     @Override
-    public void setSerializer(IGenericSerializer serializer) {
-        this.serializer = serializer;
-    }
-
-    @Override
-    public IGenericSerializer getSerializer() {
+    public IGenericRedisSerializer getSerializer() {
         return serializer;
     }
 
@@ -103,9 +109,8 @@ public class SpringCacheClientImpl implements RedisClient {
 
                 @Override
                 public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-                    RedisSerializer kserializer = redisTemplate.getKeySerializer();
-                    byte[] keyBytes = kserializer.serialize(key);
-                    byte[] valueBytes = kserializer.serialize(value);
+                    byte[] keyBytes = getSerializer().serialize(key);
+                    byte[] valueBytes = getSerializer().serialize(value);
                     byte[][] args = null;
                     if (timeUnit == TimeUnit.MILLISECONDS) {
                         args = new byte[][] { keyBytes,valueBytes,nxBytes,pxBytes,
@@ -180,8 +185,7 @@ public class SpringCacheClientImpl implements RedisClient {
 
                 @Override
                 public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-                    RedisSerializer rserializer = redisTemplate.getKeySerializer();
-                    return connection.del(rserializer.serialize(key)) > 0;
+                    return connection.del(getSerializer().serialize(key)) > 0;
                 }
             });
         } catch (DataAccessException e) {
@@ -197,11 +201,10 @@ public class SpringCacheClientImpl implements RedisClient {
 
                 @Override
                 public Long doInRedis(RedisConnection connection) throws DataAccessException {
-                    RedisSerializer rserializer = redisTemplate.getKeySerializer();
                     byte[][] keyBytes = new byte[keys.size()][];
                     int i = 0;
                     for (Serializable key : keys) {
-                        keyBytes[i++] = rserializer.serialize(key);
+                        keyBytes[i++] = getSerializer().serialize(key);
                     }
                     return connection.del(keyBytes);
                 }
@@ -324,6 +327,23 @@ public class SpringCacheClientImpl implements RedisClient {
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
+    }
+
+    @Override
+    public void hput(Serializable key, Serializable fieldKey, Serializable value, int expireInSecond) {
+
+        redisTemplate.executePipelined(new RedisCallback<Object>() {
+
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                byte[] keyBytes = getSerializer().serialize(key);
+                byte[] fieldKeyBytes = getSerializer().serialize(fieldKey);
+                byte[] valueBytes = getSerializer().serialize(value);
+                connection.hSet(keyBytes, fieldKeyBytes, valueBytes);
+                connection.expire(keyBytes, expireInSecond);
+                return null;
+            }
+        });
     }
 
     @Override

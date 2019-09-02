@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 
@@ -214,9 +215,7 @@ public interface RedisClient {
      */
     Object getNativeClient();
 
-    void setSerializer(IGenericSerializer serializer);
-
-    IGenericSerializer getSerializer();
+    IGenericRedisSerializer getSerializer();
 
     /**
      * 查看剩余过期时间,单位秒
@@ -415,6 +414,16 @@ public interface RedisClient {
      * @param value 新条目的值
      */
     void hput(Serializable key, Serializable fieldKey, Serializable value);
+
+    /**
+     * 新增项到哈希集中,同时设置该hash的过期时间
+     * 
+     * @param key 哈希集key
+     * @param fieldKey 新条目的key
+     * @param value 新条目的值
+     * @param expireInSecond 过期时间,单位秒
+     */
+    void hput(Serializable key, Serializable fieldKey, Serializable value, int expireInSecond);
 
     /**
      * 新增项到哈希集中,仅在原集合中不存在相同key的项才新增
