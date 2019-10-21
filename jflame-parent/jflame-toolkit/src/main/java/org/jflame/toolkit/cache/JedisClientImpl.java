@@ -22,6 +22,7 @@ import org.jflame.toolkit.util.MapHelper;
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Tuple;
 
 /**
  * 基于jedis的RedisClient实现
@@ -659,12 +660,23 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Double zsincrScore(Serializable key, Serializable member, double incrScore) {
+    public Double zsincrBy(Serializable key, Serializable member, double incrScore) {
         return execute(key, new CmdHandler<Double>() {
 
             @Override
             public Double doHandle(Jedis client, byte[]... keyBytes) {
                 return client.zincrby(keyBytes[0], incrScore, toBytes(member));
+            }
+        });
+    }
+
+    @Override
+    public Double zscore(Serializable key, Serializable member) {
+        return execute(key, new CmdHandler<Double>() {
+
+            @Override
+            public Double doHandle(Jedis client, byte[]... keyBytes) {
+                return client.zscore(keyBytes[0], toBytes(member));
             }
         });
     }
@@ -677,6 +689,25 @@ public class JedisClientImpl implements RedisClient {
             public Set<T> doHandle(Jedis client, byte[]... keyBytes) {
                 Set<byte[]> valueBytes = client.zrange(keyBytes[0], startIndex, endIndex);
                 return fromBytes(valueBytes);
+            }
+        });
+    }
+
+    @Override
+    public Map<? extends Serializable,Double> zsrangeWithScores(Serializable key, long startIndex, long endIndex) {
+        return execute(key, new CmdHandler<Map<? extends Serializable,Double>>() {
+
+            @Override
+            public Map<? extends Serializable,Double> doHandle(Jedis client, byte[]... keyBytes) {
+                Set<Tuple> tuples = client.zrangeWithScores(keyBytes[0], startIndex, endIndex);
+                Map<Serializable,Double> memberScoreMap = null;
+                if (CollectionHelper.isNotEmpty(tuples)) {
+                    memberScoreMap = new HashMap<>();
+                    for (Tuple tuple : tuples) {
+                        memberScoreMap.put(fromBytes(tuple.getBinaryElement()), tuple.getScore());
+                    }
+                }
+                return memberScoreMap;
             }
         });
     }

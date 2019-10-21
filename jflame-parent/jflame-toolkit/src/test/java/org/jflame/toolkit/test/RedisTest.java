@@ -1,6 +1,7 @@
 package org.jflame.toolkit.test;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,16 +11,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.cache.RedisClient;
-import org.jflame.toolkit.cache.RedisClientFactory;
-import org.jflame.toolkit.lock.RedisLock;
-import org.jflame.toolkit.test.entity.Pet;
-import org.jflame.toolkit.util.DateHelper;
-
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+
+import org.jflame.toolkit.cache.RedisClient;
+import org.jflame.toolkit.cache.RedisClientFactory;
+import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
+import org.jflame.toolkit.lock.RedisLock;
+import org.jflame.toolkit.test.entity.Pet;
+import org.jflame.toolkit.util.DateHelper;
 
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -225,4 +227,29 @@ public class RedisTest {
         }
     }
 
+    @Test
+    public void testLua() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("local maxscores=redis.call('ZRANGE',KEYS[1],-1,-1,'WITHSCORES') ");
+        sb.append("local maxscore=1 ");
+        sb.append("if maxscores~=nil then ");
+        sb.append("  return '\"'..tostring(maxscores[1])..'\"' end ");
+        // sb.append(" maxscore=tonumber(maxscores[1])+1 end ");// tonumber(maxscores[1])+1tostring(maxscores)
+        // sb.append("redis.call('zadd',KEYS[1],maxscore,ARGV[1]) ");
+        sb.append("return '\"9\"' ");
+
+        // Long m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember2"),
+        // Long.class);
+        String m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember2"),
+                String.class);
+        System.out.println(m);
+    }
+
+    @Test
+    public void testSerial() {
+
+        FastJsonRedisSerializer serializer = new FastJsonRedisSerializer();
+        byte[] bytes = "y".getBytes(StandardCharsets.UTF_8);
+        Object c = serializer.deserialize(bytes);
+    }
 }

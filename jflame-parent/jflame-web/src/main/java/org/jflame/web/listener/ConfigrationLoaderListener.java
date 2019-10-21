@@ -26,7 +26,7 @@ public class ConfigrationLoaderListener implements ServletContextListener {
                 .getInitParameter(CONFIG_FILE_KEY);
         if (StringHelper.isNotEmpty(configFile)) {
             String[] propertiesFile = StringHelper.split(StringUtils.deleteWhitespace(configFile));
-            PropertiesConfigHolder.loadConfig(propertiesFile);
+            PropertiesConfigHolder.loadProperties(propertiesFile);
         } else {
             sce.getServletContext()
                     .log("Not found servletContext parameter 'configFile'");

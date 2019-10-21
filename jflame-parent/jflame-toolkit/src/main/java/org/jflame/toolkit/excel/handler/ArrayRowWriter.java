@@ -2,7 +2,7 @@ package org.jflame.toolkit.excel.handler;
 
 import java.util.Map;
 
-import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
 import org.jflame.toolkit.excel.ExcelUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -18,7 +18,7 @@ public class ArrayRowWriter implements IExcelRowWriter<Object[]> {
 
     private Cell cell;
     private Object currentValue;
-    private Map<Integer,ObjectToTextConverter> columnConvertMap = new ConcurrentHashMap<>();
+    private Map<Integer,ObjectToStringConverter> columnConvertMap = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -26,7 +26,7 @@ public class ArrayRowWriter implements IExcelRowWriter<Object[]> {
         if (ArrayUtils.isEmpty(rowData)) {
             return;
         }
-        ObjectToTextConverter converter = null;
+        ObjectToStringConverter converter = null;
         String cellValue;
         for (int cellIndex = 0; cellIndex < rowData.length; cellIndex++) {
             cell = excelSheetRow.createCell(cellIndex);

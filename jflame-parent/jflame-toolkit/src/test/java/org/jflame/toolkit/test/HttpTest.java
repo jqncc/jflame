@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
+import org.junit.Test;
+
 import org.jflame.toolkit.common.bean.CallResult;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.net.CertX509TrustManager;
@@ -17,7 +19,6 @@ import org.jflame.toolkit.net.HttpHelper.HttpMethod;
 import org.jflame.toolkit.net.http.HttpResponse;
 import org.jflame.toolkit.net.http.handler.JsonResponseHandler;
 import org.jflame.toolkit.util.CharsetHelper;
-import org.junit.Test;
 
 public class HttpTest {
 
@@ -61,7 +62,8 @@ public class HttpTest {
     @Test
     public void testFull() {
         HttpHelper httpHelper = new HttpHelper();
-        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/login").setCharset(CharsetHelper.GBK.name())
+        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/login")
+                .setCharset(CharsetHelper.GBK_18030.name())
                 .setMethod(HttpMethod.POST);
         // 保持cookie,必须是同一httpHelper实例
         // 登录 请求
@@ -77,7 +79,8 @@ public class HttpTest {
         System.out.println(result.getResponseAsJson(CallResult.class));// 结果json转为bean
         // httpHelper.sendJsonRequest(null, null)
         // 登录成功后请求有身份证验证的页面
-        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/topMenu").setMethod(HttpMethod.GET);
+        httpHelper.setRequestUrl("http://localhost:9090/zp-admin/topMenu")
+                .setMethod(HttpMethod.GET);
         result = httpHelper.sendRequest();
         System.out.println(result.getResponseAsText());
 
@@ -89,11 +92,11 @@ public class HttpTest {
     @Test
     public void testSSl() {
         HttpHelper httpHelper = new HttpHelper();
-        httpHelper.setCharset(CharsetHelper.GBK.name());
+        httpHelper.setCharset(CharsetHelper.GBK_18030.name());
         SSLSocketFactory mySSLFactory;
         try {
             mySSLFactory = HttpHelper.initSSLSocketFactory("TLS",
-                    new TrustManager[]{ new CertX509TrustManager("d://x.p12", "passwd", "PKCS12") });
+                    new TrustManager[] { new CertX509TrustManager("d://x.p12", "passwd", "PKCS12") });
             httpHelper.setSslSocketFactory(mySSLFactory);
         } catch (Exception e) {
             e.printStackTrace();

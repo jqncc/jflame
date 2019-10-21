@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.toolkit.config.CommonConfigKeys;
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.config.PropertiesConfigHolder;
 import org.jflame.toolkit.config.ServletParamConfig;
 import org.jflame.toolkit.file.FileHelper;
@@ -31,21 +31,20 @@ import org.jflame.web.util.WebUtils.MimeImages;
 public class LoadImageServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(LoadImageServlet.class);
+    private final ConfigKey<String> SAVE_PATH = new ConfigKey<>("save.path");
     private String savePath;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        savePath = servletParam.getString(CommonConfigKeys.SAVE_PATH);
-        if (StringHelper.isEmpty(savePath)) {
-            try {
-                savePath = PropertiesConfigHolder.getString(CommonConfigKeys.SAVE_PATH);
-            } catch (NullPointerException e) {
-                savePath = null;
-            }
+        savePath = servletParam.getString(SAVE_PATH);
+        if (savePath == null) {
+            savePath = PropertiesConfigHolder.getString(SAVE_PATH);
         }
         if (StringHelper.isEmpty(savePath)) {
-            throw new ServletException("未设置图片加载路径");
+            log.warn("未图片保存路径,设为项目根目录");
+            savePath = config.getServletContext()
+                    .getRealPath("/");
         }
     }
 
@@ -69,7 +68,7 @@ public class LoadImageServlet extends HttpServlet {
                         isNotFound = true;
                     }
                 } else {
-                    log.error("不支持的图片格式{}", imgRelativePath);
+                    log.warn("不支持的图片格式{}", imgRelativePath);
                 }
             }
         }

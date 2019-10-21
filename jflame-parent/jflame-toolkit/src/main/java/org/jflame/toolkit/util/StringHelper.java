@@ -1,22 +1,19 @@
 package org.jflame.toolkit.util;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jflame.toolkit.codec.TranscodeException;
-import org.jflame.toolkit.codec.TranscodeHelper;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharSetUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.common.bean.Chars;
 
 /**
  * 字符串工具类
@@ -82,7 +79,11 @@ public final class StringHelper {
      * @return 字符串数组
      */
     public static String[] split(String str) {
-        return StringUtils.split(str, CharsetHelper.COMMA);
+        return StringUtils.split(str, Chars.COMMA);
+    }
+
+    public static String join(char separator, Object... array) {
+        return StringUtils.join(array, separator);
     }
 
     /**
@@ -93,7 +94,7 @@ public final class StringHelper {
      * @return
      */
     public static String join(Object[] array) {
-        return StringUtils.join(array, CharsetHelper.COMMA);
+        return StringUtils.join(array, Chars.COMMA);
     }
 
     /**
@@ -103,8 +104,8 @@ public final class StringHelper {
      * @param array 数组
      * @return
      */
-    public static String join(Collection<?> array) {
-        return StringUtils.join(array, CharsetHelper.COMMA);
+    public static String join(Iterable<?> array) {
+        return StringUtils.join(array, Chars.COMMA);
     }
 
     /**
@@ -135,17 +136,12 @@ public final class StringHelper {
             return null;
         }
         Map<String,String> map = new HashMap<String,String>();
-        final String[] splitChars = { "&","=","" };
-        String[] tmpArr = paramStr.split(splitChars[0]);
+        String[] tmpArr = StringUtils.split(paramStr, Chars.AND);
         String[] kv;
         if (tmpArr != null) {
             for (String tmp : tmpArr) {
-                kv = tmp.split(splitChars[1]);
-                if (kv.length >= 2) {
-                    map.put(kv[0].trim(), kv[1].trim());
-                } else {
-                    map.put(kv[0].trim(), splitChars[2]);
-                }
+                kv = StringUtils.split(tmp, Chars.EQUAL);
+                map.put(kv[0].trim(), kv.length >= 2 ? kv[1] : StringUtils.EMPTY);
             }
         }
         return map;
@@ -176,9 +172,9 @@ public final class StringHelper {
         StringBuilder strBuf = new StringBuilder(20);
         for (Entry<String,Object> kv : paramMap.entrySet()) {
             if (kv.getValue() != null) {
-                strBuf.append(CharsetHelper.AND)
+                strBuf.append(Chars.AND)
                         .append(kv.getKey())
-                        .append(CharsetHelper.EQUAL)
+                        .append(Chars.EQUAL)
                         .append(isUrlEncode ? TranscodeHelper.urlencode(kv.getValue()
                                 .toString()) : kv.getValue());
             }
@@ -454,57 +450,12 @@ public final class StringHelper {
     }
 
     /**
-     * 返回一个没有-号的uuid字符串
+     * 编号生成,java时间戳+随机数字
      * 
+     * @param randomCount 随机数字个数
      * @return
      */
-    public static String uuid() {
-        return StringUtils.remove(UUID.randomUUID()
-                .toString(), '-');
-    }
-
-    /**
-     * 使用指定编码解码字符串<br>
-     * 废除,请使用CharsetHelper
-     * 
-     * @param string 字符串
-     * @param charsetName 编码集
-     * @return
-     * @throws TranscodeException 不支持的编码集
-     */
-    @Deprecated
-    public static byte[] getBytes(String string, String charsetName) throws TranscodeException {
-        if (string == null) {
-            return null;
-        }
-        try {
-            return string.getBytes(charsetName);
-        } catch (UnsupportedEncodingException e) {
-            throw new TranscodeException(charsetName, e);
-        }
-    }
-
-    /**
-     * 使用utf-8解码字符串 <br>
-     * 
-     * @deprecated 废除,请使用CharsetHelper
-     * @param string
-     * @return
-     */
-    @Deprecated
-    public static byte[] getUtf8Bytes(String string) {
-        return string.getBytes(StandardCharsets.UTF_8);
-    }
-
-    /**
-     * 将byte[]使用utf-8编码为字符串 <br>
-     * 
-     * @deprecated 废除,请使用CharsetHelper
-     * @param bytes byte[]
-     * @return
-     */
-    @Deprecated
-    public static String getUtf8String(byte[] bytes) {
-        return new String(bytes, StandardCharsets.UTF_8);
+    public static String millisAndRandomNo(int randomCount) {
+        return System.currentTimeMillis() + RandomStringUtils.randomNumeric(randomCount);
     }
 }

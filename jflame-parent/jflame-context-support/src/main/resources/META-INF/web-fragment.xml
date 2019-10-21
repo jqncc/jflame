@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee  
+    http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"  
+     version="3.0"> 
+  <!-- 不默认声明,业务系统自定义声明
+    <servlet>
+    	<servlet-name>loadImageServlet</servlet-name>
+    	<servlet-class>com.ghgcn.support.web.LoadImageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>loadImageServlet</servlet-name>
+        <url-pattern>/loadImg/*</url-pattern>
+    </servlet-mapping> -->
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error/500.html</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/404.html</location>
+    </error-page>
+     <error-page>
+        <error-code>403</error-code>
+        <location>/error/403.html</location>
+    </error-page>
+</web-fragment> 

@@ -12,8 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.toolkit.common.bean.Chars;
+
 /**
- * 24位16进制唯一id生成,摘自mongodb objectid.<br>
+ * 唯一ID生成工具,生成ID为24位16进制字符串,源自mongodb objectid算法.<br>
  * 规则:4字节unix时间戳+3字节机器号+2字节进程号+3字节序列号
  * 
  * @author yucan.zhang
@@ -28,16 +30,13 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
     private static final short PROCESS_IDENTIFIER;
     private static final AtomicInteger NEXT_COUNTER = new AtomicInteger(new SecureRandom().nextInt());
 
-    private static final char[] HEX_CHARS = new char[]{ '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e',
-            'f' };
-
     private final int timestamp;
     private final int machineIdentifier;
     private final short processIdentifier;
     private final int counter;
 
     /**
-     * Gets a new object id.
+     * 生成一个ObjectId实例
      *
      * @return the new id
      */
@@ -46,11 +45,11 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
     }
 
     /**
-     * Checks if a string could be an {@code ObjectId}.
+     * 检查给定字符串是否是一个ObjectID {@code ObjectId}.
      *
-     * @param hexString a potential ObjectId as a String.
-     * @return whether the string could be an object id
-     * @throws IllegalArgumentException if hexString is null
+     * @param hexString
+     * @return
+     * @throws IllegalArgumentException 参数为null抛异常
      */
     public static boolean isValid(final String hexString) {
         if (hexString == null) {
@@ -134,9 +133,6 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
         return new ObjectId(time, machine, inc);
     }
 
-    /**
-     * Create a new object id.
-     */
     public ObjectId() {
         this(new Date());
     }
@@ -364,8 +360,8 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
         char[] chars = new char[24];
         int i = 0;
         for (byte b : toByteArray()) {
-            chars[i++] = HEX_CHARS[b >> 4 & 0xF];
-            chars[i++] = HEX_CHARS[b & 0xF];
+            chars[i++] = Chars.HEX_CHARS[b >> 4 & 0xF];
+            chars[i++] = Chars.HEX_CHARS[b & 0xF];
         }
         return new String(chars);
     }
@@ -437,7 +433,7 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
     }
 
     /**
-     * 机器标识,所有网卡MAC地址的hashcode
+     * 生成机器标识,所有网卡MAC地址的hashcode
      * 
      * @return 2-byte machine piece
      */
@@ -462,7 +458,8 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
                     }
                 }
             }
-            machinePiece = sb.toString().hashCode();
+            machinePiece = sb.toString()
+                    .hashCode();
         } catch (Throwable t) {
             // exception sometimes happens with IBM JVM, use random
             machinePiece = (new SecureRandom().nextInt());
@@ -473,18 +470,22 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
     }
 
     /**
-     * 进程号
+     * 获取进程号
      * 
      * @return
      */
     public static short createProcessIdentifier() {
         short processId;
         try {
-            String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-            if (processName.contains("@")) {
-                processId = (short) Integer.parseInt(processName.substring(0, processName.indexOf('@')));
+            String processName = java.lang.management.ManagementFactory.getRuntimeMXBean()
+                    .getName();
+            int atIndex = processName.indexOf('@');
+            if (atIndex > -1) {
+                processId = (short) Integer.parseInt(processName.substring(0, atIndex));
             } else {
-                processId = (short) java.lang.management.ManagementFactory.getRuntimeMXBean().getName().hashCode();
+                processId = (short) java.lang.management.ManagementFactory.getRuntimeMXBean()
+                        .getName()
+                        .hashCode();
             }
 
         } catch (Throwable t) {

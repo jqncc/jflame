@@ -55,10 +55,6 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
         this.connectionTimeout = connectionTimeout > 0 ? connectionTimeout : DEFAULT_CONNECTION_TIMEOUT;
     }
 
-    public String create(String path) {
-        return createPersistent(path, null, false);
-    }
-
     /**
      * 创建临时节点
      * 
@@ -163,8 +159,6 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
     }
 
     protected abstract void doClose();
-
-    // protected abstract void createPersistent(String path);
 
     protected abstract String create(String path, Serializable data, CreateMode mode);
 

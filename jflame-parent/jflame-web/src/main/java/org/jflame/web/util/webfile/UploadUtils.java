@@ -15,11 +15,13 @@ import org.apache.commons.fileupload.InvalidFileNameException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
+
 import org.jflame.toolkit.codec.TranscodeHelper;
+import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.file.FileHelper;
 
 /**
- * 文件上传下载工具类.
+ * 文件上传工具类.
  * 
  * @author yucan.zhang
  */
@@ -33,8 +35,7 @@ public class UploadUtils {
      * @return Map key上文件的表单域名称, value是保存文件相对于props.savePath路径
      * @throws UploadDownException 上传文件不符合要求或保存出错
      */
-    public static Map<String,List<String>> upload(HttpServletRequest request, UploadItem props)
-            throws UploadDownException {
+    public static Map<String,List<String>> upload(HttpServletRequest request, UploadItem props) {
         return upload(request, props, null);
     }
 
@@ -48,7 +49,7 @@ public class UploadUtils {
      * @throws UploadDownException 上传文件不符合要求或保存出错
      */
     public static Map<String,List<String>> upload(HttpServletRequest request, UploadItem props,
-            UploadFileHandler handler) throws UploadDownException {
+            UploadFileHandler handler) {
         if (!ServletFileUpload.isMultipartContent(request)) {
             return null;
         }
@@ -68,7 +69,7 @@ public class UploadUtils {
         try {
             items = fileUpload.parseRequest(request);
         } catch (FileUploadException e) {
-            throw new UploadDownException("上传失败", e);
+            throw new BusinessException("上传失败", e);
         }
 
         Map<String,List<String>> resultMap = new HashMap<>();
@@ -77,7 +78,7 @@ public class UploadUtils {
         Path basePath = Paths.get(props.getSavePath());// 给定的根路径
         String savePath = props.createSavePath();// 最终保存路径
         int i = 1;
-        
+
         for (FileItem item : items) {
             if (!item.isFormField()) {
                 // 超出文件个数忽略后面文件
@@ -91,31 +92,33 @@ public class UploadUtils {
                 }
                 /* 取文件名和扩展名 */
                 try {
-                    newName =item.getName();
-                }catch (InvalidFileNameException e){
-                    newName=e.getName();
+                    newName = item.getName();
+                } catch (InvalidFileNameException e) {
+                    newName = e.getName();
                 }
                 ext = FileHelper.getExtension(newName, true);
-                if (!props.checkFileType(ext.isEmpty()?ext:ext.substring(1))) {
-                    throw new UploadDownException("不允许上传的文件类型:" + ext);
+                if (!props.checkFileType(ext.isEmpty() ? ext : ext.substring(1))) {
+                    throw new BusinessException("不允许上传的文件类型:" + ext);
                 }
-                //urlencode,转换汉字和特殊字符
-                newName=TranscodeHelper.urlencode(newName);
+                // urlencode,转换汉字和特殊字符
+                newName = TranscodeHelper.urlencode(newName);
                 // 存在同名文件,或编码后文件名太长，重命名
-                if (FileHelper.existSameNameFile(savePath, newName)||newName.length()>50) {
-                    newName =String.valueOf(newName.hashCode())+System.nanoTime() + ext;
+                if (FileHelper.existSameNameFile(savePath, newName) || newName.length() > 50) {
+                    newName = String.valueOf(newName.hashCode()) + System.nanoTime() + ext;
                 }
                 /* 保存文件 */
                 Path finalPath = Paths.get(savePath, newName);
                 try {
                     item.write(finalPath.toFile());
                 } catch (Exception e) {
-                    throw new UploadDownException("上传保存出错" + item.getFieldName(), e);
+                    throw new BusinessException("上传保存出错" + item.getFieldName(), e);
                 }
-                //计算相对路径,统一分隔符为/
-                String relativelyPath = FileHelper.separatorsToUnix(basePath.relativize(finalPath).toString());
+                // 计算相对路径,统一分隔符为/
+                String relativelyPath = FileHelper.separatorsToUnix(basePath.relativize(finalPath)
+                        .toString());
                 if (resultMap.containsKey(item.getFieldName())) {
-                    resultMap.get(item.getFieldName()).add(relativelyPath);
+                    resultMap.get(item.getFieldName())
+                            .add(relativelyPath);
                 } else {
                     List<String> lst = new ArrayList<>();
                     lst.add(relativelyPath);

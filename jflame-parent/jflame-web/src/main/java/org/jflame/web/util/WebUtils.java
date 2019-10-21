@@ -9,14 +9,14 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.EnumHelper;
 import org.jflame.toolkit.util.JsonHelper;
 import org.jflame.toolkit.util.StringHelper;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * web环境常用常量定义和工具方法

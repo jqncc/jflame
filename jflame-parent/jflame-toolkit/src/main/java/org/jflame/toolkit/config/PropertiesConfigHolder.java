@@ -1,25 +1,22 @@
 package org.jflame.toolkit.config;
 
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-public class PropertiesConfigHolder {
+/**
+ * 加载properties文件存为静态资源,使用静态方法获取配置属性
+ * 
+ * @author yucan.zhang
+ */
+public abstract class PropertiesConfigHolder {
 
     private static PropertiesConfig config;
-    private static AtomicBoolean isLoad = new AtomicBoolean(false);
 
-    public static void loadConfig(String... propertiesFils) {
-        if (!isLoad.get()) {
-            config = new PropertiesConfig(propertiesFils);
-            isLoad.set(true);
-        }
+    public synchronized static void loadProperties(String... propertiesFils) {
+        config = new PropertiesConfig(propertiesFils);
     }
 
-    public static void loadConfig(Properties props) {
-        if (!isLoad.get()) {
-            config = new PropertiesConfig(props);
-            isLoad.set(true);
-        }
+    public synchronized static void loadProperties(Properties props) {
+        config = new PropertiesConfig(props);
     }
 
     public static String getString(final ConfigKey<String> configKey) {

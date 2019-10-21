@@ -8,70 +8,58 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.3.0-beta</version>
+		<version>${version.jflame}</version>
 	</parent>
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.5</version>
-		</dependency>
-		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.57</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.9.8</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- ftp操作 -->
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
-			<version>3.3</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- excel操作 start -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>4.0.0</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- excel end -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>6.0.12.Final</version>
+			<optional>true</optional>
 		</dependency>
 		<!-- el3.0包tomcat8内置,使用org.glassfish/javax.el可替换 -->
 		<dependency>
 			<groupId>javax.el</groupId>
 			<artifactId>javax.el-api</artifactId>
-			<version>3.0.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.el</artifactId>
 			<version>3.0.1-b09</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> -->
 		<!-- 第三方加密组件 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk16</artifactId>
-			<version>1.46</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- 缩略图使用包 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-imaging</artifactId>
-			<version>1.0-SNAPSHOT</version>
 			<optional>true</optional>
 		</dependency>
 		<!--<dependency> <groupId>net.coobird</groupId> <artifactId>thumbnailator</artifactId> 
@@ -79,7 +67,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>${version.servlet}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -95,13 +82,11 @@
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
 			</exclusions>
-			<version>3.4.8</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.101tec</groupId>
 			<artifactId>zkclient</artifactId>
-			<version>0.10</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>log4j</artifactId>
@@ -117,29 +102,22 @@
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-framework</artifactId>
-			<version>2.12.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
-			<version>2.12.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-redis</artifactId>
-			<version>1.8.20.RELEASE</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.9.0</version>
 			<optional>true</optional>
 		</dependency>
-
-		<!-- <dependency> <groupId>io.lettuce</groupId> <artifactId>lettuce-core</artifactId> 
-			<version>5.1.4.RELEASE</version> </dependency> -->
 	</dependencies>
 </project>

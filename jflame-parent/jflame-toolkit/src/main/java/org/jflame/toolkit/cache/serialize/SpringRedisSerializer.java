@@ -1,5 +1,7 @@
 package org.jflame.toolkit.cache.serialize;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import org.jflame.toolkit.exception.SerializeException;
@@ -19,6 +21,7 @@ public class SpringRedisSerializer implements IGenericRedisSerializer {
 
     @Override
     public Object deserialize(byte[] bytes) throws SerializeException {
+        System.out.println("====" + new String(bytes, StandardCharsets.UTF_8));
         return genericSerializer.deserialize(bytes);
     }
 

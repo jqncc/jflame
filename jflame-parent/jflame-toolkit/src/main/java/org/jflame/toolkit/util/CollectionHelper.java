@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.jflame.toolkit.common.bean.Chars;
 
 /**
  * 集合工具
@@ -61,22 +62,6 @@ public final class CollectionHelper {
     }
 
     /**
-     * 提取集合中的某属性转为字符串数组
-     * 
-     * @param collection 集合
-     * @param mapper 提取的属性stream操作Function
-     * @return 集合某属性的字符串数组
-     */
-    public static <T,R> String[] toArray(Collection<T> collection, Function<? super T,? extends R> mapper) {
-        if (isEmpty(collection)) {
-            throw new IllegalArgumentException("parameter 'collection' not be null");
-        }
-        return collection.stream()
-                .map(mapper)
-                .toArray(String[]::new);
-    }
-
-    /**
      * 从集合中多个元素
      * 
      * @param collection 集合
@@ -97,8 +82,10 @@ public final class CollectionHelper {
      * @param arr2 数组2
      * @param <T> 泛型
      * @return
+     * @deprecated 请使用ArrayHelper类方法
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <T> T[] unionArray(T[] arr1, T[] arr2) {
         Set<T> newSet = new TreeSet<>();
         for (T t : arr1) {
@@ -166,7 +153,7 @@ public final class CollectionHelper {
         if (collection == null) {
             return null;
         }
-        return StringUtils.join(collection, CharsetHelper.COMMA);
+        return StringUtils.join(collection, Chars.COMMA);
     }
 
     /**

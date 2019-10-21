@@ -660,7 +660,7 @@ public interface RedisClient {
     long zscount(Serializable key, double min, double max);
 
     /**
-     * 为有序集key的成员 member的 score值加上增量 incrScore,incrScore可以是负数.<br>
+     * 为有序集成员 member的 score值加上增量 incrScore,incrScore可以是负数.<br>
      * 当 key不存在，或 member不是 key的成员时相当于新增
      * 
      * @param key 有序集key
@@ -668,20 +668,40 @@ public interface RedisClient {
      * @param incrScore score增量
      * @return member成员的新score值
      */
-    Double zsincrScore(Serializable key, Serializable member, double incrScore);
+    Double zsincrBy(Serializable key, Serializable member, double incrScore);
 
     /**
-     * 返回有序集 中，指定区间内的成员,其中成员的位置按 score值递增(从小到大)来排序.
+     * 返回有序集成员的分值score
+     * 
+     * @param key 有序集key
+     * @param member 成员
+     * @return score,如果不存在返回null
+     */
+    Double zscore(Serializable key, Serializable member);
+
+    /**
+     * 返回有序集中，指定区间内的成员,其中成员的位置按 score值递增(从小到大)来排序.
      * <p>
      * 下标参数都以0起始,你可以使用负数下标，以-1表示最后一个成员,超出范围的下标并不会引起错误。比如说，<br>
      * 当startIndex大于最大下标，或是 startIndex&gt;endIndex 时，只是是返回一个空列表。<br>
      * 当endIndex大于最大下标时,取值只到最大下标
      * 
+     * @param key 有序集key
      * @param startIndex 开始下标
      * @param endIndex 结束下标
      * @return
      */
     <T extends Serializable> Set<T> zsrange(Serializable key, long startIndex, long endIndex);
+
+    /**
+     * 返回有序集中，指定区间内的成员和成员score,其中成员的位置按 score值递增(从小到大)来排序.
+     * 
+     * @param key 有序集key
+     * @param startIndex 开始下标
+     * @param endIndex 结束下标
+     * @return
+     */
+    Map<? extends Serializable,Double> zsrangeWithScores(Serializable key, long startIndex, long endIndex);
 
     /**
      * 返回有序集中，所有 score值介于 min和 max之间(包括等 min或 max)的成员,有序集成员按 score值递增(从小到大)次序排列。

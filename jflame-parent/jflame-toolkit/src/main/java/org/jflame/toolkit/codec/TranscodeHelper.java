@@ -19,10 +19,9 @@ public final class TranscodeHelper {
      * 使用Base64编码字节数组,返回字符串
      * 
      * @param base64Data base64 byte[]
-     * @return 返回字符串
+     * @return base64字符串
      */
     public static String encodeBase64String(byte[] base64Data) {
-        // return Base64.encodeBase64String(base64Data);
         return java.util.Base64.getEncoder()
                 .encodeToString(base64Data);
     }
@@ -31,29 +30,38 @@ public final class TranscodeHelper {
      * 使用base64编码字符串，指定字符编码
      * 
      * @param str base64字符串
-     * @param charset 字符编码，为null默认使用utf-8
-     * @return
+     * @param charset 字符编码
+     * @return base64字符串
      */
     public static String encodeBase64String(String str, Charset charset) {
-        byte[] bytes = null;
-        if (charset == null) {
-            bytes = CharsetHelper.getUtf8Bytes(str);
-        } else {
-            bytes = str.getBytes(charset);
-        }
+        byte[] bytes = str.getBytes(charset);
         return encodeBase64String(bytes);
+    }
+
+    /**
+     * 使用base64编码字符串,字符编码为utf-8
+     * 
+     * @param str 字符串
+     * @return
+     */
+    public static String encodeBase64String(String str) {
+        return encodeBase64String(str, StandardCharsets.UTF_8);
     }
 
     /**
      * 使用Base64编码字节数组,返回字节数组
      * 
      * @param base64Data base64 byte[]
-     * @return
+     * @return byte[]
      */
     public static byte[] encodeBase64(byte[] base64Data) {
-        // return Base64.encodeBase64(base64Data);
         return java.util.Base64.getEncoder()
                 .encode(base64Data);
+    }
+
+    public static byte[] encodeBase64(String str) {
+        return java.util.Base64.getEncoder()
+                .encode(str.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -63,7 +71,6 @@ public final class TranscodeHelper {
      * @return
      */
     public static byte[] dencodeBase64(String base64String) {
-        // return Base64.decodeBase64(base64String);
         return java.util.Base64.getDecoder()
                 .decode(base64String);
     }
@@ -75,7 +82,6 @@ public final class TranscodeHelper {
      * @return
      */
     public static byte[] dencodeBase64(byte[] base64Data) {
-        // return Base64.decodeBase64(base64Data);
         return java.util.Base64.getDecoder()
                 .decode(base64Data);
     }

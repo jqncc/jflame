@@ -40,7 +40,12 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
+import org.jflame.toolkit.common.bean.Chars;
 import org.jflame.toolkit.common.bean.pair.NameValuePair;
 import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.net.http.HttpResponse;
@@ -53,9 +58,6 @@ import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.StringHelper;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * http请求工具类,支持接收和提交cookie
@@ -146,11 +148,21 @@ public final class HttpHelper {
                 ((HttpsURLConnection) conn).setSSLSocketFactory(sslSocketFactory);
                 ((HttpsURLConnection) conn).setHostnameVerifier(trustVerifier);
             }
-            HttpURLConnection.setFollowRedirects(true);
-            conn.setInstanceFollowRedirects(true);
             if (getMethod() == null) {
                 setMethod(HttpMethod.POST);
             }
+            if (getMethod() == HttpMethod.GET) {
+                conn.setInstanceFollowRedirects(true);
+            } else {
+                conn.setInstanceFollowRedirects(false);
+            }
+
+            if (getMethod() == HttpMethod.POST || getMethod() == HttpMethod.PUT || getMethod() == HttpMethod.DELETE) {
+                conn.setDoOutput(true);
+            } else {
+                conn.setDoOutput(false);
+            }
+
             if (getCharset() == null) {
                 setCharset(StandardCharsets.UTF_8.name());
             }
@@ -237,11 +249,11 @@ public final class HttpHelper {
     public HttpResponse sendRequest(Map<String,Object> params) {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
-            String paramStr = HttpHelper.toUrlParam(params);
+            String paramStr = HttpHelper.toUrlParam(params, getCharset());
             mergeUrl(paramStr);
             return sendTextRequest(null);
         }
-        return sendTextRequest(HttpHelper.toUrlParam(params));
+        return sendTextRequest(HttpHelper.toUrlParam(params, getCharset()));
     }
 
     void mergeUrl(String paramStr) {
@@ -724,9 +736,9 @@ public final class HttpHelper {
             StringBuilder strBuf = new StringBuilder(20);
             try {
                 for (NameValuePair kv : params) {
-                    strBuf.append('&')
+                    strBuf.append(Chars.AND)
                             .append(kv.getKey())
-                            .append('=')
+                            .append(Chars.EQUAL)
                             .append(URLEncoder.encode(kv.getValue()
                                     .toString(), StandardCharsets.UTF_8.name()));
                 }
@@ -736,7 +748,7 @@ public final class HttpHelper {
             strBuf.deleteCharAt(0);
             return strBuf.toString();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -745,24 +757,24 @@ public final class HttpHelper {
      * @param params Map&lt;String,Object&gt;
      * @return
      */
-    public static String toUrlParam(Map<String,Object> params) {
+    static String toUrlParam(Map<String,Object> params, String charset) {
         if (MapHelper.isNotEmpty(params)) {
             StringBuilder strBuf = new StringBuilder(20);
             try {
                 for (Entry<String,Object> kv : params.entrySet()) {
-                    strBuf.append('&')
+                    strBuf.append(Chars.AND)
                             .append(kv.getKey())
-                            .append('=')
+                            .append(Chars.EQUAL)
                             .append(URLEncoder.encode(kv.getValue()
-                                    .toString(), StandardCharsets.UTF_8.name()));
+                                    .toString(), charset == null ? StandardCharsets.UTF_8.name() : charset));
                 }
             } catch (UnsupportedEncodingException e) {
-                // ignore
+                e.printStackTrace();
             }
             strBuf.deleteCharAt(0);
             return strBuf.toString();
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
@@ -814,7 +826,7 @@ public final class HttpHelper {
         if (Charset.isSupported(charset)) {
             this.requestProperty.setCharset(charset);
         } else {
-            throw new IllegalArgumentException("不支持的字符集" + charset);
+            throw new IllegalArgumentException("不支持的字符编码" + charset);
         }
         return this;
     }

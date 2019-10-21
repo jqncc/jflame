@@ -223,4 +223,38 @@ public final class NumberHelper {
         return clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class
                 || clazz == float.class || clazz == double.class;
     }
+
+    /**
+     * 字符串数组转为int数组
+     * 
+     * @param textArray 字符串数组,不可存在null元素
+     * @return int[]
+     */
+    public static int[] toIntArray(String[] textArray) {
+        if (textArray == null) {
+            return null;
+        }
+        int[] intArray = new int[textArray.length];
+        for (int i = 0; i < textArray.length; i++) {
+            intArray[i] = Integer.parseInt(textArray[i].trim());
+        }
+        return intArray;
+    }
+
+    /**
+     * 字符串数组转为long数组
+     * 
+     * @param textArray 字符串数组,不可存在null元素
+     * @return long[]
+     */
+    public static long[] toLongArray(String[] textArray) {
+        if (textArray == null) {
+            return null;
+        }
+        long[] intArray = new long[textArray.length];
+        for (int i = 0; i < textArray.length; i++) {
+            intArray[i] = Long.parseLong(textArray[i].trim());
+        }
+        return intArray;
+    }
 }

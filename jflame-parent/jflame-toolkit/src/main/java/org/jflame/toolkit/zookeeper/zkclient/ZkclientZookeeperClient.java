@@ -7,12 +7,14 @@ import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkMarshallingError;
-import org.I0Itec.zkclient.exception.ZkNoNodeException;
 import org.I0Itec.zkclient.serialize.ZkSerializer;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.jflame.toolkit.exception.SerializeException;
+
+import org.jflame.toolkit.exception.DataAccessException;
+import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.zookeeper.AbstractZookeeperClient;
 import org.jflame.toolkit.zookeeper.ChildListener;
 import org.jflame.toolkit.zookeeper.StateListener;
@@ -63,17 +65,21 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
             @Override
             public void handleSessionEstablishmentError(Throwable error) throws Exception {
                 logger.error("zookeeper connection error!", error);
-                throw new Exception(error);
+                throw new RuntimeException(error);
             }
         });
     }
 
     @Override
-    public void delete(String path) {
+    public void delete(String path, boolean isDeleteChildren) {
         try {
-            client.delete(path);
-        } catch (ZkNoNodeException e) {
-            // ignore
+            if (isDeleteChildren) {
+                client.deleteRecursive(path);
+            } else {
+                client.delete(path);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e);
         }
     }
 
@@ -81,8 +87,52 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
     public List<String> getChildren(String path) {
         try {
             return client.getChildren(path);
-        } catch (ZkNoNodeException e) {
-            return null;
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public boolean isExist(String path) {
+        return client.exists(path);
+    }
+
+    @Override
+    public String create(String path, Serializable data, CreateMode createMode) {
+        try {
+            // 如果有父级目录先生成父级
+            int c = StringUtils.countMatches(path, FileHelper.UNIX_SEPARATOR);
+            if (c > 1) {
+                String[] paths = StringUtils.split(path, FileHelper.UNIX_SEPARATOR);
+                String parentPath = "";
+                for (int i = 0; i < paths.length - 1; i++) {
+                    parentPath = parentPath + FileHelper.UNIX_SEPARATOR + paths[0];
+                    if (!isExist(parentPath)) {
+                        client.create(parentPath, null, createMode);
+                    }
+                }
+            }
+            return client.create(path, data, createMode);
+        } catch (RuntimeException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public <T extends Serializable> T getData(String path) {
+        try {
+            return client.readData(path, true);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public void writeDate(String path, Serializable data) {
+        try {
+            client.writeData(path, data);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
         }
     }
 
@@ -118,25 +168,6 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
     public void removeTargetChildListener(String path, IZkChildListener listener) {
         client.unsubscribeChildChanges(path, listener);
-    }
-
-    @Override
-    public boolean isExist(String path) {
-        return client.exists(path);
-    }
-
-    @Override
-    public String create(String path, Serializable data, CreateMode createMode) {
-        return client.create(path, data, createMode);
-    }
-
-    @Override
-    public Object getData(String path) {
-        try {
-            return client.readData(path);
-        } catch (ZkMarshallingError e) {
-            throw new SerializeException(e);
-        }
     }
 
     class MyZkSerializer implements ZkSerializer {

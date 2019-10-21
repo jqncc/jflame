@@ -3,7 +3,7 @@ package org.jflame.toolkit.excel;
 import java.beans.PropertyDescriptor;
 
 import org.jflame.toolkit.convert.Converter;
-import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
 
 /**
  * ExcelColumn注解属性封装类
@@ -20,7 +20,7 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
     private String fmt;
     @Deprecated
     private String convert;
-    private ObjectToTextConverter writeConverter;
+    private ObjectToStringConverter writeConverter;
     private Converter readConverter;
 
     public String getName() {
@@ -71,11 +71,11 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
         this.propertyDescriptor = propertyDescriptor;
     }
 
-    public ObjectToTextConverter getWriteConverter() {
+    public ObjectToStringConverter getWriteConverter() {
         return writeConverter;
     }
 
-    public void setWriteConverter(ObjectToTextConverter writeConverter) {
+    public void setWriteConverter(ObjectToStringConverter writeConverter) {
         this.writeConverter = writeConverter;
     }
 

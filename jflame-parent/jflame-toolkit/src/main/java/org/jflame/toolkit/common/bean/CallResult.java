@@ -76,13 +76,22 @@ public class CallResult<T> extends SimpleResult {
         return this;
     }
 
-    public CallResult<T> message(String message) {
-        this.message = message;
+    public CallResult<T> error() {
+        this.status = ResultEnum.SERVER_ERROR.getStatus();
         return this;
     }
 
-    public CallResult<T> paramErrorMessage(String message) {
+    public CallResult<T> failed() {
+        this.status = ResultEnum.FAILED.getStatus();
+        return this;
+    }
+
+    public CallResult<T> paramError() {
         this.status = ResultEnum.PARAM_ERROR.getStatus();
+        return this;
+    }
+
+    public CallResult<T> message(String message) {
         this.message = message;
         return this;
     }
@@ -93,7 +102,7 @@ public class CallResult<T> extends SimpleResult {
      * @param data
      * @return 返回设置后的CallResult
      */
-    public CallResult<T> data(T data) {
+    public CallResult<T> success(T data) {
         this.status = ResultEnum.SUCCESS.getStatus();
         this.data = data;
         return this;
@@ -130,12 +139,6 @@ public class CallResult<T> extends SimpleResult {
      */
     public boolean success() {
         return status == ResultEnum.SUCCESS.getStatus();
-    }
-
-    public static <T> CallResult<T> success(T data) {
-        CallResult<T> result = new CallResult<>(ResultEnum.SUCCESS);
-        result.setData(data);
-        return result;
     }
 
     public static <T> CallResult<T> error(String message) {

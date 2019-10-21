@@ -5,8 +5,8 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 
+import org.jflame.toolkit.common.bean.Chars;
 import org.jflame.toolkit.excel.ExcelAccessException;
-import org.jflame.toolkit.util.CharsetHelper;
 
 /**
  * excel数据验证异常
@@ -55,7 +55,7 @@ public class ExcelValidationException extends ExcelAccessException {
         Iterator<? extends ConstraintViolation<?>> it = errors.iterator();
         while (it.hasNext()) {
             ConstraintViolation<?> cv = it.next();
-            err = err + cv.getMessage() + CharsetHelper.COMMA;
+            err = err + cv.getMessage() + Chars.COMMA;
         }
         return err;
     }

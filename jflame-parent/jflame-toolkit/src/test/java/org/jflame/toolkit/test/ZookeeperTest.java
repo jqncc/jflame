@@ -1,32 +1,59 @@
 package org.jflame.toolkit.test;
 
-import org.jflame.toolkit.zookeeper.ZookeeperClient;
-import org.jflame.toolkit.zookeeper.curator.CuratorZookeeperClient;
-import org.jflame.toolkit.zookeeper.zkclient.ZkclientZookeeperClient;
 import org.junit.Test;
+
+import org.jflame.toolkit.zookeeper.ZookeeperClient;
+import org.jflame.toolkit.zookeeper.zkclient.ZkclientZookeeperClient;
 
 public class ZookeeperTest {
 
     private String connUrl = "127.0.0.1:2181";
 
     @Test
-    public void test() {
+    public void testZkClient() {
 
-        String node = "/abs";
-        ZookeeperClient client = new ZkclientZookeeperClient(connUrl);
-        client.create(node);
-        boolean has = client.isExist(node);
-        System.out.println(has);
+        String node = "/abstest";
+        String p = "/testa";
+        String node1 = p + "/abs";
 
-        ZookeeperClient clientCur = new CuratorZookeeperClient(connUrl);
-        boolean hasCur = clientCur.isExist(node);
-        System.out.println(hasCur);
+        ZookeeperClient client = null;
 
-        clientCur.delete(node);
+        try {
+            client = new ZkclientZookeeperClient(connUrl);
+            String newNodeName = client.createPersistent(node, true);
+            System.out.println(newNodeName);
+            boolean has = client.isExist(node);
+            System.out.println(has);
 
-        System.out.println(client.isExist(node));
-        client.close();
-        clientCur.close();
+            String node1path = client.createPersistent(node1, false);
+            System.out.println("n1:" + node1path);
+
+            boolean hasParent = client.isExist(p);
+            System.out.println("hasParent:" + hasParent);
+
+            client.delete(p, true);
+
+            System.out.println(client.isExist(node1));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+
+    }
+
+    public static void main(String[] args) {
+        // file:/D:/project/jflame/jflame/jflame-parent/jflame-toolkit/target/test-classes/org/jflame/toolkit/test/
+        System.out.println(ZookeeperTest.class.getResource(""));
+        // file:/D:/project/jflame/jflame/jflame-parent/jflame-toolkit/target/test-classes/
+        System.out.println(ZookeeperTest.class.getClassLoader()
+                .getResource(""));
+        System.out.println(ZookeeperTest.class.getProtectionDomain()
+                .getCodeSource()
+                .getLocation());
     }
 
 }

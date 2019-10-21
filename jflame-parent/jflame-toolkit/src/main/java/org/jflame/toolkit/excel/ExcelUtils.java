@@ -11,18 +11,22 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.jflame.toolkit.convert.CalendarToTextConverter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+
+import org.jflame.toolkit.convert.CalendarToStringConverter;
 import org.jflame.toolkit.convert.Converter;
-import org.jflame.toolkit.convert.DateToTextConverter;
-import org.jflame.toolkit.convert.NumberToTextConverter;
-import org.jflame.toolkit.convert.ObjectToTextConverter;
-import org.jflame.toolkit.convert.TemporalToTextConverter;
-import org.jflame.toolkit.convert.TextToBoolConverter;
-import org.jflame.toolkit.convert.TextToDateConverter;
-import org.jflame.toolkit.convert.TextToNumberConverterFactory;
-import org.jflame.toolkit.convert.TextToTemporalConverterFactory;
+import org.jflame.toolkit.convert.DateToStringConverter;
+import org.jflame.toolkit.convert.NumberToStringConverter;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
+import org.jflame.toolkit.convert.StringToBoolConverter;
+import org.jflame.toolkit.convert.StringToDateConverter;
+import org.jflame.toolkit.convert.StringToNumberConverter;
+import org.jflame.toolkit.convert.StringToTemporalConverter;
+import org.jflame.toolkit.convert.TemporalToStringConverter;
 import org.jflame.toolkit.excel.convertor.BoolToTextConverter;
 import org.jflame.toolkit.excel.convertor.DoubleToNumberConverter;
 import org.jflame.toolkit.excel.handler.NullConverter;
@@ -31,11 +35,6 @@ import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.reflect.BeanHelper;
 import org.jflame.toolkit.util.NumberHelper;
 import org.jflame.toolkit.util.StringHelper;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 
 @SuppressWarnings("rawtypes")
 public final class ExcelUtils {
@@ -74,7 +73,7 @@ public final class ExcelUtils {
         } else {
             Class<?> valueClazz = property.getPropertyDescriptor()
                     .getPropertyType();
-            ObjectToTextConverter converter = getDefaultWriteConverter(valueClazz, property.getFmt());
+            ObjectToStringConverter converter = getDefaultWriteConverter(valueClazz, property.getFmt());
             property.setWriteConverter(converter);// 转换器设置到ExcelColumnProperty,下一行数据直接用
             return converter.convert(value);
         }
@@ -135,32 +134,32 @@ public final class ExcelUtils {
     private static Converter getDefaultReadConverter(Class<?> valueClazz, Class<?> needClazz, String fmt) {
         if (valueClazz == Boolean.class || valueClazz == boolean.class) {
             if (needClazz == String.class) {
-                return new TextToBoolConverter();
+                return new StringToBoolConverter();
             }
         } else if (valueClazz == Double.class || valueClazz == double.class) {
             if (needClazz == String.class) {
                 if (StringHelper.isNotEmpty(fmt)) {
                     DecimalFormat numFormator = new DecimalFormat(fmt);
-                    return new NumberToTextConverter(numFormator);
+                    return new NumberToStringConverter(numFormator);
                 } else {
-                    return new NumberToTextConverter();
+                    return new NumberToStringConverter();
                 }
             } else if (Number.class.isAssignableFrom(needClazz)) {
                 return new DoubleToNumberConverter(needClazz);
             }
         } else if (valueClazz == String.class) {
             if (NumberHelper.isNumberType(needClazz)) {
-                return new TextToNumberConverterFactory().getConverter((Class<Number>) needClazz);
+                return new StringToNumberConverter((Class<Number>) needClazz);
             } else if (Date.class.isAssignableFrom(needClazz)) {
-                return new TextToDateConverter(needClazz, Optional.ofNullable(fmt));
+                return new StringToDateConverter(needClazz, fmt);
             } else if (Temporal.class.isAssignableFrom(needClazz)) {
-                return new TextToTemporalConverterFactory(fmt).getConverter((Class<Temporal>) needClazz);
+                return new StringToTemporalConverter((Class<Temporal>) needClazz, fmt);
             } else if (needClazz == Boolean.class || needClazz == boolean.class) {
-                return new TextToBoolConverter();
+                return new StringToBoolConverter();
             }
         } else if (Date.class.isAssignableFrom(valueClazz)) {
             if (needClazz == String.class) {
-                return new DateToTextConverter(fmt);
+                return new DateToStringConverter(fmt);
             }
         }
         throw new ConvertException("不支持的转换" + valueClazz + " to " + needClazz);
@@ -173,26 +172,26 @@ public final class ExcelUtils {
      * @param fmt
      * @return
      */
-    public static <S> ObjectToTextConverter getDefaultWriteConverter(Class<S> valueClazz, String fmt) {
+    public static <S> ObjectToStringConverter getDefaultWriteConverter(Class<S> valueClazz, String fmt) {
         // 数字如果有格式使用NumberToTextConverter,否则使用toString
         if (NumberHelper.isNumberType(valueClazz)) {
             if (StringHelper.isNotEmpty(fmt)) {
                 DecimalFormat numFormator = new DecimalFormat(fmt);
                 numFormator.setGroupingUsed(false);
-                return new NumberToTextConverter(numFormator);
+                return new NumberToStringConverter(numFormator);
             } else {
-                return new NumberToTextConverter();
+                return new NumberToStringConverter();
             }
         } else if (boolean.class == valueClazz || Boolean.class == valueClazz) {
             return new BoolToTextConverter();
         } else if (java.util.Date.class.isAssignableFrom(valueClazz)) {
-            return new DateToTextConverter(fmt);
+            return new DateToStringConverter(fmt);
         } else if (Temporal.class.isAssignableFrom(valueClazz)) {
-            return new TemporalToTextConverter(fmt);
+            return new TemporalToStringConverter(fmt);
         } else if (valueClazz == Calendar.class) {
-            return new CalendarToTextConverter(fmt);
+            return new CalendarToStringConverter(fmt);
         }
-        return new ObjectToTextConverter<S>();
+        return new ObjectToStringConverter<S>();
     }
 
     /**
@@ -273,7 +272,7 @@ public final class ExcelUtils {
     private static void setConverter(boolean isWrite, ExcelColumnProperty newProperty, ExcelColumn tmpAnns) {
         if (isWrite) {
             if (tmpAnns.writeConverter() != NullConverter.class) {
-                ObjectToTextConverter converter = null;
+                ObjectToStringConverter converter = null;
                 if (StringHelper.isNotEmpty(tmpAnns.fmt())) {
                     try {
                         converter = tmpAnns.writeConverter()

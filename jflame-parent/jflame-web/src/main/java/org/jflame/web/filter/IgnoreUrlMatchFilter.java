@@ -10,10 +10,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+
 import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.util.StringHelper;
 import org.jflame.web.util.WebUtils;
 
 /**
@@ -27,16 +26,16 @@ import org.jflame.web.util.WebUtils;
 public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
 
     /**
-     * IgnoreUrlMatchFilter参数名,是否忽略静态文件,默认true
+     * 是否忽略静态文件,默认true
      */
-    private final ConfigKey<Boolean> IGNORE_STATIC = new ConfigKey<>("ignoreStatic", true);
+    protected final ConfigKey<Boolean> IGNORE_STATIC = new ConfigKey<>("ignoreStatic", true);
     /**
-     * IgnoreUrlMatchFilter参数名,要忽略的url匹配规则
+     * 要忽略的url匹配规则
      */
-    private final ConfigKey<String> IGNORE_PATTERN = new ConfigKey<>("ignorePattern");
+    protected final ConfigKey<String[]> IGNORE_PATTERN = new ConfigKey<>("ignorePattern");
 
     private boolean ignoreStatic;
-    private String ignoreUrlPattern;
+    private String[] ignoreUrlPattern;
     protected UrlPatternMatcherStrategy matcher;
 
     @Override
@@ -54,12 +53,8 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
     @Override
     protected final void internalInit(FilterConfig filterConfig) {
         ignoreStatic = filterParam.getBoolean(IGNORE_STATIC);
-        ignoreUrlPattern = filterParam.getString(IGNORE_PATTERN);
-        if (StringHelper.isNotEmpty(ignoreUrlPattern)) {
-            String[] urlPattern = StringUtils.deleteWhitespace(ignoreUrlPattern)
-                    .split(",");
-            matcher = new AntStyleUrlPatternMatcherStrategy(urlPattern);
-        }
+        ignoreUrlPattern = filterParam.getStringArray(IGNORE_PATTERN);
+        matcher = new AntStyleUrlPatternMatcherStrategy(ignoreUrlPattern);
     }
 
     protected boolean isIgnoreUrl(String url) {
@@ -90,7 +85,7 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
         return ignoreStatic;
     }
 
-    public String getIgnoreUrlPattern() {
+    public String[] getIgnoreUrlPattern() {
         return ignoreUrlPattern;
     }
 

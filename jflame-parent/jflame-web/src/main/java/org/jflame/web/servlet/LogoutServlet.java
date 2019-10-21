@@ -21,20 +21,15 @@ import org.jflame.web.util.WebUtils;
 @SuppressWarnings("serial")
 public class LogoutServlet extends HttpServlet {
 
+    private final ConfigKey<String> LOGOUT_PAGE_KEY = new ConfigKey<>("logoutPage");// 注销后跳转页面
+    private final ConfigKey<String> LOGOUT_JSON_KEY = new ConfigKey<>("logoutJson");// 注销后返回的json消息,ajax请求时使用
     private String logoutPage;
     private String logoutJson;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-
-        ConfigKey<String> LOGOUT_PAGE_KEY = new ConfigKey<>("logoutPage");// 注销后跳转页面
-        ConfigKey<String> LOGOUT_JSON_KEY = new ConfigKey<>("logoutJson");// 注销后返回的json消息,ajax请求时使用
-
         ServletParamConfig servletParam = new ServletParamConfig(config);
         logoutPage = servletParam.getString(LOGOUT_PAGE_KEY);
-        if (StringHelper.isNotEmpty(logoutPage)) {
-            logoutPage = logoutPage.trim();
-        }
         logoutJson = servletParam.getString(LOGOUT_JSON_KEY);
         if (StringHelper.isEmpty(logoutJson)) {
             logoutJson = JsonHelper.toJson(new CallResult<>(ResultEnum.SUCCESS.getStatus(), "登出成功"));

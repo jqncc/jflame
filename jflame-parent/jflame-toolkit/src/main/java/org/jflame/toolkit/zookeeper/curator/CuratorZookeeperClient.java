@@ -9,6 +9,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.CuratorWatcher;
+import org.apache.curator.framework.api.DeleteBuilder;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
@@ -16,7 +17,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.WatchedEvent;
-import org.jflame.toolkit.exception.SerializeException;
+
+import org.jflame.toolkit.exception.DataAccessException;
 import org.jflame.toolkit.zookeeper.AbstractZookeeperClient;
 import org.jflame.toolkit.zookeeper.ChildListener;
 import org.jflame.toolkit.zookeeper.StateListener;
@@ -69,14 +71,17 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
     }
 
     @Override
-    public void delete(String path) {
+    public void delete(String path, boolean isDeleteChildren) {
         try {
-            client.delete()
-                    .forPath(path);
+            DeleteBuilder deleteBuilder = client.delete();
+            if (isDeleteChildren) {
+                deleteBuilder.deletingChildrenIfNeeded();
+            }
+            deleteBuilder.forPath(path);
         } catch (NoNodeException e) {
             // ignore
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
@@ -88,7 +93,66 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         } catch (NoNodeException e) {
             return null;
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean isExist(String path) {
+        try {
+            return client.checkExists()
+                    .forPath(path) != null;
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String create(String path, Serializable data, CreateMode mode) {
+        try {
+            if (data != null) {
+                return client.create()
+                        .creatingParentsIfNeeded()
+                        .withMode(mode)
+                        .forPath(path);
+            } else {
+                return client.create()
+                        .creatingParentsIfNeeded()
+                        .withMode(mode)
+                        .forPath(path, SerializationUtils.serialize(data));
+            }
+        } catch (NodeExistsException e) {
+            return path;
+        } catch (SerializationException e) {
+            throw new DataAccessException(e.getMessage());
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public <T extends Serializable> T getData(String path) {
+        try {
+            byte[] nodeData = client.getData()
+                    .forPath(path);
+            if (nodeData != null) {
+                return SerializationUtils.deserialize(nodeData);
+            }
+            return null;
+        } catch (SerializationException e) {
+            throw new DataAccessException(e.getMessage());
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public void writeDate(String path, Serializable data) {
+        try {
+            client.setData()
+                    .forPath(path, SerializationUtils.serialize(data));
+        } catch (Exception e) {
+            throw new DataAccessException(e);
         }
     }
 
@@ -137,57 +201,12 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         } catch (NoNodeException e) {
             return null;
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
+            throw new DataAccessException(e.getMessage(), e);
         }
     }
 
     public void removeTargetChildListener(String path, CuratorWatcher listener) {
         ((CuratorWatcherImpl) listener).unwatch();
-    }
-
-    @Override
-    public boolean isExist(String path) {
-        try {
-            return client.checkExists()
-                    .forPath(path) != null;
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String create(String path, Serializable data, CreateMode mode) {
-        try {
-            if (data != null) {
-                return client.create()
-                        .withMode(mode)
-                        .forPath(path);
-            } else {
-                return client.create()
-                        .withMode(mode)
-                        .forPath(path, SerializationUtils.serialize(data));
-            }
-        } catch (NodeExistsException e) {
-            return path;
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Object getData(String path) {
-        try {
-            byte[] nodeData = client.getData()
-                    .forPath(path);
-            if (nodeData != null) {
-                return SerializationUtils.deserialize(nodeData);
-            }
-            return null;
-        } catch (SerializationException e) {
-            throw new SerializeException(e);
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
     }
 
     public CuratorFramework getClient() {

@@ -1,0 +1,3 @@
+whitelist=com.ghgcn.support.dubbo.WhitelistFilter
+myexception=com.ghgcn.support.dubbo.DubboExceptionFilter
+myvalidation=com.ghgcn.support.dubbo.ServerValidationFilter

@@ -11,13 +11,24 @@ import javax.servlet.ServletResponse;
 
 import org.jflame.toolkit.config.ConfigKey;
 
+/**
+ * 字符编码转换过滤器
+ * 
+ * @author yucan.zhang
+ */
 public class CharacterEncodingFilter extends OncePerRequestFilter {
 
-    private String encoding;
-    private boolean forceEncoding = false;
     private final ConfigKey<String> CHARSET_ENCODE_ENCODING = new ConfigKey<>("encoding",
             StandardCharsets.UTF_8.name());
     private final ConfigKey<Boolean> CHARSET_ENCODE_FORCE = new ConfigKey<>("forceEncoding", false);
+    private String encoding;
+    private boolean forceEncoding = false;
+
+    @Override
+    protected void internalInit(FilterConfig filterConfig) {
+        encoding = filterParam.getString(CHARSET_ENCODE_ENCODING);
+        forceEncoding = filterParam.getBoolean(CHARSET_ENCODE_FORCE);
+    }
 
     @Override
     protected void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -29,12 +40,6 @@ public class CharacterEncodingFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
-    }
-
-    @Override
-    protected void internalInit(FilterConfig filterConfig) {
-        encoding = filterParam.getString(CHARSET_ENCODE_ENCODING);
-        forceEncoding = filterParam.getBoolean(CHARSET_ENCODE_FORCE);
     }
 
     @Override

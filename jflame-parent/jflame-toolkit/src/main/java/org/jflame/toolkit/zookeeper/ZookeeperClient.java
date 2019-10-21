@@ -6,14 +6,6 @@ import java.util.List;
 public interface ZookeeperClient {
 
     /**
-     * 创建持久节点
-     * 
-     * @param path 节点路径
-     */
-    String create(String path);
-
-    // CreateMode.EPHEMERAL;CreateMode.EPHEMERAL_SEQUENTIAL,CreateMode.PERSISTENT,CreateMode.PERSISTENT_SEQUENTIAL
-    /**
      * 创建临时节点
      * 
      * @param path 节点路径
@@ -52,30 +44,12 @@ public interface ZookeeperClient {
     String createPersistent(String path, Serializable data, boolean isSequential);
 
     /**
-     * 创建节点
-     * 
-     * @param path 节点路径
-     * @param mode zk模式
-     * @return
-     */
-    // String create(String path, CreateMode mode);
-
-    /**
-     * 创建节点,并存入数据
-     * 
-     * @param path 节点路径
-     * @param data 节点数据,可序列化的对象
-     * @param mode zk模式
-     * @return 最终路径
-     */
-    // String create(String path, Serializable data, CreateMode mode);
-
-    /**
      * 删除节点
      * 
+     * @param isDeleteChildren 是否递归删除子节点
      * @param path 节点路径
      */
-    void delete(String path);
+    void delete(String path, boolean isDeleteChildren);
 
     /**
      * 获取子节点
@@ -99,7 +73,15 @@ public interface ZookeeperClient {
      * @param path 节点路径
      * @return
      */
-    Object getData(String path);
+    <T extends Serializable> T getData(String path);
+
+    /**
+     * 写数据
+     * 
+     * @param path 节点路径
+     * @param data 待写入数据
+     */
+    void writeDate(String path, Serializable data);
 
     /**
      * 增加子节点修改监听器

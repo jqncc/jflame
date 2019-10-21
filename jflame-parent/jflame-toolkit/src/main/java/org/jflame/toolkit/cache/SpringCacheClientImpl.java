@@ -3,6 +3,7 @@ package org.jflame.toolkit.cache;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
@@ -28,6 +30,7 @@ import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
 import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.cache.serialize.SpringRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.MapHelper;
 
 /**
@@ -594,9 +597,18 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Double zsincrScore(Serializable key, Serializable member, double incrScore) {
+    public Double zsincrBy(Serializable key, Serializable member, double incrScore) {
         try {
             return getZsetOpt(key).incrementScore(member, incrScore);
+        } catch (DataAccessException e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    @Override
+    public Double zscore(Serializable key, Serializable member) {
+        try {
+            return getZsetOpt(key).score(member);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
@@ -609,6 +621,19 @@ public class SpringCacheClientImpl implements RedisClient {
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
+    }
+
+    @Override
+    public Map<? extends Serializable,Double> zsrangeWithScores(Serializable key, long startIndex, long endIndex) {
+        Set<TypedTuple<Serializable>> tuples = getZsetOpt(key).rangeWithScores(startIndex, endIndex);
+        Map<Serializable,Double> memberScoreMap = null;
+        if (CollectionHelper.isNotEmpty(tuples)) {
+            memberScoreMap = new HashMap<>();
+            for (TypedTuple<Serializable> tuple : tuples) {
+                memberScoreMap.put(tuple.getValue(), tuple.getScore());
+            }
+        }
+        return memberScoreMap;
     }
 
     @Override
@@ -811,9 +836,12 @@ public class SpringCacheClientImpl implements RedisClient {
         for (int i = 0; i < argArray.length; i++) {
             argArray[i] = args.get(i);
         }
+        RedisSerializer<T> jdkSerializer = (RedisSerializer<T>) new JdkSerializationRedisSerializer(this.getClass()
+                .getClassLoader());
         try {
             DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
-            return redisTemplate.execute(script, (List<Serializable>) keys, argArray);
+            return redisTemplate.execute(script, jdkSerializer, jdkSerializer, (List<Serializable>) keys, argArray);
+            // return redisTemplate.execute(script, (List<Serializable>) keys, argArray);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }

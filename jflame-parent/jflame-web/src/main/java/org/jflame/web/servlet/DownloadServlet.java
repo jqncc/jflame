@@ -1,8 +1,9 @@
 package org.jflame.web.servlet;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -13,16 +14,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.config.CommonConfigKeys;
+import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.jflame.toolkit.config.ConfigKey;
 import org.jflame.toolkit.config.PropertiesConfigHolder;
 import org.jflame.toolkit.config.ServletParamConfig;
 import org.jflame.toolkit.file.FileHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
-import org.jflame.web.util.WebUtils.MimeImages;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jflame.web.util.WebUtils;
 
 /**
  * 文件下载servlet
@@ -31,21 +33,34 @@ import org.slf4j.LoggerFactory;
 public class DownloadServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(DownloadServlet.class);
+    private final ConfigKey<String> KEY_SAVE_PATH = new ConfigKey<>("save.path");
+    private String[] allowDownFiles = ArrayUtils.addAll(WebUtils.IMAGE_EXTS,
+            new String[] { "zip","tar","tar.gz","rar","gzip","pdf","doc","docx","xls","xlsx","ppt","pptx","csv" });
     private String savePath;
+
+    /**
+     * 取得配置参数,先从servlet配置获取没有再从配置文件获取
+     * 
+     * @param servletParam
+     * @param name
+     * @return
+     */
+    String getConfParam(ServletParamConfig servletParam, ConfigKey<String> configKey) {
+        String paramValue = servletParam.getString(configKey);
+        if (paramValue == null) {
+            paramValue = PropertiesConfigHolder.getString(configKey);
+        }
+        return paramValue;
+    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        savePath = servletParam.getString(CommonConfigKeys.SAVE_PATH);
+        savePath = getConfParam(servletParam, KEY_SAVE_PATH);
         if (StringHelper.isEmpty(savePath)) {
-            try {
-                savePath = PropertiesConfigHolder.getString(CommonConfigKeys.SAVE_PATH);
-            } catch (NullPointerException e) {
-                savePath = null;
-            }
-        }
-        if (StringHelper.isEmpty(savePath)) {
-            throw new ServletException("未设置图片加载路径");
+            log.warn("未设置文件下载根路径,设为项目根目录");
+            savePath = config.getServletContext()
+                    .getRealPath("/");
         }
     }
 
@@ -54,22 +69,31 @@ public class DownloadServlet extends HttpServlet {
         String imgRelativePath = request.getPathInfo();
         boolean isNotFound = true;
         if (StringHelper.isNotEmpty(imgRelativePath)) {
-            Path imgPath = Paths.get(savePath, request.getPathInfo());
-            File file = imgPath.toFile();
+            Path downFilePath = Paths.get(savePath, request.getPathInfo());
+            File file = downFilePath.toFile();
             if (file.exists()) {
-                String ext = FileHelper.getExtension(file.getName(), false);
-                if (MimeImages.support(ext)) {
-                    response.setContentType(getMediaType(ext));
-                    try (FileInputStream imgStream = new FileInputStream(file);
-                            ServletOutputStream servletOutStream = response.getOutputStream();) {
-                        IOHelper.copy(imgStream, servletOutStream);
+                if (isAllowedDownload(file)) {
+                    BufferedReader reader = null;
+                    ServletOutputStream output = null;
+                    try {
+                        WebUtils.setFileDownloadHeader(response, file.getName(), file.length());
+                        output = response.getOutputStream();
+                        reader = Files.newBufferedReader(file.toPath());
+                        IOHelper.copy(reader, output);
                         isNotFound = false;
                     } catch (IOException e) {
-                        log.error("输出图片失败:" + imgPath, e);
-                        isNotFound = true;
+                        log.warn("下载文件异常:" + downFilePath, e);
+                        response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "文件读取异常");
+                    } finally {
+                        if (reader != null) {
+                            reader.close();
+                        }
+                        if (output != null) {
+                            output.close();
+                        }
                     }
                 } else {
-                    log.error("不支持的图片格式{}", imgRelativePath);
+                    log.warn("不支持的图片格式{}", imgRelativePath);
                 }
             }
         }
@@ -79,9 +103,18 @@ public class DownloadServlet extends HttpServlet {
         }
     }
 
-    String getMediaType(String fileExtName) {
-        MimeImages mime = MimeImages.valueOf(fileExtName);
-        return mime.getMime();
+    /**
+     * 是否允许下载
+     * 
+     * @param file
+     * @return
+     */
+    boolean isAllowedDownload(File file) {
+        String ext = FileHelper.getExtension(file.getName(), false);
+        if (!ArrayUtils.contains(allowDownFiles, ext)) {
+            return false;
+        }
+        return true;
     }
 
     public void setSavePath(String savePath) {

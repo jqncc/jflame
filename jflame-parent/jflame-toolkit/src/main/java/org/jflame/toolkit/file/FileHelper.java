@@ -12,10 +12,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * 文件和文件名操作工具类.另参见:java.nio.Files
@@ -25,11 +25,11 @@ import org.apache.commons.lang3.StringUtils;
 public final class FileHelper {
 
     /**
-     * windows系统文件路径分隔符
+     * windows文件路径分隔符\
      */
     public static final char WIN_SEPARATOR = '\\';
     /**
-     * unix系统文件路径分隔符
+     * unix文件路径分隔符/
      */
     public static final char UNIX_SEPARATOR = '/';
 

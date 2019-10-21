@@ -1,8 +1,8 @@
 package org.jflame.toolkit.excel.convertor;
 
-import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
 
-public class BoolToTextConverter extends ObjectToTextConverter<Boolean> {
+public class BoolToTextConverter extends ObjectToStringConverter<Boolean> {
 
     @Override
     public String convert(Boolean source) {

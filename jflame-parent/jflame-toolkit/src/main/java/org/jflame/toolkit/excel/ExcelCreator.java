@@ -13,12 +13,6 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.excel.handler.ArrayRowWriter;
-import org.jflame.toolkit.excel.handler.EntityRowWriter;
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.CollectionHelper;
-import org.jflame.toolkit.util.IOHelper;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -31,6 +25,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
+import org.jflame.toolkit.excel.handler.ArrayRowWriter;
+import org.jflame.toolkit.excel.handler.EntityRowWriter;
+import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.toolkit.util.CollectionHelper;
+import org.jflame.toolkit.util.IOHelper;
 
 /**
  * <p>
@@ -253,6 +253,7 @@ public class ExcelCreator implements Closeable {
         if (output != null) {
             try {
                 workbook.write(output);
+                output.flush();
             } catch (IOException e) {
                 throw new ExcelAccessException("excel写入异常", e);
             }
@@ -376,35 +377,6 @@ public class ExcelCreator implements Closeable {
     }
 
     /**
-     * 导出实体类数据到单表的便捷方法.
-     * 
-     * @param data 要导出数据集
-     * @param out 文件输出流
-     * @param isCloseOutStream 是否关闭输出流
-     * @throws ExcelAccessException
-     */
-    public static void export(final List<? extends IExcelEntity> data, final OutputStream out, boolean isCloseOutStream)
-            throws ExcelAccessException {
-        ExcelCreator creator = null;
-        try {
-            creator = new ExcelCreator();
-            creator.createSheet();
-            creator.fillEntityData(data);
-            creator.write(out);
-            out.flush();
-        } catch (IOException e) {
-            throw new ExcelAccessException(e);
-        } finally {
-            if (creator != null) {
-                creator.close();
-            }
-            if (isCloseOutStream) {
-                IOHelper.closeQuietly(out);
-            }
-        }
-    }
-
-    /**
      * 导出实体类数据到单表的便捷方法.自动关闭输出流
      * 
      * @param data 要导出数据集
@@ -413,7 +385,20 @@ public class ExcelCreator implements Closeable {
      */
     public static void export(final List<? extends IExcelEntity> data, final OutputStream out)
             throws ExcelAccessException {
-        ExcelCreator.export(data, out, true);
+        ExcelCreator creator = null;
+        try {
+            creator = new ExcelCreator();
+            creator.createSheet();
+            creator.fillEntityData(data);
+            creator.write(out);
+        } catch (ExcelAccessException e) {
+            throw e;
+        } finally {
+            if (creator != null) {
+                creator.close();
+            }
+            IOHelper.closeQuietly(out);
+        }
     }
 
     /**
@@ -431,7 +416,7 @@ public class ExcelCreator implements Closeable {
         } catch (IOException e) {
             throw new ExcelAccessException(e);
         }
-        ExcelCreator.export(data, out, true);
+        ExcelCreator.export(data, out);
     }
 
     /**
@@ -447,7 +432,7 @@ public class ExcelCreator implements Closeable {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
-        ExcelCreator.export(data, out, false);
+        ExcelCreator.export(data, out);
     }
 
     static void setFileDownloadHeader(HttpServletResponse response, String fileName) {

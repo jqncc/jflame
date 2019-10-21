@@ -15,15 +15,16 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.netty.util.internal.ConcurrentHashMap;
+
+import org.jflame.toolkit.common.bean.Chars;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.ExcelUtils;
 import org.jflame.toolkit.excel.IExcelEntity;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 /**
  * csv writer
@@ -79,7 +80,7 @@ public class CsvWriter implements Closeable {
      * @param fileName csv文件路径
      */
     public CsvWriter(String fileName) {
-        this(fileName, CharsetHelper.COMMA, StandardCharsets.UTF_8);
+        this(fileName, Chars.COMMA, StandardCharsets.UTF_8);
     }
 
     /**
@@ -110,7 +111,7 @@ public class CsvWriter implements Closeable {
     }
 
     public CsvWriter(OutputStream outputStream) {
-        this(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), CharsetHelper.COMMA);
+        this(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), Chars.COMMA);
     }
 
     /**
@@ -245,7 +246,7 @@ public class CsvWriter implements Closeable {
         if (!textQualify && userSettings.UseTextQualifier
                 && (content.indexOf(userSettings.TextQualifier) > -1 || content.indexOf(userSettings.Delimiter) > -1
                         || (!useCustomRecordDelimiter
-                                && (content.indexOf(CharsetHelper.LF) > -1 || content.indexOf(CharsetHelper.CR) > -1))
+                                && (content.indexOf(Chars.LF) > -1 || content.indexOf(Chars.CR) > -1))
                         || (useCustomRecordDelimiter && content.indexOf(userSettings.RecordDelimiter) > -1)
                         || (firstColumn && content.length() > 0 && content.charAt(0) == userSettings.Comment) ||
                         // check for empty first column, which if on its own line must
@@ -257,14 +258,14 @@ public class CsvWriter implements Closeable {
         if (userSettings.UseTextQualifier && !textQualify && content.length() > 0 && preserveSpaces) {
             char firstLetter = content.charAt(0);
 
-            if (firstLetter == SPACE || firstLetter == CharsetHelper.TAB) {
+            if (firstLetter == SPACE || firstLetter == Chars.TAB) {
                 textQualify = true;
             }
 
             if (!textQualify && content.length() > 1) {
                 char lastLetter = content.charAt(content.length() - 1);
 
-                if (lastLetter == SPACE || lastLetter == CharsetHelper.TAB) {
+                if (lastLetter == SPACE || lastLetter == Chars.TAB) {
                     textQualify = true;
                 }
             }
@@ -309,8 +310,8 @@ public class CsvWriter implements Closeable {
                         StringUtils.EMPTY + Letters.BACKSLASH + Letters.CR);
                     content = replace(content, StringUtils.EMPTY + Letters.LF,
                         StringUtils.EMPTY + Letters.BACKSLASH + Letters.LF);*/
-                    content = StringUtils.replace(content, StringUtils.CR, BACKSLASH + CharsetHelper.CR);
-                    content = StringUtils.replace(content, StringUtils.LF, BACKSLASH + CharsetHelper.LF);
+                    content = StringUtils.replace(content, StringUtils.CR, BACKSLASH + Chars.CR);
+                    content = StringUtils.replace(content, StringUtils.LF, BACKSLASH + Chars.LF);
                 }
 
                 if (firstColumn && content.length() > 0 && content.charAt(0) == userSettings.Comment) {
@@ -423,9 +424,9 @@ public class CsvWriter implements Closeable {
     @SuppressWarnings({ "rawtypes","unchecked" })
     public void writeArrayData(List<Object[]> dataList) throws CsvAccessException {
         if (CollectionHelper.isNotEmpty(dataList)) {
-            Map<Integer,ObjectToTextConverter> columnConvertMap = new ConcurrentHashMap<>();
+            Map<Integer,ObjectToStringConverter> columnConvertMap = new ConcurrentHashMap<>();
             int index = 0;
-            ObjectToTextConverter converter = null;
+            ObjectToStringConverter converter = null;
             for (Object[] rowData : dataList) {
                 for (index = 0; index < rowData.length; index++) {
                     if (columnConvertMap.containsKey(index)) {
@@ -550,10 +551,10 @@ public class CsvWriter implements Closeable {
         public boolean ForceQualifier;
 
         public UserSettings() {
-            TextQualifier = CharsetHelper.QUOTE;
+            TextQualifier = Chars.QUOTE;
             UseTextQualifier = true;
-            Delimiter = CharsetHelper.COMMA;
-            RecordDelimiter = CharsetHelper.NULL;
+            Delimiter = Chars.COMMA;
+            RecordDelimiter = Chars.NULL;
             Comment = POUND;
             EscapeMode = ESCAPE_MODE_DOUBLED;
             ForceQualifier = false;

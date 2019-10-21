@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.StringHelper;
 import org.jflame.toolkit.valid.ValidatorHelper;
 
@@ -18,6 +19,19 @@ import org.jflame.toolkit.valid.ValidatorHelper;
  * @author yucan.zhang
  */
 public final class IPAddressHelper {
+
+    public static List<InetAddress> ipAddresses;
+
+    static {
+        try {
+            ipAddresses = getAllIPAddress();
+        } catch (SocketException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+        if (CollectionHelper.isEmpty(ipAddresses)) {
+            throw new ExceptionInInitializerError("无法获取主机IP地址");
+        }
+    }
 
     /**
      * 获取本机所有ip地址，不包含虚拟网卡和回环地址
@@ -45,32 +59,20 @@ public final class IPAddressHelper {
         return ips;
     }
 
-    static volatile String hostIp;
-
     /**
      * 返回本机ip地址，优先取外网地址，无外网地址返回局域网地址
      * 
      * @return
      */
     public static String getHostIP() {
-        InetAddress realIPAddr = null;
-        if (hostIp == null) {
-            List<InetAddress> allIps;
-            try {
-                allIps = getAllIPAddress();
-                for (InetAddress inetAddress : allIps) {
-                    if (!inetAddress.isSiteLocalAddress()) {
-                        return inetAddress.getHostAddress();
-                    } else {
-                        realIPAddr = inetAddress;
-                    }
-                }
-            } catch (SocketException e) {
-                throw new RuntimeException(e);
+        for (InetAddress inetAddress : ipAddresses) {
+            if (!inetAddress.isSiteLocalAddress()) {
+                return inetAddress.getHostAddress();
+            } else {
+                return inetAddress.getHostAddress();
             }
         }
-        hostIp = realIPAddr != null ? realIPAddr.getHostAddress() : null;
-        return hostIp;
+        throw new RuntimeException("无法获取任何主机ip");
     }
 
     /**
@@ -79,55 +81,36 @@ public final class IPAddressHelper {
      * @return InetAddress
      */
     public static InetAddress getLocalIPAddress() {
-        List<InetAddress> allIps;
-        try {
-            allIps = getAllIPAddress();
-            for (InetAddress inetAddress : allIps) {
-                if (inetAddress.isSiteLocalAddress() && !inetAddress.isLoopbackAddress()) {
-                    return inetAddress;
-                }
+        for (InetAddress inetAddress : ipAddresses) {
+            if (inetAddress.isSiteLocalAddress() && !inetAddress.isLoopbackAddress()) {
+                return inetAddress;
             }
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
         }
 
-        return null;
+        throw new RuntimeException("无法获取任何主机局域网ip");
     }
 
-    static volatile String localIp;
-
     /**
-     * 获取本机局域网ip字符串,无法获取ip返回空字符
+     * 获取本机局域网ip字符串
      * 
      * @return
      */
     public static String getLocalIP() {
-        if (localIp == null) {
-            InetAddress addr = getLocalIPAddress();
-            localIp = addr != null ? addr.getHostAddress() : "";
-        }
-        return localIp;
+        InetAddress addr = getLocalIPAddress();
+        return addr.getHostAddress();
     }
 
     /**
-     * 返回本机所有ip字符串
+     * 返回本机所有ip
      * 
-     * @return 本机所有ip字符串
+     * @return 本机所有ip
      */
     public static String[] getAllIPs() {
-        List<InetAddress> ips;
         String[] ipStrArray = null;
-        try {
-            ips = getAllIPAddress();
-            if (ips != null) {
-                ipStrArray = new String[ips.size()];
-                for (int i = 0; i < ipStrArray.length; i++) {
-                    ipStrArray[i] = ips.get(i)
-                            .getHostAddress();
-                }
-            }
-        } catch (SocketException e) {
-            e.printStackTrace();
+        ipStrArray = new String[ipAddresses.size()];
+        for (int i = 0; i < ipStrArray.length; i++) {
+            ipStrArray[i] = ipAddresses.get(i)
+                    .getHostAddress();
         }
 
         return ipStrArray;
@@ -252,6 +235,6 @@ public final class IPAddressHelper {
     }
 
     public static void main(String[] args) {
-        System.out.println(getHostIP());
+        System.out.println(getLocalIP());
     }
 }

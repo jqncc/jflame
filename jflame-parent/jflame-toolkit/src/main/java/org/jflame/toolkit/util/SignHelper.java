@@ -7,10 +7,11 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.jflame.toolkit.crypto.DigestHelper;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.jflame.toolkit.common.bean.Chars;
+import org.jflame.toolkit.crypto.DigestHelper;
 
 public class SignHelper {
 
@@ -19,8 +20,9 @@ public class SignHelper {
     }
 
     /**
-     * map参数签名,null值忽略
-     *
+     * map参数签名.签名算法: 以key按单词自然排序后,将key与value用=&组合, 再对字符串做md5,null值忽略.<br>
+     * 如:md5hex(k1=v1&k2=v2&)
+     * 
      * @param mapData 待签名的map
      * @param excludeKeys 不参与签名的map key
      * @return
@@ -55,9 +57,9 @@ public class SignHelper {
             if (isArray && Array.getLength(kv.getValue()) == 0) {
                 continue;
             }
-
+            str.append(Chars.AND);
             str.append(kv.getKey())
-                    .append(CharsetHelper.EQUAL);
+                    .append(Chars.EQUAL);
             if (kv.getValue() instanceof BigDecimal) {
                 str.append(((BigDecimal) kv.getValue()).stripTrailingZeros()
                         .toPlainString());
@@ -66,10 +68,9 @@ public class SignHelper {
             } else {
                 str.append(kv.getValue());
             }
-            str.append(CharsetHelper.AND);
         }
-        // System.out.println("=====sign:" + str.toString());
-        return DigestHelper.md5Hex(str.toString());
+
+        return DigestHelper.md5Hex(str.substring(1));
     }
 
     /**

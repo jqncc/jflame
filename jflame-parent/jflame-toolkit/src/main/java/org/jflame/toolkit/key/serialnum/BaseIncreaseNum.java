@@ -1,20 +1,19 @@
 package org.jflame.toolkit.key.serialnum;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BaseIncreaseNum {
 
-    protected long initSeq = 1L;
-    protected AtomicLong sequence;
-    protected AtomicLong lastTimestamp = new AtomicLong(0L);
+    protected int initSeq = 1;
+    protected AtomicInteger sequence;
 
     public BaseIncreaseNum() {
-        sequence = new AtomicLong(initSeq);
+        sequence = new AtomicInteger(initSeq);
     }
 
-    public BaseIncreaseNum(long initSeq) {
+    public BaseIncreaseNum(int initSeq) {
         this.initSeq = initSeq;
-        sequence = new AtomicLong(initSeq);
+        sequence = new AtomicInteger(initSeq);
     }
 
     public long nextNum() {

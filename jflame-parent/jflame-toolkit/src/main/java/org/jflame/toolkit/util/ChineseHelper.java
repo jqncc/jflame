@@ -67,12 +67,13 @@ public final class ChineseHelper {
      * @return 汉字的声母
      * @throws UnsupportedEncodingException 不支持的编码异常
      */
+    @Deprecated
     private static char getFirstLetter(String chinese) throws UnsupportedEncodingException {
         if (StringHelper.isEmpty(chinese)) {
-            throw new IllegalArgumentException("请传入中文字符");
+            throw new IllegalArgumentException("parameter 'chinese' not be null");
         }
         char f = ' ';
-        chinese = CharsetHelper.reEncode(chinese, CharsetHelper.GBK, StandardCharsets.ISO_8859_1);
+        chinese = CharsetHelper.reEncodeGBK(chinese);
         // 判断是不是汉字
         if (chinese.length() > 1) {
             int liSectorCode = (int) chinese.charAt(0); // 汉字区码
@@ -89,7 +90,7 @@ public final class ChineseHelper {
                 }
             } else {
                 // 非汉字字符,如图形符号或ASCII码
-                chinese = CharsetHelper.reEncode(chinese, StandardCharsets.ISO_8859_1, CharsetHelper.GBK);
+                chinese = CharsetHelper.reEncode(chinese, StandardCharsets.ISO_8859_1, CharsetHelper.GBK_18030);
                 f = chinese.charAt(0);
             }
         }
@@ -114,7 +115,7 @@ public final class ChineseHelper {
             lowPos = (161 + Math.abs(random.nextInt(93))); // 获取低位值
             b[0] = (new Integer(hightPos).byteValue());
             b[1] = (new Integer(lowPos).byteValue());
-            ret += new String(b, CharsetHelper.GBK);
+            ret += new String(b, CharsetHelper.GBK_18030);
         }
         return ret;
     }

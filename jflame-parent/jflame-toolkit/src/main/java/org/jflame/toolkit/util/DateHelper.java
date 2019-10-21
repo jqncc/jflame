@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.jflame.toolkit.exception.ConvertException;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
+
+import org.jflame.toolkit.exception.ConvertException;
 
 /**
  * 日期时间操作工具类.
@@ -81,16 +81,16 @@ public final class DateHelper {
      * 常用日期格式数组
      */
     public static final String[] SHORT_PATTEN = { YYYY_MM_DD,YYYYMMDD,CN_YYYY_MM_DD,YYYYMMDD_OBLIQUE };
+
+    /**
+     * 常用时间长格式数组
+     */
+    public static final String[] LONG_PATTEN = { YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,YYYY_MM_DD_T_HH_mm_ss,
+            yyyyMMddHHmmssSSS };
     /**
      * 常用时间格式数组
      */
     public static final String[] TIME_PATTEN = { HH_mm_ss,HH_mm,CN_HH_mm_ss };
-
-    public static final String[] LONG_PATTEN = { YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,YYYY_MM_DD_T_HH_mm_ss,
-            yyyyMMddHHmmssSSS };
-
-    @Deprecated
-    public static final String[] formats = { YYYY_MM_DD,CN_YYYY_MM_DD,YYYY_MM_DD_HH_mm_ss,yyyyMMddHHmmss,HH_mm_ss };
 
     /**
      * 格式化时间
@@ -356,7 +356,7 @@ public final class DateHelper {
     }
 
     /**
-     * 计算两个日期间隔分钟数.startTime小于endTime时返回负数<br>
+     * 计算两个日期间隔秒数.startTime小于endTime时返回负数<br>
      * 
      * @param startTime 时间1
      * @param endTime 时间2

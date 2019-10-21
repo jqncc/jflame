@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -83,6 +84,11 @@ public final class IOHelper {
         return copy(input, output, new char[DEFAULT_BUFFER_SIZE]);
     }
 
+    public static void copy(Reader input, OutputStream output) throws IOException {
+        OutputStreamWriter out = new OutputStreamWriter(output);
+        copy(input, out);
+    }
+
     /**
      * 从指定的InputStream复制字节到OutputStream.提供复制的buffer.<br>
      * <strong>注：请手动关闭输入流</strong>
@@ -100,6 +106,7 @@ public final class IOHelper {
             output.write(buffer, 0, n);
             count += n;
         }
+        output.flush();
         return count;
     }
 

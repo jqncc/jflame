@@ -18,13 +18,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+
+import org.jflame.toolkit.common.bean.Chars;
 import org.jflame.toolkit.convert.Converter;
-import org.jflame.toolkit.convert.TextToBoolConverter;
-import org.jflame.toolkit.convert.TextToDateConverter;
-import org.jflame.toolkit.convert.TextToNumberConverterFactory;
-import org.jflame.toolkit.convert.TextToTemporalConverterFactory;
+import org.jflame.toolkit.convert.StringToBoolConverter;
+import org.jflame.toolkit.convert.StringToDateConverter;
+import org.jflame.toolkit.convert.StringToNumberConverter;
+import org.jflame.toolkit.convert.StringToTemporalConverter;
 import org.jflame.toolkit.excel.ExcelAccessException;
 import org.jflame.toolkit.excel.ExcelColumnProperty;
 import org.jflame.toolkit.excel.ExcelUtils;
@@ -36,8 +38,6 @@ import org.jflame.toolkit.exception.ConvertException;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.NumberHelper;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * csv文件读取解析类.
@@ -134,7 +134,7 @@ public class CsvReader implements Closeable {
      * @param fileName The path to the file to use as the data source.
      */
     public CsvReader(String fileName) throws FileNotFoundException {
-        this(fileName, Letters.COMMA);
+        this(fileName, Chars.COMMA);
     }
 
     /**
@@ -163,7 +163,7 @@ public class CsvReader implements Closeable {
      * @param inputStream The stream to use as the data source.
      */
     public CsvReader(Reader inputStream) {
-        this(inputStream, Letters.COMMA);
+        this(inputStream, Chars.COMMA);
     }
 
     /**
@@ -557,7 +557,7 @@ public class CsvReader implements Closeable {
                         char escapeChar = userSettings.TextQualifier;
 
                         if (userSettings.EscapeMode == ESCAPE_MODE_BACKSLASH) {
-                            escapeChar = Letters.BACKSLASH;
+                            escapeChar = Chars.BACKSLASH;
                         }
 
                         boolean eatingTrailingJunk = false;
@@ -583,7 +583,7 @@ public class CsvReader implements Closeable {
                                     if (currentLetter == userSettings.Delimiter) {
                                         endColumn();
                                     } else if ((!useCustomRecordDelimiter
-                                            && (currentLetter == Letters.CR || currentLetter == Letters.LF))
+                                            && (currentLetter == Chars.CR || currentLetter == Chars.LF))
                                             || (useCustomRecordDelimiter
                                                     && currentLetter == userSettings.RecordDelimiter)) {
                                         endColumn();
@@ -653,19 +653,19 @@ public class CsvReader implements Closeable {
                                 } else if (userSettings.EscapeMode == ESCAPE_MODE_BACKSLASH && lastLetterWasEscape) {
                                     switch (currentLetter) {
                                         case 'n':
-                                            appendLetter(Letters.LF);
+                                            appendLetter(Chars.LF);
                                             break;
                                         case 'r':
-                                            appendLetter(Letters.CR);
+                                            appendLetter(Chars.CR);
                                             break;
                                         case 't':
-                                            appendLetter(Letters.TAB);
+                                            appendLetter(Chars.TAB);
                                             break;
                                         case 'b':
-                                            appendLetter(Letters.BACKSPACE);
+                                            appendLetter(Chars.BACKSPACE);
                                             break;
                                         case 'f':
-                                            appendLetter(Letters.FORM_FEED);
+                                            appendLetter(Chars.FORM_FEED);
                                             break;
                                         case 'e':
                                             appendLetter(Letters.ESCAPE);
@@ -738,7 +738,7 @@ public class CsvReader implements Closeable {
                                         if (currentLetter == userSettings.Delimiter) {
                                             endColumn();
                                         } else if ((!useCustomRecordDelimiter
-                                                && (currentLetter == Letters.CR || currentLetter == Letters.LF))
+                                                && (currentLetter == Chars.CR || currentLetter == Chars.LF))
                                                 || (useCustomRecordDelimiter
                                                         && currentLetter == userSettings.RecordDelimiter)) {
                                             endColumn();
@@ -800,11 +800,10 @@ public class CsvReader implements Closeable {
                         }
 
                         lastLetter = currentLetter;
-                    } else if (!useCustomRecordDelimiter
-                            && (currentLetter == Letters.CR || currentLetter == Letters.LF)) {
+                    } else if (!useCustomRecordDelimiter && (currentLetter == Chars.CR || currentLetter == Chars.LF)) {
                         // this will skip blank lines
                         if (startedColumn || columnsCount > 0 || (!userSettings.SkipEmptyRecords
-                                && (currentLetter == Letters.CR || lastLetter != Letters.CR))) {
+                                && (currentLetter == Chars.CR || lastLetter != Chars.CR))) {
                             endColumn();
 
                             endRecord();
@@ -821,7 +820,7 @@ public class CsvReader implements Closeable {
 
                         skipLine();
                     } else if (userSettings.TrimWhitespace
-                            && (currentLetter == Letters.SPACE || currentLetter == Letters.TAB)) {
+                            && (currentLetter == Letters.SPACE || currentLetter == Chars.TAB)) {
                         // do nothing, this will trim leading whitespace
                         // for both text qualified columns and non
 
@@ -851,7 +850,7 @@ public class CsvReader implements Closeable {
                                 }
 
                                 if (!userSettings.UseTextQualifier && userSettings.EscapeMode == ESCAPE_MODE_BACKSLASH
-                                        && currentLetter == Letters.BACKSLASH) {
+                                        && currentLetter == Chars.BACKSLASH) {
                                     if (lastLetterWasBackslash) {
                                         lastLetterWasBackslash = false;
                                     } else {
@@ -908,19 +907,19 @@ public class CsvReader implements Closeable {
                                 } else if (userSettings.EscapeMode == ESCAPE_MODE_BACKSLASH && lastLetterWasBackslash) {
                                     switch (currentLetter) {
                                         case 'n':
-                                            appendLetter(Letters.LF);
+                                            appendLetter(Chars.LF);
                                             break;
                                         case 'r':
-                                            appendLetter(Letters.CR);
+                                            appendLetter(Chars.CR);
                                             break;
                                         case 't':
-                                            appendLetter(Letters.TAB);
+                                            appendLetter(Chars.TAB);
                                             break;
                                         case 'b':
-                                            appendLetter(Letters.BACKSPACE);
+                                            appendLetter(Chars.BACKSPACE);
                                             break;
                                         case 'f':
-                                            appendLetter(Letters.FORM_FEED);
+                                            appendLetter(Chars.FORM_FEED);
                                             break;
                                         case 'e':
                                             appendLetter(Letters.ESCAPE);
@@ -987,7 +986,7 @@ public class CsvReader implements Closeable {
                                     if (currentLetter == userSettings.Delimiter) {
                                         endColumn();
                                     } else if ((!useCustomRecordDelimiter
-                                            && (currentLetter == Letters.CR || currentLetter == Letters.LF))
+                                            && (currentLetter == Chars.CR || currentLetter == Chars.LF))
                                             || (useCustomRecordDelimiter
                                                     && currentLetter == userSettings.RecordDelimiter)) {
                                         endColumn();
@@ -1205,13 +1204,13 @@ public class CsvReader implements Closeable {
     @SuppressWarnings({ "unchecked","rawtypes" })
     private static Converter getReadConverter(Class<?> needClazz, String fmt) {
         if (NumberHelper.isNumberType(needClazz)) {
-            return new TextToNumberConverterFactory().getConverter((Class<Number>) needClazz);
+            return new StringToNumberConverter((Class<Number>) needClazz);
         } else if (Date.class.isAssignableFrom(needClazz)) {
-            return new TextToDateConverter(needClazz, Optional.ofNullable(fmt));
+            return new StringToDateConverter(needClazz, fmt);
         } else if (Temporal.class.isAssignableFrom(needClazz)) {
-            return new TextToTemporalConverterFactory(fmt).getConverter((Class<Temporal>) needClazz);
+            return new StringToTemporalConverter((Class<Temporal>) needClazz, fmt);
         } else if (needClazz == Boolean.class || needClazz == boolean.class) {
-            return new TextToBoolConverter();
+            return new StringToBoolConverter();
         }
 
         throw new ConvertException("csv 不支持的转换字符串到" + needClazz);
@@ -1266,7 +1265,7 @@ public class CsvReader implements Closeable {
 
                     if (userSettings.TrimWhitespace && !startedWithQualifier) {
                         while (lastLetter >= dataBuffer.ColumnStart && (dataBuffer.Buffer[lastLetter] == Letters.SPACE
-                                || dataBuffer.Buffer[lastLetter] == Letters.TAB)) {
+                                || dataBuffer.Buffer[lastLetter] == Chars.TAB)) {
                             lastLetter--;
                         }
                     }
@@ -1435,7 +1434,7 @@ public class CsvReader implements Closeable {
                     skippedLine = true;
                     // grab the current letter as a char
                     char currentLetter = dataBuffer.Buffer[dataBuffer.Position];
-                    if (currentLetter == Letters.CR || currentLetter == Letters.LF) {
+                    if (currentLetter == Chars.CR || currentLetter == Chars.LF) {
                         foundEol = true;
                     }
 
@@ -1645,11 +1644,11 @@ public class CsvReader implements Closeable {
 
         public UserSettings() {
             // CaseSensitive = true;
-            TextQualifier = Letters.QUOTE;
+            TextQualifier = Chars.QUOTE;
             TrimWhitespace = true;
             UseTextQualifier = true;
-            Delimiter = Letters.COMMA;
-            RecordDelimiter = Letters.NULL;
+            Delimiter = Chars.COMMA;
+            RecordDelimiter = Chars.NULL;
             Comment = Letters.POUND;
             UseComments = false;
             EscapeMode = CsvReader.ESCAPE_MODE_DOUBLED;

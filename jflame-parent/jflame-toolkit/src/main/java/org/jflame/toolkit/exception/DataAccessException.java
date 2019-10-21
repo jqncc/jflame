@@ -1,7 +1,7 @@
 package org.jflame.toolkit.exception;
 
 /**
- * 数据库处理异常类
+ * 数据处理异常类
  * 
  * @author zyc
  */

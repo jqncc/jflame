@@ -6,10 +6,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.jflame.toolkit.exception.BusinessException;
-import org.jflame.toolkit.file.PropertiesHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.toolkit.exception.BusinessException;
+import org.jflame.toolkit.file.PropertiesHelper;
 
 /**
  * 默认实现 从properties文件加载配置参数.<br>
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertiesConfig extends BaseParamStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(PropertiesConfig.class);
+    private final Logger log = LoggerFactory.getLogger(PropertiesConfig.class);
 
     private String[] propertiesFiles;
     private Properties properties;
@@ -92,6 +93,10 @@ public class PropertiesConfig extends BaseParamStrategy {
     @Override
     public String getParam(ConfigKey configKey) {
         return properties.getProperty(configKey.getName());
+    }
+
+    public void clear() {
+        properties.clear();
     }
 
     /**

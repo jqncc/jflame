@@ -19,12 +19,11 @@ public interface BaseResult extends Serializable {
         return new BusinessException(this);
     }
 
-    @SuppressWarnings("rawtypes")
-    default public CallResult createCallResult() {
-        return new CallResult(getStatus(), getMessage());
+    default public <T> CallResult<T> createCallResult() {
+        return new CallResult<T>(getStatus(), getMessage());
     }
 
-    default public void setCallResult(CallResult<?> result) {
+    default public void setResult(CallResult<?> result) {
         result.setResult(getStatus(), getMessage());
     }
 

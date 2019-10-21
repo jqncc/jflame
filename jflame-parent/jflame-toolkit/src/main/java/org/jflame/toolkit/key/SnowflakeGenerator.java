@@ -21,8 +21,8 @@ import org.jflame.toolkit.util.StringHelper;
  */
 public final class SnowflakeGenerator {
 
-    // 开始该类生成ID的时间戳
-    private final static long startTime = 1483436297001L;
+    // 时间起始标记点，确定后不可修改
+    private final long startTime = 1483436297001L;
     // 机器id所占的位数
     private final static long workerIdBits = 5L;
     // 数据中心标识id所占的位数
@@ -48,7 +48,6 @@ public final class SnowflakeGenerator {
     private long sequence = 0L;
     // 上次生成id的时间戳
     private long lastTimestamp = -1L;
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
      * 构造函数,默认使用机器MAC地址和进程号作为数据中心位和机器位
@@ -66,13 +65,12 @@ public final class SnowflakeGenerator {
      */
     public SnowflakeGenerator(long workerId, long datacenterId) {
         if (workerId < 0 || workerId > maxWorkerId) {
-            throw new IllegalArgumentException(String
-                    .format("workerId[%d] is less than 0 or greater than maxWorkerId[%d].", workerId, maxWorkerId));
+            throw new IllegalArgumentException(
+                    String.format("workerId[%d] 小于0或大于 maxWorkerId[%d].", workerId, maxWorkerId));
         }
         if (datacenterId < 0 || datacenterId > maxDatacenterId) {
             throw new IllegalArgumentException(
-                    String.format("datacenterId[%d] is less than 0 or greater than maxDatacenterId[%d].", datacenterId,
-                            maxDatacenterId));
+                    String.format("datacenterId[%d] 小于0或大于 maxDatacenterId[%d].", datacenterId, maxDatacenterId));
         }
         this.workerId = workerId;
         this.datacenterId = datacenterId;
@@ -85,8 +83,23 @@ public final class SnowflakeGenerator {
      */
     public synchronized long nextId() {
         long timestamp = curTimeMillis();
+        // 检查时钟是否回拨了
         if (timestamp < lastTimestamp) {
-            throw new RuntimeException(String.format("时间设置错误，拒绝生成新的id %d 毫秒", lastTimestamp - timestamp));
+            long offset = lastTimestamp - timestamp;
+            // 相差不大,略等一会
+            if (offset <= 10) {
+                try {
+                    wait(offset << 1);
+                    timestamp = curTimeMillis();
+                    if (timestamp < lastTimestamp) {
+                        throw new RuntimeException(String.format("时钟回拨. 拒绝生成新的id %d 毫秒", offset));
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                throw new RuntimeException(String.format("时钟回拨. 拒绝生成新的id %d 毫秒", offset));
+            }
         }
         // 表示是同一时间戳内生成的id
         if (timestamp == lastTimestamp) {
@@ -123,7 +136,8 @@ public final class SnowflakeGenerator {
      * @return
      */
     private long randomInitSequence() {
-        return random.nextInt(9);
+        return ThreadLocalRandom.current()
+                .nextInt(9);
     }
 
     private long utilNextMillis() {
@@ -134,7 +148,7 @@ public final class SnowflakeGenerator {
         return timestamp;
     }
 
-    long curTimeMillis() {
+    private long curTimeMillis() {
         return System.currentTimeMillis();
     }
 
@@ -146,7 +160,8 @@ public final class SnowflakeGenerator {
     protected static long getMaxWorkerId(long datacenterId, long maxWorkerId) {
         StringBuilder mpid = new StringBuilder();
         mpid.append(datacenterId);
-        String name = ManagementFactory.getRuntimeMXBean().getName();
+        String name = ManagementFactory.getRuntimeMXBean()
+                .getName();
         if (StringHelper.isNotEmpty(name)) {
             /*
              * GET jvmPid
@@ -156,7 +171,8 @@ public final class SnowflakeGenerator {
         /*
          * MAC + PID 的 hashcode 获取16个低位
          */
-        return (mpid.toString().hashCode() & 0xffff) % (maxWorkerId + 1);
+        return (mpid.toString()
+                .hashCode() & 0xffff) % (maxWorkerId + 1);
     }
 
     /**
@@ -185,11 +201,6 @@ public final class SnowflakeGenerator {
         return id;
     }
 
-    public static void main(String[] args) {
-        SnowflakeGenerator generator = new SnowflakeGenerator();
-        System.out.println(generator.nextId());
-        // System.out.println(new Date(1483436297001L));
-    }
     // 测试
     // public static void main(String[] args) {
     // final int threadCount = 3;

@@ -2,11 +2,12 @@ package org.jflame.toolkit.cache.serialize;
 
 import java.nio.charset.StandardCharsets;
 
-import org.jflame.toolkit.exception.SerializeException;
-
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import org.jflame.toolkit.exception.SerializeException;
 
 public class FastJsonRedisSerializer implements IGenericRedisSerializer {
 
@@ -34,7 +35,12 @@ public class FastJsonRedisSerializer implements IGenericRedisSerializer {
             return null;
         }
         try {
-            return JSON.parseObject(new String(bytes, StandardCharsets.UTF_8), Object.class, defaultRedisConfig);
+            String text = new String(bytes, StandardCharsets.UTF_8);
+            /*if (text.charAt(0) != JSONToken.LBRACE && text.charAt(0) != JSONToken.LBRACKET) {
+                Chars.QUOTE+text+Chars.QUOTE;
+            }*/
+
+            return JSON.parseObject(text, Object.class, defaultRedisConfig, Feature.AllowUnQuotedFieldNames);
         } catch (Exception ex) {
             throw new SerializeException("Could not deserialize: " + ex.getMessage(), ex);
         }

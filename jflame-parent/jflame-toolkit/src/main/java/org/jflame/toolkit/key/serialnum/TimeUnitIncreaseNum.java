@@ -1,9 +1,6 @@
 package org.jflame.toolkit.key.serialnum;
 
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
-
-import org.jflame.toolkit.util.DateHelper;
 
 /**
  * 单位时间内循环自增数.
@@ -15,6 +12,7 @@ import org.jflame.toolkit.util.DateHelper;
 public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
 
     private TimeUnit timeUnit;
+    protected long lastTime;
 
     /**
      * 构造函数
@@ -24,8 +22,7 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
     public TimeUnitIncreaseNum(TimeUnit timeUnit) {
         super();
         this.timeUnit = timeUnit;
-        isSupportUnit();
-        setNextTimestamp();
+        setLastTime();
     }
 
     /**
@@ -37,79 +34,49 @@ public final class TimeUnitIncreaseNum extends BaseIncreaseNum {
     public TimeUnitIncreaseNum(TimeUnit timeUnit, int initNum) {
         super(initNum);
         this.timeUnit = timeUnit;
-        isSupportUnit();
-        setNextTimestamp();
     }
 
     @Override
-    public long nextNum() {
-        long curTime = System.currentTimeMillis();
-        // System.out.println(curTime);
-        // System.out.println(lastTimestamp.get());
-        if (curTime > lastTimestamp.get()) {
+    public synchronized long nextNum() {
+        long curTime = millisToTimeunit(System.currentTimeMillis());
+        if (curTime > lastTime) {
             sequence.set(initSeq);
-            setNextTimestamp();
-            // System.out.println("reset..");
+            setLastTime();
         }
         return sequence.getAndIncrement();
     }
 
-    private void setNextTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        if (timeUnit == TimeUnit.DAYS) {
-            lastTimestamp.set(DateHelper.getEndTimeOfDay(calendar.getTime()).getTime());
-        } else if (timeUnit == TimeUnit.HOURS) {
-            lastTimestamp.set(getEndTimeOfHour(calendar));
-        } else if (timeUnit == TimeUnit.MINUTES) {
-            lastTimestamp.set(getEndTimeOfMiunte(calendar));
-        } else if (timeUnit == TimeUnit.SECONDS) {
-            lastTimestamp.set(getEndTimeOfSecond(calendar));
-        }
+    private void setLastTime() {
+        long now = System.currentTimeMillis();
+        lastTime = millisToTimeunit(now);
     }
 
-    private void isSupportUnit() {
-        if (timeUnit != TimeUnit.DAYS && timeUnit != TimeUnit.HOURS && timeUnit != TimeUnit.MINUTES
-                && timeUnit != TimeUnit.SECONDS) {
+    private long millisToTimeunit(long milliseconds) {
+        if (timeUnit == TimeUnit.DAYS) {
+            return TimeUnit.MILLISECONDS.toDays(milliseconds);
+        } else if (timeUnit == TimeUnit.HOURS) {
+            return TimeUnit.MILLISECONDS.toHours(milliseconds);
+        } else if (timeUnit == TimeUnit.MINUTES) {
+            return TimeUnit.MILLISECONDS.toMinutes(milliseconds);
+        } else if (timeUnit == TimeUnit.SECONDS) {
+            return TimeUnit.MILLISECONDS.toSeconds(milliseconds);
+        } else {
             throw new IllegalArgumentException("只支持\"天->秒\"时间单位");
         }
     }
 
-    private long getEndTimeOfHour(Calendar calendar) {
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTimeInMillis();
-    }
-
-    private long getEndTimeOfMiunte(Calendar calendar) {
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTimeInMillis();
-    }
-
-    private long getEndTimeOfSecond(Calendar calendar) {
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTimeInMillis();
-    }
-
     /*public static void main(String[] args) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        System.out.println(calendar.getTime());
+        TimeUnitIncreaseNum num = new TimeUnitIncreaseNum(TimeUnit.SECONDS);
+        for (int i = 0; i < 10; i++) {
+            System.out.println(num.nextNum());
+        }
+        try {
+            Thread.sleep(999);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < 5; i++) {
+            System.out.println(num.nextNum());
+        }
     }*/
-    // public static void main(String[] args) {
-    // TimeUnitIncreaseNum num = new TimeUnitIncreaseNum(TimeUnit.SECONDS);
-    // for (int i = 0; i < 10; i++) {
-    // System.out.println(num.nextNum());
-    // }
-    // try {
-    // Thread.sleep(999);
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // for (int i = 0; i < 5; i++) {
-    // System.out.println(num.nextNum());
-    // }
-    // }
 }

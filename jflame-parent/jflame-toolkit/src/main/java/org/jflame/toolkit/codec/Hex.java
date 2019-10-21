@@ -3,17 +3,14 @@ package org.jflame.toolkit.codec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
+import org.jflame.toolkit.common.bean.Chars;
+
 /**
  * Hex 十六进制编码工具类.取自apapche-commons-codec包
  * 
  * @author yucan.zhang
  */
 public class Hex implements BinaryDecoder, BinaryEncoder {
-
-    /**
-     * Used to build output as Hex
-     */
-    private static final char[] DIGITS_LOWER = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' };
 
     /**
      * Used to build output as Hex
@@ -74,7 +71,7 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
      * @since 1.4
      */
     public static char[] encodeHex(byte[] data, boolean toLowerCase) {
-        return encodeHex(data, toLowerCase ? DIGITS_LOWER : DIGITS_UPPER);
+        return encodeHex(data, toLowerCase ? Chars.HEX_CHARS : DIGITS_UPPER);
     }
 
     /**
@@ -233,21 +230,10 @@ public class Hex implements BinaryDecoder, BinaryEncoder {
         }
     }
 
-    /**
-     * Gets the charset name.
-     * 
-     * @return the charset name.
-     * @since 1.4
-     */
     public String getCharsetName() {
         return this.charsetName;
     }
 
-    /**
-     * Returns a string representation of the object, which includes the charset name.
-     * 
-     * @return a string representation of the object.
-     */
     public String toString() {
         return super.toString() + "[charsetName=" + this.charsetName + "]";
     }

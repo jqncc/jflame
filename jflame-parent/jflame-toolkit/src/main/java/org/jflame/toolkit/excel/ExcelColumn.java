@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jflame.toolkit.convert.Converter;
-import org.jflame.toolkit.convert.ObjectToTextConverter;
+import org.jflame.toolkit.convert.ObjectToStringConverter;
 import org.jflame.toolkit.excel.handler.NullConverter;
 
 /**
@@ -49,7 +49,7 @@ public @interface ExcelColumn {
     public String fmt() default "";
 
     @SuppressWarnings("rawtypes")
-    public Class<? extends ObjectToTextConverter> writeConverter() default NullConverter.class;
+    public Class<? extends ObjectToStringConverter> writeConverter() default NullConverter.class;
 
     @SuppressWarnings("rawtypes")
     public Class<? extends Converter> readConverter() default NullConverter.class;
