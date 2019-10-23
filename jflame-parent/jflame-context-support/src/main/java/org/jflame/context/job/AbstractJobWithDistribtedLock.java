@@ -11,12 +11,12 @@ import org.jflame.toolkit.lock.DistributedLock;
 public abstract class AbstractJobWithDistribtedLock {
 
     final protected Logger logger = LoggerFactory.getLogger(getClass());
-    private int lockTimeout = 1;// 锁超时时间
-    private int lockWaitTime = 200;// 获取锁等待时间
+    private int lockTimeout;// 锁超时时间
+    private int lockWaitTime = 100;// 获取锁等待时间
     protected String jobName;
 
     public AbstractJobWithDistribtedLock(String jobName) {
-        this(jobName, 0);
+        this(jobName, 5);
     }
 
     /**
@@ -27,6 +27,7 @@ public abstract class AbstractJobWithDistribtedLock {
      */
     public AbstractJobWithDistribtedLock(String jobName, int lockTimeout) {
         this.jobName = jobName;
+        this.lockTimeout = lockTimeout;
     }
 
     /**
@@ -34,7 +35,9 @@ public abstract class AbstractJobWithDistribtedLock {
      */
     public void execute() {
         boolean isLock = false;
-        logger.debug("job {} starting", jobName);
+        if (logger.isDebugEnabled()) {
+            logger.debug("job {} starting", jobName);
+        }
         String lockName = getClass().getPackage()
                 .getName() + jobName;
         DistributedLock lock = getLock(lockName);

@@ -1,9 +1,15 @@
 package org.jflame.toolkit.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -201,7 +207,7 @@ public final class CollectionHelper {
     /**
      * 按条件过滤集合,返回符合条件的子集Set
      * 
-     * @param collection
+     * @param collection 集合
      * @param predicate 条件
      * @return
      */
@@ -215,15 +221,59 @@ public final class CollectionHelper {
     }
 
     /**
-     * 用给定元素生成一个List
+     * 用给定元素生成一个List,List实现为ArrayList
      * 
      * @param elements
      * @return
      */
     @SafeVarargs
     public static <T> List<T> newList(T... elements) {
+        if (elements == null) {
+            return null;
+        }
         ArrayList<T> lst = new ArrayList<>(elements.length);
         Collections.addAll(lst, elements);
         return lst;
     }
+
+    /**
+     * 用给定元素生成一个Set,Set实现为HashSet
+     * 
+     * @param elements
+     * @return
+     */
+    @SafeVarargs
+    public static <T> Set<T> newSet(T... elements) {
+        if (elements == null) {
+            return null;
+        }
+        Set<T> set = new HashSet<>(elements.length);
+        Collections.addAll(set, elements);
+        return set;
+    }
+
+    /**
+     * 尝试克隆一个集合.通过序列化方式克隆对象
+     * 
+     * @param src 要克隆的集合
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Collection<T> deepClone(Collection<T> src) {
+        Collection<T> dest = null;
+        try {
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(byteOut);
+            out.writeObject(src);
+            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
+            ObjectInputStream in = new ObjectInputStream(byteIn);
+            dest = (Collection<T>) in.readObject();
+        } catch (IOException e) {
+
+        } catch (ClassNotFoundException e) {
+
+        }
+        return dest;
+    }
+
 }

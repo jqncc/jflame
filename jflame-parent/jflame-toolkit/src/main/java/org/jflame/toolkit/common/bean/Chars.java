@@ -41,13 +41,17 @@ public abstract class Chars {
      */
     public static final char EQUAL = '=';
     /**
-     * 反斜线
+     * 反斜线\
      */
     public static final char BACKSLASH = '\\';
+    /**
+     * 斜线/
+     */
+    public static final char SLASH = '/';
 
     public static final char NULL = '\0';
     /**
-     * 16进制字符
+     * 16进制字符数组
      */
     public static final char[] HEX_CHARS = new char[] { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e',
             'f' };

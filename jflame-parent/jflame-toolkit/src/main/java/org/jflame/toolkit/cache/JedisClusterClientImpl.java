@@ -597,12 +597,12 @@ public class JedisClusterClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean zsadd(Serializable key, Serializable value, double score) {
+    public boolean zsadd(Serializable key, Serializable mermber, double score) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
             public Boolean doHandle(JedisCluster client, byte[]... keyBytes) {
-                long r = client.zadd(keyBytes[0], score, toBytes(value));
+                long r = client.zadd(keyBytes[0], score, toBytes(mermber));
                 return r == 1;
             }
         });
@@ -946,12 +946,18 @@ public class JedisClusterClientImpl implements RedisClient {
     @Override
     public <T> T runScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
+        return runScript(luaScript, keys, args, resultClazz, null);
+    }
+
+    @Override
+    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
         // Redis要求单个Lua脚本操作的key必须在同一个节点上,如果只有一个keys执行,如果多key抛异常
         if (keys.size() == 1) {
             try (JedisCluster client = getJedis()) {
                 Object r = client.eval(CharsetHelper.getUtf8Bytes(luaScript), toBytes(keys), toBytes(args));
                 Object cr = convertScriptResult(r, resultClazz);
-                return deserializeResult(cr, resultClazz);
+                return deserializeResult(cr, resultClazz, resultSerializer);
             } catch (Exception e) {
                 throw new RedisAccessException(e);
             }
@@ -963,12 +969,18 @@ public class JedisClusterClientImpl implements RedisClient {
     @Override
     public <T> T runSHAScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
+        return runSHAScript(luaScript, keys, args, resultClazz, null);
+    }
+
+    @Override
+    public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
+            List<? extends Serializable> args, Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
         if (keys.size() == 1) {
             try (JedisCluster client = getJedis()) {
                 byte[] scriptBytes = client.scriptLoad(CharsetHelper.getUtf8Bytes(luaScript), toBytes(keys.get(0)));
                 Object r = client.evalsha(scriptBytes, toBytes(keys), toBytes(args));
                 Object cr = convertScriptResult(r, resultClazz);
-                return deserializeResult(cr, resultClazz);
+                return deserializeResult(cr, resultClazz, resultSerializer);
             } catch (Exception e) {
                 throw new RedisAccessException(e);
             }

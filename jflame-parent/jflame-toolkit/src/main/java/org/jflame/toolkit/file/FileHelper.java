@@ -14,6 +14,7 @@ import java.util.Calendar;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.jflame.toolkit.common.bean.Chars;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.StringHelper;
 
@@ -27,11 +28,11 @@ public final class FileHelper {
     /**
      * windows文件路径分隔符\
      */
-    public static final char WIN_SEPARATOR = '\\';
+    public static final char WIN_SEPARATOR = Chars.BACKSLASH;
     /**
      * unix文件路径分隔符/
      */
-    public static final char UNIX_SEPARATOR = '/';
+    public static final char UNIX_SEPARATOR = Chars.SLASH;
 
     /**
      * 返回文件路径的目录部分. 如果指定的文件存在，使用文件属性判断<br>

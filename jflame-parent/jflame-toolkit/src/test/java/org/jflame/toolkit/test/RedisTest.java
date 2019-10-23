@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
+import org.jflame.toolkit.cache.JedisConnection;
 import org.jflame.toolkit.cache.RedisClient;
 import org.jflame.toolkit.cache.RedisClientFactory;
 import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
@@ -46,6 +46,7 @@ public class RedisTest {
     JedisPoolConfig poolCfg;
     RedisClient client;
     private String host = "127.0.0.1";
+    // private String host = "10.18.200.96";
     private int db = 2;
 
     Pet pet = new Pet();
@@ -63,14 +64,14 @@ public class RedisTest {
         pet.setName("litte black dog");
         pet.setSkin("black");
         // jedis
-        /*JedisConnection jedisConn = new JedisConnection(host, db, poolCfg);
-        jedisConn.init();*/
+        JedisConnection jedisConn = new JedisConnection(host, db, poolCfg);
+        jedisConn.init();
         // spring redis
-        JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
+        /*JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
         jedisConn.setDatabase(db);
         jedisConn.setHostName(host);
         jedisConn.setUsePool(true);
-        jedisConn.afterPropertiesSet();
+        jedisConn.afterPropertiesSet();*/
 
         client = RedisClientFactory.createClient(jedisConn);
     }
@@ -229,19 +230,39 @@ public class RedisTest {
 
     @Test
     public void testLua() {
+        // client.zsadd("zsetdemo", "xxyy", 3d);
         StringBuilder sb = new StringBuilder();
+        sb.append("if redis.call('EXISTS',KEYS[1])==0 then ");
+        sb.append("   redis.call('ZADD',KEYS[1],1,ARGV[1]) ");
+        sb.append("   return '\"1\"' ");
+        sb.append("end ");
+        sb.append("local wokerscore=redis.call('ZSCORE',KEYS[1],ARGV[1]) ");
+        sb.append("if wokerscore ~=false then "); // wokerscore ~=nil and not wokerscore
+        sb.append(" return '\"'..tostring(wokerscore)..'\"' ");
+        sb.append("end ");
         sb.append("local maxscores=redis.call('ZRANGE',KEYS[1],-1,-1,'WITHSCORES') ");
+        sb.append("if maxscores[1]~=nil then ");
+        sb.append("   local wokerscore=maxscores[2]+1 ");
+        sb.append("   redis.call('ZADD',KEYS[1],wokerscore,ARGV[1]) ");
+        sb.append("   return '\"'..tostring(wokerscore)..'\"' ");
+        sb.append("else ");
+        sb.append("   redis.call('ZADD',KEYS[1],1,ARGV[1]) ");
+        sb.append("   return '\"1\"' ");
+        sb.append("end ");
+
+        /* sb.append("local maxscores=redis.call('ZRANGE',KEYS[1],-1,-1,'WITHSCORES') ");
         sb.append("local maxscore=1 ");
-        sb.append("if maxscores~=nil then ");
-        sb.append("  return '\"'..tostring(maxscores[1])..'\"' end ");
+        sb.append("if maxscores[1]~=nil then ");
+        sb.append("  return maxscores[2] ");
+        sb.append("end ");
         // sb.append(" maxscore=tonumber(maxscores[1])+1 end ");// tonumber(maxscores[1])+1tostring(maxscores)
         // sb.append("redis.call('zadd',KEYS[1],maxscore,ARGV[1]) ");
-        sb.append("return '\"9\"' ");
+        sb.append("return '\"cx\"' ");*/
 
-        // Long m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember2"),
-        // Long.class);
-        String m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember2"),
+        String m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember1"),
                 String.class);
+        // String m = client.runScript(sb.toString(), Arrays.asList("zsetdemo"), Arrays.asList("zsetmember2"),
+        // String.class);
         System.out.println(m);
     }
 

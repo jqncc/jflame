@@ -158,17 +158,18 @@ public interface RedisClient {
     }
 
     @SuppressWarnings({ "unchecked","rawtypes" })
-    default <T> T deserializeResult(Object result, Class<T> resultClazz) {
+    default <T> T deserializeResult(Object result, Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
         if (result instanceof byte[]) {
-            if (getSerializer() == null) {
-                return (T) result;
+            if (resultSerializer != null) {
+                return (T) resultSerializer.deserialize((byte[]) result);
+            } else {
+                return fromBytes((byte[]) result);
             }
-            return fromBytes((byte[]) result);
         }
         if (result instanceof List) {
             List results = new ArrayList();
             for (Object obj : (List) result) {
-                results.add(deserializeResult(obj, resultClazz));
+                results.add(deserializeResult(obj, resultClazz, resultSerializer));
             }
             return (T) results;
         }
@@ -617,7 +618,7 @@ public interface RedisClient {
      * @param score 排序值
      * @return 返回被成功添加的新成员的数量，不包括那些被更新的、已经存在的成员
      */
-    boolean zsadd(Serializable key, Serializable value, double score);
+    boolean zsadd(Serializable key, Serializable mermber, double score);
 
     interface SortedSetTuple<V> extends Comparable<SortedSetTuple<V>> {
 
@@ -900,7 +901,8 @@ public interface RedisClient {
     Set<? extends Serializable> keys(String pattern);
 
     /**
-     * 运行lua脚本命令.eval命令
+     * 运行lua脚本命令,eval命令.<b>结果返回使用默认的JSON转换器,返回脚本返回的数据应该是可识别的json格式,或者使用
+     * {@link #runScript(String, List, List, Class, IGenericRedisSerializer)}
      * 
      * @param luaScript lua脚本
      * @param keys 脚本中的key
@@ -911,14 +913,41 @@ public interface RedisClient {
             Class<T> resultClazz);
 
     /**
-     * 运行lua脚本命令,缓存脚本在redis.evalsha命令
+     * 运行lua脚本命令(eval).结果可使用自定义序列化类转换
+     * 
+     * @param luaScript lua脚本
+     * @param keys 脚本中的key
+     * @param args 脚本中的参数
+     * @param resultClazz 返回结果类型
+     * @param resultSerializer 结果反序列化类
+     * @return
+     */
+    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IGenericRedisSerializer resultSerializer);
+
+    /**
+     * 运行lua脚本命令(evalsha)
      * 
      * @param luaScript 脚本
      * @param keys 脚本中的key
      * @param args 脚本中的参数
+     * @param resultClazz 返回结果类型
      * @return
      */
     <T> T runSHAScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
             Class<T> resultClazz);
+
+    /**
+     * 运行lua脚本命令(evalsha),缓存脚本在redis.结果可使用自定义序列化类转换
+     * 
+     * @param luaScript lua脚本
+     * @param keys 脚本中的key
+     * @param args 脚本中的参数
+     * @@param resultClazz 返回结果类型
+     * @param resultSerializer 结果反序列化类
+     * @return
+     */
+    <T> T runSHAScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IGenericRedisSerializer resultSerializer);
 
 }

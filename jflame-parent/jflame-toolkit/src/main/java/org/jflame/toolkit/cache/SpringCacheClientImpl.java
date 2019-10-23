@@ -22,10 +22,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-
-import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.cache.serialize.SpringRedisSerializer;
@@ -44,16 +42,16 @@ public class SpringCacheClientImpl implements RedisClient {
     private RedisTemplate<Serializable,Serializable> redisTemplate;
     private IGenericRedisSerializer serializer;
 
-    public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
-        this(redisConnection, new GenericFastJsonRedisSerializer());
-    }
+    /*   public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
+        this(redisConnection, new SpringRedisSerializer());
+    }*/
 
-    public SpringCacheClientImpl(RedisConnectionFactory redisConnection, RedisSerializer<Object> serializer) {
+    public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
         redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnection);
-        redisTemplate.setDefaultSerializer(serializer);
+        serializer = new SpringRedisSerializer();
+        redisTemplate.setDefaultSerializer((RedisSerializer<Object>) serializer);
         redisTemplate.afterPropertiesSet();
-        this.serializer = new SpringRedisSerializer(serializer);
     }
 
     @Override
@@ -554,9 +552,9 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean zsadd(Serializable key, Serializable value, double score) {
+    public boolean zsadd(Serializable key, Serializable mermber, double score) {
         try {
-            return getZsetOpt(key).add(value, score);
+            return getZsetOpt(key).add(mermber, score);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
@@ -836,12 +834,40 @@ public class SpringCacheClientImpl implements RedisClient {
         for (int i = 0; i < argArray.length; i++) {
             argArray[i] = args.get(i);
         }
-        RedisSerializer<T> jdkSerializer = (RedisSerializer<T>) new JdkSerializationRedisSerializer(this.getClass()
-                .getClassLoader());
+        DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
         try {
-            DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
-            return redisTemplate.execute(script, jdkSerializer, jdkSerializer, (List<Serializable>) keys, argArray);
-            // return redisTemplate.execute(script, (List<Serializable>) keys, argArray);
+            return redisTemplate.execute(script, (List<Serializable>) keys, argArray);
+        } catch (DataAccessException e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    @Override
+    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
+        Object[] argArray = null;
+        if (args != null) {
+            argArray = new Object[args.size()];
+        }
+        for (int i = 0; i < argArray.length; i++) {
+            argArray[i] = args.get(i);
+        }
+        class SerializerAdapter implements RedisSerializer<T> {
+
+            @Override
+            public byte[] serialize(Object t) throws SerializationException {
+                return resultSerializer.serialize(t);
+            }
+
+            @Override
+            public T deserialize(byte[] bytes) throws SerializationException {
+                return (T) resultSerializer.deserialize(bytes);
+            }
+        }
+        DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
+        try {
+            return redisTemplate.execute(script, (RedisSerializer<?>) serializer, new SerializerAdapter(),
+                    (List<Serializable>) keys, argArray);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
@@ -851,6 +877,11 @@ public class SpringCacheClientImpl implements RedisClient {
     public <T> T runSHAScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
         return runScript(luaScript, keys, args, resultClazz);// redisTemplate 内部默认先使用evalsha命令
+    }
+
+    public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
+            List<? extends Serializable> args, Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
+        return runScript(luaScript, keys, args, resultClazz, resultSerializer);
     }
 
     @Override

@@ -608,12 +608,12 @@ public class JedisClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean zsadd(Serializable key, Serializable value, double score) {
+    public boolean zsadd(Serializable key, Serializable mermber, double score) {
         return execute(key, new CmdHandler<Boolean>() {
 
             @Override
             public Boolean doHandle(Jedis client, byte[]... keyBytes) {
-                long r = client.zadd(keyBytes[0], score, toBytes(value));
+                long r = client.zadd(keyBytes[0], score, toBytes(mermber));
                 return r == 1;
             }
         });
@@ -944,10 +944,16 @@ public class JedisClientImpl implements RedisClient {
     @Override
     public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
+        return runScript(luaScript, keys, args, resultClazz, null);
+    }
+
+    @Override
+    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
         try (Jedis client = getJedis()) {
             Object r = client.eval(CharsetHelper.getUtf8Bytes(luaScript), toBytes(keys), toBytes(args));
             Object cr = convertScriptResult(r, resultClazz);
-            return deserializeResult(cr, resultClazz);
+            return deserializeResult(cr, resultClazz, resultSerializer);
         } catch (Exception e) {
             throw new RedisAccessException(e);
         }
@@ -956,11 +962,17 @@ public class JedisClientImpl implements RedisClient {
     @Override
     public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
             List<? extends Serializable> args, Class<T> resultClazz) {
+        return runSHAScript(luaScript, keys, args, resultClazz, null);
+    }
+
+    @Override
+    public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
+            List<? extends Serializable> args, Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
         try (Jedis client = getJedis()) {
             byte[] scriptBytes = client.scriptLoad(CharsetHelper.getUtf8Bytes(luaScript));
             Object r = client.evalsha(scriptBytes, toBytes(keys), toBytes(args));
             Object cr = convertScriptResult(r, resultClazz);
-            return deserializeResult(cr, resultClazz);
+            return deserializeResult(cr, resultClazz, resultSerializer);
         } catch (Exception e) {
             throw new RedisAccessException(e);
         }

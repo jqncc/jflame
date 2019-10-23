@@ -1,28 +1,27 @@
 package org.jflame.toolkit.cache.serialize;
 
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import org.jflame.toolkit.exception.SerializeException;
 
-public class SpringRedisSerializer implements IGenericRedisSerializer {
+public class SpringRedisSerializer extends FastJsonRedisSerializer implements RedisSerializer<Object> {
 
-    RedisSerializer<Object> genericSerializer;
-
-    public SpringRedisSerializer(RedisSerializer<Object> genericSerializer) {
-        this.genericSerializer = genericSerializer;
+    @Override
+    public byte[] serialize(Object object) throws SerializationException {
+        try {
+            return super.serialize(object);
+        } catch (SerializeException ex) {
+            throw new SerializationException(ex.getMessage());
+        }
     }
 
     @Override
-    public byte[] serialize(Object t) throws SerializeException {
-        return genericSerializer.serialize(t);
+    public Object deserialize(byte[] bytes) throws SerializationException {
+        try {
+            return super.deserialize(bytes);
+        } catch (SerializeException ex) {
+            throw new SerializationException(ex.getMessage());
+        }
     }
-
-    @Override
-    public Object deserialize(byte[] bytes) throws SerializeException {
-        System.out.println("====" + new String(bytes, StandardCharsets.UTF_8));
-        return genericSerializer.deserialize(bytes);
-    }
-
 }

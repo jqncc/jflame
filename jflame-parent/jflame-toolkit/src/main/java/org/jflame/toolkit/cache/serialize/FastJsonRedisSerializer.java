@@ -36,9 +36,7 @@ public class FastJsonRedisSerializer implements IGenericRedisSerializer {
         }
         try {
             String text = new String(bytes, StandardCharsets.UTF_8);
-            /*if (text.charAt(0) != JSONToken.LBRACE && text.charAt(0) != JSONToken.LBRACKET) {
-                Chars.QUOTE+text+Chars.QUOTE;
-            }*/
+            // System.out.println(text);
 
             return JSON.parseObject(text, Object.class, defaultRedisConfig, Feature.AllowUnQuotedFieldNames);
         } catch (Exception ex) {

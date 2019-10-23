@@ -22,7 +22,7 @@ public abstract class BaseConfig {
     public final static ConfigKey<String> CFG_APP_NO = new ConfigKey<String>("appNo");
 
     public final static ConfigKey<String> CFG_FILE_MODE = new ConfigKey<String>("file.manager", "local");
-    public final static ConfigKey<String> CFG_SAVE_PATH = new ConfigKey<>("file.local.save.path");
+    public final static ConfigKey<String> CFG_SAVE_PATH = new ConfigKey<>("file.save.path");
     public final static ConfigKey<String> CFG_FILE_SERVER = new ConfigKey<>("file.server");
     public final static ConfigKey<String> CFG_IMAGE_SERVER = new ConfigKey<>("file.image.server");
 
