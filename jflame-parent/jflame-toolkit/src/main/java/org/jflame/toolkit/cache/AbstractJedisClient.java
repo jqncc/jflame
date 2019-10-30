@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jflame.toolkit.cache.serialize.BinaryJedisClusterCommandsAdapter;
 import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
 import org.jflame.toolkit.cache.serialize.IRedisSerializer;
 import org.jflame.toolkit.cache.serialize.StringRedisSerializer;

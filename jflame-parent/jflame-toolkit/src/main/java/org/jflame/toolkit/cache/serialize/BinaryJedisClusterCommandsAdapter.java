@@ -1,9 +1,12 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.serialize;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.jflame.toolkit.cache.RedisAccessException;
+
 import java.util.Set;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
