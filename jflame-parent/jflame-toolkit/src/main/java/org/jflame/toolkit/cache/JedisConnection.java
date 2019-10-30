@@ -9,12 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 
-import org.jflame.toolkit.exception.DataAccessException;
-import org.jflame.toolkit.util.StringHelper;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.toolkit.exception.DataAccessException;
+import org.jflame.toolkit.util.StringHelper;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;

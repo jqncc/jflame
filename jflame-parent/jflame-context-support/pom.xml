@@ -9,7 +9,7 @@
 	<artifactId>jflame-context-support</artifactId>
 	<properties>
 		<version.mybatisplus>2.1.5-a</version.mybatisplus>
-		<version.dubbo>2.6.5</version.dubbo>
+		<version.dubbo>2.6.6</version.dubbo>
 		<version.resteasy>3.0.19.Final</version.resteasy>
 		<version.alioss>2.8.3</version.alioss>
 		<version.fastdfs>1.27-SNAPSHOT</version.fastdfs>

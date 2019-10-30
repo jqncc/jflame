@@ -33,7 +33,7 @@
 		<version.commonnet>3.3</version.commonnet>
 		<version.fastjson>1.2.60</version.fastjson>
 		<version.zkclient>0.10</version.zkclient>
-		<version.jedis>2.9.0</version.jedis>
+		<version.jedis>2.10.2</version.jedis>
 		<version.springredis>1.8.20.RELEASE</version.springredis>
 		<version.jackson>2.9.8</version.jackson>
 	</properties>

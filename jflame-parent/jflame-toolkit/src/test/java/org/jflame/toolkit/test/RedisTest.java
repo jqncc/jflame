@@ -1,7 +1,6 @@
 package org.jflame.toolkit.test;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,16 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
-import org.jflame.toolkit.cache.JedisConnection;
 import org.jflame.toolkit.cache.RedisClient;
 import org.jflame.toolkit.cache.RedisClientFactory;
-import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
 import org.jflame.toolkit.lock.RedisLock;
 import org.jflame.toolkit.test.entity.Pet;
 import org.jflame.toolkit.util.DateHelper;
@@ -64,14 +62,14 @@ public class RedisTest {
         pet.setName("litte black dog");
         pet.setSkin("black");
         // jedis
-        JedisConnection jedisConn = new JedisConnection(host, db, poolCfg);
-        jedisConn.init();
+        /*JedisConnection jedisConn = new JedisConnection(host, db, poolCfg);
+        jedisConn.init();*/
         // spring redis
-        /*JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
+        JedisConnectionFactory jedisConn = new JedisConnectionFactory(poolCfg);
         jedisConn.setDatabase(db);
         jedisConn.setHostName(host);
         jedisConn.setUsePool(true);
-        jedisConn.afterPropertiesSet();*/
+        jedisConn.afterPropertiesSet();
 
         client = RedisClientFactory.createClient(jedisConn);
     }
@@ -94,19 +92,21 @@ public class RedisTest {
      */
     @Test
     public void testRedis() {
-
         // set,get,ttl,expire command
+        System.out.println("redis value test");
         client.set(pet.getName(), pet);
         long ttl = client.ttl(pet.getName());
         Pet cachePet = client.get(pet.getName());
         System.out.println("pet ttl:" + ttl);
-        System.out.println(cachePet);
+        System.out.println("get pet:" + cachePet);
 
+        System.out.println("modify pet:");
         cachePet.setName("redpig");
         cachePet.setAge(9);
         client.set(cachePet.getName(), cachePet, 60, TimeUnit.SECONDS);
         long ttl2 = client.ttl(cachePet.getName());
-        System.out.println("cachePet ttl:" + ttl2);
+        System.out.println("pet ttl:" + ttl2);
+        System.out.println("pet expire 20:");
         client.expire(cachePet.getName(), 20);
         ttl2 = client.ttl(cachePet.getName());
         System.out.println("cachePet ttl 2:" + ttl2);
@@ -125,9 +125,9 @@ public class RedisTest {
         }
 
         // hashset
-        Map<Long,Pet> testMap = new HashMap<>();
-        testMap.put(999L, new Pet("999kingcat"));
-        testMap.put(888L, new Pet("888kingpig"));
+        Map<String,Pet> testMap = new HashMap<>();
+        testMap.put("999", new Pet("999kingcat"));
+        testMap.put("888", new Pet("888kingpig"));
         String hsetkey = "htest";
         client.hput(hsetkey, pet.getName(), pet);
         client.hput(hsetkey, cachePet.getName(), cachePet);
@@ -140,25 +140,25 @@ public class RedisTest {
         }
         Pet nullPet = client.hget(hsetkey, cachePet.getName());
         if (nullPet == null) {
-            System.out.println("null pet");
+            System.out.println("null pet is correct");
         }
 
         client.hputAll(hsetkey, testMap);
-        boolean hputIfAbsent = client.hputIfAbsent(hsetkey, 888L, new Pet("8889kingpig"));
+        boolean hputIfAbsent = client.hputIfAbsent(hsetkey, "888", new Pet("8889kingpig"));
         System.out.println("hputIfAbsent:" + hputIfAbsent);
         Set<String> setkeys = client.hkeys(hsetkey);
         System.out.println("hset keys:" + setkeys + " size:" + client.hsize(hsetkey));
-        List<Pet> petset = client.hmultiGet(hsetkey, Arrays.asList(999L, 888L));
+        List<Pet> petset = client.hmultiGet(hsetkey, Arrays.asList("999", "888"));
         System.out.println("petset:" + petset);
 
         // list
         String listKey = "listkey";
         client.lpush(listKey, cacheOldPet);
         client.lpush(listKey, cachePet);
-        client.lpush(listKey, testMap.get(999L));
-        long pushif99 = client.lpushIfAbsent(listKey, testMap.get(999L));
+        client.lpush(listKey, testMap.get("999"));
+        long pushif99 = client.lpushIfAbsent(listKey, testMap.get("999"));
         System.out.println("pushif9:" + pushif99);
-        long pushif88 = client.lpushIfAbsent(listKey, testMap.get(888L));
+        long pushif88 = client.lpushIfAbsent(listKey, testMap.get("888"));
         System.out.println("pushif88:" + pushif88);
 
         client.lset(listKey, 1, new Pet("setlist"));
@@ -167,7 +167,7 @@ public class RedisTest {
         Pet popPet = client.lpop(listKey);
         System.out.println("popPet:" + popPet);
 
-        client.linsert(listKey, new Pet("insertpet"), testMap.get(888L));
+        client.linsert(listKey, new Pet("insertpet"), testMap.get("888"));
         client.lremove(listKey, popPet);
         client.rpush(listKey, new Pet("rpushpet"));
 
@@ -207,24 +207,38 @@ public class RedisTest {
 
     @Test
     public void testLock() {
-        RedisLock lock = new RedisLock(client, "test-redis-lock", 50);
-        int i = 0;
-        while (i < 3) {
-            try {
-                if (lock.lock(500)) {
-                    System.out.println("locked");
-                } else {
-                    System.out.println("lock error");
+        final int threadCount = 10;
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+        RedisLock lock = new RedisLock(client, "test-redis-lock", 10);
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        if (lock.lock(200)) {
+                            System.out.println("get locked threadId:" + Thread.currentThread()
+                                    .getId());
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.out.println("lock failed threadId:" + Thread.currentThread()
+                                    .getId());
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
+                    countDownLatch.countDown();
                 }
-            } finally {
-                lock.unlock();
-            }
-            i++;
-            try {
-                Thread.sleep(RandomUtils.nextInt(100, 1000));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            }).start();
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -266,11 +280,4 @@ public class RedisTest {
         System.out.println(m);
     }
 
-    @Test
-    public void testSerial() {
-
-        FastJsonRedisSerializer serializer = new FastJsonRedisSerializer();
-        byte[] bytes = "y".getBytes(StandardCharsets.UTF_8);
-        Object c = serializer.deserialize(bytes);
-    }
 }

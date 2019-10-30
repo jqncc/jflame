@@ -22,11 +22,12 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
 
+import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
 import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
-import org.jflame.toolkit.cache.serialize.SpringRedisSerializer;
+import org.jflame.toolkit.cache.serialize.IRedisSerializer;
+import org.jflame.toolkit.cache.serialize.SpringRedisSerializeAdapter;
+import org.jflame.toolkit.cache.serialize.StringRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.MapHelper;
@@ -39,28 +40,27 @@ import org.jflame.toolkit.util.MapHelper;
 @SuppressWarnings("unchecked")
 public class SpringCacheClientImpl implements RedisClient {
 
-    private RedisTemplate<Serializable,Serializable> redisTemplate;
-    private IGenericRedisSerializer serializer;
-
-    /*   public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
-        this(redisConnection, new SpringRedisSerializer());
-    }*/
+    private RedisTemplate<String,Object> redisTemplate;
+    private IGenericRedisSerializer valueSerializer;
+    private IRedisSerializer<String> keySerializer = new StringRedisSerializer();
 
     public SpringCacheClientImpl(RedisConnectionFactory redisConnection) {
+
         redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnection);
-        serializer = new SpringRedisSerializer();
-        redisTemplate.setDefaultSerializer((RedisSerializer<Object>) serializer);
+
+        valueSerializer = new FastJsonRedisSerializer();
+        keySerializer = new StringRedisSerializer();
+        SpringRedisSerializeAdapter<String> keySerializerAdpater = new SpringRedisSerializeAdapter<>(keySerializer);
+        redisTemplate.setKeySerializer(keySerializerAdpater);
+        redisTemplate.setHashKeySerializer(keySerializerAdpater);
+        redisTemplate.setDefaultSerializer(new SpringRedisSerializeAdapter<Object>(valueSerializer));
+
         redisTemplate.afterPropertiesSet();
     }
 
     @Override
-    public IGenericRedisSerializer getSerializer() {
-        return serializer;
-    }
-
-    @Override
-    public void set(Serializable key, Serializable value) {
+    public void set(String key, Object value) {
         try {
             redisTemplate.opsForValue()
                     .set(key, value);
@@ -70,7 +70,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void set(Serializable key, Serializable value, long timeout, TimeUnit timeUnit) {
+    public void set(String key, Object value, long timeout, TimeUnit timeUnit) {
         try {
             redisTemplate.opsForValue()
                     .set(key, value, timeout, timeUnit);
@@ -80,7 +80,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void multiSet(Map<? extends Serializable,? extends Serializable> pair) {
+    public <V> void multiSet(Map<String,V> pair) {
         if (MapHelper.isEmpty(pair)) {
             return;
         }
@@ -93,7 +93,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean setIfAbsent(Serializable key, Serializable value) {
+    public boolean setIfAbsent(String key, Object value) {
         try {
             return redisTemplate.opsForValue()
                     .setIfAbsent(key, value);
@@ -103,15 +103,15 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean setIfAbsent(Serializable key, Serializable value, long timeout, TimeUnit timeUnit) {
+    public boolean setIfAbsent(String key, Object value, long timeout, TimeUnit timeUnit) {
         // spring-data-redis2.1.5以前版本未实现该接口,使用底层接口拼接命令
         try {
             return redisTemplate.execute(new RedisCallback<Boolean>() {
 
                 @Override
                 public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-                    byte[] keyBytes = getSerializer().serialize(key);
-                    byte[] valueBytes = getSerializer().serialize(value);
+                    byte[] keyBytes = rawKey(key);
+                    byte[] valueBytes = rawValue(value);
                     byte[][] args = null;
                     if (timeUnit == TimeUnit.MILLISECONDS) {
                         args = new byte[][] { keyBytes,valueBytes,nxBytes,pxBytes,
@@ -134,7 +134,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void multiSetIfAbsent(Map<? extends Serializable,? extends Serializable> pair) {
+    public <V> void multiSetIfAbsent(Map<String,V> pair) {
         if (MapHelper.isEmpty(pair)) {
             return;
         }
@@ -147,7 +147,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T get(Serializable key) {
+    public <T> T get(String key) {
         try {
             return (T) redisTemplate.opsForValue()
                     .get(key);
@@ -157,7 +157,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T getAndSet(Serializable key, T newValue) {
+    public <T> T getAndSet(String key, T newValue) {
         try {
             return (T) redisTemplate.opsForValue()
                     .getAndSet(key, newValue);
@@ -167,10 +167,10 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> multiGet(Collection<? extends Serializable> keys) {
+    public <T> List<T> multiGet(Collection<String> keys) {
         try {
-            List<Serializable> valueBytes = redisTemplate.opsForValue()
-                    .multiGet((Collection<Serializable>) keys);
+            List<Object> valueBytes = redisTemplate.opsForValue()
+                    .multiGet(keys);
             return (List<T>) valueBytes;
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
@@ -178,35 +178,24 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean delete(Serializable key) {
-        // return redisTemplate.delete(key);2.0以上版本才支持返回值
-        // redisTemplate.delete(key);
+    public boolean delete(String key) {
         try {
-            return redisTemplate.execute(new RedisCallback<Boolean>() {
-
-                @Override
-                public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-                    return connection.del(getSerializer().serialize(key)) > 0;
-                }
-            });
+            redisTemplate.delete(key);
+            return true;// 2.0以上版本才支持返回值
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public long delete(Collection<? extends Serializable> keys) {
+    public long delete(Set<String> keys) {
         // return redisTemplate.delete(toBytes(keys));2.0以上版本才支持返回数量
         try {
             return redisTemplate.execute(new RedisCallback<Long>() {
 
                 @Override
                 public Long doInRedis(RedisConnection connection) throws DataAccessException {
-                    byte[][] keyBytes = new byte[keys.size()][];
-                    int i = 0;
-                    for (Serializable key : keys) {
-                        keyBytes[i++] = getSerializer().serialize(key);
-                    }
+                    byte[][] keyBytes = rawKeyArray(keys);
                     return connection.del(keyBytes);
                 }
             });
@@ -216,7 +205,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean exists(Serializable key) {
+    public boolean exists(String key) {
         try {
             return redisTemplate.hasKey(key);
         } catch (DataAccessException e) {
@@ -225,7 +214,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean expire(Serializable key, int seconds) {
+    public boolean expire(String key, int seconds) {
         try {
             return redisTemplate.expire(key, seconds, TimeUnit.SECONDS);
         } catch (DataAccessException e) {
@@ -234,7 +223,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean expire(Serializable key, long timeout, TimeUnit timeUnit) {
+    public boolean expire(String key, long timeout, TimeUnit timeUnit) {
         try {
             return redisTemplate.expire(key, timeout, timeUnit);
         } catch (DataAccessException e) {
@@ -243,7 +232,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean expireAt(Serializable key, Date date) {
+    public boolean expireAt(String key, Date date) {
         try {
             return redisTemplate.expireAt(key, date);
         } catch (DataAccessException e) {
@@ -252,7 +241,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Long incr(Serializable key) {
+    public Long incr(String key) {
         try {
             return redisTemplate.opsForValue()
                     .increment(key, 1);
@@ -262,7 +251,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Long incr(Serializable key, long incrValue) {
+    public Long incr(String key, long incrValue) {
         try {
             return redisTemplate.opsForValue()
                     .increment(key, incrValue);
@@ -272,7 +261,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Double incrByFloat(Serializable key, double incrValue) {
+    public Double incrByFloat(String key, double incrValue) {
         try {
             return redisTemplate.opsForValue()
                     .increment(key, incrValue);
@@ -282,7 +271,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean persist(Serializable key) {
+    public boolean persist(String key) {
         try {
             return redisTemplate.persist(key);
         } catch (DataAccessException e) {
@@ -291,7 +280,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T hget(Serializable key, Serializable fieldKey) {
+    public <T> T hget(String key, String fieldKey) {
         try {
             return (T) getHashOpt(key).get(fieldKey);
         } catch (DataAccessException e) {
@@ -299,21 +288,21 @@ public class SpringCacheClientImpl implements RedisClient {
         }
     }
 
-    private BoundHashOperations<Serializable,Serializable,Serializable> getHashOpt(Serializable key) {
+    private BoundHashOperations<String,String,Object> getHashOpt(String key) {
         return redisTemplate.boundHashOps(key);
     }
 
     @Override
-    public <T extends Serializable> List<T> hmultiGet(Serializable key, Collection<? extends Serializable> fieldKeys) {
+    public <T> List<T> hmultiGet(String key, Collection<String> fieldKeys) {
         try {
-            return (List<T>) getHashOpt(key).multiGet((Collection<Serializable>) fieldKeys);
+            return (List<T>) getHashOpt(key).multiGet(fieldKeys);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public long hdelete(Serializable key, Object fieldKey) {
+    public long hdelete(String key, String fieldKey) {
         try {
             return getHashOpt(key).delete(fieldKey);
         } catch (DataAccessException e) {
@@ -322,7 +311,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void hput(Serializable key, Serializable fieldKey, Serializable value) {
+    public void hput(String key, String fieldKey, Object value) {
         try {
             getHashOpt(key).put(fieldKey, value);
         } catch (DataAccessException e) {
@@ -331,15 +320,15 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void hput(Serializable key, Serializable fieldKey, Serializable value, int expireInSecond) {
+    public void hput(String key, String fieldKey, Object value, int expireInSecond) {
 
         redisTemplate.executePipelined(new RedisCallback<Object>() {
 
             @Override
             public Object doInRedis(RedisConnection connection) throws DataAccessException {
-                byte[] keyBytes = getSerializer().serialize(key);
-                byte[] fieldKeyBytes = getSerializer().serialize(fieldKey);
-                byte[] valueBytes = getSerializer().serialize(value);
+                byte[] keyBytes = rawKey(key);
+                byte[] fieldKeyBytes = rawKey(fieldKey);
+                byte[] valueBytes = rawValue(value);
                 connection.hSet(keyBytes, fieldKeyBytes, valueBytes);
                 connection.expire(keyBytes, expireInSecond);
                 return null;
@@ -348,7 +337,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean hputIfAbsent(Serializable key, Serializable fieldKey, Serializable value) {
+    public boolean hputIfAbsent(String key, String fieldKey, Object value) {
         try {
             return getHashOpt(key).putIfAbsent(fieldKey, value);
         } catch (DataAccessException e) {
@@ -357,7 +346,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void hputAll(Serializable key, Map<? extends Serializable,? extends Serializable> map) {
+    public void hputAll(String key, Map<String,? extends Serializable> map) {
         try {
             getHashOpt(key).putAll(map);
         } catch (DataAccessException e) {
@@ -366,7 +355,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> hvalues(Serializable key) {
+    public <T> List<T> hvalues(String key) {
         try {
             return (List<T>) getHashOpt(key).values();
         } catch (DataAccessException e) {
@@ -375,16 +364,16 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> hkeys(Serializable key) {
+    public Set<String> hkeys(String key) {
         try {
-            return (Set<T>) getHashOpt(key).keys();
+            return getHashOpt(key).keys();
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public boolean hexists(Serializable key, Object fieldKey) {
+    public boolean hexists(String key, String fieldKey) {
         try {
             return getHashOpt(key).hasKey(fieldKey);
         } catch (DataAccessException e) {
@@ -393,7 +382,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long hsize(Serializable key) {
+    public long hsize(String key) {
         try {
             return getHashOpt(key).size();
         } catch (DataAccessException e) {
@@ -401,12 +390,8 @@ public class SpringCacheClientImpl implements RedisClient {
         }
     }
 
-    private BoundSetOperations<Serializable,Serializable> getSetOpt(Serializable key) {
-        return redisTemplate.boundSetOps(key);
-    }
-
     @Override
-    public long sadd(Serializable key, Serializable... values) {
+    public long sadd(String key, Object... values) {
         try {
             return getSetOpt(key).add(values);
         } catch (DataAccessException e) {
@@ -415,16 +400,16 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Serializable key, Collection<? extends Serializable> keys) {
+    public <T> Set<T> sdiff(String key, Set<String> keys) {
         try {
-            return (Set<T>) getSetOpt(key).diff((Collection<Serializable>) keys);
+            return (Set<T>) getSetOpt(key).diff(keys);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public <T extends Serializable> Set<T> sdiff(Serializable key, Serializable otherKey) {
+    public <T> Set<T> sdiff(String key, String otherKey) {
         try {
             return (Set<T>) getSetOpt(key).diff(otherKey);
         } catch (DataAccessException e) {
@@ -433,7 +418,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void sdiffAndStore(Serializable firstSetKey, Serializable key, Serializable destKey) {
+    public void sdiffAndStore(String firstSetKey, String key, String destKey) {
         try {
             getSetOpt(firstSetKey).diffAndStore(key, destKey);
         } catch (DataAccessException e) {
@@ -442,7 +427,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sintersect(Serializable key, Serializable otherKey) {
+    public <T> Set<T> sintersect(String key, String otherKey) {
         try {
             return (Set<T>) getSetOpt(key).intersect(otherKey);
         } catch (DataAccessException e) {
@@ -451,32 +436,37 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> sintersect(List<? extends Serializable> keys) {
-        if (keys != null && keys.size() >= 2) {
-            Serializable first = keys.remove(0);
-            try {
-                return (Set<T>) getSetOpt(first).intersect((Collection<Serializable>) keys);
-            } catch (DataAccessException e) {
-                throw new RedisAccessException(e);
-            }
+    public <T> Set<T> sintersect(Set<String> keys) {
+        if (keys == null || keys.size() < 2) {
+            throw new IllegalArgumentException("parameter 'keys' size >=2");
         }
-        return null;
-    }
-
-    @Override
-    public void sintersectAndStore(List<? extends Serializable> keys, Serializable destKey) {
-        if (keys != null && keys.size() >= 2) {
-            Serializable first = keys.remove(0);
-            try {
-                getSetOpt(first).intersectAndStore((Collection<Serializable>) keys, destKey);
-            } catch (DataAccessException e) {
-                throw new RedisAccessException(e);
-            }
+        String mainKey = keys.iterator()
+                .next();
+        keys.remove(mainKey);
+        try {
+            return (Set<T>) getSetOpt(mainKey).intersect(keys);
+        } catch (DataAccessException e) {
+            throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public <T extends Serializable> Set<T> sunion(Serializable key, Serializable otherKey) {
+    public void sintersectAndStore(Set<String> keys, String destKey) {
+        if (keys == null || keys.size() < 2) {
+            throw new IllegalArgumentException("parameter 'keys' size >=2");
+        }
+        String mainKey = keys.iterator()
+                .next();
+        keys.remove(mainKey);
+        try {
+            getSetOpt(mainKey).intersectAndStore(keys, destKey);
+        } catch (DataAccessException e) {
+            throw new RedisAccessException(e);
+        }
+    }
+
+    @Override
+    public <T> Set<T> sunion(String key, String otherKey) {
         try {
             return (Set<T>) getSetOpt(key).union(otherKey);
         } catch (DataAccessException e) {
@@ -485,7 +475,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void sunionAndStore(Serializable key, Serializable otherKey, Serializable destKey) {
+    public void sunionAndStore(String key, String otherKey, String destKey) {
         try {
             getSetOpt(key).unionAndStore(otherKey, destKey);
         } catch (DataAccessException e) {
@@ -494,7 +484,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> smember(Serializable key) {
+    public <T> Set<T> smember(String key) {
         try {
             return (Set<T>) getSetOpt(key).members();
         } catch (DataAccessException e) {
@@ -503,7 +493,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public boolean smove(Serializable key, Serializable destKey, Serializable value) {
+    public boolean smove(String key, String destKey, Object value) {
         try {
             return getSetOpt(key).move(destKey, value);
         } catch (DataAccessException e) {
@@ -512,7 +502,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T spop(Serializable key) {
+    public <T> T spop(String key) {
         try {
             return (T) getSetOpt(key).pop();
         } catch (DataAccessException e) {
@@ -521,7 +511,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> srandomMembers(Serializable key, int count) {
+    public <T> List<T> srandomMembers(String key, int count) {
         try {
             return (List<T>) getSetOpt(key).randomMembers(count);
         } catch (DataAccessException e) {
@@ -530,7 +520,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long sremove(Serializable key, Object... members) {
+    public long sremove(String key, Object... members) {
         try {
             return getSetOpt(key).remove(members);
         } catch (DataAccessException e) {
@@ -539,7 +529,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long ssize(Serializable key) {
+    public long ssize(String key) {
         try {
             return getSetOpt(key).size();
         } catch (DataAccessException e) {
@@ -547,12 +537,12 @@ public class SpringCacheClientImpl implements RedisClient {
         }
     }
 
-    private BoundZSetOperations<Serializable,Serializable> getZsetOpt(Serializable key) {
+    private BoundZSetOperations<String,Object> getZsetOpt(String key) {
         return redisTemplate.boundZSetOps(key);
     }
 
     @Override
-    public boolean zsadd(Serializable key, Serializable mermber, double score) {
+    public boolean zsadd(String key, Object mermber, double score) {
         try {
             return getZsetOpt(key).add(mermber, score);
         } catch (DataAccessException e) {
@@ -561,13 +551,13 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsadd(Serializable key, Map<? extends Serializable,Double> memberScores) {
-        Set<TypedTuple<Serializable>> springTuples = new HashSet<>();
+    public long zsadd(String key, Map<? extends Serializable,Double> memberScores) {
+        Set<TypedTuple<Object>> springTuples = new HashSet<>();
         for (Map.Entry<? extends Serializable,Double> kv : memberScores.entrySet()) {
             if (kv.getKey() == null) {
                 throw new IllegalArgumentException("不允许有null key");
             }
-            springTuples.add(new DefaultTypedTuple<Serializable>(kv.getKey(), kv.getValue()));
+            springTuples.add(new DefaultTypedTuple<Object>(kv.getKey(), kv.getValue()));
         }
         try {
             return getZsetOpt(key).add(springTuples);
@@ -577,7 +567,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zssize(Serializable key) {
+    public long zssize(String key) {
         try {
             return getZsetOpt(key).size();
         } catch (DataAccessException e) {
@@ -586,7 +576,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zscount(Serializable key, double min, double max) {
+    public long zscount(String key, double min, double max) {
         try {
             return getZsetOpt(key).count(min, max);
         } catch (DataAccessException e) {
@@ -595,7 +585,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Double zsincrBy(Serializable key, Serializable member, double incrScore) {
+    public Double zsincrBy(String key, Object member, double incrScore) {
         try {
             return getZsetOpt(key).incrementScore(member, incrScore);
         } catch (DataAccessException e) {
@@ -604,7 +594,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Double zscore(Serializable key, Serializable member) {
+    public Double zscore(String key, Object member) {
         try {
             return getZsetOpt(key).score(member);
         } catch (DataAccessException e) {
@@ -613,7 +603,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> Set<T> zsrange(Serializable key, long startIndex, long endIndex) {
+    public <T> Set<T> zsrange(String key, long startIndex, long endIndex) {
         try {
             return (Set<T>) getZsetOpt(key).range(startIndex, endIndex);
         } catch (DataAccessException e) {
@@ -622,20 +612,20 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Map<? extends Serializable,Double> zsrangeWithScores(Serializable key, long startIndex, long endIndex) {
-        Set<TypedTuple<Serializable>> tuples = getZsetOpt(key).rangeWithScores(startIndex, endIndex);
-        Map<Serializable,Double> memberScoreMap = null;
+    public <T> Map<T,Double> zsrangeWithScores(String key, long startIndex, long endIndex) {
+        Set<TypedTuple<Object>> tuples = getZsetOpt(key).rangeWithScores(startIndex, endIndex);
+        Map<T,Double> memberScoreMap = null;
         if (CollectionHelper.isNotEmpty(tuples)) {
             memberScoreMap = new HashMap<>();
-            for (TypedTuple<Serializable> tuple : tuples) {
-                memberScoreMap.put(tuple.getValue(), tuple.getScore());
+            for (TypedTuple<Object> tuple : tuples) {
+                memberScoreMap.put((T) tuple.getValue(), tuple.getScore());
             }
         }
         return memberScoreMap;
     }
 
     @Override
-    public <T extends Serializable> Set<T> zsrangeByScore(Serializable key, double min, double max) {
+    public <T> Set<T> zsrangeByScore(String key, double min, double max) {
         try {
             return (Set<T>) getZsetOpt(key).rangeByScore(min, max);
         } catch (DataAccessException e) {
@@ -644,7 +634,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremove(Serializable key, Object... members) {
+    public long zsremove(String key, Object... members) {
         try {
             return getZsetOpt(key).remove(members);
         } catch (DataAccessException e) {
@@ -653,7 +643,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremove(Serializable key, long start, long end) {
+    public long zsremove(String key, long start, long end) {
         try {
             return redisTemplate.opsForZSet()
                     .removeRange(key, start, end);
@@ -663,7 +653,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long zsremoveByScore(Serializable key, double minScore, double maxScore) {
+    public long zsremoveByScore(String key, double minScore, double maxScore) {
         try {
             return redisTemplate.opsForZSet()
                     .removeRangeByScore(key, minScore, maxScore);
@@ -672,12 +662,8 @@ public class SpringCacheClientImpl implements RedisClient {
         }
     }
 
-    private BoundListOperations<Serializable,Serializable> getListOpt(Serializable key) {
-        return redisTemplate.boundListOps(key);
-    }
-
     @Override
-    public long lpush(Serializable key, Serializable... values) {
+    public long lpush(String key, Object... values) {
         try {
             if (values.length == 1) {
                 return getListOpt(key).leftPush(values[0]);
@@ -690,7 +676,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long lpushIfAbsent(Serializable key, Serializable value) {
+    public long lpushIfAbsent(String key, Object value) {
         try {
             return getListOpt(key).leftPushIfPresent(value);
         } catch (DataAccessException e) {
@@ -699,7 +685,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long rpush(Serializable key, Serializable... values) {
+    public long rpush(String key, Object... values) {
         try {
             if (values.length == 1) {
                 return getListOpt(key).rightPush(values[0]);
@@ -712,7 +698,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long rpushIfAbsent(Serializable key, Serializable value) {
+    public long rpushIfAbsent(String key, Object value) {
         try {
             return getListOpt(key).rightPushIfPresent(value);
         } catch (DataAccessException e) {
@@ -721,7 +707,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long linsert(Serializable key, Serializable value, Serializable pivot) {
+    public long linsert(String key, Object value, Object pivot) {
         try {
             return getListOpt(key).leftPush(pivot, value);
         } catch (DataAccessException e) {
@@ -730,7 +716,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lpop(Serializable key) {
+    public <T> T lpop(String key) {
         try {
             return (T) getListOpt(key).leftPop();
         } catch (DataAccessException e) {
@@ -739,7 +725,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lBlockPop(Serializable key, int timeout) {
+    public <T> T lBlockPop(String key, int timeout) {
         try {
             return (T) getListOpt(key).leftPop(timeout, TimeUnit.SECONDS);
         } catch (DataAccessException e) {
@@ -748,7 +734,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rpop(Serializable key) {
+    public <T> T rpop(String key) {
         try {
             return (T) getListOpt(key).rightPop();
         } catch (DataAccessException e) {
@@ -757,7 +743,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T rBlockPop(Serializable key, int timeout) {
+    public <T> T rBlockPop(String key, int timeout) {
         try {
             return (T) getListOpt(key).rightPop(timeout, TimeUnit.SECONDS);
         } catch (DataAccessException e) {
@@ -766,7 +752,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long lsize(Serializable key) {
+    public long lsize(String key) {
         try {
             return getListOpt(key).size();
         } catch (DataAccessException e) {
@@ -775,7 +761,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> List<T> lrange(Serializable key, long start, long end) {
+    public <T> List<T> lrange(String key, long start, long end) {
         try {
             return (List<T>) getListOpt(key).range(start, end);
         } catch (DataAccessException e) {
@@ -784,7 +770,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void ltrim(Serializable key, long start, long end) {
+    public void ltrim(String key, long start, long end) {
         try {
             getListOpt(key).trim(start, end);
         } catch (DataAccessException e) {
@@ -793,7 +779,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T extends Serializable> T lindex(Serializable key, long index) {
+    public <T> T lindex(String key, long index) {
         try {
             return (T) getListOpt(key).index(index);
         } catch (DataAccessException e) {
@@ -802,7 +788,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public void lset(Serializable key, long index, Serializable value) {
+    public void lset(String key, long index, Object value) {
         try {
             getListOpt(key).set(index, value);
         } catch (DataAccessException e) {
@@ -811,12 +797,12 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public Long lremove(Serializable key, Serializable value) {
+    public Long lremove(String key, Object value) {
         return lremove(key, 0, value);
     }
 
     @Override
-    public Long lremove(Serializable key, long count, Serializable value) {
+    public Long lremove(String key, long count, Object value) {
         try {
             return getListOpt(key).remove(count, value);
         } catch (DataAccessException e) {
@@ -825,7 +811,7 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+    public <T> T runScript(final String luaScript, List<String> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
         Object[] argArray = null;
         if (args != null) {
@@ -836,15 +822,15 @@ public class SpringCacheClientImpl implements RedisClient {
         }
         DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
         try {
-            return redisTemplate.execute(script, (List<Serializable>) keys, argArray);
+            return redisTemplate.execute(script, keys, argArray);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public <T> T runScript(final String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
-            Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
+    public <T> T runScript(final String luaScript, List<String> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IRedisSerializer<T> resultSerializer) {
         Object[] argArray = null;
         if (args != null) {
             argArray = new Object[args.size()];
@@ -852,35 +838,24 @@ public class SpringCacheClientImpl implements RedisClient {
         for (int i = 0; i < argArray.length; i++) {
             argArray[i] = args.get(i);
         }
-        class SerializerAdapter implements RedisSerializer<T> {
+        SpringRedisSerializeAdapter<T> serializeAdpater = new SpringRedisSerializeAdapter<>(resultSerializer);
 
-            @Override
-            public byte[] serialize(Object t) throws SerializationException {
-                return resultSerializer.serialize(t);
-            }
-
-            @Override
-            public T deserialize(byte[] bytes) throws SerializationException {
-                return (T) resultSerializer.deserialize(bytes);
-            }
-        }
         DefaultRedisScript<T> script = new DefaultRedisScript<>(luaScript, resultClazz);
         try {
-            return redisTemplate.execute(script, (RedisSerializer<?>) serializer, new SerializerAdapter(),
-                    (List<Serializable>) keys, argArray);
+            return redisTemplate.execute(script, redisTemplate.getValueSerializer(), serializeAdpater, keys, argArray);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
     @Override
-    public <T> T runSHAScript(String luaScript, List<? extends Serializable> keys, List<? extends Serializable> args,
+    public <T> T runSHAScript(String luaScript, List<String> keys, List<? extends Serializable> args,
             Class<T> resultClazz) {
         return runScript(luaScript, keys, args, resultClazz);// redisTemplate 内部默认先使用evalsha命令
     }
 
-    public <T> T runSHAScript(final String luaScript, List<? extends Serializable> keys,
-            List<? extends Serializable> args, Class<T> resultClazz, IGenericRedisSerializer resultSerializer) {
+    public <T> T runSHAScript(final String luaScript, List<String> keys, List<? extends Serializable> args,
+            Class<T> resultClazz, IRedisSerializer<T> resultSerializer) {
         return runScript(luaScript, keys, args, resultClazz, resultSerializer);
     }
 
@@ -890,19 +865,55 @@ public class SpringCacheClientImpl implements RedisClient {
     }
 
     @Override
-    public long ttl(Serializable key) {
+    public long ttl(String key) {
         try {
-            return redisTemplate.getExpire(exBytes);
+            return redisTemplate.getExpire(key);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
 
-    public Set<? extends Serializable> keys(String pattern) {
+    public Set<String> keys(String pattern) {
         try {
             return redisTemplate.keys(pattern);
         } catch (DataAccessException e) {
             throw new RedisAccessException(e);
         }
     }
+
+    @Override
+    public void flushDB() {
+        redisTemplate.execute(new RedisCallback<Boolean>() {
+
+            @Override
+            public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.flushDb();
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void publish(String channel, String message) {
+        redisTemplate.convertAndSend(channel, message);
+    }
+
+    private BoundSetOperations<String,Object> getSetOpt(String key) {
+        return redisTemplate.boundSetOps(key);
+    }
+
+    private BoundListOperations<String,Object> getListOpt(String key) {
+        return redisTemplate.boundListOps(key);
+    }
+
+    @Override
+    public IGenericRedisSerializer getValueSerializer() {
+        return valueSerializer;
+    }
+
+    @Override
+    public IRedisSerializer<String> getKeySerializer() {
+        return keySerializer;
+    }
+
 }

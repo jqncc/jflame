@@ -5,7 +5,7 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 import org.jflame.toolkit.exception.SerializeException;
 
-public class SpringRedisSerializer extends FastJsonRedisSerializer implements RedisSerializer<Object> {
+public class SpringRedisJsonSerializer extends FastJsonRedisSerializer implements RedisSerializer<Object> {
 
     @Override
     public byte[] serialize(Object object) throws SerializationException {
