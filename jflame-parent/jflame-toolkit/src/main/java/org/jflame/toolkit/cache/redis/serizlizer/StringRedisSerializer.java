@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache.serialize;
+package org.jflame.toolkit.cache.redis.serizlizer;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

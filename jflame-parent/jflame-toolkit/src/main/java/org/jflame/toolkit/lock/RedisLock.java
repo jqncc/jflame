@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.cache.RedisClient;
+import org.jflame.toolkit.cache.redis.RedisClient;
 
 /**
  * redis分布式锁

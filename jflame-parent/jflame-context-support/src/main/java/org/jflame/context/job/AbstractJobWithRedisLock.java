@@ -1,6 +1,6 @@
 package org.jflame.context.job;
 
-import org.jflame.toolkit.cache.RedisClient;
+import org.jflame.toolkit.cache.redis.RedisClient;
 import org.jflame.toolkit.lock.DistributedLock;
 import org.jflame.toolkit.lock.RedisLock;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
-import org.jflame.toolkit.cache.serialize.IRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IGenericRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 

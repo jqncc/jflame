@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
-import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
-import org.jflame.toolkit.cache.serialize.IRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.FastJsonRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IGenericRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 
 import redis.clients.jedis.Jedis;

@@ -1,7 +1,8 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
-import org.jflame.toolkit.cache.JedisConnection.RedisMode;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import org.jflame.toolkit.cache.redis.JedisConnection.RedisMode;
 
 public final class RedisClientFactory {
 

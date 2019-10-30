@@ -2,7 +2,7 @@ package org.jflame.context.env;
 
 import java.util.Arrays;
 
-import org.jflame.toolkit.cache.RedisClient;
+import org.jflame.toolkit.cache.redis.RedisClient;
 import org.jflame.toolkit.net.IPAddressHelper;
 import org.jflame.toolkit.util.StringHelper;
 

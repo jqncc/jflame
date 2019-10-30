@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,11 +23,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
-import org.jflame.toolkit.cache.serialize.FastJsonRedisSerializer;
-import org.jflame.toolkit.cache.serialize.IGenericRedisSerializer;
-import org.jflame.toolkit.cache.serialize.IRedisSerializer;
-import org.jflame.toolkit.cache.serialize.SpringRedisSerializeAdapter;
-import org.jflame.toolkit.cache.serialize.StringRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.FastJsonRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IGenericRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.IRedisSerializer;
+import org.jflame.toolkit.cache.redis.serizlizer.SpringRedisSerializeAdapter;
+import org.jflame.toolkit.cache.redis.serizlizer.StringRedisSerializer;
 import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.CollectionHelper;
 import org.jflame.toolkit.util.MapHelper;

@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
 import java.io.Closeable;
 import java.io.IOException;

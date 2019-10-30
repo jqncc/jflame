@@ -1,11 +1,11 @@
-package org.jflame.toolkit.cache.serialize;
+package org.jflame.toolkit.cache.redis.serizlizer;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jflame.toolkit.cache.RedisAccessException;
+import org.jflame.toolkit.cache.redis.RedisAccessException;
 
 import java.util.Set;
 

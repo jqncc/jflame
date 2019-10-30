@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache;
+package org.jflame.toolkit.cache.redis;
 
 /**
  * redis处理异常类

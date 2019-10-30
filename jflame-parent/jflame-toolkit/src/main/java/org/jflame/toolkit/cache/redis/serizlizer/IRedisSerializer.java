@@ -1,4 +1,4 @@
-package org.jflame.toolkit.cache.serialize;
+package org.jflame.toolkit.cache.redis.serizlizer;
 
 import org.jflame.toolkit.exception.SerializeException;
 

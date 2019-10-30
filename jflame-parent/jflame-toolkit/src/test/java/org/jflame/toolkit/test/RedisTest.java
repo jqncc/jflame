@@ -15,8 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
-import org.jflame.toolkit.cache.RedisClient;
-import org.jflame.toolkit.cache.RedisClientFactory;
+import org.jflame.toolkit.cache.redis.RedisClient;
+import org.jflame.toolkit.cache.redis.RedisClientFactory;
 import org.jflame.toolkit.lock.RedisLock;
 import org.jflame.toolkit.test.entity.Pet;
 import org.jflame.toolkit.util.DateHelper;
