@@ -9,6 +9,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,11 +23,14 @@ import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.DeleteObjectsRequest;
 import com.aliyun.oss.model.DeleteObjectsResult;
+import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
+import com.aliyun.oss.model.PolicyConditions;
 
 import org.jflame.toolkit.exception.BusinessException;
 import org.jflame.toolkit.file.FileHelper;
+import org.jflame.toolkit.util.CharsetHelper;
 import org.jflame.toolkit.util.IOHelper;
 import org.jflame.toolkit.util.MapHelper;
 import org.jflame.toolkit.util.StringHelper;
@@ -167,6 +172,30 @@ public class AliOssFileManager extends BaseFileManager {
         } catch (OSSException | ClientException e) {
             throw new BusinessException(e);
         }
+    }
+
+    public Map<String,String> generatePostSignature(String dir, int expireTime) {
+        long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
+        Date expiration = new Date(expireEndTime);
+        PolicyConditions policyConds = new PolicyConditions();
+        policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, 1048576000);
+        if (dir != null) {
+            policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, dir);
+        }
+        String host = getBucketUrl(ossEndpoint, currentBucket);
+        String postPolicy = ossClient.generatePostPolicy(expiration, policyConds);
+        String encodedPolicy = java.util.Base64.getEncoder()
+                .encodeToString(CharsetHelper.getUtf8Bytes(postPolicy));
+        String postSignature = ossClient.calculatePostSignature(postPolicy);
+
+        Map<String,String> respMap = new LinkedHashMap<String,String>();
+        respMap.put("accessid", ossAccessId);
+        respMap.put("policy", encodedPolicy);
+        respMap.put("signature", postSignature);
+        respMap.put("dir", dir);
+        respMap.put("host", host);
+        respMap.put("expire", String.valueOf(expireEndTime / 1000));
+        return respMap;
     }
 
     @Override

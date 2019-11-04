@@ -14,7 +14,6 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
 import org.jflame.toolkit.common.bean.BaseResult;
 import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
 
 /**
  * json返回统一封装为CallResult
@@ -39,9 +38,7 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
             Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
             ServerHttpResponse response) {
         if (!(body instanceof BaseResult)) {
-            CallResult<Object> wrapper = new CallResult<>(ResultEnum.SUCCESS);
-            wrapper.setData(body);
-            return wrapper;
+            return CallResult.ok(body);
         }
         return body;
     }

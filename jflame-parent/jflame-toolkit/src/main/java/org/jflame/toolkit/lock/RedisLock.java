@@ -17,9 +17,9 @@ public class RedisLock implements DistributedLock {
 
     private RedisClient redisClient;
 
-    private final int DEFAULT_WAIT_TIME = 5 * 1000;// 默认获取锁等待时间5秒
-    private final String lockKeyPrefix = "redis:lock:";
+    private final int DEFAULT_WAIT_TIME = 200;// 默认获取锁等待时间100ms
     private volatile boolean locked = false;
+    private final static String lockKeyPrefix = "redis:lock:";
     private static String UNLOCK_LUASCRIPT;
 
     private String lockKey;// 锁的键名
@@ -93,54 +93,11 @@ public class RedisLock implements DistributedLock {
             List<String> values = Arrays.asList(lockValue);
             Long result = redisClient.runSHAScript(UNLOCK_LUASCRIPT, keys, values, Long.class);
             locked = result == 0;
-
-            /*redisClient.execute(new RedisCallback<Boolean>() {
-            
-                @Override
-                public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
-                    Object nativeConnection = connection.getNativeConnection();
-                    Long result = 0L;
-                    
-                    if (nativeConnection instanceof JedisCluster) {
-                        result = (Long) ((JedisCluster) nativeConnection).eval(UNLOCK_LUASCRIPT, keys, values);
-                    }
-                    if (nativeConnection instanceof Jedis) {
-                        result = (Long) ((Jedis) nativeConnection).eval(UNLOCK_LUASCRIPT, keys, values);
-                    }
-            
-                    locked = result == 0;
-                    return result == 1;
-                }
-            });*/
         }
     }
 
-    // final String NX = "NX";
-    // seconds — 以秒为单位设置 key 的过期时间，等效于EXPIRE key seconds
-    // final String EX = "EX";
-    // 调用set后的返回值
-    // final String OK = "OK";
-
     private boolean setNX(final String key, final String value) {
         return redisClient.setIfAbsent(key, value, lockExpire, TimeUnit.SECONDS);
-
-        /*return redisClient.execute(new RedisCallback<String>() {
-        
-            @Override
-            public String doInRedis(RedisConnection connection) throws DataAccessException {
-                Object nativeConnection = connection.getNativeConnection();
-                String result = null;
-                // 集群模式
-                if (nativeConnection instanceof JedisCluster) {
-                    result = ((JedisCluster) nativeConnection).set(key, value, NX, EX, lockExpire);
-                }
-                // 单机模式
-                if (nativeConnection instanceof Jedis) {
-                    result = ((Jedis) nativeConnection).set(key, value, NX, EX, lockExpire);
-                }
-                return result;
-            }
-        });*/
     }
 
     public long getLockExpire() {
@@ -149,6 +106,14 @@ public class RedisLock implements DistributedLock {
 
     public String getLockKey() {
         return lockKey;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public String getLockValue() {
+        return lockValue;
     }
 
 }

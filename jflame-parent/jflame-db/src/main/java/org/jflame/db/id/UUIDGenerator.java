@@ -4,14 +4,13 @@ import java.io.Serializable;
 
 import org.jflame.db.DbEnvironment;
 import org.jflame.db.metadata.TableMetaData;
-import org.jflame.toolkit.util.StringHelper;
-
+import org.jflame.toolkit.key.IDHelper;
 
 public class UUIDGenerator implements IdGenerator {
 
     @Override
-    public  Serializable generate(DbEnvironment dbEnv,TableMetaData metaData) {
-        return StringHelper.uuid();
+    public Serializable generate(DbEnvironment dbEnv, TableMetaData metaData) {
+        return IDHelper.uuid();
     }
 
 }

@@ -1,8 +1,13 @@
 package org.jflame.context.filemanager;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.jflame.context.env.BaseConfig;
 
 public final class FileManagerFactory {
+
+    private static IFileManager currentManager = null;
 
     public enum FileManagerMode {
         local,
@@ -16,17 +21,23 @@ public final class FileManagerFactory {
      * @return
      */
     public static IFileManager getCurrentManager() {
-        IFileManager fileManager;
-        FileManagerMode currentMethod = BaseConfig.getFileManagerMode();
-        if (currentMethod == FileManagerMode.fastdfs) {
-            fileManager = createFastDFSManager();
-        } else if (currentMethod == FileManagerMode.alioss) {
-            fileManager = createAliOssManager();
-        } else {
-            fileManager = createLocalManager();
+        Lock lock = new ReentrantLock();
+        try {
+            lock.lock();
+            if (currentManager == null) {
+                FileManagerMode currentMethod = BaseConfig.getFileManagerMode();
+                if (currentMethod == FileManagerMode.fastdfs) {
+                    currentManager = createFastDFSManager();
+                } else if (currentMethod == FileManagerMode.alioss) {
+                    currentManager = createAliOssManager();
+                } else {
+                    currentManager = createLocalManager();
+                }
+            }
+        } finally {
+            lock.unlock();
         }
-
-        return fileManager;
+        return currentManager;
     }
 
     /**

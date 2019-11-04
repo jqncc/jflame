@@ -12,7 +12,10 @@
 	<description>jflame demo project for Spring Boot</description>
 	<properties>
 		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springboot.version>2.2.0.RELEASE</springboot.version>
+		<mysql.version>5.1.45</mysql.version>
+		<jflame.version>2.0.0-beta</jflame.version>
 	</properties>
 
 	<dependencies>
@@ -24,26 +27,48 @@
 			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
 		</dependency>
 		<dependency>
+            <groupId>org.jflame</groupId>
+            <artifactId>jflame-toolkit</artifactId>
+            <version>${jflame.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jflame</groupId>
+            <artifactId>jflame-context-support</artifactId>
+            <version>${jflame.version}</version>
+        </dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-dependencies</artifactId>
 			<version>${springboot.version}</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
 			<version>${springboot.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 			<version>${springboot.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>lettuce-core</artifactId>
+					<groupId>io.lettuce</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>${springboot.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-boot-starter-json</artifactId>
+					<groupId>org.springframework.boot</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
@@ -55,7 +80,6 @@
 			<artifactId>spring-session-data-redis</artifactId>
 			<version>${springboot.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -68,12 +92,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
+		
+		<!-- <dependency>
 			<groupId>org.springframework.amqp</groupId>
 			<artifactId>spring-rabbit-test</artifactId>
 			<version>${springboot.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 
 	<build>
@@ -82,6 +107,16 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+            </plugin>
 		</plugins>
 	</build>
 

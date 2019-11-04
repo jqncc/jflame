@@ -255,7 +255,7 @@ public interface RedisClient {
      * 
      * @param key
      * @param value
-     * @return
+     * @return 设置成功返回true
      */
     boolean setIfAbsent(final String key, final Object value);
 
@@ -266,7 +266,7 @@ public interface RedisClient {
      * @param value
      * @param timeout
      * @param timeUnit
-     * @return
+     * @return 设置成功返回true
      */
     boolean setIfAbsent(final String key, final Object value, long timeout, TimeUnit timeUnit);
 

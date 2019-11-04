@@ -16,7 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<version.jdk>1.8</version.jdk>
-		<version.jflame>${version}</version.jflame>
+		<version.jflame>${project.version}</version.jflame>
 		<version.logback>1.2.3</version.logback>
 		<version.slf4j>1.7.25</version.slf4j>
 		<version.junit>4.12</version.junit>

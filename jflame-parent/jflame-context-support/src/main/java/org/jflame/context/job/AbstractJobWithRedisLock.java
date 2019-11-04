@@ -3,18 +3,15 @@ package org.jflame.context.job;
 import org.jflame.toolkit.cache.redis.RedisClient;
 import org.jflame.toolkit.lock.DistributedLock;
 import org.jflame.toolkit.lock.RedisLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * 简易任务基于redis分布式锁的实现
+ * 
+ * @author yucan.zhang
+ */
 public abstract class AbstractJobWithRedisLock extends AbstractJobWithDistribtedLock {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private RedisClient redisClient;
-
-    public AbstractJobWithRedisLock(String jobName) {
-        this(jobName, 5);
-    }
 
     public AbstractJobWithRedisLock(String jobName, int lockTimeout) {
         super(jobName, lockTimeout);

@@ -6,14 +6,12 @@
 	<parent>
 		<groupId>org.jflame</groupId>
 		<artifactId>jflame-parent</artifactId>
-		<version>1.1.5-beta</version>
+		<version>${version.jflame}</version>
 	</parent>
 	<artifactId>jflame-db</artifactId>
 	<name>jflame-db</name>
 	<url>http://maven.apache.org</url>
-	<properties>
-		<version.spring>4.2.9.RELEASE</version.spring>
-	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jflame</groupId>
