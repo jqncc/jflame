@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jflame.toolkit.util.MapHelper;
-import org.jflame.toolkit.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.commons.util.MapHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * html控件标签接口

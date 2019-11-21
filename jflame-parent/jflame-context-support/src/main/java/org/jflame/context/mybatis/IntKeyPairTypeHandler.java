@@ -7,11 +7,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jflame.toolkit.common.bean.pair.IIntKeyPair;
-
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
+
+import org.jflame.commons.common.bean.pair.IIntKeyPair;
 
 /**
  * 实现继承IIntKeyPair的枚举类型与数据库int类型转换,具体类型必须在注解@MappedTypes上指定

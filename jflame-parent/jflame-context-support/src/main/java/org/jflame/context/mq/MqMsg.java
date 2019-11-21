@@ -2,7 +2,7 @@ package org.jflame.context.mq;
 
 import java.io.Serializable;
 
-import org.jflame.toolkit.key.IDHelper;
+import org.jflame.commons.key.IDHelper;
 
 /**
  * mq消息

@@ -2,7 +2,7 @@ package org.jflame.db;
 
 import java.io.Serializable;
 
-import org.jflame.toolkit.common.bean.PageBean.OrderEnum;
+import org.jflame.commons.common.bean.PageBean.OrderEnum;
 
 /**
  * 单一排序条件对象

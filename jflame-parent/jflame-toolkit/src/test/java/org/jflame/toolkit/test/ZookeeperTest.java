@@ -2,8 +2,8 @@ package org.jflame.toolkit.test;
 
 import org.junit.Test;
 
-import org.jflame.toolkit.zookeeper.ZookeeperClient;
-import org.jflame.toolkit.zookeeper.zkclient.ZkclientZookeeperClient;
+import org.jflame.commons.zookeeper.ZookeeperClient;
+import org.jflame.commons.zookeeper.zkclient.ZkclientZookeeperClient;
 
 public class ZookeeperTest {
 

@@ -2,8 +2,9 @@ package org.jflame.toolkit.test;
 
 import java.util.Date;
 
-import org.jflame.toolkit.util.DateHelper;
 import org.junit.Test;
+
+import org.jflame.commons.util.DateHelper;
 
 public class DateTest {
 

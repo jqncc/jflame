@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import org.springframework.format.Formatter;
 
-import org.jflame.toolkit.convert.mutual.StringAndDateConverter;
+import org.jflame.commons.convert.mutual.StringAndDateConverter;
 
 /**
  * springmvc日期类型转换器.支持java.util.Date及子类(如:java.util.Date,java.sql.Date,java.sql.Time,java.sql.Timestamp)转换

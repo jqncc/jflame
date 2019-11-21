@@ -10,15 +10,17 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.jflame.commons.common.bean.PageBean;
+import org.jflame.commons.util.CollectionHelper;
+import org.jflame.commons.util.StringHelper;
 import org.jflame.db.id.IdGenerator;
 import org.jflame.db.id.IdType;
 import org.jflame.db.id.factory.IdGeneratorFactory;
 import org.jflame.db.metadata.DefaultMetaDataProvider;
 import org.jflame.db.metadata.IMetaDataProvider;
 import org.jflame.db.metadata.TableMetaData;
-import org.jflame.toolkit.common.bean.PageBean;
-import org.jflame.toolkit.util.CollectionHelper;
-import org.jflame.toolkit.util.StringHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

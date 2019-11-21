@@ -9,13 +9,14 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jflame.commons.util.StringHelper;
 import org.jflame.db.DbEnvironment;
 import org.jflame.db.annotations.TableGenerator;
 import org.jflame.db.id.enhanced.AccessCallback;
 import org.jflame.db.id.enhanced.Optimizer;
 import org.jflame.db.id.enhanced.PooledLoOptimizer;
 import org.jflame.db.metadata.TableMetaData;
-import org.jflame.toolkit.util.StringHelper;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.transaction.TransactionDefinition;

@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import org.jflame.toolkit.codec.TranscodeHelper;
 import org.junit.Test;
+
+import org.jflame.commons.codec.TranscodeHelper;
 
 public class TranscodeTest {
 

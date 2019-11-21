@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 
-import org.jflame.toolkit.util.StringHelper;
-import org.jflame.toolkit.util.UrlHelper;
+import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.UrlHelper;
 
 /**
  * 图片验证码生成标签. 示例:

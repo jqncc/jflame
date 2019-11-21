@@ -9,7 +9,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 
-import org.jflame.toolkit.convert.mutual.StringAndNumberArrayConverter;
+import org.jflame.commons.convert.mutual.StringAndNumberArrayConverter;
 
 /**
  * mybatis类型处理器,数字数组与字符串转换, 如:"1,2,3"=&gt;new Integer[]{1,2,3}

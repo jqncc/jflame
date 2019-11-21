@@ -3,8 +3,8 @@ package org.jflame.toolkit.test.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.jflame.toolkit.codec.TranscodeHelper;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.codec.TranscodeHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 用户基础信息表

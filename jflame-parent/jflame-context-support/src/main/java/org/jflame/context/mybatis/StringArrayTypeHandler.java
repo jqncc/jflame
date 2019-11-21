@@ -10,7 +10,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * mybatis类型处理器,字符串数组与字符串转换, 如:"a,b,c"=&gt;{"a","b","c"}

@@ -13,9 +13,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jflame.toolkit.common.bean.BaseResult;
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.common.bean.BaseResult;
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.common.bean.CallResult.ResultEnum;
 
 /**
  * 统一rest接口json结果封装进CallResult

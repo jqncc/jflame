@@ -1,6 +1,6 @@
 package org.jflame.toolkit.test.entity;
 
-import org.jflame.toolkit.excel.ExcelColumn;
+import org.jflame.commons.excel.ExcelColumn;
 
 public class Cat extends Pet {
 

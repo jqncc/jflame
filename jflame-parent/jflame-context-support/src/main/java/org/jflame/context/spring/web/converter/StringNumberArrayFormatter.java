@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import org.springframework.format.Formatter;
 
-import org.jflame.toolkit.convert.mutual.StringAndNumberArrayConverter;
+import org.jflame.commons.convert.mutual.StringAndNumberArrayConverter;
 
 /**
  * springmvc数字数组和英文逗号分隔的字符串类型转换器.

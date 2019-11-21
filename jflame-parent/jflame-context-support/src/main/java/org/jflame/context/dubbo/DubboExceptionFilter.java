@@ -2,8 +2,6 @@ package org.jflame.context.dubbo;
 
 import java.lang.reflect.Method;
 
-import org.jflame.toolkit.common.bean.BaseResult;
-
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.common.utils.ReflectUtils;
@@ -16,6 +14,8 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcResult;
 import com.alibaba.dubbo.rpc.service.GenericService;
+
+import org.jflame.commons.common.bean.BaseResult;
 
 /**
  * dubbo自定义异常处理.

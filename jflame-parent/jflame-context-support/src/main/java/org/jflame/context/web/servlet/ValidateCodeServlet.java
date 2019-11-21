@@ -24,11 +24,11 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.config.ConfigKey;
+import org.jflame.commons.config.ServletParamConfig;
+import org.jflame.commons.util.StringHelper;
 import org.jflame.context.web.WebUtils;
 import org.jflame.context.web.WebUtils.MimeImages;
-import org.jflame.toolkit.config.ConfigKey;
-import org.jflame.toolkit.config.ServletParamConfig;
-import org.jflame.toolkit.util.StringHelper;
 
 /**
  * 生成随机验证码图片servlet.

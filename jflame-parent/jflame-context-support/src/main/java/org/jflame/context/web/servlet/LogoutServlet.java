@@ -9,14 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.config.ConfigKey;
+import org.jflame.commons.config.ServletParamConfig;
+import org.jflame.commons.util.JsonHelper;
+import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.UrlHelper;
 import org.jflame.context.web.WebUtils;
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
-import org.jflame.toolkit.config.ConfigKey;
-import org.jflame.toolkit.config.ServletParamConfig;
-import org.jflame.toolkit.util.JsonHelper;
-import org.jflame.toolkit.util.StringHelper;
-import org.jflame.toolkit.util.UrlHelper;
 
 /**
  * 通用登录注销servlet

@@ -3,7 +3,7 @@ package org.jflame.context.job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.toolkit.lock.DistributedLock;
+import org.jflame.commons.lock.DistributedLock;
 
 /**
  * 一个简易的分布式任务调试方案抽象类,使用分布式锁的任务,保证一次只有一个点执行该任务.

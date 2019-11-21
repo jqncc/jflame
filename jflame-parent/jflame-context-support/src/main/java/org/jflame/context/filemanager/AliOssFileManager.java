@@ -28,12 +28,12 @@ import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PolicyConditions;
 
-import org.jflame.toolkit.exception.BusinessException;
-import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.IOHelper;
-import org.jflame.toolkit.util.MapHelper;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.exception.BusinessException;
+import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.CharsetHelper;
+import org.jflame.commons.util.IOHelper;
+import org.jflame.commons.util.MapHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * Ali OSS云存储文件管理

@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.jflame.toolkit.config.ConfigKey;
+import org.jflame.commons.config.ConfigKey;
 
 /**
  * 字符编码转换过滤器

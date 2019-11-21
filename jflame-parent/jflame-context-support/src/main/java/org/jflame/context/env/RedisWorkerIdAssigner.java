@@ -2,9 +2,9 @@ package org.jflame.context.env;
 
 import java.util.Arrays;
 
-import org.jflame.toolkit.cache.redis.RedisClient;
-import org.jflame.toolkit.net.IPAddressHelper;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.cache.redis.RedisClient;
+import org.jflame.commons.net.IPAddressHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 基于redis的应用登记中心实现

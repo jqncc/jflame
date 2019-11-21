@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.jflame.toolkit.common.bean.PageBean;
+import org.jflame.commons.common.bean.PageBean;
 
 public interface IBaseDao {
 

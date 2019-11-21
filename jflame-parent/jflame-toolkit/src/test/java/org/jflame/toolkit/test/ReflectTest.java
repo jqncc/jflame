@@ -4,7 +4,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.jflame.toolkit.reflect.BeanHelper;
+
+import org.jflame.commons.reflect.BeanHelper;
 import org.jflame.toolkit.test.entity.Cat;
 import org.jflame.toolkit.test.entity.Pig;
 import org.junit.Test;

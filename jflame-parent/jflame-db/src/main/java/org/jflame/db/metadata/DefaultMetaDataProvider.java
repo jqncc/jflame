@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.ArrayUtils;
+
+import org.jflame.commons.util.StringHelper;
 import org.jflame.db.CamelMetaNameConverter;
 import org.jflame.db.IMetaNameConverter;
 import org.jflame.db.annotations.Column;
 import org.jflame.db.annotations.Id;
 import org.jflame.db.annotations.Table;
-import org.jflame.toolkit.util.StringHelper;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 

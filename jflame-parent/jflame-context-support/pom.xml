@@ -19,7 +19,7 @@
 		<!-- jflame -->
 		<dependency>
 			<groupId>org.jflame</groupId>
-			<artifactId>jflame-toolkit</artifactId>
+			<artifactId>jflame-commons</artifactId>
 			<version>${version.jflame}</version>
 		</dependency>
 		<dependency>

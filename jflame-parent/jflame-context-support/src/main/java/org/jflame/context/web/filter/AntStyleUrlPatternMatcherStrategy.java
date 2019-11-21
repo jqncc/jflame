@@ -1,6 +1,6 @@
 package org.jflame.context.web.filter;
 
-import org.jflame.toolkit.util.UrlMatcher;
+import org.jflame.commons.util.UrlMatcher;
 
 /**
  * ant风格的url匹配,同spring的url匹配

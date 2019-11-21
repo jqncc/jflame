@@ -11,12 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import org.jflame.toolkit.common.bean.pair.NameValuePair;
-import org.jflame.toolkit.net.IPAddressHelper;
-import org.jflame.toolkit.util.CharsetHelper;
-import org.jflame.toolkit.util.EnumHelper;
-import org.jflame.toolkit.util.JsonHelper;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.common.bean.pair.NameValuePair;
+import org.jflame.commons.net.IPAddressHelper;
+import org.jflame.commons.util.CharsetHelper;
+import org.jflame.commons.util.EnumHelper;
+import org.jflame.commons.util.JsonHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * web环境常用常量定义和工具方法

@@ -1,8 +1,8 @@
 package org.jflame.context.job;
 
-import org.jflame.toolkit.cache.redis.RedisClient;
-import org.jflame.toolkit.lock.DistributedLock;
-import org.jflame.toolkit.lock.RedisLock;
+import org.jflame.commons.cache.redis.RedisClient;
+import org.jflame.commons.lock.DistributedLock;
+import org.jflame.commons.lock.RedisLock;
 
 /**
  * 简易任务基于redis分布式锁的实现

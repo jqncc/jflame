@@ -3,10 +3,11 @@ package org.jflame.toolkit.test;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.jflame.toolkit.file.FileHelper;
 import org.junit.Test;
 
 import com.google.common.io.Files;
+
+import org.jflame.commons.file.FileHelper;
 
 public class IOTest {
 

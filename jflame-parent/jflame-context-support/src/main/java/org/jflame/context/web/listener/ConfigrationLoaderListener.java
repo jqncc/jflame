@@ -5,8 +5,8 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.toolkit.config.PropertiesConfigHolder;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.config.PropertiesConfigHolder;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * servlet容器启动时加载properties配置文件.文件路径由ServletContext参数configFile指定

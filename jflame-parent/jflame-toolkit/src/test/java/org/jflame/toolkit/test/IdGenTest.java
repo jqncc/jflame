@@ -3,9 +3,10 @@ package org.jflame.toolkit.test;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.jflame.toolkit.key.ObjectId;
-import org.jflame.toolkit.key.SnowflakeGenerator;
 import org.junit.Test;
+
+import org.jflame.commons.key.ObjectId;
+import org.jflame.commons.key.SnowflakeGenerator;
 
 public class IdGenTest {
 

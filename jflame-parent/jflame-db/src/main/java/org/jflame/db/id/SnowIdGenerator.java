@@ -2,9 +2,9 @@ package org.jflame.db.id;
 
 import java.io.Serializable;
 
+import org.jflame.commons.key.SnowflakeGenerator;
 import org.jflame.db.DbEnvironment;
 import org.jflame.db.metadata.TableMetaData;
-import org.jflame.toolkit.key.SnowflakeGenerator;
 
 public class SnowIdGenerator implements IdGenerator {
 

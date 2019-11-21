@@ -10,7 +10,7 @@ import org.apache.ibatis.type.JdbcType;
 
 import com.alibaba.fastjson.JSON;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 转json字符串

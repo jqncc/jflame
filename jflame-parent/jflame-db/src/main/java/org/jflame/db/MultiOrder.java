@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.common.bean.PageBean.OrderEnum;
+
+import org.jflame.commons.common.bean.PageBean.OrderEnum;
 
 public class MultiOrder implements Serializable {
 

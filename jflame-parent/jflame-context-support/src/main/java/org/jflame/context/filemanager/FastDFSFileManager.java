@@ -21,10 +21,10 @@ import org.csource.fastdfs.StorageServer;
 import org.csource.fastdfs.TrackerClient;
 import org.csource.fastdfs.TrackerServer;
 
-import org.jflame.toolkit.exception.BusinessException;
-import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.util.IOHelper;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.exception.BusinessException;
+import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.IOHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * FastDFS文件管理. <b>注:一个实例一个连接,非线程安全

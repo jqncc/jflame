@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.jflame</groupId>
-			<artifactId>jflame-toolkit</artifactId>
+			<artifactId>jflame-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

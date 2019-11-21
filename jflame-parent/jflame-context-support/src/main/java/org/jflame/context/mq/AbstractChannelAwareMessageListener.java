@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.toolkit.cache.redis.RedisClient;
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.cache.redis.RedisClient;
+import org.jflame.commons.util.StringHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

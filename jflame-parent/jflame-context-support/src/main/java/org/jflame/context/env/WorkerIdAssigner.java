@@ -1,6 +1,6 @@
 package org.jflame.context.env;
 
-import org.jflame.toolkit.crypto.DigestHelper;
+import org.jflame.commons.crypto.DigestHelper;
 
 /**
  * 将应用登记到一个统一的记录中心,并返回一个全局唯一id用于标识该应用身份,该id可用于单号或表id生成

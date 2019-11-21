@@ -1,6 +1,6 @@
 package org.jflame.db;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 数据列元数据转实体类时名称实现类

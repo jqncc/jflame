@@ -12,8 +12,8 @@ import javax.servlet.ServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.toolkit.config.BaseParamStrategy;
-import org.jflame.toolkit.config.FilterParamConfig;
+import org.jflame.commons.config.BaseParamStrategy;
+import org.jflame.commons.config.FilterParamConfig;
 
 /**
  * 继承该类的过滤器每个请求只被过滤一次.部分容器或servlet版本会导致请求被过滤多次

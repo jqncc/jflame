@@ -2,12 +2,12 @@ package org.jflame.toolkit.test;
 
 import java.security.KeyPair;
 
-import org.jflame.toolkit.codec.TranscodeHelper;
-import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
-import org.jflame.toolkit.crypto.BaseEncryptor.OpMode;
-import org.jflame.toolkit.crypto.BaseEncryptor.Padding;
-import org.jflame.toolkit.crypto.RSAEncryptor;
-import org.jflame.toolkit.crypto.SymmetricEncryptor;
+import org.jflame.commons.codec.TranscodeHelper;
+import org.jflame.commons.crypto.RSAEncryptor;
+import org.jflame.commons.crypto.SymmetricEncryptor;
+import org.jflame.commons.crypto.BaseEncryptor.Algorithm;
+import org.jflame.commons.crypto.BaseEncryptor.OpMode;
+import org.jflame.commons.crypto.BaseEncryptor.Padding;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;

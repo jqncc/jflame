@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.ArrayUtils;
+
+import org.jflame.commons.util.StringHelper;
 import org.jflame.db.id.IdType;
 import org.jflame.db.metadata.ColumnMetaData;
 import org.jflame.db.metadata.TableMetaData;
-import org.jflame.toolkit.util.StringHelper;
 
 public class SimpleSqlBuilder
 {

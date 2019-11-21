@@ -7,11 +7,11 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
+import org.jflame.commons.valid.Digit;
+import org.jflame.commons.valid.DynamicValid;
+import org.jflame.commons.valid.DynamicValid.ValidRule;
 import org.jflame.toolkit.test.Payserver.Adult;
 import org.jflame.toolkit.test.Payserver.Child;
-import org.jflame.toolkit.valid.Digit;
-import org.jflame.toolkit.valid.DynamicValid;
-import org.jflame.toolkit.valid.DynamicValid.ValidRule;
 
 public class Person implements Serializable {
 

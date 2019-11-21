@@ -7,9 +7,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.jflame.commons.config.ConfigKey;
+import org.jflame.commons.config.PropertiesConfigHolder;
 import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
-import org.jflame.toolkit.config.ConfigKey;
-import org.jflame.toolkit.config.PropertiesConfigHolder;
 
 /**
  * 提供项目通用配置获取的方法

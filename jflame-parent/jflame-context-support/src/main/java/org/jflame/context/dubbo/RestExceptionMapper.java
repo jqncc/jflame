@@ -15,13 +15,14 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jflame.toolkit.common.bean.BaseResult;
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+
+import org.jflame.commons.common.bean.BaseResult;
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.common.bean.CallResult.ResultEnum;
 
 /**
  * 拦截rest服务所有异常转为统一json格式返回

@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.StringHelper;
 import org.jflame.context.env.BaseConfig;
 import org.jflame.context.filemanager.AliOssFileManager;
 import org.jflame.context.filemanager.FileManagerFactory;
 import org.jflame.context.filemanager.IFileManager;
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.file.FileHelper;
-import org.jflame.toolkit.util.StringHelper;
 
 @Controller
 @RequestMapping("${file.alioss.signurl:/alioss}}")

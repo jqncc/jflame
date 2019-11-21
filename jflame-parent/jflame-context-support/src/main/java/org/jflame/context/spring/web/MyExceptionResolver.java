@@ -25,11 +25,11 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
+import org.jflame.commons.common.bean.BaseResult;
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.common.bean.CallResult.ResultEnum;
 import org.jflame.context.spring.SpringUtils;
 import org.jflame.context.web.WebUtils;
-import org.jflame.toolkit.common.bean.BaseResult;
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.CallResult.ResultEnum;
 
 /**
  * 统一异常处理类. <br>

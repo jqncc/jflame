@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.jflame.commons.util.ArrayHelper;
+import org.jflame.commons.util.CollectionHelper;
 import org.jflame.toolkit.test.entity.Pig;
-import org.jflame.toolkit.util.ArrayHelper;
-import org.jflame.toolkit.util.CollectionHelper;
 
 public class HelperTest {
 

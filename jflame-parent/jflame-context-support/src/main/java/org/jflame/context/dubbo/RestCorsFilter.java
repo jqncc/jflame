@@ -13,9 +13,9 @@ import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.util.CollectionHelper;
+import org.jflame.commons.util.UrlMatcher;
 import org.jflame.context.env.BaseConfig;
-import org.jflame.toolkit.util.CollectionHelper;
-import org.jflame.toolkit.util.UrlMatcher;
 
 /**
  * rest协议跨域请求处理器.

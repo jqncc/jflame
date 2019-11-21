@@ -10,10 +10,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
-import org.jflame.toolkit.codec.TranscodeHelper;
-import org.jflame.toolkit.config.PropertiesConfigHolder;
-import org.jflame.toolkit.crypto.BaseEncryptor.Algorithm;
-import org.jflame.toolkit.crypto.SymmetricEncryptor;
+import org.jflame.commons.codec.TranscodeHelper;
+import org.jflame.commons.config.PropertiesConfigHolder;
+import org.jflame.commons.crypto.SymmetricEncryptor;
+import org.jflame.commons.crypto.BaseEncryptor.Algorithm;
 
 /**
  * 继承spring属性加载器，加入自定义行为：<br>

@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.Formatter;
 
-import org.jflame.toolkit.util.StringHelper;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * @author yucan.zhang

@@ -8,11 +8,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.jflame.toolkit.exception.ConvertException;
+import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.util.CollectionHelper;
 import org.jflame.toolkit.test.entity.XmlObj;
 import org.jflame.toolkit.test.entity.XmlSubObj;
 import org.jflame.toolkit.test.entity.XmlSubObj2;
-import org.jflame.toolkit.util.CollectionHelper;
 
 import org.junit.Test;
 

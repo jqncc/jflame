@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.config.ConfigKey;
+import org.jflame.commons.util.CollectionHelper;
+import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.valid.ValidatorHelper;
 import org.jflame.context.web.WebUtils;
-import org.jflame.toolkit.config.ConfigKey;
-import org.jflame.toolkit.util.CollectionHelper;
-import org.jflame.toolkit.util.StringHelper;
-import org.jflame.toolkit.valid.ValidatorHelper;
 
 /**
  * csrf攻击拦截，比对请求来源referer.

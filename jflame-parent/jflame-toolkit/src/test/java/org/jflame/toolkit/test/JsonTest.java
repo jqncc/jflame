@@ -5,8 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
+import org.jflame.commons.util.JsonHelper;
 import org.jflame.toolkit.test.entity.MemberInfo;
-import org.jflame.toolkit.util.JsonHelper;
 
 import org.junit.Test;
 

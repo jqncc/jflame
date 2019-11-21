@@ -1,7 +1,5 @@
 package org.jflame.context.mq;
 
-import org.jflame.toolkit.util.CharsetHelper;
-
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
@@ -9,6 +7,8 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import com.alibaba.fastjson.JSON;
+
+import org.jflame.commons.util.CharsetHelper;
 
 /**
  * 消息队列工具类

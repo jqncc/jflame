@@ -11,14 +11,14 @@ import javax.net.ssl.TrustManager;
 
 import org.junit.Test;
 
-import org.jflame.toolkit.common.bean.CallResult;
-import org.jflame.toolkit.common.bean.pair.NameValuePair;
-import org.jflame.toolkit.net.CertX509TrustManager;
-import org.jflame.toolkit.net.HttpHelper;
-import org.jflame.toolkit.net.HttpHelper.HttpMethod;
-import org.jflame.toolkit.net.http.HttpResponse;
-import org.jflame.toolkit.net.http.handler.JsonResponseHandler;
-import org.jflame.toolkit.util.CharsetHelper;
+import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.common.bean.pair.NameValuePair;
+import org.jflame.commons.net.CertX509TrustManager;
+import org.jflame.commons.net.HttpHelper;
+import org.jflame.commons.net.HttpHelper.HttpMethod;
+import org.jflame.commons.net.http.HttpResponse;
+import org.jflame.commons.net.http.handler.JsonResponseHandler;
+import org.jflame.commons.util.CharsetHelper;
 
 public class HttpTest {
 

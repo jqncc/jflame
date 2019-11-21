@@ -15,11 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
-import org.jflame.toolkit.cache.redis.RedisClient;
-import org.jflame.toolkit.cache.redis.RedisClientFactory;
-import org.jflame.toolkit.lock.RedisLock;
+import org.jflame.commons.cache.redis.RedisClient;
+import org.jflame.commons.cache.redis.RedisClientFactory;
+import org.jflame.commons.lock.RedisLock;
+import org.jflame.commons.util.DateHelper;
 import org.jflame.toolkit.test.entity.Pet;
-import org.jflame.toolkit.util.DateHelper;
 
 import redis.clients.jedis.JedisPoolConfig;
 
