@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>jflame-toolkit</module>
+		<module>jflame-commons</module>
 		<module>jflame-db</module>
 		<module>jflame-context-support</module>
 	</modules>
