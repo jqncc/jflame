@@ -1,4 +1,4 @@
-package org.jflame.commons.valid;
+package org.jflame.commons.valid.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+
+import org.jflame.commons.valid.DynamicValidator;
 
 /**
  * 动态验证注解,使用指定的内置验证规则验证

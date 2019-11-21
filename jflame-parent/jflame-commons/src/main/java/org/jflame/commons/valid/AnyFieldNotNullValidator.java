@@ -6,6 +6,8 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jflame.commons.reflect.ReflectionHelper;
+import org.jflame.commons.valid.annotation.AnyFieldNotNull;
+import org.jflame.commons.valid.annotation.EqField;
 
 /**
  * 判断多个属性中必须有一个不为空

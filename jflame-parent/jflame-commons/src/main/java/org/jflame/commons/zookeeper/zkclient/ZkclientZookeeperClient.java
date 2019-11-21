@@ -14,7 +14,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 import org.jflame.commons.exception.DataAccessException;
-import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.file.FileHelper;
 import org.jflame.commons.zookeeper.AbstractZookeeperClient;
 import org.jflame.commons.zookeeper.ChildListener;
 import org.jflame.commons.zookeeper.StateListener;

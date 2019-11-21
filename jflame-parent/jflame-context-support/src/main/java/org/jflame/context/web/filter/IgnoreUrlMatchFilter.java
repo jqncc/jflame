@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.jflame.commons.config.ConfigKey;
-import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.file.FileHelper;
 import org.jflame.context.web.WebUtils;
 
 /**

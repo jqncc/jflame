@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.jflame.commons.valid.annotation.Digit;
+
 public class DigitValidator implements ConstraintValidator<Digit,Number> {
 
     private int maxIntegerLength;

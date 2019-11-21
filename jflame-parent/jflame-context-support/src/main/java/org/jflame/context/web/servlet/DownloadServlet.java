@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.jflame.commons.config.ConfigKey;
 import org.jflame.commons.config.PropertiesConfigHolder;
 import org.jflame.commons.config.ServletParamConfig;
-import org.jflame.commons.file.FileHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.file.FileHelper;
 import org.jflame.context.env.BaseConfig;
 import org.jflame.context.web.WebUtils;
 

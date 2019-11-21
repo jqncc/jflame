@@ -29,11 +29,11 @@ import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PolicyConditions;
 
 import org.jflame.commons.exception.BusinessException;
-import org.jflame.commons.file.FileHelper;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.MapHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.file.FileHelper;
 
 /**
  * Ali OSS云存储文件管理

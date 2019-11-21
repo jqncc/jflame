@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.jflame.commons.exception.BusinessException;
-import org.jflame.commons.file.PropertiesHelper;
+import org.jflame.commons.util.file.PropertiesHelper;
 
 /**
  * 默认实现 从properties文件加载配置参数.<br>

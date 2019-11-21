@@ -1,4 +1,4 @@
-package org.jflame.commons.valid;
+package org.jflame.commons.valid.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -9,16 +9,18 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
+import org.jflame.commons.valid.AnyFieldNotNullValidator;
+
 /**
- * 两个属性相等校验注解，放类型上
+ * 验证注解.用于标记类中多个属性必须有一个不为空
  * 
  * @author yucan.zhang
  */
-@Constraint(validatedBy = { EqFieldValidator.class })
+@Constraint(validatedBy = { AnyFieldNotNullValidator.class })
 @Documented
-@Target({ ElementType.ANNOTATION_TYPE,ElementType.TYPE})
+@Target({ ElementType.ANNOTATION_TYPE,ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EqField {
+public @interface AnyFieldNotNull {
 
     /**
      * 错误描述
@@ -28,25 +30,25 @@ public @interface EqField {
     String message();
 
     /**
+     * 要判断的属性
+     * 
+     * @return
+     */
+    String[] fields();
+
+    /**
+     * 空字符串是否作为null,默认false
+     * 
+     * @return
+     */
+    boolean emptyIsNull() default false;
+
+    /**
      * 校验分组
      * 
      * @return
      */
     Class<?>[] groups() default {};
-
-    /**
-     * 被比较属性名
-     * 
-     * @return
-     */
-    String field();
-
-    /**
-     * 待比较属性名
-     * 
-     * @return
-     */
-    String eqField();
 
     /**
      * 用于同一属性不同条件时的验证区分

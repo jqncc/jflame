@@ -6,9 +6,9 @@ import java.util.Date;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.jflame.commons.valid.DynamicValid;
-import org.jflame.commons.valid.EqField;
-import org.jflame.commons.valid.DynamicValid.ValidRule;
+import org.jflame.commons.valid.annotation.DynamicValid;
+import org.jflame.commons.valid.annotation.EqField;
+import org.jflame.commons.valid.annotation.DynamicValid.ValidRule;
 
 @EqField(field = "password", eqField = "confirmPwd", message = "两次密码不一致")
 public class UserInfo implements Serializable {

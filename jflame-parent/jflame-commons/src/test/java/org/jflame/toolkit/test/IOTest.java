@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.google.common.io.Files;
 
-import org.jflame.commons.file.FileHelper;
+import org.jflame.commons.util.file.FileHelper;
 
 public class IOTest {
 

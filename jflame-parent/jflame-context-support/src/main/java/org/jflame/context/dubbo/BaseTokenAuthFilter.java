@@ -10,10 +10,10 @@ import javax.ws.rs.core.Response;
 
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.common.bean.CallResult.ResultEnum;
-import org.jflame.commons.file.FileHelper;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlMatcher;
+import org.jflame.commons.util.file.FileHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.jflame.commons.file;
+package org.jflame.commons.util.file;
 
 import java.text.MessageFormat;
 import java.util.Locale;

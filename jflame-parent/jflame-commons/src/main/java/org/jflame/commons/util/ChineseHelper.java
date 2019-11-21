@@ -1,10 +1,12 @@
 package org.jflame.commons.util;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-import org.apache.commons.lang3.StringUtils;
+import com.github.stuxuhai.jpinyin.PinyinException;
+import com.github.stuxuhai.jpinyin.PinyinFormat;
+import com.github.stuxuhai.jpinyin.PinyinHelper;
+
+import org.jflame.commons.exception.ConvertException;
 
 /**
  * 汉字工具类.
@@ -12,11 +14,6 @@ import org.apache.commons.lang3.StringUtils;
  * @author yucan.zhang
  */
 public final class ChineseHelper {
-
-    private final static int[] li_SecPosValue = { 1601,1637,1833,2078,2274,2302,2433,2594,2787,3106,3212,3472,3635,3722,
-            3730,3858,4027,4086,4390,4558,4684,4925,5249,5590 };
-    private final static char[] lc_FirstLetter = { 'a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r',
-            's','t','w','x','y','z' };
 
     /**
      * 判断是否是汉字
@@ -35,67 +32,70 @@ public final class ChineseHelper {
                 || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION) {
             return true;
         }
+
         return false;
     }
 
     /**
-     * 取得给定汉字串的首字母串,即声母串.
+     * 取得给定汉字串拼音首字母,即声母串.
      * 
-     * @deprecated 废除,读取汉字不全
-     * @param str 汉字
+     * @param chineseStr 汉字
      * @return 声母
-     * @throws UnsupportedEncodingException 不支持的编码异常
      */
-    @Deprecated
-    public static String getAllFirstLetter(String str) throws UnsupportedEncodingException {
-        if (str == null || str.isEmpty()) {
-            return StringUtils.EMPTY;
+    public static String getLetterForshort(String chineseStr) {
+        try {
+            return PinyinHelper.getShortPinyin(chineseStr);
+        } catch (PinyinException e) {
+            throw new ConvertException(e);
         }
-
-        char[] charArr = new char[str.length()];
-        for (int i = 0; i < charArr.length; i++) {
-            charArr[i] = getFirstLetter(str.substring(i, i + 1));
-        }
-
-        return new String(charArr);
     }
 
     /**
-     * 取得给定汉字的首字母,即声母.废除,读取汉字不全
+     * 汉字转拼音(带声调)
      * 
-     * @param chinese 汉字
-     * @return 汉字的声母
-     * @throws UnsupportedEncodingException 不支持的编码异常
+     * @param chineseStr
+     * @return
      */
-    @Deprecated
-    private static char getFirstLetter(String chinese) throws UnsupportedEncodingException {
-        if (StringHelper.isEmpty(chinese)) {
-            throw new IllegalArgumentException("parameter 'chinese' not be null");
+    public static String convertToPinyin(String chineseStr) {
+        try {
+            return PinyinHelper.convertToPinyinString(chineseStr, " ");
+        } catch (PinyinException e) {
+            throw new ConvertException(e);
         }
-        char f = ' ';
-        chinese = CharsetHelper.reEncodeGBK(chinese);
-        // 判断是不是汉字
-        if (chinese.length() > 1) {
-            int liSectorCode = (int) chinese.charAt(0); // 汉字区码
-            int liPositionCode = (int) chinese.charAt(1); // 汉字位码
-            liSectorCode = liSectorCode - 160;
-            liPositionCode = liPositionCode - 160;
-            int liSecPosCode = liSectorCode * 100 + liPositionCode; // 汉字区位码
-            if (liSecPosCode > 1600 && liSecPosCode < 5590) {
-                for (int i = 0; i < 23; i++) {
-                    if (liSecPosCode >= li_SecPosValue[i] && liSecPosCode < li_SecPosValue[i + 1]) {
-                        f = lc_FirstLetter[i];
-                        break;
-                    }
-                }
-            } else {
-                // 非汉字字符,如图形符号或ASCII码
-                chinese = CharsetHelper.reEncode(chinese, StandardCharsets.ISO_8859_1, CharsetHelper.GBK_18030);
-                f = chinese.charAt(0);
-            }
-        }
+    }
 
-        return f;
+    /**
+     * 汉字转拼音(不带声调)
+     * 
+     * @param chineseStr
+     * @return
+     */
+    public static String convertToPinyinWithouTone(String chineseStr) {
+        try {
+            return PinyinHelper.convertToPinyinString(chineseStr, " ", PinyinFormat.WITHOUT_TONE);
+        } catch (PinyinException e) {
+            throw new ConvertException(e);
+        }
+    }
+
+    /**
+     * 简体字转为繁体字
+     * 
+     * @param str 简体字
+     * @return
+     */
+    public static String simplifiedChineseToBig5(String str) {
+        return com.github.stuxuhai.jpinyin.ChineseHelper.convertToTraditionalChinese(str);
+    }
+
+    /**
+     * 繁体字转为简体字
+     * 
+     * @param str 繁体字
+     * @return
+     */
+    public static String big5ToSimplifiedChinese(String str) {
+        return com.github.stuxuhai.jpinyin.ChineseHelper.convertToSimplifiedChinese(str);
     }
 
     /**
@@ -119,11 +119,5 @@ public final class ChineseHelper {
         }
         return ret;
     }
-
-    /*
-     * public static void main(String[] args) throws UnsupportedEncodingException { //System.out.println("获取拼音首字母：" +
-     * getAllFirstLetter("大中国南昌中大china")); System.out.println(randomChinese(4)); System.out.println(randomChinese(4));
-     * System.out.println(randomChinese(4)); System.out.println(randomChinese(4)); }
-     */
 
 }

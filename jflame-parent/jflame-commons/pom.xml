@@ -44,12 +44,8 @@
 			<artifactId>javax.el-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- <dependency>
-			<groupId>org.glassfish</groupId>
-			<artifactId>javax.el</artifactId>
-			<version>3.0.1-b09</version>
-			<scope>test</scope>
-		</dependency> -->
+		<!-- <dependency> <groupId>org.glassfish</groupId> <artifactId>javax.el</artifactId> 
+			<version>3.0.1-b09</version> <scope>test</scope> </dependency> -->
 		<!-- 第三方加密组件 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -114,10 +110,16 @@
 			<artifactId>spring-data-redis</artifactId>
 			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.github.stuxuhai</groupId>
+			<artifactId>jpinyin</artifactId>
+			<version>1.1.8</version>
 			<optional>true</optional>
 		</dependency>
 	</dependencies>

@@ -4,6 +4,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.jflame.commons.reflect.ReflectionHelper;
+import org.jflame.commons.valid.annotation.EqField;
 
 /**
  * 属性相等比较

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.file.FileHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.file.FileHelper;
 import org.jflame.context.env.BaseConfig;
 import org.jflame.context.filemanager.AliOssFileManager;
 import org.jflame.context.filemanager.FileManagerFactory;

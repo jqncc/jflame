@@ -55,20 +55,18 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${version.slf4j}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${version.logback}</version>
-			<scope>provided</scope>
 		</dependency>
 		<!-- 代码直接调用common-logging会被桥接到slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>${version.slf4j}</version>
-			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -87,18 +85,21 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
 				<version>${version.jackson}</version>
+				<optional>true</optional>
 			</dependency>
 			<!-- ftp操作 -->
 			<dependency>
 				<groupId>commons-net</groupId>
 				<artifactId>commons-net</artifactId>
 				<version>${version.commonnet}</version>
+				<optional>true</optional>
 			</dependency>
 			<!-- excel操作 start -->
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi-ooxml</artifactId>
 				<version>${version.poi}</version>
+				<optional>true</optional>
 			</dependency>
 			<!-- excel end -->
 			<dependency>
@@ -124,6 +125,7 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-imaging</artifactId>
 				<version>1.0-SNAPSHOT</version>
+				<optional>true</optional>
 			</dependency>
 			<!--<dependency> <groupId>net.coobird</groupId> <artifactId>thumbnailator</artifactId> 
 				<version>0.4.8</version> <optional>true</optional> </dependency> -->

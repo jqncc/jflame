@@ -12,7 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.valid.DynamicValid.ValidRule;
+import org.jflame.commons.valid.annotation.DynamicValid;
+import org.jflame.commons.valid.annotation.DynamicValid.ValidRule;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

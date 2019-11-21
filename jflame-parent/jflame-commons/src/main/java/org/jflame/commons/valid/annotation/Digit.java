@@ -1,4 +1,4 @@
-package org.jflame.commons.valid;
+package org.jflame.commons.valid.annotation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -17,7 +17,8 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import org.jflame.commons.valid.Digit.List;
+import org.jflame.commons.valid.DigitValidator;
+import org.jflame.commons.valid.annotation.Digit.List;
 
 /**
  * 数字验证注解,支持类型Number子类
