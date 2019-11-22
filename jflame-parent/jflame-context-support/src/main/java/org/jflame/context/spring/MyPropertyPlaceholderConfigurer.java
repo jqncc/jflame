@@ -1,6 +1,7 @@
 package org.jflame.context.spring;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -10,10 +11,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
-import org.jflame.commons.codec.TranscodeHelper;
 import org.jflame.commons.config.PropertiesConfigHolder;
-import org.jflame.commons.crypto.SymmetricEncryptor;
 import org.jflame.commons.crypto.BaseEncryptor.Algorithm;
+import org.jflame.commons.crypto.SymmetricEncryptor;
 
 /**
  * 继承spring属性加载器，加入自定义行为：<br>
@@ -84,7 +84,9 @@ public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigur
             if (password.length() < 16) {
                 password = StringUtils.rightPad(password, 16, 'x');
             }
-            passwordBytes = Arrays.copyOf(TranscodeHelper.encodeBase64(password), 16);
+
+            passwordBytes = Arrays.copyOf(Base64.getEncoder()
+                    .encode(password.getBytes()), 16);
         }
     }
 

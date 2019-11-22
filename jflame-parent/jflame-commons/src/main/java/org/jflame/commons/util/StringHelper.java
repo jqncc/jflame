@@ -175,7 +175,7 @@ public final class StringHelper {
                 strBuf.append(Chars.AND)
                         .append(kv.getKey())
                         .append(Chars.EQUAL)
-                        .append(isUrlEncode ? TranscodeHelper.urlencode(kv.getValue()
+                        .append(isUrlEncode ? TranscodeHelper.urlEncode(kv.getValue()
                                 .toString()) : kv.getValue());
             }
         }

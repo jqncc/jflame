@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.jflame.commons.exception.ConvertException;
-import org.jflame.commons.util.CharsetHelper;
 
 /**
  * 转码工具类,支持base64,hex转码,int与byte[4]转换,url编码,byte与Long转换
@@ -17,7 +16,7 @@ import org.jflame.commons.util.CharsetHelper;
 public final class TranscodeHelper {
 
     /**
-     * 使用Base64编码字节数组,返回字符串
+     * base64编码字节数组,返回Base64字符串
      * 
      * @param base64Data base64 byte[]
      * @return base64字符串
@@ -28,7 +27,7 @@ public final class TranscodeHelper {
     }
 
     /**
-     * 使用base64编码字符串，指定字符编码
+     * base64编码字符串，指定字符编码.
      * 
      * @param str base64字符串
      * @param charset 字符编码
@@ -40,13 +39,46 @@ public final class TranscodeHelper {
     }
 
     /**
-     * 使用base64编码字符串,字符编码为utf-8
+     * base64编码字符串,字符编码为utf-8.
      * 
      * @param str 字符串
      * @return
      */
     public static String encodeBase64String(String str) {
         return encodeBase64String(str, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Base64编码字节数组,返回Base64url安全的字符串
+     * 
+     * @param data 待编码数据
+     * @return base64字符串
+     */
+    public static String encodeBase64URLSafeString(byte[] data) {
+        return java.util.Base64.getUrlEncoder()
+                .encodeToString(data);
+    }
+
+    /**
+     * base64编码url安全的字符串
+     * 
+     * @param str
+     * @param charset 指定参数str字符集
+     * @return base64字符串
+     */
+    public static String encodeBase64URLSafeString(String str, Charset charset) {
+        byte[] bytes = str.getBytes(charset);
+        return encodeBase64URLSafeString(bytes);
+    }
+
+    /**
+     * base64编码url安全的字符串,字符编码为utf-8.
+     * 
+     * @param str
+     * @return
+     */
+    public static String encodeBase64URLSafeString(String str) {
+        return encodeBase64URLSafeString(str, StandardCharsets.UTF_8);
     }
 
     /**
@@ -58,11 +90,6 @@ public final class TranscodeHelper {
     public static byte[] encodeBase64(byte[] base64Data) {
         return java.util.Base64.getEncoder()
                 .encode(base64Data);
-    }
-
-    public static byte[] encodeBase64(String str) {
-        return java.util.Base64.getEncoder()
-                .encode(str.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -104,7 +131,7 @@ public final class TranscodeHelper {
      * @return 16进制字符串
      */
     public static String encodeHexString(String str) {
-        return Hex.encodeHexString(CharsetHelper.getUtf8Bytes(str));
+        return Hex.encodeHexString(str);
     }
 
     /**
@@ -114,7 +141,7 @@ public final class TranscodeHelper {
      * @return byte[]
      * @throws ConvertException
      */
-    public static byte[] dencodeHex(String hexString) throws ConvertException {
+    public static byte[] dencodeHex(String hexString) {
         if (hexString == null) {
             return null;
         }
@@ -128,8 +155,7 @@ public final class TranscodeHelper {
      * @return utf-8编码字符串
      */
     public static String dencodeHexString(String hexString) throws ConvertException {
-        byte[] bytes = dencodeHex(hexString);
-        return CharsetHelper.getUtf8String(bytes);
+        return Hex.decodeHex(hexString);
     }
 
     /**
@@ -138,7 +164,7 @@ public final class TranscodeHelper {
      * @param str string
      * @return urlencode string
      */
-    public static String urlencode(String str) {
+    public static String urlEncode(String str) {
         try {
             return URLEncoder.encode(str, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
@@ -152,7 +178,7 @@ public final class TranscodeHelper {
      * @param str url编码库
      * @return
      */
-    public static String urldecode(String str) {
+    public static String urlDecode(String str) {
         try {
             return URLDecoder.decode(str, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {

@@ -112,7 +112,7 @@ public class MemberInfo implements Serializable {
 
     public String getNickName() {
         if (StringHelper.isNotEmpty(nickName)) {
-            return TranscodeHelper.urldecode(nickName);
+            return TranscodeHelper.urlDecode(nickName);
         }
         return nickName;
     }

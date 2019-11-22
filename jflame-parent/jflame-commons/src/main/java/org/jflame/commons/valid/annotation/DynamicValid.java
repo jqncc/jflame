@@ -12,8 +12,10 @@ import javax.validation.Payload;
 import org.jflame.commons.valid.DynamicValidator;
 
 /**
- * 动态验证注解,使用指定的内置验证规则验证
+ * 动态验证注解,使用指定的内置验证规则验证.<br>
+ * 支持验证规则请查看:{@link ValidRule}
  * 
+ * @see ValidRule
  * @author yucan.zhang
  */
 @Constraint(validatedBy = { DynamicValidator.class })
@@ -67,7 +69,7 @@ public @interface DynamicValid {
     String params() default "";
 
     /**
-     * 内置验证规则
+     * 内置验证规则: 手机号,电话号,身份证,字母,字母,数字或下划线,ip地址,特殊字符,长度范围,正则等
      * 
      * @author yucan.zhang
      */

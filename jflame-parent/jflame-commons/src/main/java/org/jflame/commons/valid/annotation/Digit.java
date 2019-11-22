@@ -21,7 +21,8 @@ import org.jflame.commons.valid.DigitValidator;
 import org.jflame.commons.valid.annotation.Digit.List;
 
 /**
- * 数字验证注解,支持类型Number子类
+ * 数字组合验证注解,支持类型Number子类.<br>
+ * 可验证数字的:最大值,最小值,整数部分最大位数,小数部分最大位数,小数部分最小位数
  * 
  * @author yucan.zhang
  */
