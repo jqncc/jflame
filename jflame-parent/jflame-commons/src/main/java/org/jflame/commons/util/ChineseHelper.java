@@ -70,7 +70,7 @@ public final class ChineseHelper {
      * @param chineseStr
      * @return
      */
-    public static String convertToPinyinWithouTone(String chineseStr) {
+    public static String convertToPinyinNoTone(String chineseStr) {
         try {
             return PinyinHelper.convertToPinyinString(chineseStr, " ", PinyinFormat.WITHOUT_TONE);
         } catch (PinyinException e) {

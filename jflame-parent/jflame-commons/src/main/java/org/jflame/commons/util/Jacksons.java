@@ -75,7 +75,7 @@ public class Jacksons {
         }
     }
 
-    public <T> List<T> parseArray(String jsonStr, Class<T> elementClazz) {
+    public <T> List<T> parseList(String jsonStr, Class<T> elementClazz) {
         CollectionType collType = objMapper.getTypeFactory()
                 .constructCollectionType(ArrayList.class, elementClazz);
         try {

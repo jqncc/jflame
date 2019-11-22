@@ -92,11 +92,4 @@ public final class ArrayHelper {
         }
     }
 
-    /* public static void main(String[] args) {
-        String[] a1 = { "a","b",null,"d" };
-        String[] a2 = { "b","a",null,"d" };
-        String[] a3 = { "b","a",null,"d","e" };
-        System.out.println(elementEquals(a1, a2));
-        System.out.println(elementEquals(a2, a3));
-    }*/
 }
