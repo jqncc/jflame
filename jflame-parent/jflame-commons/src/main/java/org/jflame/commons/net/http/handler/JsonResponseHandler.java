@@ -1,24 +1,20 @@
 package org.jflame.commons.net.http.handler;
 
-import org.apache.poi.ss.formula.functions.T;
-
+import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.exception.ConvertException;
 import org.jflame.commons.net.http.HttpResponse;
-import org.jflame.commons.util.JsonHelper;
 import org.jflame.commons.util.StringHelper;
-
-import com.alibaba.fastjson.TypeReference;
+import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * 返回结果json反解析为java对象
  * 
  * @author yucan.zhang
  */
-@SuppressWarnings("hiding")
 public class JsonResponseHandler<T> implements ResponseBodyHandler<T> {
 
     private Class<T> entityClass;
-    private TypeReference<T> typeReference;
+    private TypeRef<T> typeReference;
 
     /**
      * 构造函数
@@ -32,9 +28,9 @@ public class JsonResponseHandler<T> implements ResponseBodyHandler<T> {
     /**
      * 构造函数
      * 
-     * @param typeReference 复杂类型
+     * @param typeReference TypeRef
      */
-    public JsonResponseHandler(TypeReference<T> typeReference) {
+    public JsonResponseHandler(TypeRef<T> typeReference) {
         this.typeReference = typeReference;
     }
 

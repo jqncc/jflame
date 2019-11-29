@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.file.FileHelper;
 import org.jflame.context.env.BaseConfig;
 import org.jflame.context.filemanager.AliOssFileManager;
 import org.jflame.context.filemanager.FileManagerFactory;
@@ -34,11 +34,11 @@ public class AliossController extends BaseController {
         CallResult<Map<String,String>> result = new CallResult<>();
         // 目录不以/开头但以/结尾
         if (StringHelper.isNotEmpty(dir)) {
-            if (dir.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+            if (dir.charAt(0) == Chars.SLASH) {
                 dir = dir.substring(1);
             }
-            if (dir.charAt(dir.length() - 1) != FileHelper.UNIX_SEPARATOR) {
-                dir = dir + FileHelper.UNIX_SEPARATOR;
+            if (dir.charAt(dir.length() - 1) != Chars.SLASH) {
+                dir = dir + Chars.SLASH;
             }
         } else {
             if (BaseConfig.isDebugMode()) {

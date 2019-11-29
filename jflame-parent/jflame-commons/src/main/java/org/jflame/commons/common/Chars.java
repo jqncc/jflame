@@ -3,15 +3,15 @@ package org.jflame.commons.common;
 public abstract class Chars {
 
     /**
-     * 换行符
+     * 换行符\n
      */
     public static final char LF = '\n';
     /**
-     * 回车符
+     * 回车符\r
      */
     public static final char CR = '\r';
     /**
-     * 退格符
+     * 退格符\b
      */
     public static final char BACKSPACE = '\b';
     /**
@@ -28,7 +28,7 @@ public abstract class Chars {
     public static final char COMMA = ',';
 
     /**
-     * 水平制表符
+     * 水平制表符\t
      */
     public static final char TAB = '\t';
 

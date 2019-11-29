@@ -3,7 +3,7 @@ package org.jflame.commons.key;
 import java.lang.reflect.Method;
 
 import org.jflame.commons.reflect.BeanHelper;
-import org.jflame.commons.util.JsonHelper;
+import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * 缓存key生成

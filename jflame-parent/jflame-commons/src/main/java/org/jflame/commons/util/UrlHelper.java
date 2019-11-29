@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Map;
 
+import org.jflame.commons.common.Chars;
+
 /**
  * url工具类
  * 
@@ -59,30 +61,30 @@ public final class UrlHelper {
             throw new IllegalArgumentException("argument 'firstUrl' must not be null");
         }
         String fullUrl = "";
-        final char urlSplit = '/';
+        // final char urlSplit = '/';
         if (relativeUrls.length == 0) {
-            if (isAbsoluteUrl(firstUrl) && urlSplit != firstUrl.charAt(0)) {
+            if (isAbsoluteUrl(firstUrl) && Chars.SLASH != firstUrl.charAt(0)) {
                 return firstUrl;
             } else {
-                return urlSplit + fullUrl;
+                return Chars.SLASH + fullUrl;
             }
         }
         for (String url : relativeUrls) {
-            if (url.charAt(0) != urlSplit) {
-                fullUrl += urlSplit;
+            if (url.charAt(0) != Chars.SLASH) {
+                fullUrl += Chars.SLASH;
             }
             fullUrl += url;
         }
-        fullUrl = fullUrl.replace('\\', urlSplit)
+        fullUrl = fullUrl.replace('\\', Chars.SLASH)
                 .replaceAll("/{2,}", "/");
 
-        if (firstUrl.charAt(firstUrl.length() - 1) == urlSplit) {
+        if (firstUrl.charAt(firstUrl.length() - 1) == Chars.SLASH) {
             fullUrl = firstUrl + fullUrl.substring(1);
         } else {
             fullUrl = firstUrl + fullUrl;
         }
-        if (!isAbsoluteUrl(fullUrl) && urlSplit != fullUrl.charAt(0)) {
-            fullUrl = urlSplit + fullUrl;
+        if (!isAbsoluteUrl(fullUrl) && Chars.SLASH != fullUrl.charAt(0)) {
+            fullUrl = Chars.SLASH + fullUrl;
         }
 
         return fullUrl;

@@ -3,7 +3,7 @@ package org.jflame.commons.common.bean;
 import java.text.MessageFormat;
 
 /**
- * api调用返回结果封装类.
+ * 通用返回结果封装类.
  * <p>
  * 返回结果分为3个属性:状态码、结果描述、返回数据。默认结果码为成功200, 默认结果枚举请看:ResultEnum
  * 
@@ -14,8 +14,6 @@ public class CallResult<T> extends SimpleResult {
 
     private static final long serialVersionUID = 1L;
 
-    private int status = 200; // 状态码
-    private String message; // 结果描述
     private T data; // 返回数据
 
     /**
@@ -35,11 +33,11 @@ public class CallResult<T> extends SimpleResult {
     }
 
     public CallResult(int status) {
-        this.status = status;
+        setStatus(status);
     }
 
     public CallResult(int status, String message) {
-        setResult(status, message);
+        super(status, message);
     }
 
     /**
@@ -50,49 +48,32 @@ public class CallResult<T> extends SimpleResult {
      * @param data
      */
     public CallResult(int status, String message, T data) {
-        this.status = status;
-        this.message = message;
+        super(status, message);
         this.data = data;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int code) {
-        this.status = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public CallResult<T> status(int code) {
-        this.status = code;
+        setStatus(code);
         return this;
     }
 
     public CallResult<T> error() {
-        this.status = ResultEnum.SERVER_ERROR.getStatus();
+        setStatus(ResultEnum.SERVER_ERROR.getStatus());
         return this;
     }
 
     public CallResult<T> failed() {
-        this.status = ResultEnum.FAILED.getStatus();
+        setStatus(ResultEnum.FAILED.getStatus());
         return this;
     }
 
     public CallResult<T> paramError() {
-        this.status = ResultEnum.PARAM_ERROR.getStatus();
+        setStatus(ResultEnum.PARAM_ERROR.getStatus());
         return this;
     }
 
     public CallResult<T> message(String message) {
-        this.message = message;
+        setMessage(message);
         return this;
     }
 
@@ -103,7 +84,7 @@ public class CallResult<T> extends SimpleResult {
      * @return 返回设置后的CallResult
      */
     public CallResult<T> success(T data) {
-        this.status = ResultEnum.SUCCESS.getStatus();
+        setStatus(ResultEnum.SUCCESS.getStatus());
         this.data = data;
         return this;
     }
@@ -116,19 +97,8 @@ public class CallResult<T> extends SimpleResult {
         this.data = data;
     }
 
-    public void setResult(BaseResult err) {
-        this.status = err.getStatus();
-        this.message = err.getMessage();
-    }
-
-    public void setResult(int code, String msg) {
-        this.status = code;
-        this.message = msg;
-    }
-
     public CallResult<T> result(BaseResult err) {
-        this.status = err.getStatus();
-        this.message = err.getMessage();
+        setResult(err);
         return this;
     }
 
@@ -138,7 +108,7 @@ public class CallResult<T> extends SimpleResult {
      * @return boolean
      */
     public boolean success() {
-        return status == ResultEnum.SUCCESS.getStatus();
+        return getStatus() == ResultEnum.SUCCESS.getStatus();
     }
 
     public static <T> CallResult<T> ok(T data) {
@@ -211,7 +181,7 @@ public class CallResult<T> extends SimpleResult {
 
     @Override
     public String toString() {
-        return MessageFormat.format("status={0},message={1},data={2}", status, message,
+        return MessageFormat.format("status={0},message={1},data={2}", getStatus(), getMessage(),
                 (data == null ? "" : data.toString()));
     }
 

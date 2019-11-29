@@ -6,8 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.file.FileHelper;
 
 public abstract class BaseFileManager implements IFileManager {
 
@@ -36,7 +36,7 @@ public abstract class BaseFileManager implements IFileManager {
             URI uri = URI.create(filePath);
             filePath = uri.getPath();
         }
-        if (filePath.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+        if (filePath.charAt(0) == Chars.SLASH) {
             filePath = filePath.substring(1);
         }
         return filePath;

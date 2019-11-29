@@ -5,26 +5,22 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.apache.commons.lang3.CharEncoding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jflame.commons.codec.TranscodeHelper;
+import org.jflame.commons.common.Chars;
 
 /**
  * 类文件class操作工具类.
-
+ * 
  * @see org.apache.commons.lang3.ClassUtils
  * @author yucan.zhang
  */
 public final class ClassHelper {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClassHelper.class);
 
     /**
      * 取得指定包下所有实现指定接口的类
@@ -34,10 +30,11 @@ public final class ClassHelper {
      * @param <T> 泛型参数
      * @return class对象列表
      * @throws IOException IOException
+     * @throws ClassNotFoundException
      */
     @SuppressWarnings("unchecked")
     public static <T> List<Class<T>> findImplClassesOfInterface(Class<T> interfaceClazz, String packageName)
-            throws IOException {
+            throws IOException, ClassNotFoundException {
         List<Class<T>> resultList = null;
 
         if (interfaceClazz.isInterface()) {
@@ -88,23 +85,26 @@ public final class ClassHelper {
      * @param packageName 包名
      * @return 查找到的class列表
      * @throws IOException IOException
+     * @throws ClassNotFoundException
      */
-    public static List<Class<?>> getAllClassesInPackage(String packageName) throws IOException {
+    public static List<Class<?>> getAllClassesInPackage(String packageName) throws IOException, ClassNotFoundException {
         List<Class<?>> classes = new ArrayList<Class<?>>();
         // 是否循环迭代
         boolean recursive = true;
-        char slash = '/';
+
         char point = '.';
         // 获取包的名字 并进行替换
-        String packageDirName = packageName.replace(point, slash);
+        String packageDirName = packageName.replace(point, Chars.SLASH);
 
-        Enumeration<URL> dirs = Thread.currentThread().getContextClassLoader().getResources(packageDirName);
+        Enumeration<URL> dirs = Thread.currentThread()
+                .getContextClassLoader()
+                .getResources(packageDirName);
         while (dirs.hasMoreElements()) {
             URL url = dirs.nextElement();
             String protocol = url.getProtocol();
             // 普通文件
             if ("file".equals(protocol)) {
-                String filePath = URLDecoder.decode(url.getFile(), CharEncoding.UTF_8);// 获取包的物理路径
+                String filePath = TranscodeHelper.urlDecode(url.getFile());// 获取包的物理路径
                 findClassesInPackage(packageName, filePath, recursive, classes);
             } else if ("jar".equals(protocol)) {
                 // 如果是jar包文件
@@ -116,25 +116,22 @@ public final class ClassHelper {
                     JarEntry entry = entries.nextElement();
                     String name = entry.getName();
                     // 如果是以/开头的
-                    if (name.charAt(0) == slash) {
+                    if (name.charAt(0) == Chars.SLASH) {
                         name = name.substring(1);
                     }
                     // 如果前半部分和定义的包名相同
                     if (name.startsWith(packageDirName)) {
-                        int idx = name.lastIndexOf(slash);
+                        int idx = name.lastIndexOf(Chars.SLASH);
                         // 如果以"/"结尾 是一个包
                         if (idx != -1) {
-                            packageName = name.substring(0, idx).replace(slash, point);
+                            packageName = name.substring(0, idx)
+                                    .replace(Chars.SLASH, point);
                         }
                         // 如果可以迭代下去 并且是一个包
                         if ((idx != -1) || recursive) {
                             if (name.endsWith(".class") && !entry.isDirectory()) {
                                 String className = name.substring(packageName.length() + 1, name.length() - 6);
-                                try {
-                                    classes.add(Class.forName(packageName + point + className));
-                                } catch (ClassNotFoundException e) {
-                                    logger.warn("实例化类失败" + className, e);
-                                }
+                                classes.add(Class.forName(packageName + point + className));
                             }
                         }
                     }
@@ -152,9 +149,10 @@ public final class ClassHelper {
      * @param packagePath 包路径
      * @param recursive 是否递归
      * @param classes 结果存放List
+     * @throws ClassNotFoundException
      */
     private static void findClassesInPackage(String packageName, String packagePath, final boolean recursive,
-            List<Class<?>> classes) {
+            List<Class<?>> classes) throws ClassNotFoundException {
         // 获取此包的目录 建立一个File
         File dir = new File(packagePath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -165,7 +163,8 @@ public final class ClassHelper {
 
             // 自定义过滤规则 如果可以循环(包含子目录) 或是.class文件
             public boolean accept(File file) {
-                return (recursive && file.isDirectory()) || (file.getName().endsWith(".class"));
+                return (recursive && file.isDirectory()) || (file.getName()
+                        .endsWith(".class"));
             }
         });
 
@@ -175,12 +174,10 @@ public final class ClassHelper {
                 findClassesInPackage(packageName + "." + file.getName(), file.getAbsolutePath(), recursive, classes);
             } else {
                 // java类文件 取类名
-                String className = file.getName().substring(0, file.getName().length() - 6);
-                try {
-                    classes.add(Class.forName(packageName + '.' + className));
-                } catch (ClassNotFoundException e) {
-                    logger.warn("实例化类失败" + className, e);
-                }
+                String className = file.getName()
+                        .substring(0, file.getName()
+                                .length() - 6);
+                classes.add(Class.forName(packageName + '.' + className));
             }
         }
     }
@@ -193,7 +190,8 @@ public final class ClassHelper {
     public static ClassLoader getDefaultClassLoader() {
         ClassLoader cl = null;
         try {
-            cl = Thread.currentThread().getContextClassLoader();
+            cl = Thread.currentThread()
+                    .getContextClassLoader();
         } catch (Throwable ex) {
             ex.printStackTrace();
         }

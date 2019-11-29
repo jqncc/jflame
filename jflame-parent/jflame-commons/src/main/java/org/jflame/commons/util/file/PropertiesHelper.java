@@ -14,6 +14,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;
 
@@ -224,7 +225,7 @@ public final class PropertiesHelper {
             return true;
         }
         // 非windows系统,/开头视为绝对路径
-        if (!SystemUtils.IS_OS_WINDOWS && path.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+        if (!SystemUtils.IS_OS_WINDOWS && path.charAt(0) == Chars.SLASH) {
             return true;
         }
         return false;

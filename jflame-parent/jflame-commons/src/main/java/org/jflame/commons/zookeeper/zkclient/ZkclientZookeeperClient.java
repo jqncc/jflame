@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.DataAccessException;
-import org.jflame.commons.util.file.FileHelper;
 import org.jflame.commons.zookeeper.AbstractZookeeperClient;
 import org.jflame.commons.zookeeper.ChildListener;
 import org.jflame.commons.zookeeper.StateListener;
@@ -101,12 +101,12 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
     public String create(String path, Serializable data, CreateMode createMode) {
         try {
             // 如果有父级目录先生成父级
-            int c = StringUtils.countMatches(path, FileHelper.UNIX_SEPARATOR);
+            int c = StringUtils.countMatches(path, Chars.SLASH);
             if (c > 1) {
-                String[] paths = StringUtils.split(path, FileHelper.UNIX_SEPARATOR);
+                String[] paths = StringUtils.split(path, Chars.SLASH);
                 String parentPath = "";
                 for (int i = 0; i < paths.length - 1; i++) {
-                    parentPath = parentPath + FileHelper.UNIX_SEPARATOR + paths[0];
+                    parentPath = parentPath + Chars.SLASH + paths[0];
                     if (!isExist(parentPath)) {
                         client.create(parentPath, null, createMode);
                     }

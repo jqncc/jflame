@@ -8,6 +8,14 @@ public class SimpleResult implements BaseResult {
     private int status;
     private String message;
 
+    public SimpleResult() {
+    }
+
+    public SimpleResult(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
     @Override
     public int getStatus() {
         return status;
@@ -33,6 +41,11 @@ public class SimpleResult implements BaseResult {
     public void setResult(BaseResult result) {
         status = result.getStatus();
         message = result.getMessage();
+    }
+
+    public void setResult(int status, String message) {
+        this.status = status;
+        this.message = message;
     }
 
     @Override

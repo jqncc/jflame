@@ -28,6 +28,7 @@ import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PolicyConditions;
 
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.BusinessException;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.IOHelper;
@@ -232,10 +233,10 @@ public class AliOssFileManager extends BaseFileManager {
     protected String createNewFileName(String saveDir, String ext) {
         String newName = super.createNewFileName(ext);
         if (StringHelper.isNotEmpty(saveDir)) {
-            if (saveDir.charAt(0) == FileHelper.UNIX_SEPARATOR) {
-                newName = saveDir.substring(1) + FileHelper.UNIX_SEPARATOR + newName;
+            if (saveDir.charAt(0) == Chars.SLASH) {
+                newName = saveDir.substring(1) + Chars.SLASH + newName;
             } else {
-                newName = saveDir + FileHelper.UNIX_SEPARATOR + newName;
+                newName = saveDir + Chars.SLASH + newName;
             }
         }
         return newName;

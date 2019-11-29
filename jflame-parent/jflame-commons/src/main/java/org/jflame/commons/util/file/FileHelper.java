@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jflame.commons.common.Chars;
+import org.jflame.commons.reflect.ClassHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;
 
@@ -24,15 +26,6 @@ import org.jflame.commons.util.StringHelper;
  * @author zyc
  */
 public final class FileHelper {
-
-    /**
-     * windows文件路径分隔符\
-     */
-    public static final char WIN_SEPARATOR = Chars.BACKSLASH;
-    /**
-     * unix文件路径分隔符/
-     */
-    public static final char UNIX_SEPARATOR = Chars.SLASH;
 
     /**
      * 返回文件路径的目录部分. 如果指定的文件存在，使用文件属性判断<br>
@@ -59,9 +52,9 @@ public final class FileHelper {
         if (tmpFile.exists()) {
             return tmpFile.isDirectory() ? filePath : tmpFile.getParent();
         } else {
-            int i = filePath.lastIndexOf(UNIX_SEPARATOR);
+            int i = filePath.lastIndexOf(Chars.SLASH);
             if (i < 0) {
-                i = filePath.lastIndexOf(WIN_SEPARATOR);
+                i = filePath.lastIndexOf(Chars.BACKSLASH);
             }
             if (i < 0) {
                 return filePath;
@@ -156,10 +149,10 @@ public final class FileHelper {
      * @return
      */
     public static String separatorsToUnix(String path) {
-        if (path == null || path.indexOf(WIN_SEPARATOR) == -1) {
+        if (path == null || path.indexOf(Chars.BACKSLASH) == -1) {
             return path;
         }
-        return path.replace(WIN_SEPARATOR, UNIX_SEPARATOR);
+        return path.replace(Chars.BACKSLASH, Chars.SLASH);
     }
 
     /**
@@ -346,19 +339,46 @@ public final class FileHelper {
     }
 
     /**
+     * 获取classpath根路径
+     * 
+     * @return
+     */
+    public static Path getClassPath() {
+        return toAbsolutePath(StringUtils.EMPTY);
+    }
+
+    /**
+     * 获取classpath下的文件的绝对路径
+     * 
+     * @param classPathFile 文件相对于classpath的相对路径,不以/开头
+     * @return
+     */
+    public static Path toAbsolutePath(String classPathFile) {
+        if (classPathFile == null) {
+            return null;
+        }
+        ClassLoader classLoader = ClassHelper.getDefaultClassLoader();
+        if (!classPathFile.isEmpty() && classPathFile.charAt(0) == Chars.SLASH) {
+            classPathFile = classPathFile.substring(1);
+        }
+        try {
+            return Paths.get(classLoader.getResource(classPathFile)
+                    .toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 读取classpath相对路径文件
      * 
      * @param filePath classpath相对路径文件,不以/开头
      * @return 返回文件流InputStream
      */
     public static InputStream readFileFromClassPath(String filePath) {
-        ClassLoader classLoader = Thread.currentThread()
-                .getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = FileHelper.class.getClassLoader();
-        }
+        ClassLoader classLoader = ClassHelper.getDefaultClassLoader();
         // 修正下路径,classLoader不以/开头
-        if (filePath.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+        if (filePath.charAt(0) == Chars.SLASH) {
             filePath = filePath.substring(1);
         }
         return classLoader.getResourceAsStream(filePath);
@@ -368,7 +388,7 @@ public final class FileHelper {
      * 从classpath读取文件,返回文本字符串
      * 
      * @param filePath
-     * @param charset
+     * @param charset 字符编码,null使用系统默认编码
      * @return
      * @throws IOException
      */
@@ -377,21 +397,4 @@ public final class FileHelper {
         return IOHelper.readText(stream, charset == null ? Charset.defaultCharset() : charset);
     }
 
-    // public static void main(String[] args) {
-    /*
-     * System.out.println(getDir("E:\\abc")); System.out.println(getDir("E:\\abc\\ab.jpg"));
-     * System.out.println(getDir("/data")); System.out.println(getDir("/data/abc.jpg"));
-     * System.out.println(getExtension("/data/abc.jpg",false)); System.out.println(getExtension("/data/abc.jpg",true));
-     */
-    // Path fPath=Paths.get("E:/abc", "2015/2/1","abx.jsp");
-    // Path fPath1=Paths.get("2015", "2","3");
-    // Path fPath2=fPath1.resolve("xxx.jpg");
-    // String x=getTodayDir("e:\\abc");
-    // System.out.println(x);
-    // System.out.println(getTodayDir("/data"));
-    // Path fPath=Paths.get("e:\\2015",x);
-    // Path fPath1=Paths.get("e:\\");
-    // System.out.println(fPath1.relativize(fPath));
-    // System.out.println(getDir("/data/abc.jpg"));
-    // }
 }

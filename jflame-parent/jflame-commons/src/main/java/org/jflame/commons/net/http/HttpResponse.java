@@ -4,13 +4,14 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.TypeReference;
+
+import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.net.http.handler.JsonResponseHandler;
 import org.jflame.commons.net.http.handler.ResponseBodyHandler;
 import org.jflame.commons.net.http.handler.TextResponseHandler;
 import org.jflame.commons.net.http.handler.XmlResponseHandler;
-
-import com.alibaba.fastjson.TypeReference;
 
 /**
  * http请求返回结果
@@ -87,10 +88,10 @@ public class HttpResponse extends CallResult<byte[]> {
     /**
      * 请求结果作为JSON字符串反序列化为java对象
      * 
-     * @param typeReference
+     * @param typeReference 目标对象类型表达TypeRef
      * @return
      */
-    public <T> T getResponseAsJson(TypeReference<T> typeReference) {
+    public <T> T getResponseAsJson(TypeRef<T> typeReference) {
         ResponseBodyHandler<T> responseHandler = new JsonResponseHandler<>(typeReference);
         return getResponse(responseHandler);
     }
@@ -122,7 +123,7 @@ public class HttpResponse extends CallResult<byte[]> {
      * @return
      */
     public <T> CallResult<T> getResponseAsCallResult(Class<T> entityClass) {
-        return getResponseAsJson(new TypeReference<CallResult<T>>() {
+        return getResponseAsJson(new TypeRef<CallResult<T>>() {
         });
     }
 
@@ -133,7 +134,7 @@ public class HttpResponse extends CallResult<byte[]> {
      * @return
      */
     public <T> CallResult<List<T>> getResponseAsCallResultWithList(Class<T> listElementClass) {
-        return getResponseAsJson(new TypeReference<CallResult<List<T>>>() {
+        return getResponseAsJson(new TypeRef<CallResult<List<T>>>() {
         });
     }
 
@@ -143,7 +144,7 @@ public class HttpResponse extends CallResult<byte[]> {
      * @return
      */
     public Map<String,Object> getResponseAsJsonMap() {
-        return getResponseAsJson(new TypeReference<Map<String,Object>>() {
+        return getResponseAsJson(new TypeRef<Map<String,Object>>() {
         });
     }
 

@@ -8,15 +8,15 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.jflame.commons.common.Chars;
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.common.bean.CallResult.ResultEnum;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlMatcher;
-import org.jflame.commons.util.file.FileHelper;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * rest接口身份验证抽象父类
@@ -44,7 +44,7 @@ public abstract class BaseTokenAuthFilter implements ContainerRequestFilter {
         String requestUrl = requestContext.getUriInfo()
                 .getPath();
         String authToken = getToken(requestContext);
-        if (requestUrl.charAt(0) == FileHelper.UNIX_SEPARATOR) {
+        if (requestUrl.charAt(0) == Chars.SLASH) {
             requestUrl = requestUrl.substring(1);
         }
         logger.debug("auth filter:{}", requestUrl);

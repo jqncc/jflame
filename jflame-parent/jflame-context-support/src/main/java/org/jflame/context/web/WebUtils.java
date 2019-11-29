@@ -15,8 +15,8 @@ import org.jflame.commons.common.bean.pair.NameValuePair;
 import org.jflame.commons.net.IPAddressHelper;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.EnumHelper;
-import org.jflame.commons.util.JsonHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * web环境常用常量定义和工具方法

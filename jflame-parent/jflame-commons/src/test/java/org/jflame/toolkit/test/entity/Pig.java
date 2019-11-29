@@ -57,4 +57,26 @@ public class Pig {
         this.skin = skin;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Pig [age=")
+                .append(age)
+                .append(", ");
+        if (name != null) {
+            builder.append("name=")
+                    .append(name)
+                    .append(", ");
+        }
+        builder.append("weight=")
+                .append(weight)
+                .append(", ");
+        if (skin != null) {
+            builder.append("skin=")
+                    .append(skin);
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
