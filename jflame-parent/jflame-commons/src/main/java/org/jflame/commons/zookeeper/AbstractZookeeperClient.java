@@ -1,10 +1,7 @@
 package org.jflame.commons.zookeeper;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.zookeeper.CreateMode;
@@ -12,20 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract Zookeeper Client
+ * Zookeeper操作抽象父类.
  * 
  * @author yucan.zhang
  * @param <T>
  */
-public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
+public abstract class AbstractZookeeperClient implements ZookeeperClient {
 
-    protected static final Logger logger = LoggerFactory.getLogger(AbstractZookeeperClient.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
-    private final ConcurrentMap<String,ConcurrentMap<ChildListener,T>> childListeners = new ConcurrentHashMap<>();
 
-    protected static final int DEFAULT_SESSION_TIMEOUT = 60 * 1000;
-    protected static final int DEFAULT_CONNECTION_TIMEOUT = 5000;
     protected String connUrl;
     protected int sessionTimeout = 0;
     protected int connectionTimeout = 0;
@@ -113,11 +107,11 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
         return stateListeners;
     }
 
-    @Override
-    public List<String> addChildListener(String path, final ChildListener listener) {
-        ConcurrentMap<ChildListener,T> listeners = childListeners.get(path);
+    /*   @Override
+    public List<String> registerChildListener(String path, final ChildNodeListener listener) {
+        ConcurrentMap<ChildNodeListener,T> listeners = childListeners.get(path);
         if (listeners == null) {
-            childListeners.putIfAbsent(path, new ConcurrentHashMap<ChildListener,T>());
+            childListeners.putIfAbsent(path, new ConcurrentHashMap<ChildNodeListener,T>());
             listeners = childListeners.get(path);
         }
         T targetListener = listeners.get(listener);
@@ -127,17 +121,17 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
         }
         return addTargetChildListener(path, targetListener);
     }
-
+    
     @Override
-    public void removeChildListener(String path, ChildListener listener) {
-        ConcurrentMap<ChildListener,T> listeners = childListeners.get(path);
+    public void unregisterChildListener(String path, ChildNodeListener listener) {
+        ConcurrentMap<ChildNodeListener,T> listeners = childListeners.get(path);
         if (listeners != null) {
             T targetListener = listeners.remove(listener);
             if (targetListener != null) {
                 removeTargetChildListener(path, targetListener);
             }
         }
-    }
+    }*/
 
     protected void stateChanged(int state) {
         for (StateListener sessionListener : getSessionListeners()) {
@@ -160,12 +154,20 @@ public abstract class AbstractZookeeperClient<T> implements ZookeeperClient {
 
     protected abstract void doClose();
 
+    /**
+     * 创建节点.如果节点已经存在视为成功不抛出异常
+     * 
+     * @param path
+     * @param data
+     * @param mode
+     * @return
+     */
     protected abstract String create(String path, Serializable data, CreateMode mode);
 
-    protected abstract T createTargetChildListener(String path, ChildListener listener);
+    // protected abstract T createTargetChildListener(String path, ChildNodeListener listener);
 
-    protected abstract List<String> addTargetChildListener(String path, T listener);
+    // protected abstract List<String> addTargetChildListener(String path, T listener);
 
-    protected abstract void removeTargetChildListener(String path, T listener);
+    // protected abstract void removeTargetChildListener(String path, T listener);
 
 }

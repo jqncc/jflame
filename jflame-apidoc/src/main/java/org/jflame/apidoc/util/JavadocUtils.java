@@ -151,20 +151,32 @@ public final class JavadocUtils {
     }
 
     /**
-     * 获取一个tag的文本
+     * 判断javadoc中是否有指定的doc tag
+     * 
+     * @param doc
+     * @param tagName
+     * @return
+     */
+    public static boolean hasTag(Doc doc, String tagName) {
+        Tag[] tags = doc.tags(tagName);
+        return ArrayUtils.isNotEmpty(tags);
+    }
+
+    /**
+     * 获取一个tag的文本,如果有多个相同tag只返回第一个
      * 
      * @param doc
      * @param tagName tag name
      * @return
      */
     public static Optional<String> getTagText(Doc doc, String tagName) {
-        Tag[] mcts = doc.tags(tagName);
-        if (mcts.length != 0) {
-            System.out.println(mcts[0].kind());
-            System.out.println(mcts[0].name());
-            System.out.println(mcts[0].holder().commentText());
-            System.out.println(mcts[0].kind());
-            return Optional.ofNullable(mcts[0].text());
+        Tag[] tags = doc.tags(tagName);
+        if (ArrayUtils.isNotEmpty(tags)) {
+            System.out.println(tags[0].kind());
+            System.out.println(tags[0].name());
+            System.out.println(tags[0].holder().commentText());
+            System.out.println(tags[0].kind());
+            return Optional.ofNullable(tags[0].text());
         }
         return Optional.empty();
     }

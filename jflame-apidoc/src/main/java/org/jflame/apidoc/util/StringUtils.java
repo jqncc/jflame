@@ -25,21 +25,6 @@ public final class StringUtils {
     }
 
     /**
-     * 返回字符串中首个.号前面的内容
-     * 
-     * @param text
-     * @return
-     */
-    public static String getTextBeforeFirstDot(String text) {
-        int firstDotIndex = text.indexOf('.');
-        if (firstDotIndex >= 0) {
-            return text.substring(0, firstDotIndex);
-        } else {
-            return text;
-        }
-    }
-
-    /**
      * 合并url，自动补充url分隔符/和纠正url.<b>不适合文件系统路径合并</b>
      * 
      * @param firstUrl 首个url，可以是绝对或相对路径,如果不以协议或/开头将补充/

@@ -1,5 +1,6 @@
 package org.jflame.apidoc.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,8 +8,10 @@ import java.util.List;
  * 
  * @author yucan.zhang
  */
-public class ApiModule {
+public class ApiModule implements Serializable {
 
+    private static final long serialVersionUID = -2949051012251456906L;
+    public static final String DEFAULT_MODULE = "默认模块";
     private String moduleName;// 模块名
     private List<ApiMethod> methods;// 模块接口方法
 

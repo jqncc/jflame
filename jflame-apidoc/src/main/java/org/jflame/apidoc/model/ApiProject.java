@@ -1,5 +1,6 @@
 package org.jflame.apidoc.model;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -7,8 +8,9 @@ import java.util.Set;
  * 
  * @author yucan.zhang
  */
-public class ApiProject {
+public class ApiProject implements Serializable {
 
+    private static final long serialVersionUID = 3315308384767166356L;
     private String projName;// 项目名
     private int version;// 版本号
     private String desc;// 项目描述

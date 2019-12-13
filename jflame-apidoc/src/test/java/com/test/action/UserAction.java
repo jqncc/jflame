@@ -19,7 +19,7 @@ public class UserAction {
      * @param id 用户id
      * @return
      */
-    @RequestMapping("get")
+    @RequestMapping({ "x","y" })
     @ResponseBody
     public User getUser(List<Integer> id) {
         User user = new User();

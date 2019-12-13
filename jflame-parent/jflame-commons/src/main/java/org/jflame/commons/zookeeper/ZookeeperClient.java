@@ -1,9 +1,13 @@
 package org.jflame.commons.zookeeper;
 
+import java.io.Closeable;
 import java.io.Serializable;
 import java.util.List;
 
-public interface ZookeeperClient {
+public interface ZookeeperClient extends Closeable {
+
+    int DEFAULT_SESSION_TIMEOUT = 60 * 1000;
+    int DEFAULT_CONNECTION_TIMEOUT = 5000;
 
     /**
      * 创建临时节点
@@ -84,21 +88,21 @@ public interface ZookeeperClient {
     void writeDate(String path, Serializable data);
 
     /**
-     * 增加子节点修改监听器
+     * 注册子节点修改监听器
      * 
      * @param path 节点路径
      * @param listener ChildListener
      * @return
      */
-    List<String> addChildListener(String path, ChildListener listener);
+    List<String> registerChildListener(String path, ChildNodeListener listener);
 
     /**
-     * 删除节点修改监听器
+     * 删除子节点监听器
      * 
      * @param path 节点路径
      * @param listener ChildListener
      */
-    void removeChildListener(String path, ChildListener listener);
+    void unregisterChildListener(String path, ChildNodeListener listener);
 
     /**
      * 增加状态监听器
@@ -113,6 +117,22 @@ public interface ZookeeperClient {
      * @param listener StateListener
      */
     void removeStateListener(StateListener listener);
+
+    /**
+     * 注册节点数据监听器
+     * 
+     * @param path 要监听的节点路径
+     * @param listener
+     */
+    void registerDataListener(String path, NodeDataListener listener);
+
+    /**
+     * 删除节点数据监听器
+     * 
+     * @param path 节点路径
+     * @param listener ChildListener
+     */
+    void unregisterDataListener(String path, NodeDataListener listener);
 
     /**
      * 是否已连接

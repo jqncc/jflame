@@ -16,6 +16,26 @@ import java.util.function.Function;
 public final class ArrayHelper {
 
     /**
+     * 判断数组是否为null或无元素
+     * 
+     * @param array
+     * @return
+     */
+    public static <T> boolean isEmpty(T[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断数组不为null且至少有一个元素
+     * 
+     * @param array
+     * @return
+     */
+    public static <T> boolean isNotEmpty(T[] array) {
+        return array != null && array.length > 0;
+    }
+
+    /**
      * 合并数组,并去重,元素顺序与原数组保持一至
      * 
      * @param arr1 数组1

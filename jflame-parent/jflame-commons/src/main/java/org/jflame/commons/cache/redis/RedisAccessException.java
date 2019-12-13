@@ -1,11 +1,13 @@
 package org.jflame.commons.cache.redis;
 
+import org.jflame.commons.exception.DataAccessException;
+
 /**
  * redis处理异常类
  * 
  * @author zyc
  */
-public class RedisAccessException extends RuntimeException {
+public class RedisAccessException extends DataAccessException {
 
     private static final long serialVersionUID = 1L;
 

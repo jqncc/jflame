@@ -15,6 +15,10 @@ public class ApiMethod implements Serializable {
 
     private static final long serialVersionUID = -4080727016314277388L;
     /**
+     * api名称最大长度,默认30
+     */
+    public static final int API_NAME_MAX_LEN = 30;
+    /**
      * 接口名
      */
     private String methodName;

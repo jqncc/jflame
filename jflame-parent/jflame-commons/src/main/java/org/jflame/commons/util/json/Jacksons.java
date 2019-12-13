@@ -13,10 +13,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.exception.SerializeException;
@@ -31,18 +36,21 @@ import org.jflame.commons.util.StringHelper;
  */
 public class Jacksons implements Jsons {
 
-    private ObjectMapper objMapper = new ObjectMapper();// 同一个ObjectMapper实例部分配置使用后再修改不生效
+    private ObjectMapper objMapper;// 同一个ObjectMapper实例部分配置使用后再修改不生效
 
     public Jacksons() {
-        objMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
-        objMapper.configure(Feature.IGNORE_UNKNOWN, true);
-        objMapper.setSerializationInclusion(Include.NON_NULL);
-
-        // 忽略空Bean转json的错误
-        objMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        // 忽略 在json字符串中存在，但是在java对象中不存在对应属性的情况。防止错误
-        objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        objMapper = JsonMapper.builder() // or different mapper for other format
+                .addModule(new ParameterNamesModule())
+                .addModule(new Jdk8Module())
+                .addModule(new JavaTimeModule())
+                .configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
+                .configure(Feature.IGNORE_UNKNOWN, true)
+                .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .serializationInclusion(Include.NON_NULL)
+                .build();
     }
 
     @Override

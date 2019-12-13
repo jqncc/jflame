@@ -105,6 +105,16 @@ public final class JsonHelper {
     }
 
     /**
+     * JSON字符串反序列化为 Map&lt;String,String&gt;
+     * 
+     * @param jsonStr json字符串
+     * @return Map&lt;String,String&gt;
+     */
+    public static Map<String,String> parseMap(String jsonStr) {
+        return jsonClient.parseMap(jsonStr, String.class, String.class);
+    }
+
+    /**
      * SON字符串反序列化为CallResult
      * 
      * @param jsonStr json字符串
