@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.zookeeper.data.Stat;
+
 public interface ZookeeperClient extends Closeable {
 
     int DEFAULT_SESSION_TIMEOUT = 60 * 1000;
@@ -77,7 +79,16 @@ public interface ZookeeperClient extends Closeable {
      * @param path 节点路径
      * @return
      */
-    <T extends Serializable> T getData(String path);
+    <T extends Serializable> T readData(String path);
+
+    /**
+     * 读取节点数据,并返回节点Stat信息
+     * 
+     * @param path 节点路径
+     * @param stat 用于存储Stat信息
+     * @return
+     */
+    <T extends Serializable> T readData(String path, Stat stat);
 
     /**
      * 写数据

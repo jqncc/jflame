@@ -21,8 +21,8 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.context.env.BaseConfig;
 import org.jflame.context.spring.SpringContextHolder;
-import org.jflame.context.spring.web.MyExceptionResolver;
 import org.jflame.context.web.filter.CorsFilter;
+import org.jflame.context.web.spring.MyExceptionResolver;
 
 /**
  * spring mvc配置

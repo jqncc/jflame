@@ -3,6 +3,7 @@ package org.jflame.toolkit.test;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import org.jflame.commons.util.ArrayHelper;
@@ -26,6 +27,12 @@ public class HelperTest {
                 .getPath()));
         System.out.println(TranscodeHelper.encodeHexString(HelperTest.class.getResource("/")
                 .getPath()));*/
+
+        String lastCode = "001200300801";
+        String prodCode = lastCode.substring(0, lastCode.length() - 2);
+        String codeOrderNo = StringUtils.substring(lastCode, -2);// 取最后两顺序位
+        String partyCode = prodCode + StringUtils.leftPad(String.valueOf((Integer.parseInt(codeOrderNo) + 1)), 2, '0');
+        System.out.println(partyCode);
 
     }
 }

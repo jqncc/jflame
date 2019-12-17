@@ -7,11 +7,6 @@ package org.jflame.commons.lock;
  */
 public interface DistributedLock {
 
-    /**
-     * 默认获取锁等待时间,单位毫秒100ms
-     */
-    int DEFAULT_WAIT_TIME = 100;
-
     String LOCK_KEY_PREFIX = "jf_dis_lock";
 
     /**

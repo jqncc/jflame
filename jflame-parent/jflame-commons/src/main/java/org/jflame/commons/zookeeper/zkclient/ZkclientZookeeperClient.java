@@ -16,6 +16,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
+import org.apache.zookeeper.data.Stat;
 
 import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.DataAccessException;
@@ -131,9 +132,18 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient {
     }
 
     @Override
-    public <T extends Serializable> T getData(String path) {
+    public <T extends Serializable> T readData(String path) {
         try {
             return client.readData(path, true);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public <T extends Serializable> T readData(String path, Stat stat) {
+        try {
+            return client.readData(path, stat);
         } catch (Exception e) {
             throw new DataAccessException(e);
         }

@@ -1,4 +1,4 @@
-package org.jflame.context.spring.web;
+package org.jflame.context.web.spring;
 
 import org.springframework.stereotype.Controller;
 

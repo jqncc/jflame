@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.jflame.commons.common.Chars;
+import org.jflame.commons.key.IDHelper;
 import org.jflame.commons.util.StringHelper;
 
 public abstract class BaseFileManager implements IFileManager {
@@ -21,7 +22,7 @@ public abstract class BaseFileManager implements IFileManager {
      * @return
      */
     protected String createNewFileName(String ext) {
-        String name = StringUtils.reverse(StringHelper.millisAndRandomNo(3));
+        String name = StringUtils.reverse(IDHelper.millisAndRandomNo(3));
         if (StringHelper.isNotEmpty(ext)) {
             if (ext.charAt(0) == '.') {
                 return name + ext;

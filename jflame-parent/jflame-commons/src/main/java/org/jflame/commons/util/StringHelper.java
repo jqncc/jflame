@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharSetUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -275,15 +274,15 @@ public final class StringHelper {
         // 过滤script标签
         Pattern scriptPattern = Pattern.compile(scriptRegex, Pattern.CASE_INSENSITIVE);
         Matcher scriptMatcher = scriptPattern.matcher(htmlStr);
-        htmlStr = scriptMatcher.replaceAll("");
+        htmlStr = scriptMatcher.replaceAll(StringUtils.EMPTY);
         // 过滤style标签
         Pattern stylePattern = Pattern.compile(styleRegex, Pattern.CASE_INSENSITIVE);
         Matcher styleMatcher = stylePattern.matcher(htmlStr);
-        htmlStr = styleMatcher.replaceAll("");
+        htmlStr = styleMatcher.replaceAll(StringUtils.EMPTY);
         // 过滤html标签
         Pattern htmlPattern = Pattern.compile(htmlRegex, Pattern.CASE_INSENSITIVE);
         Matcher htmlMatcher = htmlPattern.matcher(htmlStr);
-        htmlStr = htmlMatcher.replaceAll("");
+        htmlStr = htmlMatcher.replaceAll(StringUtils.EMPTY);
 
         return htmlStr;// 返回文本字符串
     }
@@ -323,7 +322,7 @@ public final class StringHelper {
      * @return
      */
     public static String substringAfterIgnoreCase(String str, String separator) {
-        if (StringUtils.isEmpty(str)) {
+        if (isEmpty(str)) {
             return str;
         }
         if (separator == null) {
@@ -346,7 +345,7 @@ public final class StringHelper {
      * @return
      */
     public static String substringBeforeIgnoreCase(String str, String separator) {
-        if (StringUtils.isEmpty(str) || separator == null) {
+        if (isEmpty(str) || separator == null) {
             return str;
         }
         if (separator.length() == 0) {
@@ -449,13 +448,4 @@ public final class StringHelper {
         return str.charAt(str.length() - 1);
     }
 
-    /**
-     * 编号生成,java时间戳+随机数字
-     * 
-     * @param randomCount 随机数字个数
-     * @return
-     */
-    public static String millisAndRandomNo(int randomCount) {
-        return System.currentTimeMillis() + RandomStringUtils.randomNumeric(randomCount);
-    }
 }

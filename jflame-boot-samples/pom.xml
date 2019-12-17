@@ -63,12 +63,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>${springboot.version}</version>
-			<exclusions>
+			<!-- <exclusions>
 				<exclusion>
 					<artifactId>spring-boot-starter-json</artifactId>
 					<groupId>org.springframework.boot</groupId>
 				</exclusion>
-			</exclusions>
+			</exclusions> -->
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>

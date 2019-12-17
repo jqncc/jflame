@@ -1,4 +1,4 @@
-package org.jflame.context.spring.web;
+package org.jflame.context.web.spring;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

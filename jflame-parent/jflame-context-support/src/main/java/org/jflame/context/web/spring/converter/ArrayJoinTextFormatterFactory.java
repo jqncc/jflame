@@ -1,4 +1,4 @@
-package org.jflame.context.spring.web.converter;
+package org.jflame.context.web.spring.converter;
 
 import java.math.BigDecimal;
 import java.util.HashSet;

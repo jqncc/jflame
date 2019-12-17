@@ -12,7 +12,7 @@ import org.jflame.commons.config.PropertiesConfigHolder;
 import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
 
 /**
- * 提供项目通用配置获取的方法
+ * 内置项目常用配置获取的方法
  * 
  * @author yucan.zhang
  */

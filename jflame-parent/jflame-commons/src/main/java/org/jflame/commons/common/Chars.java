@@ -51,6 +51,10 @@ public abstract class Chars {
 
     public static final char NULL = '\0';
     /**
+     * 横线-
+     */
+    public static final char LINE = '-';
+    /**
      * 16进制字符数组
      */
     public static final char[] HEX_CHARS = new char[] { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e',

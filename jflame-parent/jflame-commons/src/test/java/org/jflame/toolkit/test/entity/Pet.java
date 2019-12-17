@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import org.jflame.commons.excel.ExcelColumn;
@@ -14,14 +13,18 @@ import org.jflame.commons.excel.IExcelEntity;
 
 public class Pet implements IExcelEntity, Serializable {
 
+    private static final long serialVersionUID = -3318368228016050296L;
+
     public static class View {
     }
 
-    private static final long serialVersionUID = -3318368228016050296L;
     @JsonView(View.class)
-    @JsonProperty
+    @JSONField(label = "test")
     private String name;
+
     @JsonView(View.class)
+    @JSONField(label = "test")
+
     private int age;
     @ExcelColumn(name = "体重", order = 7)
     private double weight;
@@ -49,8 +52,8 @@ public class Pet implements IExcelEntity, Serializable {
         this.money = money;
     }
 
-    @JSONField(label = "test")
-    @ExcelColumn(name = "名称", order = 1)
+    // @JSONField(label = "test")
+    // @ExcelColumn(name = "名称", order = 1)
     public String getName() {
         return name;
     }
@@ -59,8 +62,8 @@ public class Pet implements IExcelEntity, Serializable {
         this.name = name;
     }
 
-    @JSONField(label = "test")
-    @ExcelColumn(name = "年龄", order = 2)
+    // @JSONField(label = "test")
+    // @ExcelColumn(name = "年龄", order = 2)
     public int getAge() {
         return age;
     }

@@ -25,6 +25,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
+import org.apache.zookeeper.data.Stat;
 
 import org.jflame.commons.exception.DataAccessException;
 import org.jflame.commons.util.IOHelper;
@@ -146,9 +147,26 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
     }
 
     @Override
-    public <T extends Serializable> T getData(String path) {
+    public <T extends Serializable> T readData(String path) {
         try {
             byte[] nodeData = client.getData()
+                    .forPath(path);
+            if (nodeData != null) {
+                return SerializationUtils.deserialize(nodeData);
+            }
+            return null;
+        } catch (SerializationException e) {
+            throw new DataAccessException(e.getMessage());
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public <T extends Serializable> T readData(String path, Stat stat) {
+        try {
+            byte[] nodeData = client.getData()
+                    .storingStatIn(stat)
                     .forPath(path);
             if (nodeData != null) {
                 return SerializationUtils.deserialize(nodeData);

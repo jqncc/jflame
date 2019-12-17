@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.jflame.commons.common.Chars;
+
 /**
  * 常用唯一键生成工具类
  * 
@@ -29,7 +31,7 @@ public final class IDHelper {
      */
     public static String uuid() {
         return StringUtils.remove(UUID.randomUUID()
-                .toString(), '-');
+                .toString(), Chars.LINE);
     }
 
     /**
@@ -38,7 +40,7 @@ public final class IDHelper {
      * @param randomCount 生成随机数位数
      * @return
      */
-    public static String millisAndRandom(int randomCount) {
+    public static String millisAndRandomNo(int randomCount) {
         return System.currentTimeMillis() + RandomStringUtils.randomNumeric(randomCount);
     }
 }

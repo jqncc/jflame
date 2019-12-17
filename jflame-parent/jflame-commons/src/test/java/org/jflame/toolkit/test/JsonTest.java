@@ -1,6 +1,7 @@
 package org.jflame.toolkit.test;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +26,7 @@ public class JsonTest {
     @Before
     public void initEntity() {
         pet = new Pet("black cat", 2, "black", new Date(), new BigDecimal("122.5"));
+        pet.setCreateDate(LocalDateTime.now());
         Pet pet1 = new Pet("white cat", 1, "white", new Date(), new BigDecimal("200.39"));
         pets.add(pet);
         pets.add(pet1);

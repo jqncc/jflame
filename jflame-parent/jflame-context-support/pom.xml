@@ -13,7 +13,7 @@
 		<version.resteasy>3.0.19.Final</version.resteasy>
 		<version.alioss>2.8.3</version.alioss>
 		<version.fastdfs>1.27-SNAPSHOT</version.fastdfs>
-		<version.springrabbit>1.7.6.RELEASE</version.springrabbit>
+		<version.springrabbit>1.7.14.RELEASE</version.springrabbit>
 	</properties>
 	<dependencies>
 		<!-- jflame -->
@@ -56,6 +56,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${version.spring}</version>
+            <optional>true</optional>
+        </dependency>
 		<dependency>
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>

@@ -22,8 +22,8 @@ import org.csource.fastdfs.TrackerClient;
 import org.csource.fastdfs.TrackerServer;
 
 import org.jflame.commons.exception.BusinessException;
+import org.jflame.commons.key.IDHelper;
 import org.jflame.commons.util.IOHelper;
-import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.file.FileHelper;
 
 /**
@@ -99,7 +99,7 @@ public class FastDFSFileManager extends BaseFileManager {
         byte[] fileBytes = readBytes(filePath);
         if (fileBytes != null) {
             String ext = FileHelper.getExtension(filePath, true);
-            Path tmpPath = Files.createTempFile(StringHelper.millisAndRandomNo(3), ext);
+            Path tmpPath = Files.createTempFile(IDHelper.millisAndRandomNo(3), ext);
             return Files.write(tmpPath, fileBytes)
                     .toFile();
         }

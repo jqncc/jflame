@@ -23,7 +23,7 @@ public class RedisLock implements DistributedLock {
 
     private String lockKey;// 锁的键名
     private String lockValue;
-    private long lockExpire;// 锁超时时间,单位秒
+    private int lockExpire;// 锁超时时间,单位秒
 
     static {
         StringBuilder sb = new StringBuilder();
@@ -36,16 +36,12 @@ public class RedisLock implements DistributedLock {
         UNLOCK_LUASCRIPT = sb.toString();
     }
 
-    public RedisLock(String lockName, long expireInSecond) {
+    public RedisLock(String lockName, int expireInSecond) {
         setLockKey(lockName);
         this.lockExpire = expireInSecond;
         if (lockExpire <= 0) {
             throw new IllegalArgumentException("锁的过期时间必须大于0");
         }
-    }
-
-    void setLockKey(String lockName) {
-        this.lockKey = LOCK_KEY_PREFIX + ':' + lockName;
     }
 
     /**
@@ -55,9 +51,13 @@ public class RedisLock implements DistributedLock {
      * @param lockName 锁名,最终锁名"jf_dis_lock:lockName"
      * @param expireInSecond 锁超时时间,单位秒
      */
-    public RedisLock(RedisClient _redisClient, String lockName, long expireInSecond) {
+    public RedisLock(RedisClient _redisClient, String lockName, int expireInSecond) {
         this(lockName, expireInSecond);
         this.redisClient = _redisClient;
+    }
+
+    void setLockKey(String lockName) {
+        this.lockKey = LOCK_KEY_PREFIX + ':' + lockName;
     }
 
     /**
@@ -70,24 +70,41 @@ public class RedisLock implements DistributedLock {
      */
     public synchronized boolean lock(long waitTime) {
         if (waitTime < 1) {
-            waitTime = DEFAULT_WAIT_TIME;
+            throw new IllegalArgumentException();
         }
         lockValue = UUID.randomUUID()
                 .toString();
         long startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < waitTime) {
+        long spanTime = 0;
+        do {
+            if (setNX(lockKey, lockValue)) {
+                locked = true; // 上锁成功结束请求
+                return true;
+            }
+            if (spanTime > 10) {
+                try {
+                    // 随机延迟
+                    TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current()
+                            .nextLong(spanTime));
+                } catch (InterruptedException e) {
+                    // e.printStackTrace();
+                }
+            }
+            spanTime = System.currentTimeMillis() - startTime;
+        } while (spanTime < waitTime);
+        /* while (System.currentTimeMillis() - startTime < waitTime) {
             if (setNX(lockKey, lockValue)) {
                 locked = true; // 上锁成功结束请求
                 return true;
             }
             try {
-                /* 随机延迟 */
+                 随机延迟 
                 TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current()
                         .nextInt(50));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
         return false;
     }
 
@@ -105,14 +122,14 @@ public class RedisLock implements DistributedLock {
 
     private boolean setNX(final String key, final String value) {
         try {
-            return redisClient.setIfAbsent(key, value, getLockExpire(), TimeUnit.SECONDS);
+            return redisClient.setIfAbsent(key, value, (long) getLockExpire(), TimeUnit.SECONDS);
         } catch (RedisAccessException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public long getLockExpire() {
+    public int getLockExpire() {
         return lockExpire;
     }
 
@@ -124,9 +141,9 @@ public class RedisLock implements DistributedLock {
         return locked;
     }
 
-    public String getLockValue() {
+    /* public String getLockValue() {
         return lockValue;
-    }
+    }*/
 
     public void setRedisClient(RedisClient redisClient) {
         this.redisClient = redisClient;

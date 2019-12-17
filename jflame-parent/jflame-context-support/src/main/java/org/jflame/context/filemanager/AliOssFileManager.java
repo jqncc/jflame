@@ -30,6 +30,7 @@ import com.aliyun.oss.model.PolicyConditions;
 
 import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.BusinessException;
+import org.jflame.commons.key.IDHelper;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.MapHelper;
@@ -131,7 +132,7 @@ public class AliOssFileManager extends BaseFileManager {
             contentStream = ossObject.getObjectContent();
             if (contentStream != null) {
                 String ext = FileHelper.getExtension(filePath, true);
-                Path tmpPath = Files.createTempFile(StringHelper.millisAndRandomNo(3), ext);
+                Path tmpPath = Files.createTempFile(IDHelper.millisAndRandomNo(3), ext);
                 Files.copy(contentStream, tmpPath);
                 return tmpPath.toFile();
             }
