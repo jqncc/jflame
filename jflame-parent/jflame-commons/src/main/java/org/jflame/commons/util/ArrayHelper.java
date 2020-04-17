@@ -112,4 +112,25 @@ public final class ArrayHelper {
         }
     }
 
+    /**
+     * 判断数组array2是否是数组array1的子集
+     * 
+     * @param array1
+     * @param array2
+     * @return
+     */
+    public static <T> boolean isSub(T[] array1, T[] array2) {
+        if (array1.length < array2.length) {
+            return false;
+        }
+        for (T a1 : array1) {
+            for (T a2 : array2) {
+                if (!Objects.equals(a1, a2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }
