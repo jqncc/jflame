@@ -3,7 +3,7 @@ package org.jflame.context.filemanager;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jflame.context.env.BaseConfig;
+import org.jflame.commons.config.BaseConfig;
 
 public final class FileManagerFactory {
 
@@ -25,7 +25,7 @@ public final class FileManagerFactory {
         try {
             lock.lock();
             if (currentManager == null) {
-                FileManagerMode currentMethod = BaseConfig.getFileManagerMode();
+                FileManagerMode currentMethod = Enum.valueOf(FileManagerMode.class, BaseConfig.getFileManagerMode());
                 if (currentMethod == FileManagerMode.fastdfs) {
                     currentManager = createFastDFSManager();
                 } else if (currentMethod == FileManagerMode.alioss) {

@@ -242,4 +242,25 @@ public final class CollectionHelper {
         return dest;
     }
 
+    /**
+     * 判断两个集合的元素个数及元素是否相等(元素顺序可以不一致)
+     * 
+     * @param collect1 集合1
+     * @param collect2 集合2
+     * @return
+     */
+    public static <T> boolean elementEquals(Collection<T> collect1, Collection<T> collect2) {
+        if (collect1 == null) {
+            return collect2 == null;
+        } else {
+            if (collect2 == null) {
+                return false;
+            }
+            // 元素个数不相等
+            if (collect2.size() != collect1.size()) {
+                return false;
+            }
+            return collect1.containsAll(collect2);
+        }
+    }
 }

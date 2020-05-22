@@ -25,6 +25,21 @@ public final class StringUtils {
     }
 
     /**
+     * 首字母转为大写
+     * 
+     * @param str
+     * @return
+     */
+    public static String firstLetterUpperCase(String str) {
+        char[] cs = str.toCharArray();
+        if (!Character.isUpperCase(cs[0])) {
+            cs[0] = Character.toUpperCase(cs[0]);
+            return new String(cs);
+        }
+        return str;
+    }
+
+    /**
      * 合并url，自动补充url分隔符/和纠正url.<b>不适合文件系统路径合并</b>
      * 
      * @param firstUrl 首个url，可以是绝对或相对路径,如果不以协议或/开头将补充/

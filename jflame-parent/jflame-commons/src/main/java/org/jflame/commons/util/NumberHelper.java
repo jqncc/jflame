@@ -257,4 +257,44 @@ public final class NumberHelper {
         }
         return intArray;
     }
+
+    /**
+     * 判断一个Integer数字大于0
+     * 
+     * @param num
+     * @return 大于0返回true,null或小于0返回false
+     */
+    public static boolean gtZero(Integer num) {
+        return num != null && num > 0;
+    }
+
+    /**
+     * 判断一个Integer数字是否是null或0
+     * 
+     * @param num
+     * @return
+     */
+    public static boolean isNullOrZero(Integer num) {
+        return num == null || num == 0;
+    }
+
+    /**
+     * 判断一个Long数字大于0
+     * 
+     * @param num
+     * @return 大于0返回true,null或小于0返回false
+     */
+    public static boolean gtZero(Long num) {
+        return num != null && num > 0;
+    }
+
+    /**
+     * 判断一个BigDecimal数字大于0
+     * 
+     * @param num
+     * @return 大于0返回true,null或小于0返回false
+     */
+    public static boolean gtZero(BigDecimal num) {
+        return num != null && num.signum() > 0;
+    }
 }

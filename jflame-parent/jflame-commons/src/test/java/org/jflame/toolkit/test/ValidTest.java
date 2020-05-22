@@ -11,13 +11,13 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.junit.Test;
+
 import org.jflame.commons.valid.ValidatorHelper;
 import org.jflame.toolkit.test.Payserver.Adult;
 import org.jflame.toolkit.test.Payserver.Child;
 import org.jflame.toolkit.test.entity.Person;
 import org.jflame.toolkit.test.entity.UserInfo;
-
-import org.junit.Test;
 
 public class ValidTest {
 
@@ -65,6 +65,22 @@ public class ValidTest {
         for (String string : tels) {
             System.out.println(string + ":" + ValidatorHelper.isMobileOrTel(string, 0));
         }
+        System.out.println("=====number valid======");
+        System.out.println("0.6 :" + ValidatorHelper.isNumber("0.6"));
+        System.out.println("1.6 :" + ValidatorHelper.isNumber("1.6"));
+        System.out.println("-0.6 :" + ValidatorHelper.isNumber("-0.6"));
+        System.out.println("500:" + ValidatorHelper.isNumber("500"));
+        System.out.println("a500:" + ValidatorHelper.isNumber("a500"));
+        System.out.println(".500:" + ValidatorHelper.isNumber(".500"));
+        System.out.println("0x500:" + ValidatorHelper.isNumber("0x500"));
+
+        System.out.println("=====integer valid======");
+        System.out.println("0x500:" + ValidatorHelper.isInteger("0x500"));
+        System.out.println("500:" + ValidatorHelper.isInteger("500"));
+        System.out.println("0.5:" + ValidatorHelper.isInteger("0.5"));
+        System.out.println("8u:" + ValidatorHelper.isInteger("8u"));
+        System.out.println("0501:" + ValidatorHelper.isInteger("0501"));
+        System.out.println("00501:" + ValidatorHelper.isInteger("00501"));
     }
 
     @Test

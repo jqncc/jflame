@@ -1,6 +1,7 @@
 package org.jflame.apidoc.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jflame.apidoc.enums.HttpMethod;
@@ -161,12 +162,26 @@ public class ApiMethod implements Serializable {
         this.queryParams = queryParams;
     }
 
+    public void addQueryParam(ApiParam queryParam) {
+        if (queryParams == null) {
+            queryParams = new ArrayList<>();
+        }
+        queryParams.add(queryParam);
+    }
+
     public List<ApiParam> getBodyParams() {
         return bodyParams;
     }
 
     public void setBodyParams(List<ApiParam> bodyParams) {
         this.bodyParams = bodyParams;
+    }
+
+    public void addBodyParam(ApiParam bodyParam) {
+        if (bodyParams == null) {
+            bodyParams = new ArrayList<>();
+        }
+        bodyParams.add(bodyParam);
     }
 
     public List<ApiParam> getHeaderParams() {
@@ -177,12 +192,92 @@ public class ApiMethod implements Serializable {
         this.headerParams = headerParams;
     }
 
+    public void addHeaderParam(ApiParam headerParam) {
+        if (headerParams == null) {
+            headerParams = new ArrayList<>();
+        }
+        headerParams.add(headerParam);
+    }
+
     public ApiElement getResult() {
         return result;
     }
 
     public void setResult(ApiElement result) {
         this.result = result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        char split = ',';
+        builder.append("ApiMethod [");
+        if (methodName != null) {
+            builder.append("methodName=");
+            builder.append(methodName);
+            builder.append(split);
+        }
+        if (moduleName != null) {
+            builder.append("moduleName=");
+            builder.append(moduleName);
+            builder.append(split);
+        }
+        if (apiUrl != null) {
+            builder.append("apiUrl=");
+            builder.append(apiUrl);
+            builder.append(split);
+        }
+        if (apiDesc != null) {
+            builder.append("apiDesc=");
+            builder.append(apiDesc);
+            builder.append(split);
+        }
+        if (author != null) {
+            builder.append("author=");
+            builder.append(author);
+            builder.append(split);
+        }
+        if (version != null) {
+            builder.append("version=");
+            builder.append(version);
+            builder.append(split);
+        }
+        if (requestMethod != null) {
+            builder.append("requestMethod=");
+            builder.append(requestMethod);
+            builder.append(split);
+        }
+        if (consumes != null) {
+            builder.append("consumes=");
+            builder.append(consumes);
+            builder.append(split);
+        }
+        if (produces != null) {
+            builder.append("produces=");
+            builder.append(produces);
+            builder.append(split);
+        }
+        if (queryParams != null) {
+            builder.append("queryParams=");
+            builder.append(queryParams);
+            builder.append(split);
+        }
+        if (bodyParams != null) {
+            builder.append("bodyParams=");
+            builder.append(bodyParams);
+            builder.append(split);
+        }
+        if (headerParams != null) {
+            builder.append("headerParams=");
+            builder.append(headerParams);
+            builder.append(split);
+        }
+        if (result != null) {
+            builder.append("result=");
+            builder.append(result);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
 }

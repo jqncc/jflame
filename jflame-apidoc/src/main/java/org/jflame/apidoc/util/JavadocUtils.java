@@ -1,12 +1,9 @@
 package org.jflame.apidoc.util;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
-import org.jflame.apidoc.model.ApiElement;
 import org.jflame.apidoc.parser.TagConsts;
 
 import com.sun.javadoc.AnnotationDesc;
@@ -21,8 +18,6 @@ import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.Tag;
 
 public final class JavadocUtils {
-
-    private static final String GETTER_METHOD_REGEX = "get[A-B]\\w*";
 
     /**
      * 查找文档元素上的指定注解描述
@@ -76,58 +71,33 @@ public final class JavadocUtils {
         return false;
     }
 
-    public static Set<ApiElement> extractFields(ClassDoc cls) {
-        Set<ApiElement> eleSet = new HashSet<>();
-        MethodDoc[] methodDocs = cls.methods(true);
-        if (methodDocs.length > 0) {
-            for (MethodDoc methodDoc : methodDocs) {
-                // 取getter方法
-                if (methodDoc.name().matches(GETTER_METHOD_REGEX) && methodDoc.isPublic()
-                        && ArrayUtils.isEmpty(methodDoc.parameters()) && methodDoc.returnType() != null
-                        && !"void".equals(methodDoc.returnType().typeName())) {
-                    if (isIgnoreInJson(methodDoc, true)) {
-                        continue;
-                    }
-                    char[] nameChars = methodDoc.name().substring(3).toCharArray();
-                    nameChars[0] = Character.toLowerCase(nameChars[0]);
-                    String field = new String(nameChars);
-                    Optional<FieldDoc> fieldDoc = getFieldDoc(cls, field);
-                    if (fieldDoc.isPresent()) {
-                        // 排除transient成员变量
-                        if (fieldDoc.get().isTransient() || isIgnoreInJson(fieldDoc.get(), true)) {
-                            continue;
-                        }
-                    }
-                    ApiElement ele = new ApiElement();
-                    ele.setParamName(field);
-                    // ele.setParamDesc(paramDesc);
-                    // ele.setParamType(paramType);
-                    // ele.setDefaultValue(defaultValue);
-
-                }
-            }
-        }
-
-        FieldDoc[] fields = cls.fields(false);
-        if (fields.length > 0) {
-            for (FieldDoc flc : fields) {
-                // 排除transient修饰成员
-                if (flc.isTransient()) {
-                    continue;
-                }
-                if (ArrayUtils.isNotEmpty(flc.tags("ignore"))) {
-                    continue;
-                }
-
-            }
-        }
-        return eleSet;
-    }
-
+    /**
+     * 根据成员变量名获取成员的FieldDoc
+     * 
+     * @param cls
+     * @param fieldName
+     * @return
+     */
     public static Optional<FieldDoc> getFieldDoc(ClassDoc cls, String fieldName) {
         FieldDoc[] fields = cls.fields(false);
         if (fields.length > 0) {
             return Arrays.stream(fields).filter(f -> f.name().equals(fieldName)).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 根据方法名获取MethodDoc
+     * 
+     * @param cls
+     * @param methodName
+     * @param isPublic false返回所有方法
+     * @return
+     */
+    public static Optional<MethodDoc> getMethodDoc(ClassDoc cls, String methodName, boolean isPublic) {
+        MethodDoc[] fields = cls.methods(isPublic);
+        if (fields.length > 0) {
+            return Arrays.stream(fields).filter(f -> f.name().equals(methodName)).findFirst();
         }
         return Optional.empty();
     }
@@ -172,10 +142,10 @@ public final class JavadocUtils {
     public static Optional<String> getTagText(Doc doc, String tagName) {
         Tag[] tags = doc.tags(tagName);
         if (ArrayUtils.isNotEmpty(tags)) {
-            System.out.println(tags[0].kind());
+            /*System.out.println(tags[0].kind());
             System.out.println(tags[0].name());
             System.out.println(tags[0].holder().commentText());
-            System.out.println(tags[0].kind());
+            System.out.println(tags[0].kind());*/
             return Optional.ofNullable(tags[0].text());
         }
         return Optional.empty();
@@ -239,37 +209,4 @@ public final class JavadocUtils {
         return Optional.ofNullable(paramComment);
     }
 
-    static String[] jsonAnnots = { "JsonIgnore","Expose","JsonField" };
-
-    public static boolean isIgnoreInJson(ProgramElementDoc doc, boolean isSerial) {
-        AnnotationDesc[] annotDescs = doc.annotations();
-        if (annotDescs.length > 0) {
-            for (AnnotationDesc desc : annotDescs) {
-                // jackson @JsonIgnore注解
-                if (jsonAnnots[0].equals(desc.annotationType().name())) {
-                    return true;
-                }
-                // gson @Expose注解,fastjson @JsonField注解
-                if (jsonAnnots[1].equals(desc.annotationType().name())
-                        || jsonAnnots[2].equals(desc.annotationType().name())) {
-                    if (isSerial) {
-                        Optional<Object> value = getAnnotationProperty(desc, "serialize");
-                        if (value.isPresent()) {
-                            if (!(boolean) value.get()) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        Optional<Object> value = getAnnotationProperty(desc, "deserialize");
-                        if (value.isPresent()) {
-                            if (!(boolean) value.get()) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
 }

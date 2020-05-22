@@ -3,7 +3,6 @@ package org.jflame.jflamebootsamples.config;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +17,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
-import org.jflame.commons.util.CollectionHelper;
-import org.jflame.context.env.BaseConfig;
 import org.jflame.context.spring.SpringContextHolder;
-import org.jflame.context.web.filter.CorsFilter;
 import org.jflame.context.web.spring.MyExceptionResolver;
 
 /**
@@ -84,7 +80,7 @@ public class MvcConfig implements WebMvcConfigurer {
      * 
      * @return
      */
-    @Bean
+    /*@Bean
     public FilterRegistrationBean<CorsFilter> addCorsFilter() {
         FilterRegistrationBean<CorsFilter> filterBean = new FilterRegistrationBean<CorsFilter>();
         filterBean.setName("corsFilter");
@@ -94,7 +90,7 @@ public class MvcConfig implements WebMvcConfigurer {
         filterBean.setOrder(0);
         filterBean.setFilter(new CorsFilter());
         return filterBean;
-    }
+    }*/
 
     /**
      * RequestContextListener

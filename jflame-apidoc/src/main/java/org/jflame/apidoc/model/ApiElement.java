@@ -61,4 +61,37 @@ public class ApiElement implements Serializable {
         this.childElements = childElements;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (elementName != null) {
+            builder.append("elementName=");
+            builder.append(elementName);
+            builder.append(", ");
+        }
+        if (elementDataType != null) {
+            builder.append("elementDataType=");
+            builder.append(elementDataType);
+            builder.append(", ");
+        }
+        if (elementDesc != null) {
+            builder.append("elementDesc=");
+            builder.append(elementDesc);
+            builder.append(", ");
+        }
+        if (defaultValue != null) {
+            builder.append("defaultValue=");
+            builder.append(defaultValue);
+            builder.append(", ");
+        }
+        builder.append("required=");
+        builder.append(required);
+        builder.append(", ");
+        if (childElements != null) {
+            builder.append("childElements=");
+            builder.append(childElements);
+        }
+        return builder.toString();
+    }
+
 }

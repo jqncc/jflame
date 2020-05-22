@@ -6,9 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.commons.cache.redis.RedisClient;
-import org.jflame.commons.util.StringHelper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -19,6 +16,9 @@ import org.springframework.beans.factory.InitializingBean;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.rabbitmq.client.Channel;
+
+import org.jflame.commons.cache.redis.RedisClient;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 消息接收监听器父类
@@ -62,8 +62,12 @@ public abstract class AbstractChannelAwareMessageListener implements ChannelAwar
                 .getMessageId();
         String msgText = new String(message.getBody(), charset);
         if (StringHelper.isEmpty(msgId)) {
-            msgId = JSON.parseObject(msgText)
-                    .getString("messageId");
+            try {
+                msgId = JSON.parseObject(msgText)
+                        .getString("messageId");
+            } catch (JSONException e) {
+
+            }
         }
         String cacheKey = null;
         Integer retry = null;
@@ -217,7 +221,7 @@ public abstract class AbstractChannelAwareMessageListener implements ChannelAwar
      */
     protected MqAction exceptionHandle(Throwable ex) {
         if (ex.getCause() instanceof SQLException) {
-            return MqAction.RETRY;
+            return MqAction.REJECT;
         }
         return MqAction.ACCEPT;
     }

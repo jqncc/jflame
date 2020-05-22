@@ -11,7 +11,6 @@
 		<version.mybatisplus>2.1.5-a</version.mybatisplus>
 		<version.dubbo>2.6.6</version.dubbo>
 		<version.resteasy>3.0.19.Final</version.resteasy>
-		<version.alioss>2.8.3</version.alioss>
 		<version.fastdfs>1.27-SNAPSHOT</version.fastdfs>
 		<version.springrabbit>1.7.14.RELEASE</version.springrabbit>
 	</properties>
@@ -26,36 +25,11 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
-		<!-- servlet -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>${version.jsp}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>${version.jstl}</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${version.spring}</version>
-			<optional>true</optional>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>

@@ -16,6 +16,7 @@
 		<springboot.version>2.2.0.RELEASE</springboot.version>
 		<mysql.version>5.1.45</mysql.version>
 		<jflame.version>2.0.0-beta</jflame.version>
+		<version.spring>4.3.25.RELEASE</version.spring>
 	</properties>
 
 	<dependencies>
@@ -99,6 +100,11 @@
 			<version>${springboot.version}</version>
 			<scope>test</scope>
 		</dependency> -->
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${version.spring}</version>
+        </dependency>
 	</dependencies>
 
 	<build>

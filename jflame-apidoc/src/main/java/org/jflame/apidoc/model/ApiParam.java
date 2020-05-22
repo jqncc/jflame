@@ -21,4 +21,18 @@ public class ApiParam extends ApiElement {
         this.pos = pos;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ApiParam [");
+        if (pos != null) {
+            builder.append("pos=");
+            builder.append(pos);
+            builder.append(", ");
+        }
+        builder.append(super.toString());
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

@@ -64,7 +64,7 @@ public final class StringHelper {
      */
     public static boolean containsAny(CharSequence str, String... searchStrs) {
         for (String search : searchStrs) {
-            if (StringUtils.containsAny(str, search)) {
+            if (StringUtils.contains(str, search)) {
                 return true;
             }
         }

@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -76,11 +75,7 @@ public final class ValidatorHelper {
         if (value == null) {
             return false;
         }
-        try {
-            return Pattern.matches(pattern, value);
-        } catch (PatternSyntaxException e) {
-            return false;
-        }
+        return Pattern.matches(pattern, value);
     }
 
     /**
@@ -215,13 +210,33 @@ public final class ValidatorHelper {
     }
 
     /**
-     * 判断是否是数字包括十六制小数
+     * 判断是否是数字,包括:16进制,小数,负数
      * 
      * @param str
      * @return
      */
     public static boolean isNumber(String str) {
-        return NumberUtils.isCreatable(str);
+        boolean isOk = NumberUtils.isCreatable(str);
+        // .点号开头不算正确的数字
+        if (isOk && str.charAt(0) == '.') {
+            isOk = false;
+        }
+        return isOk;
+    }
+
+    /**
+     * 判断是否是整数(不带正负符号,不带小数点,不能以多个0开头)
+     * 
+     * @param str
+     * @return
+     */
+    public static boolean isInteger(String str) {
+        boolean isOk = NumberUtils.isDigits(str);
+        // 超过2个0开头的不算正确整数
+        if (isOk && str.startsWith("00")) {
+            isOk = false;
+        }
+        return isOk;
     }
 
     /**

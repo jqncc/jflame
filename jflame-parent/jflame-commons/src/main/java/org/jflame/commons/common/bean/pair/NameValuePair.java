@@ -2,6 +2,7 @@ package org.jflame.commons.common.bean.pair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,4 +46,29 @@ public class NameValuePair extends StrKeyPair<String> implements Serializable {
         return nvpirs;
     }
 
+    public static NameValuePairs newPairs() {
+        return new NameValuePairs();
+    }
+
+    public static class NameValuePairs {
+
+        private List<NameValuePair> pairs = new ArrayList<>();
+
+        public NameValuePairs add(String name, String value) {
+            pairs.add(new NameValuePair(name, value));
+            return this;
+        }
+
+        public List<NameValuePair> toList() {
+            return pairs;
+        }
+
+        public Map<String,String> toMap() {
+            Map<String,String> map = new HashMap<>();
+            for (NameValuePair pair : pairs) {
+                map.put(pair.name(), pair.value());
+            }
+            return map;
+        }
+    }
 }

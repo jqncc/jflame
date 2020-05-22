@@ -3,6 +3,7 @@ package org.jflame.commons.reflect;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import org.jflame.commons.common.Chars;
 public final class ClassHelper {
 
     /**
-     * 取得指定包下所有实现指定接口的类
+     * 取得指定包下所有实现指定接口的类,不包含接口和抽象类
      * 
      * @param interfaceClazz 指定接口class对象
      * @param packageName 包名
@@ -44,7 +45,8 @@ public final class ClassHelper {
                 resultList = new ArrayList<Class<T>>();
                 for (Class<?> classes : allClass) {
                     // 判断是否是同一个接口
-                    if (interfaceClazz.isAssignableFrom(classes)) {
+                    if (interfaceClazz.isAssignableFrom(classes) && !classes.isInterface()
+                            && !Modifier.isAbstract(classes.getModifiers())) {
                         // 本身不加入进去
                         if (!interfaceClazz.equals(classes)) {
                             resultList.add((Class<T>) classes);

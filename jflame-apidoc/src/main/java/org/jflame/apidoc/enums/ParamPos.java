@@ -6,5 +6,5 @@ package org.jflame.apidoc.enums;
  * @author yucan.zhang
  */
 public enum ParamPos {
-    header, query, body, pathVariable
+    header, query, body
 }
