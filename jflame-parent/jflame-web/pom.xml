@@ -69,5 +69,11 @@
 			<version>2.0.1.Final</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+            <groupId>org.jasig.cas.client</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.4.1-a</version>
+            <optional>true</optional>
+        </dependency>
 	</dependencies>
 </project>

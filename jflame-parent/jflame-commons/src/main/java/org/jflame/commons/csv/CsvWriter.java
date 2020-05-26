@@ -84,7 +84,7 @@ public class CsvWriter implements Closeable {
     }
 
     /**
-     * Creates a {@link com.csvreader.CsvWriter CsvWriter} object using a Writer to write data to.
+     * Creates a {@link CsvWriter} object using a Writer to write data to.
      * 
      * @param outputStream The stream to write the column delimited data to.
      * @param delimiter The character to use as the column delimiter.
@@ -100,7 +100,7 @@ public class CsvWriter implements Closeable {
     }
 
     /**
-     * Creates a {@link com.csvreader.CsvWriter CsvWriter} object using an OutputStream to write data to.
+     * Creates a {@link CsvWriter CsvWriter} object using an OutputStream to write data to.
      * 
      * @param outputStream The stream to write the column delimited data to.
      * @param delimiter The character to use as the column delimiter.
@@ -366,7 +366,7 @@ public class CsvWriter implements Closeable {
      * 写入单行数据
      * 
      * @param values Values to be written.
-     * @param 是否保留内容首尾空格,true=保留,false删除首尾空格
+     * @param preserveSpaces 是否保留内容首尾空格,true=保留,false删除首尾空格
      * @throws CsvAccessException Thrown if an error occurs while writing data to the destination stream.
      */
     public void writeRecord(String[] values, boolean preserveSpaces) throws CsvAccessException {
@@ -383,7 +383,6 @@ public class CsvWriter implements Closeable {
      * 写入单行数据
      * 
      * @param values Values to be written.
-     * @throws IOException Thrown if an error occurs while writing data to the destination stream.
      */
     public void writeRecord(String[] values) {
         writeRecord(values, false);

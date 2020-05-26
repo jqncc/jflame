@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author zyc
  */
-public class PageBean implements Serializable {
+public class PageBean<T> implements Serializable {
 
     private static final long serialVersionUID = 2539874794729839977L;
 
@@ -18,7 +18,8 @@ public class PageBean implements Serializable {
      * 排序选项枚举.
      */
     public enum OrderEnum {
-        asc, desc
+        asc,
+        desc
     }
 
     // 请求的页码
@@ -30,7 +31,7 @@ public class PageBean implements Serializable {
     // 每页行数
     private int pageSize = 30;
     // 数据
-    private List<?> pageData;
+    private List<T> pageData;
 
     private boolean isAutoCount = true;
     // 起始索引行数
@@ -39,7 +40,7 @@ public class PageBean implements Serializable {
     public PageBean() {
     }
 
-    public PageBean(int rowCount, List<?> pageData) {
+    public PageBean(int rowCount, List<T> pageData) {
         setMaxRowCount(rowCount);
         this.pageData = pageData;
     }
@@ -92,7 +93,7 @@ public class PageBean implements Serializable {
         return pageData == null ? new ArrayList<>(0) : pageData;
     }
 
-    public void setPageData(List<?> pageData) {
+    public void setPageData(List<T> pageData) {
         this.pageData = pageData;
     }
 

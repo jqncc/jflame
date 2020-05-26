@@ -17,7 +17,7 @@ public final class Hex {
     /**
      * 二进制数组编码为16进制字符数组
      * 
-     * @param 待编码的二进制数组
+     * @param data 待编码的二进制数组
      * @return 返回16进制字符数组
      */
     public static char[] encodeHex(byte[] data) {
@@ -27,7 +27,7 @@ public final class Hex {
     /**
      * 将二进制数组编码为16进制字符串
      * 
-     * @param 待编码的二进制数组byte[]
+     * @param data 待编码的二进制数组byte[]
      * @return 返回16进制字符串
      */
     public static String encodeHexString(byte[] data) {
@@ -80,7 +80,7 @@ public final class Hex {
     /**
      * 解码16进制字符数组.
      * 
-     * @param 16进制字符数组
+     * @param data 16进制字符数组
      * @return 解码后的二进制数组
      * @throws ConvertException
      */
@@ -106,7 +106,7 @@ public final class Hex {
     /**
      * 解码6进制字符串,再用utf-8编码字符串
      * 
-     * @param hexText
+     * @param hexText 16进制字符
      * @return 返回utf-8编码后的字符串
      * @throws ConvertException
      */
@@ -118,7 +118,7 @@ public final class Hex {
     /**
      * 解码6进制字符串,再用指定字符集编码字符串
      * 
-     * @param hexText
+     * @param hexText 16进制字符
      * @param charset
      * @return
      * @throws ConvertException

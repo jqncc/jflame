@@ -1,4 +1,4 @@
-package org.jflame.web.spring.converter;
+package org.jflame.context.spring.converter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

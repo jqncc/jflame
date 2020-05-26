@@ -4,8 +4,6 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.TypeReference;
-
 import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.net.http.handler.JsonResponseHandler;
@@ -74,11 +72,11 @@ public class HttpResponse extends CallResult<byte[]> {
     }
 
     /**
-     * 请求结果作为JSON字符串反序列化为java对象.<b>只适用于单一对象,List,Map等复杂对象请使用</b>{@link #getResponseAsJson(TypeReference)}}
+     * 请求结果作为JSON字符串反序列化为java对象.<b>只适用于单一对象,List,Map等复杂对象请使用</b>{@link #getResponseAsJson(TypeRef)}}
      * 
      * @param entityClass java对象类型
      * @return
-     * @see #getResponseAsJson(TypeReference)
+     * @see #getResponseAsJson(TypeRef)
      */
     public <T> T getResponseAsJson(Class<T> entityClass) {
         ResponseBodyHandler<T> responseHandler = new JsonResponseHandler<>(entityClass);

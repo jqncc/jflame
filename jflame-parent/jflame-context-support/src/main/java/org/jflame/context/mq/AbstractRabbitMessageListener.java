@@ -27,7 +27,7 @@ import org.jflame.commons.util.StringHelper;
  * 
  * @author yucan.zhang
  */
-public abstract class AbstractChannelAwareMessageListener implements ChannelAwareMessageListener, InitializingBean {
+public abstract class AbstractRabbitMessageListener implements ChannelAwareMessageListener, InitializingBean {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     /**
@@ -45,7 +45,7 @@ public abstract class AbstractChannelAwareMessageListener implements ChannelAwar
 
     protected RedisClient redisClient;
 
-    public AbstractChannelAwareMessageListener(RedisClient redisClient) {
+    public AbstractRabbitMessageListener(RedisClient redisClient) {
         this.redisClient = redisClient;
     }
 

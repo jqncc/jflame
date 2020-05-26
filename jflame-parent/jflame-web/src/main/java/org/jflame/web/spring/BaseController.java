@@ -19,8 +19,9 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.common.bean.CallResult.ResultEnum;
-import org.jflame.web.spring.converter.MyDateFormatter;
-import org.jflame.web.spring.converter.MyTemporalFormatter;
+import org.jflame.context.auth.model.LoginUser;
+import org.jflame.context.spring.converter.MyDateFormatter;
+import org.jflame.context.spring.converter.MyTemporalFormatter;
 
 /**
  * controller基类
@@ -84,6 +85,10 @@ public abstract class BaseController {
      */
     protected HttpSession getSession(HttpServletRequest request) {
         return request.getSession(false);
+    }
+
+    protected LoginUser getLoginUser() {
+        return WebContextHolder.getLoginUser();
     }
 
 }

@@ -36,15 +36,15 @@ import org.jflame.web.WebUtils;
 /**
  * 统一异常处理类. <br>
  * 
- * @see MyExceptionHandler
  * @author zyc
  */
 @SuppressWarnings("rawtypes")
 @Order(-100)
 public class MyExceptionResolver extends SimpleMappingExceptionResolver {
 
-    private final ModelAndView defaultErrorJsonView = ErrorJsonView.view(new CallResult(ResultEnum.SERVER_ERROR));
-    private final ModelAndView defaultParamErrorJsonView = ErrorJsonView.view(new CallResult(ResultEnum.PARAM_ERROR));
+    private final ModelAndView defaultErrorJsonView = ErrorJsonView.view(ResultEnum.SERVER_ERROR.createCallResult());
+    private final ModelAndView defaultParamErrorJsonView = ErrorJsonView
+            .view(ResultEnum.PARAM_ERROR.createCallResult());
 
     @Override
     protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
@@ -63,13 +63,13 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                 // 参数异常只记录信息,不记录大量异常堆栈
                 logDebugMsg(request, ex.getMessage());
                 BindException validEx = (BindException) ex;
-                CallResult errResult = new CallResult();
+                CallResult<?> errResult = new CallResult<>();
                 BaseController.convertError(validEx.getBindingResult(), errResult);
                 return ErrorJsonView.view(errResult);
             } else if (ex instanceof BaseResult) {
                 logDebugMsg(request, ex.getMessage());
                 BaseResult errResult = (BaseResult) ex;
-                return ErrorJsonView.view(new CallResult(errResult.getStatus(), errResult.getMessage()));
+                return ErrorJsonView.view(new CallResult<>(errResult.getStatus(), errResult.getMessage()));
             } else if (ex instanceof ConstraintViolationException) {
                 ConstraintViolationException cve = (ConstraintViolationException) ex;
                 List<String> msgs = cve.getConstraintViolations()

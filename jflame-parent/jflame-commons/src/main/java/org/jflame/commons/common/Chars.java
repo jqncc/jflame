@@ -33,7 +33,7 @@ public abstract class Chars {
     public static final char TAB = '\t';
 
     /**
-     * 与符号 &
+     * 与符号 &amp;
      */
     public static final char AND = '&';
     /**

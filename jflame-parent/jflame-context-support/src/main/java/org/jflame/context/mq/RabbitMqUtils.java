@@ -11,11 +11,11 @@ import com.alibaba.fastjson.JSON;
 import org.jflame.commons.util.CharsetHelper;
 
 /**
- * 消息队列工具类
+ * Rabbit消息队列工具类
  * 
  * @author yucan.zhang
  */
-public final class MqUtils {
+public final class RabbitMqUtils {
 
     /**
      * 消息对象MqMsg转为amqp text_plain Message

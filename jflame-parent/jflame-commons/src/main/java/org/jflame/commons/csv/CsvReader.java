@@ -41,8 +41,6 @@ import org.jflame.commons.util.NumberHelper;
 
 /**
  * csv文件读取解析类.
- * <p>
- * 摘自:{@link https://www.csvreader.com/}
  */
 public class CsvReader implements Closeable {
 
@@ -90,7 +88,7 @@ public class CsvReader implements Closeable {
     private boolean allowDuplicate = true;// 是否允许重复数据
 
     /**
-     * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file as the data source.
+     * Creates a {@link CsvReader} object using a file as the data source.
      * 
      * @param fileName The path to the file to use as the data source.
      * @param delimiter The character to use as the column delimiter.
@@ -117,8 +115,8 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file as the data source.&nbsp;Uses ISO-8859-1
-     * as the {@link java.nio.charset.Charset Charset}.
+     * Creates a {@link CsvReader} object using a file as the data source.&nbsp;Uses ISO-8859-1 as the
+     * {@link java.nio.charset.Charset Charset}.
      * 
      * @param fileName The path to the file to use as the data source.
      * @param delimiter The character to use as the column delimiter.
@@ -128,8 +126,8 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Creates a {@link com.csvreader.CsvReader CsvReader} object using a file as the data source.&nbsp;Uses a comma as
-     * the column delimiter and utf-8 as the {@link java.nio.charset.Charset Charset}.
+     * Creates a {@link CsvReader} object using a file as the data source.&nbsp;Uses a comma as the column delimiter and
+     * utf-8 as the {@link java.nio.charset.Charset Charset}.
      * 
      * @param fileName The path to the file to use as the data source.
      */
@@ -138,8 +136,7 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Constructs a {@link com.csvreader.CsvReader CsvReader} object using a {@link java.io.Reader Reader} object as the
-     * data source.
+     * Constructs a {@link CsvReader} object using a {@link java.io.Reader Reader} object as the data source.
      * 
      * @param inputStream The stream to use as the data source.
      * @param delimiter The character to use as the column delimiter.
@@ -157,8 +154,8 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Constructs a {@link com.csvreader.CsvReader CsvReader} object using a {@link java.io.Reader Reader} object as the
-     * data source.&nbsp;Uses a comma as the column delimiter.
+     * Constructs a {@link CsvReader} object using a {@link java.io.Reader Reader} object as the data source.&nbsp;Uses
+     * a comma as the column delimiter.
      * 
      * @param inputStream The stream to use as the data source.
      */
@@ -167,8 +164,7 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Constructs a {@link com.csvreader.CsvReader CsvReader} object using an {@link java.io.InputStream InputStream}
-     * object as the data source.
+     * Constructs a {@link CsvReader} object using an {@link java.io.InputStream InputStream} object as the data source.
      * 
      * @param inputStream The stream to use as the data source.
      * @param delimiter The character to use as the column delimiter.
@@ -179,8 +175,8 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Constructs a {@link com.csvreader.CsvReader CsvReader} object using an {@link java.io.InputStream InputStream}
-     * object as the data source.&nbsp;Uses a comma as the column delimiter.
+     * Constructs a {@link CsvReader} object using an {@link java.io.InputStream InputStream} object as the data
+     * source.&nbsp;Uses a comma as the column delimiter.
      * 
      * @param inputStream The stream to use as the data source.
      * @param charset The {@link java.nio.charset.Charset Charset} to use while parsing the data.
@@ -401,11 +397,9 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Gets the count of headers read in by a previous call to {@link com.csvreader.CsvReader#readHeaders readHeaders()}
-     * .
+     * Gets the count of headers read in by a previous call to {@link #readHeaders readHeaders()} .
      * 
-     * @return The count of headers read in by a previous call to {@link com.csvreader.CsvReader#readHeaders
-     *         readHeaders()}.
+     * @return The count of headers read in by a previous call to {@link #readHeaders readHeaders()}.
      */
     public int getHeaderCount() {
         return headersHolder.Length;
@@ -496,11 +490,11 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Creates a {@link com.csvreader.CsvReader CsvReader} object using a string of data as the source.&nbsp;Uses
-     * ISO-8859-1 as the {@link java.nio.charset.Charset Charset}.
+     * Creates a {@link CsvReader} object using a string of data as the source.&nbsp;Uses ISO-8859-1 as the
+     * {@link java.nio.charset.Charset Charset}.
      * 
      * @param data The String of data to use as the source.
-     * @return A {@link com.csvreader.CsvReader CsvReader} object using the String of data as the source.
+     * @return A {@link CsvReader} object using the String of data as the source.
      */
     public static CsvReader parse(String data) {
         if (data == null) {
@@ -1395,8 +1389,8 @@ public class CsvReader implements Closeable {
     }
 
     /**
-     * Skips the next record of data by parsing each column.&nbsp;Does not increment
-     * {@link com.csvreader.CsvReader#getCurrentRecord getCurrentRecord()}.
+     * Skips the next record of data by parsing each column.&nbsp;Does not increment {@link #getCurrentRecord
+     * getCurrentRecord()}.
      * 
      * @return Whether another record was successfully skipped or not.
      * @exception IOException Thrown if an error occurs while reading data from the source stream.

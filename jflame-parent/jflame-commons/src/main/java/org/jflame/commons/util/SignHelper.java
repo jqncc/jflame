@@ -20,8 +20,8 @@ public class SignHelper {
     }
 
     /**
-     * map参数签名.签名算法: 以key按单词自然排序后,将key与value用=&组合, 再对字符串做md5,null值忽略.<br>
-     * 如:md5hex(k1=v1&k2=v2&)
+     * map参数签名,签名算法: 以key按单词自然排序后,将key与value用=和&amp;接接, 再对字符串做md5,null值忽略.<br>
+     * 如:{@code md5hex(k1=v1&k2=v2&)}
      * 
      * @param mapData 待签名的map
      * @param excludeKeys 不参与签名的map key

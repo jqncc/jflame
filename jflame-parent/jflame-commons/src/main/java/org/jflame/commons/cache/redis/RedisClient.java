@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.jflame.commons.cache.redis.serizlizer.IGenericRedisSerializer;
 import org.jflame.commons.cache.redis.serizlizer.IRedisSerializer;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.CollectionHelper;
@@ -587,8 +586,7 @@ public interface RedisClient {
      * 如果 count 为负数，那么命令返回一个数组，数组中的元素可能会重复出现多次，而数组的长度为 count 的绝对值;
      * 
      * @param key
-     * @param count
-     * @param T 返回的集合元素类型
+     * @param count 要返回的无数个数
      * @return
      */
     <T> List<T> srandomMembers(String key, int count);
@@ -614,7 +612,7 @@ public interface RedisClient {
      * 新增元素到有序集sortedSet.如果已经存在则更新score
      * 
      * @param key 集合key
-     * @param value 新增值
+     * @param mermber 新增值
      * @param score 排序值
      * @return 返回被成功添加的新成员的数量，不包括那些被更新的、已经存在的成员
      */
@@ -623,7 +621,7 @@ public interface RedisClient {
     /**
      * 新增多个元素到有序集
      * 
-     * @param key
+     * @param key zset key
      * @param memberScores 成员为key,分数为value的map
      * @return
      */
@@ -888,8 +886,8 @@ public interface RedisClient {
     Set<String> keys(String pattern);
 
     /**
-     * 运行lua脚本命令,eval命令.<b>结果返回使用默认的JSON转换器,返回脚本返回的数据应该是可识别的json格式,或者使用
-     * {@link #runScript(String, List, List, Class, IGenericRedisSerializer)}
+     * 运行lua脚本命令,eval命令.结果返回使用默认的JSON转换器,返回脚本返回的数据应该是可识别的json格式,或者使用
+     * {@link #runScript(String, List, List, Class, IRedisSerializer)}
      * 
      * @param luaScript lua脚本
      * @param keys 脚本中的key
@@ -929,7 +927,7 @@ public interface RedisClient {
      * @param luaScript lua脚本
      * @param keys 脚本中的key
      * @param args 脚本中的参数
-     * @@param resultClazz 返回结果类型
+     * @param resultClazz 返回结果类型
      * @param resultSerializer 结果反序列化类
      * @return
      */

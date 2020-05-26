@@ -73,15 +73,13 @@ public interface Jsons {
 
     /**
      * 启用日期按格式输出,默认格式yyyy-MM-dd HH:mm:ss
-     * 
-     * @return
      */
     void dateFormat();
 
     /**
      * 启用日期按格式输出,并指定日期格式
      * 
-     * @param format
+     * @param datePattern
      */
     void dateFormat(String datePattern);
 

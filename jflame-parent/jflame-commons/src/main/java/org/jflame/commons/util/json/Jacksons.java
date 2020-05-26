@@ -176,8 +176,6 @@ public class Jacksons implements Jsons {
 
     /**
      * 启用日期按格式输出,默认格式yyyy-MM-dd HH:mm:ss
-     * 
-     * @return
      */
     @Override
     public void dateFormat() {
@@ -188,7 +186,7 @@ public class Jacksons implements Jsons {
     /**
      * 启用日期按格式输出,并指定日期格式
      * 
-     * @param format
+     * @param datePattern 日期格式
      */
     @Override
     public void dateFormat(String datePattern) {

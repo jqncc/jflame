@@ -97,7 +97,6 @@ public class ExcelCreator implements Closeable {
     /**
      * 构造函数.是否创建标题参数
      * 
-     * @param isCreateTitleRow 否自动创建标题行
      * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认100行
      */
     public ExcelCreator(int rowAccessWindowSize) {
@@ -110,7 +109,6 @@ public class ExcelCreator implements Closeable {
     /**
      * 将实体数据集合填充到指定的工作表
      * 
-     * @param sheet 要填充的工作表
      * @param dataList 实体数据集合
      * @exception ExcelAccessException
      */
@@ -141,7 +139,6 @@ public class ExcelCreator implements Closeable {
     /**
      * 将Object[]数据集合填充到工作表.
      * 
-     * @param sheet 要填充的工作表
      * @param titles 标题行数组,可以为空
      * @param data List&lt;Object[]&gt;
      */
@@ -227,7 +224,7 @@ public class ExcelCreator implements Closeable {
     /**
      * 选择要操作的sheet
      * 
-     * @param sheetIndex sheet名称
+     * @param sheetName sheet名称
      */
     public void selectSheet(String sheetName) {
         currentSheet = workbook.getSheet(sheetName);
@@ -247,7 +244,7 @@ public class ExcelCreator implements Closeable {
      * 写入工作薄到一个输入流.
      * 
      * @param output 输出流
-     * @throws IOException IOException
+     * @throws ExcelAccessException
      */
     public void write(OutputStream output) throws ExcelAccessException {
         if (output != null) {
@@ -381,7 +378,7 @@ public class ExcelCreator implements Closeable {
      * 
      * @param data 要导出数据集
      * @param out 文件输出流
-     * @throws IOException IOException
+     * @throws ExcelAccessException
      */
     public static void export(final List<? extends IExcelEntity> data, final OutputStream out)
             throws ExcelAccessException {
@@ -405,8 +402,8 @@ public class ExcelCreator implements Closeable {
      * 导出实体类数据到单表的便捷方法.自动关闭输出流
      * 
      * @param data 要导出数据集
-     * @param out 文件输出流
-     * @throws IOException IOException
+     * @param excelFile 文件
+     * @throws ExcelAccessException
      */
     public static void export(final List<? extends IExcelEntity> data, final String excelFile)
             throws ExcelAccessException {

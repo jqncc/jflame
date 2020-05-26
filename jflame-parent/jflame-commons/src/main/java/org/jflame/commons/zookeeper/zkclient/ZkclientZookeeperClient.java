@@ -199,12 +199,14 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient {
     }
 
     /**
-     * 注册节点数据监听器.
+     * 注册节点数据监听器. zkclient注意事项:
      * <ol>
-     * <b>zkclient注意事项:</b>
      * <li>先修改数据,再马上删除节点,数据修改节点不会触发,但会触发两次删除事件.原因是在zkclient数据修改事件中如果发现节点不存在将不会再执行转而显式触发一次删除事件</li>
      * <li>先注册事件,再创建节点时会触发一次数据更新事件</li>
      * </ol>
+     * 
+     * @param path 要监听的节点路径
+     * @param listener
      */
     @Override
     public void registerDataListener(String path, NodeDataListener listener) {
@@ -231,46 +233,6 @@ public class ZkclientZookeeperClient extends AbstractZookeeperClient {
             }
         }
     }
-
-    /**
-     * 添加节点修改监听
-     * 
-     * @param path 节点
-     * @param listener ChildListener
-     * @return IZkChildListener
-     */
-    /*public IZkChildListener createTargetChildListener(String path, final ChildNodeListener listener) {
-        return new IZkChildListener() {
-    
-            public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-                listener.childChanged(parentPath, currentChilds);
-            }
-        };
-    }*/
-
-    /* public List<String> addTargetChildListener(String path, final IZkChildListener listener) {
-        return client.subscribeChildChanges(path, listener);
-    }*/
-
-    /*    public void addNodeDataListener(String path, final NodeDataListener listener) {
-        IZkDataListener dataListener = new IZkDataListener() {
-    
-            @Override
-            public void handleDataDeleted(String dataPath) throws Exception {
-                listener.dataDeleted(dataPath);
-            }
-    
-            @Override
-            public void handleDataChange(String dataPath, Object data) throws Exception {
-                listener.dataChange(dataPath, data);
-            }
-        };
-        client.subscribeDataChanges(path, dataListener);
-    }
-    */
-    /*  public void removeTargetChildListener(String path, IZkChildListener listener) {
-        client.unsubscribeChildChanges(path, listener);
-    }*/
 
     public ZkClient getClient() {
         return client;

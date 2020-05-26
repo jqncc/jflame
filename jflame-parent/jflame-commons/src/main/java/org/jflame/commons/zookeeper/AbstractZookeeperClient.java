@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
  * Zookeeper操作抽象父类.
  * 
  * @author yucan.zhang
- * @param <T>
  */
 public abstract class AbstractZookeeperClient implements ZookeeperClient {
 

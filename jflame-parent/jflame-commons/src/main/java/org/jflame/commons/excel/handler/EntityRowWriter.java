@@ -33,7 +33,6 @@ public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<
      * 构造函数
      * 
      * @param columnPropertys ExcelColumnProperty集合
-     * @param dataClass 数据类型
      */
     public EntityRowWriter(List<ExcelColumnProperty> columnPropertys) {
         this.columnPropertys = columnPropertys;
