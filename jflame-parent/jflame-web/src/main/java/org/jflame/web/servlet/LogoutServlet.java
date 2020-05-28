@@ -61,7 +61,7 @@ public class LogoutServlet extends HttpServlet {
     }
 
     protected void forward(HttpServletRequest request, HttpServletResponse resp) throws ServletException, IOException {
-        if (UrlHelper.isAbsoluteUrl(logoutPage)) {
+        if (UrlHelper.isAbsoluteUri(logoutPage)) {
             resp.sendRedirect(logoutPage);
         } else {
             String sitePath = WebUtils.getApplicationPath(request);

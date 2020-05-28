@@ -63,7 +63,7 @@ public final class UrlHelper {
         String fullUrl = "";
         // final char urlSplit = '/';
         if (relativeUrls.length == 0) {
-            if (isAbsoluteUrl(firstUrl) && Chars.SLASH != firstUrl.charAt(0)) {
+            if (isAbsoluteUri(firstUrl) && Chars.SLASH != firstUrl.charAt(0)) {
                 return firstUrl;
             } else {
                 return Chars.SLASH + fullUrl;
@@ -83,7 +83,7 @@ public final class UrlHelper {
         } else {
             fullUrl = firstUrl + fullUrl;
         }
-        if (!isAbsoluteUrl(fullUrl) && Chars.SLASH != fullUrl.charAt(0)) {
+        if (!isAbsoluteUri(fullUrl) && Chars.SLASH != fullUrl.charAt(0)) {
             fullUrl = Chars.SLASH + fullUrl;
         }
 
@@ -91,16 +91,16 @@ public final class UrlHelper {
     }
 
     /**
-     * 判断是否是绝对路径的url.
+     * 判断是否是绝对路径的uri.
      * 
-     * @param url url
+     * @param uri uri
      * @return
      */
-    public static boolean isAbsoluteUrl(String url) {
-        if (StringHelper.isEmpty(url)) {
+    public static boolean isAbsoluteUri(String uri) {
+        if (StringHelper.isEmpty(uri)) {
             return false;
         }
-        return URI.create(url)
+        return URI.create(uri)
                 .isAbsolute();
     }
 
@@ -118,5 +118,4 @@ public final class UrlHelper {
         }
         return StringHelper.buildMapFromUrlParam(query);
     }
-
 }

@@ -3,7 +3,6 @@ package org.jflame.web.spring.inteceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,7 +17,7 @@ import org.jflame.web.spring.MyExceptionResolver;
  * 
  * @author yucan.zhang
  */
-public class LoginInterceptor implements HandlerInterceptor, InitializingBean {
+public class LoginInterceptor implements HandlerInterceptor {
 
     private String loginUrl = "/login.jsp";
     private String userKey;
@@ -68,7 +67,7 @@ public class LoginInterceptor implements HandlerInterceptor, InitializingBean {
     }
 
     public String getUserKey() {
-        return userKey;
+        return userKey == null ? WebUtils.SESSION_USER_KEY : userKey;
     }
 
     /**
@@ -100,7 +99,7 @@ public class LoginInterceptor implements HandlerInterceptor, InitializingBean {
      */
     protected LoginUser getLoginUser(HttpServletRequest req, HttpServletResponse resp) {
         return (LoginUser) req.getSession()
-                .getAttribute(userKey);
+                .getAttribute(getUserKey());
     }
 
     /**
@@ -118,10 +117,4 @@ public class LoginInterceptor implements HandlerInterceptor, InitializingBean {
         return failed;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (userKey == null) {
-            userKey = WebUtils.SESSION_USER_KEY;
-        }
-    }
 }

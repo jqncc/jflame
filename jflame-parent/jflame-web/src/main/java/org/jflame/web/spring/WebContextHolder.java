@@ -54,7 +54,7 @@ public final class WebContextHolder {
         return null;
     }
 
-    public static Set<? extends UrlPermission> getLoginUserPermissions() {
+    public static Set<UrlPermission> getLoginUserPermissions() {
         LoginUser user = getLoginUser();
         if (user != null) {
             return user.getPermissions();

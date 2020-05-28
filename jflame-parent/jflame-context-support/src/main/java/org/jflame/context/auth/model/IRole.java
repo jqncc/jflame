@@ -3,14 +3,15 @@ package org.jflame.context.auth.model;
 import java.io.Serializable;
 import java.util.Set;
 
+/**
+ * 基于url的权限的角色
+ * 
+ * @author yucan.zhang
+ */
 public interface IRole extends Serializable {
-
-    public String getRoleName();
 
     public String getRoleCode();
 
-    public String getRootCode();
-
-    public Set<? extends UrlPermission> getPermissions();
+    public Set<UrlPermission> getPermissions();
 
 }

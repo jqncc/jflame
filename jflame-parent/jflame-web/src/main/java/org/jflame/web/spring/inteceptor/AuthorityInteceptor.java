@@ -1,7 +1,5 @@
 package org.jflame.web.spring.inteceptor;
 
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,8 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.common.bean.CallResult.ResultEnum;
-import org.jflame.context.auth.AuthorityUtils;
-import org.jflame.context.auth.model.UrlPermission;
+import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
 import org.jflame.web.spring.MyExceptionResolver;
 import org.jflame.web.spring.WebContextHolder;
@@ -40,9 +37,9 @@ public class AuthorityInteceptor implements HandlerInterceptor {
             log.debug("auth filter,uri:{}", uri);
         }
         // 获取用户权限集合
-        Set<? extends UrlPermission> funList = WebContextHolder.getLoginUserPermissions();
+        LoginUser curUser = WebContextHolder.getLoginUser();
         // 判断权限
-        if (!AuthorityUtils.hasPermissionByUrl(funList, uri)) {
+        if (!curUser.hasRight(uri)) {
             log.warn("access no permission url:{}", uri);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             if (MyExceptionResolver.isJsonResult(request, arg2)) {

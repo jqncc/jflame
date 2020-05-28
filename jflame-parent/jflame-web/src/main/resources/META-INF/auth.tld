@@ -9,7 +9,7 @@
 	<tag>
 		<description>verify current user permssion</description>
 		<name>auth</name>
-		<tag-class>com.ghgcn.support.tag.IfAuthTag</tag-class>
+		<tag-class>org.jflame.web.tag.IfAuthTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
 			<name>var</name>
@@ -31,10 +31,5 @@
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>
 		</attribute>
-		<attribute>
-            <name>rootRoles</name>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.String</type>
-        </attribute>
 	</tag>
 </taglib>

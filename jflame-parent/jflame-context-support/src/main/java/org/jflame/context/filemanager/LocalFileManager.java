@@ -67,7 +67,7 @@ public class LocalFileManager extends BaseFileManager {
     @Override
     public byte[] readBytes(String filePath) throws IOException {
         Path downFile = null;
-        if (!UrlHelper.isAbsoluteUrl(filePath)) {
+        if (!UrlHelper.isAbsoluteUri(filePath)) {
             downFile = Paths.get(basePath, filePath);
         } else {
             downFile = Paths.get(filePath);
@@ -82,7 +82,7 @@ public class LocalFileManager extends BaseFileManager {
     @Override
     public File read(String filePath) throws IOException {
         Path downFile = null;
-        if (!UrlHelper.isAbsoluteUrl(filePath)) {
+        if (!UrlHelper.isAbsoluteUri(filePath)) {
             downFile = Paths.get(basePath, filePath);
         } else {
             downFile = Paths.get(filePath);

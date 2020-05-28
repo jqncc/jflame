@@ -1,11 +1,7 @@
 package org.jflame.web.servlet;
 
-import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -18,13 +14,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.config.BaseConfig;
+import org.jflame.commons.codec.TranscodeHelper;
 import org.jflame.commons.config.ConfigKey;
 import org.jflame.commons.config.PropertiesConfigHolder;
 import org.jflame.commons.config.ServletParamConfig;
+import org.jflame.commons.util.ArrayHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.UrlHelper;
 import org.jflame.commons.util.file.FileHelper;
+import org.jflame.context.filemanager.FileManagerFactory;
 import org.jflame.web.WebUtils;
 
 /**
@@ -34,9 +33,8 @@ import org.jflame.web.WebUtils;
 public class DownloadServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(DownloadServlet.class);
-    private String[] allowDownFiles = ArrayUtils.addAll(WebUtils.IMAGE_EXTS,
-            new String[] { "zip","tar","tar.gz","rar","gzip","pdf","doc","docx","xls","xlsx","ppt","pptx","csv" });
-    private String savePath;
+    private String[] allowDownFiles = { "zip","rar","xls","xlsx","doc","docx","ppt","pptx" };
+    // private String savePath;
 
     /**
      * 取得配置参数,先从servlet配置获取没有再从配置文件获取
@@ -56,61 +54,68 @@ public class DownloadServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         ServletParamConfig servletParam = new ServletParamConfig(config);
-        savePath = getConfParam(servletParam, BaseConfig.CFG_SAVE_PATH);
+        /*savePath = getConfParam(servletParam, BaseConfig.CFG_SAVE_PATH);
         if (StringHelper.isEmpty(savePath)) {
-            log.warn("未设置文件下载根路径,设为项目根目录");
-            savePath = config.getServletContext()
-                    .getRealPath("/");
-        }
+           log.warn("未设置文件下载根路径,设为项目根目录");
+           savePath = config.getServletContext()
+                   .getRealPath("/");
+        }*/
+        allowDownFiles = servletParam.getStringArray(new ConfigKey<String[]>("file.allowDownFiles"));
+
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 从URL读取文件路径,拼接本地路径,读取文件流输出到客户端
-        String imgRelativePath = request.getPathInfo();
-        boolean isNotFound = true;
-        if (StringHelper.isNotEmpty(imgRelativePath)) {
-            Path downFilePath = Paths.get(savePath, request.getPathInfo());
-            File file = downFilePath.toFile();
-            if (file.exists()) {
-                if (isAllowedDownload(file)) {
-                    BufferedReader reader = null;
-                    ServletOutputStream output = null;
-                    try {
-                        WebUtils.setFileDownloadHeader(response, file.getName(), file.length());
-                        output = response.getOutputStream();
-                        reader = Files.newBufferedReader(file.toPath());
-                        IOHelper.copy(reader, output);
-                        isNotFound = false;
-                    } catch (IOException e) {
-                        log.warn("下载文件异常:" + downFilePath, e);
-                        response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "文件读取异常");
-                    } finally {
-                        if (reader != null) {
-                            reader.close();
-                        }
-                        if (output != null) {
-                            output.close();
-                        }
-                    }
-                } else {
-                    log.warn("不支持的图片格式{}", imgRelativePath);
-                }
+        String downFile = request.getParameter("file");
+        if (StringHelper.isEmpty(downFile)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        downFile = TranscodeHelper.urlDecode(downFile);
+        if (!isAllowedDownload(downFile)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        ServletOutputStream output = null;
+        try {
+            byte[] fileBytes;
+            if (UrlHelper.isURL(downFile)) {
+                fileBytes = FileManagerFactory.getCurrentManager()
+                        .readBytes(downFile);
+            } else {
+                fileBytes = FileManagerFactory.createLocalManager()
+                        .readBytes(downFile);
+            }
+
+            WebUtils.setFileDownloadHeader(response, FileHelper.getFilename(downFile), (long) fileBytes.length);
+            output = response.getOutputStream();
+            IOHelper.write(fileBytes, output);
+            output.flush();
+        } catch (FileNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        } catch (IOException e) {
+            log.warn("下载文件异常:" + downFile, e);
+            response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "文件读取异常");
+        } finally {
+            if (output != null) {
+                output.close();
             }
         }
-        if (isNotFound) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            log.info("not found image:{}", imgRelativePath);
-        }
+
     }
 
     /**
      * 是否允许下载
      * 
-     * @param file
+     * @param filePath
      * @return
      */
-    boolean isAllowedDownload(File file) {
-        String ext = FileHelper.getExtension(file.getName(), false);
+    boolean isAllowedDownload(String filePath) {
+        if (ArrayHelper.isEmpty(allowDownFiles)) {
+            return true;
+        }
+        String ext = FileHelper.getExtension(filePath, false);
         if (!ArrayUtils.contains(allowDownFiles, ext)) {
             return false;
         }
