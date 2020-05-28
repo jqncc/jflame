@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -389,10 +390,15 @@ public class CsvWriter implements Closeable {
     }
 
     public <T extends IExcelEntity> void writeEntityData(List<T> dataList) throws CsvAccessException {
+        writeEntityData(dataList, null);
+    }
+
+    public <T extends IExcelEntity> void writeEntityData(List<T> dataList, String group) throws CsvAccessException {
         if (CollectionHelper.isNotEmpty(dataList)) {
             Class<? extends IExcelEntity> dataClass = dataList.get(0)
                     .getClass();
-            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true);
+            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
+                    Optional.ofNullable(group));
             if (CollectionHelper.isEmpty(columnPropertys)) {
                 throw new CsvAccessException("没有找到要导入的属性");
             }
@@ -569,7 +575,7 @@ public class CsvWriter implements Closeable {
      */
     public static <T extends IExcelEntity> void writeCsv(String csvFile, List<T> dataList) throws CsvAccessException {
         try (CsvWriter csvWriter = new CsvWriter(csvFile)) {
-            csvWriter.writeEntityData(dataList);
+            csvWriter.writeEntityData(dataList, null);
         } catch (CsvAccessException e) {
             throw e;
         }
@@ -585,7 +591,7 @@ public class CsvWriter implements Closeable {
     public static <T extends IExcelEntity> void writeCsv(OutputStream outputStream, List<T> dataList)
             throws CsvAccessException {
         try (CsvWriter csvWriter = new CsvWriter(outputStream)) {
-            csvWriter.writeEntityData(dataList);
+            csvWriter.writeEntityData(dataList, null);
         } catch (CsvAccessException e) {
             throw e;
         }

@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -107,17 +108,30 @@ public class ExcelCreator implements Closeable {
     }
 
     /**
-     * 将实体数据集合填充到指定的工作表
+     * 将实体数据集合填充到指定的工作表,不指定分组
      * 
+     * @param sheet 要填充的工作表
      * @param dataList 实体数据集合
      * @exception ExcelAccessException
      */
     public <T extends IExcelEntity> void fillEntityData(final List<T> dataList) {
+        fillEntityData(dataList, null);
+    }
+
+    /**
+     * 将实体数据集合填充到指定的工作表
+     * 
+     * @param dataList 实体数据集合
+     * @param group 分组
+     * @exception ExcelAccessException
+     */
+    public <T extends IExcelEntity> void fillEntityData(final List<T> dataList, final String group) {
         /* 获取有ExcelColumn注解的属性 */
         if (CollectionHelper.isNotEmpty(dataList)) {
             Class<? extends IExcelEntity> dataClass = dataList.get(0)
                     .getClass();
-            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true);
+            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
+                    Optional.ofNullable(group));
             if (CollectionHelper.isEmpty(columnPropertys)) {
                 throw new ExcelAccessException("没有找到要导入的属性");
             }

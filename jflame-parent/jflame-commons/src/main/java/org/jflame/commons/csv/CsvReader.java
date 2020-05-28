@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -1147,7 +1148,8 @@ public class CsvReader implements Closeable {
             validator = new DefaultExcelValidator<T>();
         }
 
-        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false);
+        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false,
+                Optional.empty());
         if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new CsvAccessException("没有找到要转换的属性");
         }

@@ -48,6 +48,13 @@ public @interface ExcelColumn {
      */
     public String fmt() default "";
 
+    /**
+     * 分组
+     * 
+     * @return
+     */
+    public String[] group() default {};
+
     @SuppressWarnings("rawtypes")
     public Class<? extends ObjectToStringConverter> writeConverter() default NullConverter.class;
 

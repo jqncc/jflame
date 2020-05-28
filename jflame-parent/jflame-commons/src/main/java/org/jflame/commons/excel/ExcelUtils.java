@@ -11,7 +11,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -223,10 +225,12 @@ public final class ExcelUtils {
      * 根据excel column获取bean的属性.
      * 
      * @param dataClass Class&lt;? extends IExcelEntity&gt;
+     * @param isWrite 是否是写操作,即生成excel
+     * @param group 属性分组
      * @return excel column注解属性
      */
     public static List<ExcelColumnProperty> resolveExcelColumnProperty(Class<? extends IExcelEntity> dataClass,
-            boolean isWrite) {
+            boolean isWrite, Optional<String> group) {
         List<ExcelColumnProperty> as = new ArrayList<ExcelColumnProperty>();
 
         final Class<ExcelColumn> clazz = ExcelColumn.class;
@@ -237,6 +241,7 @@ public final class ExcelUtils {
         Field tmpField;
         Method tmpReadMethod;
         PropertyDescriptor[] properties = BeanHelper.getPropertyDescriptors(dataClass);
+
         for (PropertyDescriptor propDesc : properties) {
             if (clazzName.equals(propDesc.getName())) {
                 continue;
@@ -253,6 +258,11 @@ public final class ExcelUtils {
                 }
             }
             if (tmpAnns != null) {
+                if (group.isPresent()) {
+                    if (ArrayUtils.isEmpty(tmpAnns.group()) || !ArrayUtils.contains(tmpAnns.group(), group.get())) {
+                        continue;
+                    }
+                }
                 newProperty = new ExcelColumnProperty();
                 newProperty.setPropertyDescriptor(propDesc);
                 newProperty.setOrder(tmpAnns.order());

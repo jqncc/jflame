@@ -27,7 +27,7 @@ import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.file.FileHelper;
 
 /**
- * FastDFS文件管理. <b>注:一个实例一个连接,非线程安全
+ * FastDFS文件管理. 注:一个实例一个连接,非线程安全
  * 
  * @author yucan.zhang
  */

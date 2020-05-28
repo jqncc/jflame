@@ -6,13 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.jflame.commons.excel.handler.ArrayRowReader;
-import org.jflame.commons.excel.handler.EntityRowReader;
-import org.jflame.commons.excel.validator.DefaultExcelValidator;
-import org.jflame.commons.excel.validator.ExcelValidationException;
-import org.jflame.commons.excel.validator.IExcelValidator;
-import org.jflame.commons.util.CollectionHelper;
+import java.util.Optional;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -23,6 +17,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.jflame.commons.excel.handler.ArrayRowReader;
+import org.jflame.commons.excel.handler.EntityRowReader;
+import org.jflame.commons.excel.validator.DefaultExcelValidator;
+import org.jflame.commons.excel.validator.ExcelValidationException;
+import org.jflame.commons.excel.validator.IExcelValidator;
+import org.jflame.commons.util.CollectionHelper;
 
 /**
  * excel数据导入工具类 ，导入数据转为对应实体类集合或Object[]集体.导入过程可指定数据验证规则
@@ -149,7 +150,8 @@ public class ExcelImportor implements Closeable {
             validator = new DefaultExcelValidator<T>();
         }
 
-        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false);
+        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false,
+                Optional.empty());
         if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new ExcelAccessException("没有找到要转换的属性");
         }
