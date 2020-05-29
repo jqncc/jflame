@@ -18,7 +18,7 @@ import org.jflame.context.filemanager.FileManagerFactory;
 import org.jflame.context.filemanager.IFileManager;
 
 @Controller
-@RequestMapping("${file.alioss.signurl:/alioss}}")
+@RequestMapping("${file.alioss.signurl:/alioss}")
 public class AliossController extends BaseController {
 
     /**

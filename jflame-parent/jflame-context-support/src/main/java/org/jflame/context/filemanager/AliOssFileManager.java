@@ -56,7 +56,9 @@ public class AliOssFileManager extends BaseFileManager {
         this.ossAccessId = ossAccessId;
         this.ossAccessSecret = ossAccessSecret;
         this.currentBucket = bucketName;
-
+        if (StringHelper.isEmpty(currentBucket)) {
+            throw new IllegalArgumentException("currentBucket not be null!");
+        }
         initOSSClient();
     }
 
