@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 
 /**
  * 唯一ID生成工具,生成ID为24位16进制字符串,源自mongodb objectid算法.<br>

@@ -17,8 +17,8 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.context.spring.converter.MyDateFormatter;
 import org.jflame.context.spring.converter.MyTemporalFormatter;

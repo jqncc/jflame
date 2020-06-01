@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.jflame.commons.codec.TranscodeHelper;
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 
 /**
  * 字符串工具类

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import org.jflame.commons.common.Chars;
-import org.jflame.commons.common.bean.CallResult;
 import org.jflame.commons.config.BaseConfig;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.context.filemanager.AliOssFileManager;
 import org.jflame.context.filemanager.FileManagerFactory;

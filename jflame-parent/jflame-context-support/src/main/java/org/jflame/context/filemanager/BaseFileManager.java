@@ -6,8 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.key.IDHelper;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.StringHelper;
 
 public abstract class BaseFileManager implements IFileManager {

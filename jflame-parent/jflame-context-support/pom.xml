@@ -15,15 +15,16 @@
 		<version.springrabbit>1.7.14.RELEASE</version.springrabbit>
 	</properties>
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+			<optional>true</optional>
 		</dependency>
-		<!-- 代码直接调用common-logging会被桥接到slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-		</dependency>
+			<optional>true</optional>
+		</dependency> -->
 		<!-- jflame -->
 		<dependency>
 			<groupId>org.jflame</groupId>

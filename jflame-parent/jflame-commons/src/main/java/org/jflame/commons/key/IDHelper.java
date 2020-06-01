@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 
 /**
  * 常用唯一键生成工具类

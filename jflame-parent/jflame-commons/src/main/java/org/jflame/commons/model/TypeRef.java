@@ -1,4 +1,4 @@
-package org.jflame.commons.common;
+package org.jflame.commons.model;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

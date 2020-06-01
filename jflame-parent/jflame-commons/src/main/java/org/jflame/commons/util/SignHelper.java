@@ -10,8 +10,8 @@ import java.util.TreeMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.crypto.DigestHelper;
+import org.jflame.commons.model.Chars;
 
 public class SignHelper {
 

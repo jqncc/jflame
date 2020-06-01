@@ -9,8 +9,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.jflame.commons.common.TypeRef;
-import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.util.json.Fastjsons;
 import org.jflame.commons.util.json.Jacksons;
 import org.jflame.toolkit.test.entity.Pet;

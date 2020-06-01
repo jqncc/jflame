@@ -5,8 +5,8 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.excel.ExcelAccessException;
+import org.jflame.commons.model.Chars;
 
 /**
  * excel数据验证异常

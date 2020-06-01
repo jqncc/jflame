@@ -4,8 +4,8 @@ import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
-import org.jflame.commons.common.TypeRef;
-import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.net.http.handler.JsonResponseHandler;
 import org.jflame.commons.net.http.handler.ResponseBodyHandler;
 import org.jflame.commons.net.http.handler.TextResponseHandler;

@@ -1,7 +1,7 @@
 package org.jflame.commons.net.http.handler;
 
-import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.net.http.HttpResponse;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.json.JsonHelper;

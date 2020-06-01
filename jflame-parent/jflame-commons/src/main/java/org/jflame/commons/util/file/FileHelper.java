@@ -15,7 +15,7 @@ import java.util.Calendar;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.reflect.ClassHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;

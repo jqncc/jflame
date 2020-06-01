@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.common.PathUtils;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlHelper;
@@ -60,7 +60,7 @@ public class ZookeeperLock implements DistributedLock {
 
                 @Override
                 public void dataDeleted(String path) throws Exception {
-                    System.out.println("dataDeleted:" + path);
+                    // System.out.println("dataDeleted:" + path);
                     watchLatch.countDown();
                 }
 
@@ -93,7 +93,7 @@ public class ZookeeperLock implements DistributedLock {
     @Override
     public void unlock() {
         if (currentLockNode != null) {
-            System.out.println("delete:" + currentLockNode);
+            // System.out.println("delete:" + currentLockNode);
             zkclient.delete(currentLockNode, false);
         }
     }
@@ -104,14 +104,14 @@ public class ZookeeperLock implements DistributedLock {
         int myIndex = lockChilrens.indexOf(currentLockNodeName);
         // System.out.println(currentLockNodeName + "==" + myIndex);
         if (myIndex == 0) {
-            System.out.println("getlock:" + currentLockNodeName + "==" + Thread.currentThread()
-                    .getId());
+            /*System.out.println("getlock:" + currentLockNodeName + "==" + Thread.currentThread()
+                    .getId());*/
             return true;
         } else {
             // 监听前一个节点删除事件
             if (watchNode == null) {
                 watchNode = lockPath + Chars.SLASH + lockChilrens.get(myIndex - 1);
-                System.out.println("watch:" + watchNode);
+                // System.out.println("watch:" + watchNode);
             }
             return false;
         }

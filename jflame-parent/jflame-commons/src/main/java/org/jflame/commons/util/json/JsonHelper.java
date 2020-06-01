@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.jflame.commons.common.TypeRef;
-import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.reflect.SpiFactory;
 
 /**

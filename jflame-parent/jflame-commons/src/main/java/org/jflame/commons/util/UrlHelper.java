@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Map;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 
 /**
  * url工具类

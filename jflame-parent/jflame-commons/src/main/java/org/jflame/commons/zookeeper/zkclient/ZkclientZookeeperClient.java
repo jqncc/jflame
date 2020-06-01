@@ -18,8 +18,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.DataAccessException;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.zookeeper.AbstractZookeeperClient;
 import org.jflame.commons.zookeeper.ChildNodeListener;
 import org.jflame.commons.zookeeper.NodeDataListener;

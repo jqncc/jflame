@@ -28,9 +28,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
-import org.jflame.commons.common.bean.BaseResult;
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.BaseResult;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.web.WebUtils;
 
 /**

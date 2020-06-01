@@ -3,7 +3,7 @@ package org.jflame.commons.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jflame.commons.common.bean.pair.IKeyValuePair;
+import org.jflame.commons.model.pair.IKeyValuePair;
 
 /**
  * 枚举工具类.

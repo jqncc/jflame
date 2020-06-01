@@ -16,17 +16,29 @@ public @interface GlobalLock {
      */
     String lockName();
 
-    /**
-     * 过期时间,单位:秒s
-     * 
-     * @return
-     */
-    int lockTime();
+    LockType lockType();
 
     /**
-     * 获取锁的待时间,单位:毫秒ms
+     * 过期时间,单位:秒s. 使用redis锁时必填
      * 
      * @return
      */
-    int waitTime() default 0;
+    int lockTime() default 5;
+
+    /**
+     * 获取锁的待时间,单位:毫秒ms. 使用redis锁时必填
+     * 
+     * @return
+     */
+    int waitTime() default 50;
+
+    /**
+     * 分布式锁类型
+     * 
+     * @author yucan.zhang
+     */
+    public enum LockType {
+        zk,
+        redis
+    }
 }

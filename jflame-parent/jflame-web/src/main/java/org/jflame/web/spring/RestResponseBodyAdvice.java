@@ -12,8 +12,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
-import org.jflame.commons.common.bean.BaseResult;
-import org.jflame.commons.common.bean.CallResult;
+import org.jflame.commons.model.BaseResult;
+import org.jflame.commons.model.CallResult;
 
 /**
  * json返回统一封装为CallResult

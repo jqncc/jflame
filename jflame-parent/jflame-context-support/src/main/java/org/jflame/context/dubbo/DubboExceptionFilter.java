@@ -15,7 +15,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcResult;
 import com.alibaba.dubbo.rpc.service.GenericService;
 
-import org.jflame.commons.common.bean.BaseResult;
+import org.jflame.commons.model.BaseResult;
 
 /**
  * dubbo自定义异常处理.

@@ -19,11 +19,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.convert.ObjectToStringConverter;
 import org.jflame.commons.excel.ExcelColumnProperty;
 import org.jflame.commons.excel.ExcelUtils;
 import org.jflame.commons.excel.IExcelEntity;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.CollectionHelper;
 

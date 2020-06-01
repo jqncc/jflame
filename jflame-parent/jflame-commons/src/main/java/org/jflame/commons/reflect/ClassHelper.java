@@ -13,7 +13,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.jflame.commons.codec.TranscodeHelper;
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 
 /**
  * 类文件class操作工具类.

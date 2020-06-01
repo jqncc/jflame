@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.jflame.commons.common.TypeRef;
+import org.jflame.commons.model.TypeRef;
 
 public interface Jsons {
 

@@ -9,10 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
 import org.jflame.commons.config.ConfigKey;
 import org.jflame.commons.config.ServletParamConfig;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlHelper;
 import org.jflame.commons.util.json.JsonHelper;

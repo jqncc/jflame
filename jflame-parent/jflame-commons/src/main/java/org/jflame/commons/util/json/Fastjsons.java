@@ -20,7 +20,7 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
 
-import org.jflame.commons.common.TypeRef;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.util.StringHelper;
 
 /**

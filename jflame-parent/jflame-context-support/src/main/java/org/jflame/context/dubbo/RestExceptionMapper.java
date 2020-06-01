@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 
-import org.jflame.commons.common.bean.BaseResult;
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.BaseResult;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.CallResult.ResultEnum;
 
 /**
  * 拦截rest服务所有异常转为统一json格式返回

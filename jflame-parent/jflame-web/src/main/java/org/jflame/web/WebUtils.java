@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import org.jflame.commons.common.bean.pair.NameValuePair;
+import org.jflame.commons.model.pair.NameValuePair;
 import org.jflame.commons.net.IPAddressHelper;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.EnumHelper;

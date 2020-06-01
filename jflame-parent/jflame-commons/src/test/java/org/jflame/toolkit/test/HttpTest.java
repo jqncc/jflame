@@ -11,8 +11,8 @@ import javax.net.ssl.TrustManager;
 
 import org.junit.Test;
 
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.pair.NameValuePair;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.pair.NameValuePair;
 import org.jflame.commons.net.CertX509TrustManager;
 import org.jflame.commons.net.HttpHelper;
 import org.jflame.commons.net.HttpHelper.HttpMethod;

@@ -44,10 +44,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.common.Chars;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
-import org.jflame.commons.common.bean.pair.NameValuePair;
 import org.jflame.commons.exception.BusinessException;
+import org.jflame.commons.model.Chars;
+import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.commons.model.pair.NameValuePair;
 import org.jflame.commons.net.http.HttpResponse;
 import org.jflame.commons.net.http.RequestProperty;
 import org.jflame.commons.net.http.handler.JsonRequestBodyHandler;

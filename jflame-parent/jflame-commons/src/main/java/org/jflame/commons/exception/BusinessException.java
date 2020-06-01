@@ -1,6 +1,6 @@
 package org.jflame.commons.exception;
 
-import org.jflame.commons.common.bean.BaseResult;
+import org.jflame.commons.model.BaseResult;
 
 /**
  * 业务层异常

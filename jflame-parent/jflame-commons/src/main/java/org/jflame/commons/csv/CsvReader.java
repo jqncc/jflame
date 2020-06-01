@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.convert.Converter;
 import org.jflame.commons.convert.StringToBoolConverter;
 import org.jflame.commons.convert.StringToDateConverter;
@@ -36,6 +35,7 @@ import org.jflame.commons.excel.validator.DefaultExcelValidator;
 import org.jflame.commons.excel.validator.ExcelValidationException;
 import org.jflame.commons.excel.validator.IExcelValidator;
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.NumberHelper;

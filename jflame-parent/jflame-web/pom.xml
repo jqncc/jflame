@@ -44,12 +44,6 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${version.spring}</version>
 			<optional>true</optional>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.aliyun.oss</groupId>

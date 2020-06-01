@@ -14,7 +14,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;
 

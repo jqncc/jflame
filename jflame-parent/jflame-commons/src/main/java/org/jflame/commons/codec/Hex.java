@@ -3,8 +3,8 @@ package org.jflame.commons.codec;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.StringHelper;
 
 /**

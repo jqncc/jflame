@@ -1,4 +1,4 @@
-package org.jflame.commons.common.bean.pair;
+package org.jflame.commons.model.pair;
 
 public interface IIntKeyPair extends IKeyValuePair<Integer,String> {
 

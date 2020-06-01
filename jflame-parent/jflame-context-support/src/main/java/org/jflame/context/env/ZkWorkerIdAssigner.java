@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.common.Chars;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.net.IPAddressHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.zookeeper.ZookeeperClient;

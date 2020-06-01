@@ -1,4 +1,4 @@
-package org.jflame.commons.common.bean;
+package org.jflame.commons.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

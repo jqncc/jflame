@@ -1,4 +1,4 @@
-package org.jflame.commons.common.bean.pair;
+package org.jflame.commons.model.pair;
 
 /**
  * 通用键值对类型接口

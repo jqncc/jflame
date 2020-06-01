@@ -23,8 +23,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-import org.jflame.commons.common.TypeRef;
 import org.jflame.commons.exception.SerializeException;
+import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.util.DateHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.StringHelper;

@@ -1,6 +1,6 @@
-package org.jflame.commons.common.bean;
+package org.jflame.commons.model;
 
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.CallResult.ResultEnum;
 
 public class SimpleResult implements BaseResult {
 

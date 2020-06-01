@@ -6,8 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
 import org.jflame.web.spring.MyExceptionResolver;

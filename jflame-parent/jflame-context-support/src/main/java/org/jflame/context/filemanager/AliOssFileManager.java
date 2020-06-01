@@ -28,9 +28,9 @@ import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PolicyConditions;
 
-import org.jflame.commons.common.Chars;
 import org.jflame.commons.exception.BusinessException;
 import org.jflame.commons.key.IDHelper;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.MapHelper;

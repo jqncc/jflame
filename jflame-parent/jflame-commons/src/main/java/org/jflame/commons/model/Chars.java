@@ -1,4 +1,4 @@
-package org.jflame.commons.common;
+package org.jflame.commons.model;
 
 public abstract class Chars {
 

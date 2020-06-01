@@ -11,9 +11,9 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.common.Chars;
-import org.jflame.commons.common.bean.CallResult;
-import org.jflame.commons.common.bean.CallResult.ResultEnum;
+import org.jflame.commons.model.CallResult;
+import org.jflame.commons.model.Chars;
+import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlMatcher;
