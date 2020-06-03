@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -245,6 +246,20 @@ public class WebUtils {
             url += request.getPathInfo();
         }
         return url;
+    }
+
+    /**
+     * 注销当前会话,生成一个新的会话
+     * 
+     * @param request
+     * @return 新的会话HttpSession
+     */
+    public static HttpSession logoutAndNewSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return request.getSession(true);
     }
 
     private static String[] localips = { "127.0.0.1","0:0:0:0:0:0:0:1" };

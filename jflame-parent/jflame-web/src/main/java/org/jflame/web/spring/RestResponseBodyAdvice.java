@@ -10,8 +10,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
-
 import org.jflame.commons.model.BaseResult;
 import org.jflame.commons.model.CallResult;
 
@@ -23,14 +21,25 @@ import org.jflame.commons.model.CallResult;
 @ControllerAdvice
 public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
+    private final String jsonConverterName = "FastJsonHttpMessageConverter";
+
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         if (BaseResult.class.isAssignableFrom(returnType.getParameterType())) {
             return false;
         }
-        return FastJsonHttpMessageConverter.class.isAssignableFrom(converterType)
-                || AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType)
-                || GsonHttpMessageConverter.class.isAssignableFrom(converterType);
+        if (AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType)
+                || GsonHttpMessageConverter.class.isAssignableFrom(converterType)) {
+            return true;
+        }
+        // fastjson非spring内置converter不一定使用,所以使用类名判断.
+        if (jsonConverterName.equals(converterType.getSimpleName())
+                || jsonConverterName.equals(converterType.getSuperclass()
+                        .getSimpleName())) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override

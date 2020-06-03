@@ -13,7 +13,6 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.rabbitmq.client.Channel;
 
@@ -61,14 +60,6 @@ public abstract class AbstractRabbitMessageListener implements ChannelAwareMessa
         String msgId = message.getMessageProperties()
                 .getMessageId();
         String msgText = new String(message.getBody(), charset);
-        if (StringHelper.isEmpty(msgId)) {
-            try {
-                msgId = JSON.parseObject(msgText)
-                        .getString("messageId");
-            } catch (JSONException e) {
-
-            }
-        }
         String cacheKey = null;
         Integer retry = null;
         if (StringHelper.isNotEmpty(msgId)) {

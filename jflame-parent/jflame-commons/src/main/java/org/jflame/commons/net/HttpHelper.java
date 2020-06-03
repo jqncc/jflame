@@ -45,8 +45,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.jflame.commons.exception.BusinessException;
-import org.jflame.commons.model.Chars;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.model.pair.NameValuePair;
 import org.jflame.commons.net.http.HttpResponse;
 import org.jflame.commons.net.http.RequestProperty;
@@ -190,7 +190,8 @@ public final class HttpHelper {
             setConnectionProperty();
             conn.connect();
             // post请求时提交参数
-            if (getMethod() == HttpMethod.POST && requestData != null) {
+            if ((getMethod() == HttpMethod.POST || getMethod() == HttpMethod.DELETE || getMethod() == HttpMethod.PUT)
+                    && requestData != null) {
                 byte[] params = requestBodyHandler.handle(requestData, requestProperty);
                 if (params != null && params.length > 0) {
                     outStream = conn.getOutputStream();

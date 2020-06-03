@@ -17,6 +17,7 @@ import org.jflame.web.WebUtils;
  * 
  * @author yucan.zhang
  */
+@Deprecated
 public final class WebContextHolder {
 
     public static HttpServletRequest getRequest() {

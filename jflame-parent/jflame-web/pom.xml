@@ -21,6 +21,11 @@
             <artifactId>jflame-context-support</artifactId>
             <version>${version.jflame}</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <optional>true</optional>
+        </dependency>
 		<!-- servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>

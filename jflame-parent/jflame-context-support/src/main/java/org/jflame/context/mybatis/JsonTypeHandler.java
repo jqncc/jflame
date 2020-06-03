@@ -8,9 +8,8 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-import com.alibaba.fastjson.JSON;
-
 import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * 转json字符串
@@ -27,14 +26,14 @@ public class JsonTypeHandler<T> extends BaseTypeHandler<T> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
-        ps.setString(i, JSON.toJSONString(parameter));
+        ps.setString(i, JsonHelper.toJson(parameter));
     }
 
     @Override
     public T getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String textValue = rs.getString(columnName);
         if (StringHelper.isNotEmpty(textValue)) {
-            return JSON.parseObject(textValue, type);
+            return JsonHelper.parseObject(textValue, type);
         }
         return null;
     }
@@ -43,7 +42,7 @@ public class JsonTypeHandler<T> extends BaseTypeHandler<T> {
     public T getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String textValue = rs.getString(columnIndex);
         if (StringHelper.isNotEmpty(textValue)) {
-            return JSON.parseObject(textValue, type);
+            return JsonHelper.parseObject(textValue, type);
         }
         return null;
     }
@@ -52,7 +51,7 @@ public class JsonTypeHandler<T> extends BaseTypeHandler<T> {
     public T getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         String textValue = cs.getString(columnIndex);
         if (StringHelper.isNotEmpty(textValue)) {
-            return JSON.parseObject(textValue, type);
+            return JsonHelper.parseObject(textValue, type);
         }
         return null;
     }

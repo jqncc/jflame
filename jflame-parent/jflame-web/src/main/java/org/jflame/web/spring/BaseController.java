@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.context.auth.context.UserContext;
+import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.context.spring.converter.MyDateFormatter;
 import org.jflame.context.spring.converter.MyTemporalFormatter;
+import org.jflame.web.WebUtils;
 
 /**
  * controller基类
@@ -87,8 +90,38 @@ public abstract class BaseController {
         return request.getSession(false);
     }
 
+    /**
+     * 从UserContext获取当前登录用户,没有用户信息时返回null
+     * 
+     * @return
+     */
     protected LoginUser getLoginUser() {
-        return WebContextHolder.getLoginUser();
+        return UserContextHolder.getContext()
+                .getUser();
+    }
+
+    /**
+     * 保存当前登录用户信息到session并绑定到用户上下文UserContext
+     * 
+     * @param curUser 登录用户
+     * @param session HttpSession
+     */
+    protected void saveLoginUser(LoginUser curUser, HttpSession session) {
+        UserContext ctx = UserContextHolder.getContext();
+        ctx.setUser(curUser);
+        UserContextHolder.setContext(ctx);
+        session.setAttribute(WebUtils.SESSION_USER_KEY, ctx);
+    }
+
+    /**
+     * 生成新的会话,并保存登录用户信息到会话
+     * 
+     * @param curUser 登录用户
+     * @param request HttpServletRequest
+     */
+    protected void newSessionAndSaveLoginUser(LoginUser curUser, HttpServletRequest request) {
+        HttpSession session = WebUtils.logoutAndNewSession(request);
+        saveLoginUser(curUser, session);
     }
 
 }

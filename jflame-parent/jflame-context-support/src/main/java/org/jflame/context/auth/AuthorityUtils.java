@@ -26,7 +26,7 @@ public final class AuthorityUtils {
         boolean hasRight = false;
         if (CollectionHelper.isNotEmpty(userFuns)) {
             for (UrlPermission fun : userFuns) {
-                if (ArrayUtils.contains(funCodes, fun.getFunCode())) {
+                if (ArrayUtils.contains(funCodes, fun.getCode())) {
                     hasRight = true;
                     break;
                 }

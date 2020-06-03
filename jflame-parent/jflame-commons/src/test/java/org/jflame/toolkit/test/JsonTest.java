@@ -46,9 +46,14 @@ public class JsonTest {
         CallResult<Pig> result1 = json.parseObject(jsonStr, new TypeRef<CallResult<Pig>>() {
         });
         System.out.println("parseCallResult:" + result1);
+
+        String petjsonStrFilter = json.toJsonFilter(pet, true, new String[] { "age","skin" });
+        System.out.println("pet toJsonFilter:" + petjsonStrFilter);
+
         // 简单对象转换
         String petjsonStr = json.toJson(pet);
         System.out.println("pet toJson:" + petjsonStr);
+
         Pet pet1 = json.parseObject(petjsonStr, Pet.class);
         System.out.println("pet1 parseJson:" + pet1);
         // 启用格式化输出

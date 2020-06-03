@@ -36,8 +36,9 @@ public class AuthorityInteceptor implements HandlerInterceptor {
         if (log.isDebugEnabled()) {
             log.debug("auth filter,uri:{}", uri);
         }
-        // 获取用户权限集合
+        // 获取用户
         LoginUser curUser = WebContextHolder.getLoginUser();
+
         // 判断权限
         if (!curUser.hasRight(uri)) {
             log.warn("access no permission url:{}", uri);
@@ -63,4 +64,5 @@ public class AuthorityInteceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, ModelAndView arg3)
             throws Exception {
     }
+
 }

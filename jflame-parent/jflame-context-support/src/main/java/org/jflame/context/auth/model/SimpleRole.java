@@ -60,8 +60,8 @@ public class SimpleRole implements IRole {
         Collection<UrlPermission> perms = getPermissions();
         if (CollectionHelper.isEmpty(perms)) {
             for (UrlPermission perm : perms) {
-                if (perm.getFunCode()
-                        .equals(p.getFunCode())) {
+                if (perm.getCode()
+                        .equals(p.getCode())) {
                     return true;
                 }
             }

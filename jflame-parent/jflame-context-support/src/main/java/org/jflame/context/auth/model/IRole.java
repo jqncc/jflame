@@ -10,8 +10,26 @@ import java.util.Set;
  */
 public interface IRole extends Serializable {
 
+    /**
+     * 角色标识
+     * 
+     * @return
+     */
     public String getRoleCode();
 
-    public Set<UrlPermission> getPermissions();
+    /**
+     * 角色权限的url
+     * 
+     * @return
+     */
+    public Set<? extends UrlPermission> getPermissions();
+
+    /**
+     * 权限验证
+     * 
+     * @param urlPermission
+     * @return
+     */
+    public boolean isPermitted(String urlPermission);
 
 }

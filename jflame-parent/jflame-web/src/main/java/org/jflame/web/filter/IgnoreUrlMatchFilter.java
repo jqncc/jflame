@@ -51,10 +51,11 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected final void internalInit(FilterConfig filterConfig) {
+    protected void internalInit(FilterConfig filterConfig) {
         ignoreStatic = filterParam.getBoolean(IGNORE_STATIC);
         ignoreUrlPattern = filterParam.getStringArray(IGNORE_PATTERN);
         matcher = new AntStyleUrlPatternMatcherStrategy(ignoreUrlPattern);
+        doInternalInit(filterConfig);
     }
 
     protected boolean isIgnoreUrl(String url) {
@@ -92,5 +93,6 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
     protected abstract void doInternalFilter(ServletRequest req, ServletResponse response, FilterChain chain)
             throws ServletException, IOException;
 
-    protected abstract void doInternalInit(FilterConfig filterConfig);
+    protected void doInternalInit(FilterConfig filterConfig) {
+    }
 }

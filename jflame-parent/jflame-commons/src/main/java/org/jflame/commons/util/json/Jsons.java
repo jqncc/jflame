@@ -26,6 +26,16 @@ public interface Jsons {
     byte[] toJsonBytes(Object obj);
 
     /**
+     * Java对象序列化为JSON字符串,指定过滤属性,支持包含或排除模式
+     * 
+     * @param obj 要序列化的Java对象
+     * @param isInclude true=包含属性,false=排除属性
+     * @param properties 要过滤的属性
+     * @return
+     */
+    public String toJsonFilter(Object obj, boolean isInclude, String[] properties);
+
+    /**
      * 对象转为序列化为json后输出到流os
      * 
      * @param os 输出流

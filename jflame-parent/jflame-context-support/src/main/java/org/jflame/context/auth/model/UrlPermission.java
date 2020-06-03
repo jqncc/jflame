@@ -14,13 +14,23 @@ import org.jflame.commons.util.UrlMatcher;
  */
 public interface UrlPermission extends Serializable {
 
-    public String getFunCode();
+    /**
+     * 权限标识
+     * 
+     * @return
+     */
+    public String getCode();
 
-    public String[] getFunUrls();
+    /**
+     * 权限对应的url
+     * 
+     * @return
+     */
+    public String[] getUrls();
 
     default public boolean isExistMatchedUrl(String checkUrl) {
         boolean isMatched = false;
-        String[] urls = getFunUrls();
+        String[] urls = getUrls();
         if (ArrayUtils.isNotEmpty(urls)) {
             for (String funUrl : urls) {
                 isMatched = matchUrl(funUrl, checkUrl);

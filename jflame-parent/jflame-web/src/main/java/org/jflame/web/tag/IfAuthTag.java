@@ -11,7 +11,6 @@ import org.jflame.commons.util.StringHelper;
 import org.jflame.context.auth.AuthorityUtils;
 import org.jflame.context.auth.model.IRole;
 import org.jflame.context.auth.model.LoginUser;
-import org.jflame.context.auth.model.SimpleRole;
 import org.jflame.context.auth.model.UrlPermission;
 import org.jflame.web.spring.WebContextHolder;
 
@@ -65,7 +64,7 @@ public class IfAuthTag extends ConditionalTagSupport {
             hasPm = AuthorityUtils.hasPermissionByFunCode(userFuns, StringHelper.split(pm));
         }
         if (!hasPm) {
-            Set<SimpleRole> curRoles = curUser.getRoles();
+            Set<? extends IRole> curRoles = curUser.getRoles();
             if (StringHelper.isNotEmpty(roles)) {
                 String[] roleCodes = StringHelper.split(roles);
                 for (IRole role : curRoles) {

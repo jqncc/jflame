@@ -38,7 +38,6 @@ import org.jflame.web.WebUtils;
  * 
  * @author zyc
  */
-@SuppressWarnings("rawtypes")
 @Order(-100)
 public class MyExceptionResolver extends SimpleMappingExceptionResolver {
 
@@ -63,7 +62,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                 // 参数异常只记录信息,不记录大量异常堆栈
                 logDebugMsg(request, ex.getMessage());
                 BindException validEx = (BindException) ex;
-                CallResult<?> errResult = new CallResult<>();
+                CallResult<Object> errResult = new CallResult<>();
                 BaseController.convertError(validEx.getBindingResult(), errResult);
                 return ErrorJsonView.view(errResult);
             } else if (ex instanceof BaseResult) {
@@ -86,7 +85,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                 logDebugMsg(request, ex.getMessage());
                 if (ex instanceof MethodArgumentNotValidException) {
                     MethodArgumentNotValidException validEx = (MethodArgumentNotValidException) ex;
-                    CallResult errResult = new CallResult();
+                    CallResult<Object> errResult = new CallResult<>();
                     BaseController.convertError(validEx.getBindingResult(), errResult);
                     return ErrorJsonView.view(errResult);
                 } else {

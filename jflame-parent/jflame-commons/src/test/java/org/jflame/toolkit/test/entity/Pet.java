@@ -24,7 +24,6 @@ public class Pet implements IExcelEntity, Serializable {
 
     @JsonView(View.class)
     @JSONField(label = "test")
-
     private int age;
     @ExcelColumn(name = "体重", order = 7)
     private double weight;

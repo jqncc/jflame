@@ -47,6 +47,7 @@ public abstract class OncePerRequestFilter implements Filter {
         if (request.getAttribute(alreadyFilteredFlag) != null) {
             log.trace("Filter '{}' already executed.  Proceeding without invoking this filter.", alreadyFilteredFlag);
             filterChain.doFilter(request, response);
+            return;
         } else {
             log.trace("Filter '{}' not yet executed.  Executing now.", alreadyFilteredFlag);
             request.setAttribute(alreadyFilteredFlag, Boolean.TRUE);
@@ -56,6 +57,10 @@ public abstract class OncePerRequestFilter implements Filter {
                 request.removeAttribute(alreadyFilteredFlag);
             }
         }
+    }
+
+    @Override
+    public void destroy() {
     }
 
     /**
@@ -70,6 +75,7 @@ public abstract class OncePerRequestFilter implements Filter {
     protected abstract void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
             throws ServletException, IOException;
 
-    protected abstract void internalInit(FilterConfig filterConfig);
+    protected void internalInit(FilterConfig filterConfig) {
+    };
 
 }

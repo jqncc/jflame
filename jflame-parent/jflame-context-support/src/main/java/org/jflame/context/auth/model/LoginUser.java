@@ -32,7 +32,7 @@ public interface LoginUser extends Serializable {
      * 
      * @return
      */
-    Set<SimpleRole> getRoles();
+    Set<? extends IRole> getRoles();
 
     /**
      * 判断用户是否有指定url的访问权限
@@ -42,9 +42,9 @@ public interface LoginUser extends Serializable {
      */
     default public boolean hasRight(String urlPermission) {
         boolean hasRight = false;
-        Set<SimpleRole> roles = getRoles();
+        Set<? extends IRole> roles = getRoles();
         if (CollectionHelper.isNotEmpty(roles)) {
-            for (SimpleRole r : roles) {
+            for (IRole r : roles) {
                 hasRight = r.isPermitted(urlPermission);
                 if (hasRight) {
                     break;
@@ -61,9 +61,9 @@ public interface LoginUser extends Serializable {
      */
     default public Set<UrlPermission> getPermissions() {
         Set<UrlPermission> permissions = new LinkedHashSet<>();
-        Set<SimpleRole> roles = getRoles();
+        Set<? extends IRole> roles = getRoles();
         if (CollectionHelper.isNotEmpty(roles)) {
-            for (SimpleRole role : roles) {
+            for (IRole role : roles) {
                 if (role.getPermissions() != null) {
                     permissions.addAll(role.getPermissions());
                 }
@@ -80,7 +80,7 @@ public interface LoginUser extends Serializable {
      */
     default boolean hasRole(String roleCode) {
         boolean hasRole = false;
-        Set<SimpleRole> roles = getRoles();
+        Set<? extends IRole> roles = getRoles();
         if (CollectionHelper.isNotEmpty(roles)) {
             hasRole = roles.stream()
                     .anyMatch(p -> p.getRoleCode()

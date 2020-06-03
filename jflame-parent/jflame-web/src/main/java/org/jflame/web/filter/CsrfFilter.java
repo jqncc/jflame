@@ -132,8 +132,4 @@ public class CsrfFilter extends IgnoreUrlMatchFilter {
         }
     }
 
-    @Override
-    public void destroy() {
-    }
-
 }

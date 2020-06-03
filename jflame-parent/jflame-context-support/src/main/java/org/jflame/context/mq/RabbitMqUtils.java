@@ -6,9 +6,8 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
-import com.alibaba.fastjson.JSON;
-
 import org.jflame.commons.util.CharsetHelper;
+import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * Rabbit消息队列工具类
@@ -24,7 +23,7 @@ public final class RabbitMqUtils {
      * @return
      */
     public static <T> Message toTextMessage(MqMsg<T> msg) {
-        byte[] msgBytes = JSON.toJSONBytes(msg);
+        byte[] msgBytes = JsonHelper.toJsonBytes(msg);
         return MessageBuilder.withBody(msgBytes)
                 .setContentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN)
                 .setMessageId(msg.getMessageId())
@@ -46,7 +45,7 @@ public final class RabbitMqUtils {
      * @return
      */
     public static <T> Message toTextDelayMessage(MqMsg<T> msg, int delay) {
-        byte[] msgBytes = JSON.toJSONBytes(msg);
+        byte[] msgBytes = JsonHelper.toJsonBytes(msg);
         Message message = MessageBuilder.withBody(msgBytes)
                 .setContentType(MessageProperties.CONTENT_TYPE_TEXT_PLAIN)
                 .setMessageId(msg.getMessageId())

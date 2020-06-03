@@ -80,6 +80,15 @@ public class Fastjsons implements Jsons {
         return JSON.toJSONString(obj, Labels.includes(includeLabels));
     }
 
+    @Override
+    public String toJsonFilter(Object obj, boolean isInclude, String[] properties) {
+        if (isInclude) {
+            return toJsonIncludeField(obj, properties);
+        } else {
+            return toJsonExcludeField(obj, properties);
+        }
+    }
+
     /**
      * Java对象序列化为JSON字符串,指定要排除的属性.
      * 

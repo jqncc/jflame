@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -56,8 +58,6 @@ public class Jacksons implements Jsons {
     @Override
     public String toJson(Object obj) {
         try {
-            // return objMapper.setSerializationInclusion(Include.ALWAYS)
-            // .writeValueAsString(obj);
             return objMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             throw new SerializeException(e);
@@ -77,6 +77,26 @@ public class Jacksons implements Jsons {
         try {
             return objMapper.writerWithView(viewClass)
                     .writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new SerializeException(e);
+        }
+    }
+
+    /**
+     * Java对象序列化为JSON字符串,指定过滤属性,支持包含或排除模式
+     * 
+     * @param obj 要序列化的Java对象
+     * @param isInclude true=包含属性,false=排除属性
+     * @param properties 要过滤的属性
+     * @return
+     */
+    public String toJsonFilter(Object obj, boolean isInclude, String[] properties) {
+        SerializerFactory serializerFactory = BeanSerializerFactory.instance
+                .withSerializerModifier(new FilterBeanSerializerModifier(properties));
+        ObjectMapper newMapper = objMapper.copy()
+                .setSerializerFactory(serializerFactory);
+        try {
+            return newMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             throw new SerializeException(e);
         }
