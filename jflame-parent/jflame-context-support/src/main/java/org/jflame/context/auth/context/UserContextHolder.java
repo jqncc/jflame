@@ -7,10 +7,7 @@ public class UserContextHolder {
     private static UserContextHolderStrategy strategy;
 
     static {
-        strategy = SpiFactory.getBean(UserContextHolderStrategy.class);
-        if (strategy == null) {
-            strategy = new ThreadLocalUserContextHolderStrategy();
-        }
+        strategy = SpiFactory.getBean(UserContextHolderStrategy.class, ThreadLocalUserContextHolderStrategy.class);
     }
 
     public static void clearContext() {

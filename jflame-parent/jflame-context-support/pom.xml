@@ -8,8 +8,8 @@
 	</parent>
 	<artifactId>jflame-context-support</artifactId>
 	<properties>
-		<version.mybatisplus>2.1.5-a</version.mybatisplus>
-		<version.dubbo>2.6.6</version.dubbo>
+		<version.mybatisplus>3.0.5</version.mybatisplus>
+		<version.dubbo>2.7.6</version.dubbo>
 		<version.resteasy>3.0.19.Final</version.resteasy>
 		<version.fastdfs>1.27-SNAPSHOT</version.fastdfs>
 		<version.springrabbit>1.7.14.RELEASE</version.springrabbit>
@@ -81,15 +81,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.alibaba</groupId>
+			<groupId>org.apache.dubbo</groupId>
 			<artifactId>dubbo</artifactId>
 			<version>${version.dubbo}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.jboss.netty</groupId>
-					<artifactId>netty</artifactId>
-				</exclusion>
-			</exclusions>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

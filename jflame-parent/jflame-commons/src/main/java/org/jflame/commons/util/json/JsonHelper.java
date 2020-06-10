@@ -59,6 +59,28 @@ public final class JsonHelper {
     }
 
     /**
+     * Java对象序列化为JSON字符串,动态指定要序列化的属性.使用jackson时对象上不能有JsonFilter注解
+     * 
+     * @param obj Java对象
+     * @param includes 要包含的属性名称数组
+     * @return
+     */
+    public static String toJsonInclude(Object obj, String[] includes) {
+        return jsonClient.toJsonFilter(obj, true, includes);
+    }
+
+    /**
+     * Java对象序列化为JSON字符串,动态排除要序列化的属性.使用jackson时对象上不能有JsonFilter注解
+     * 
+     * @param obj Java对象
+     * @param excludes 要排除的属性名称数组
+     * @return
+     */
+    public static String toJsonExclude(Object obj, String[] excludes) {
+        return jsonClient.toJsonFilter(obj, false, excludes);
+    }
+
+    /**
      * JSON字符串反序列化为Java对象(适用于非泛型对象)
      * 
      * @param jsonStr json字符串

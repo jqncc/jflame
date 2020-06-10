@@ -10,10 +10,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
 import org.jflame.web.spring.MyExceptionResolver;
-import org.jflame.web.spring.WebContextHolder;
 
 /**
  * url权限判断拦截器,应配置于登录拦截器之后
@@ -37,7 +37,8 @@ public class AuthorityInteceptor implements HandlerInterceptor {
             log.debug("auth filter,uri:{}", uri);
         }
         // 获取用户
-        LoginUser curUser = WebContextHolder.getLoginUser();
+        LoginUser curUser = UserContextHolder.getContext()
+                .getUser();
 
         // 判断权限
         if (!curUser.hasRight(uri)) {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.jflame.commons.cache.redis.serizlizer.IRedisSerializer;
 import org.jflame.commons.util.CharsetHelper;
@@ -203,6 +204,43 @@ public interface RedisClient {
             return values;
         }
         return null;
+    }
+
+    /**
+     * 先从缓存获取数据,如果不存在则调用Supplier获取数据并缓存.缓存的数据未设置过期时间
+     * 
+     * @param key 缓存key
+     * @param querySupplier Supplier
+     * @return
+     */
+    default public <T> T get(String key, Supplier<T> querySupplier) {
+        T t = get(key);
+        if (t == null) {
+            t = querySupplier.get();
+            if (t != null) {
+                set(key, t);
+            }
+        }
+        return t;
+    }
+
+    /**
+     * 先从缓存获取数据,如果不存在则调用Supplier获取数据并缓存. 可指定缓存过期时间
+     * 
+     * @param key 缓存key
+     * @param timeout 过期时间,单位秒
+     * @param querySupplier Supplier
+     * @return
+     */
+    default public <T> T get(String key, long timeout, Supplier<T> querySupplier) {
+        T t = get(key);
+        if (t == null) {
+            t = querySupplier.get();
+            if (t != null) {
+                set(key, t, timeout, TimeUnit.SECONDS);
+            }
+        }
+        return t;
     }
 
     /**

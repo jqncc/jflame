@@ -1,6 +1,5 @@
 package org.jflame.commons.util;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -43,7 +42,6 @@ public final class ArrayHelper {
      * @param <T> 泛型
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static <T> T[] unionArray(T[] arr1, T[] arr2) {
         Set<T> newSet = new TreeSet<>();
         for (T t : arr1) {
@@ -53,17 +51,18 @@ public final class ArrayHelper {
             newSet.add(t);
         }
 
-        int len = newSet.size();
+        /*int len = newSet.size();
         int i = 0;
-
+        
         final Class<?> type1 = arr1.getClass()
                 .getComponentType();
         T[] joinedArray = (T[]) Array.newInstance(type1, len);
-
+        
         for (T t : newSet) {
             joinedArray[i++] = t;
-        }
-        return joinedArray;
+        }*/
+
+        return CollectionHelper.toArray(newSet);
     }
 
     /**

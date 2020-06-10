@@ -4,6 +4,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jflame.commons.config.BaseConfig;
+import org.jflame.commons.util.UrlHelper;
 
 public final class FileManagerFactory {
 
@@ -80,6 +81,20 @@ public final class FileManagerFactory {
      */
     public static String getFileServer() {
         return getCurrentManager().getServerUrl();
+    }
+
+    /**
+     * 给定文件相对路径,返回在当前文件管理系统的绝对路径
+     * 
+     * @param filePath 文件相对路径
+     * @return
+     */
+    public static String getAbsolutePath(String filePath) {
+        if (!UrlHelper.isAbsoluteUri(filePath)) {
+            return UrlHelper.mergeUrl(getFileServer(), filePath);
+        } else {
+            return filePath;
+        }
     }
 
 }

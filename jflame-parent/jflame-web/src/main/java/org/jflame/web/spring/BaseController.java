@@ -110,7 +110,7 @@ public abstract class BaseController {
         UserContext ctx = UserContextHolder.getContext();
         ctx.setUser(curUser);
         UserContextHolder.setContext(ctx);
-        session.setAttribute(WebUtils.SESSION_USER_KEY, ctx);
+        session.setAttribute(UserContext.CONTEXT_KEY, ctx);
     }
 
     /**

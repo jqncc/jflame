@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.context.auth.context.UserContext;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
 import org.jflame.web.spring.MyExceptionResolver;
@@ -67,7 +68,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     public String getUserKey() {
-        return userKey == null ? WebUtils.SESSION_USER_KEY : userKey;
+        return userKey == null ? UserContext.CONTEXT_KEY : userKey;
     }
 
     /**

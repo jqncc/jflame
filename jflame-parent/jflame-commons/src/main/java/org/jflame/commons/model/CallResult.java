@@ -72,6 +72,16 @@ public class CallResult<T> extends SimpleResult {
         return this;
     }
 
+    public CallResult<T> paramError(String message) {
+        setResult(ResultEnum.PARAM_ERROR.getStatus(), message);
+        return this;
+    }
+
+    public CallResult<T> error(String message) {
+        setResult(ResultEnum.SERVER_ERROR.getStatus(), message);
+        return this;
+    }
+
     public CallResult<T> message(String message) {
         setMessage(message);
         return this;
@@ -113,16 +123,6 @@ public class CallResult<T> extends SimpleResult {
 
     public static <T> CallResult<T> ok(T data) {
         return new CallResult<T>().success(data);
-    }
-
-    public static <T> CallResult<T> error(String message) {
-        CallResult<T> result = new CallResult<>(ResultEnum.SERVER_ERROR.getStatus(), message);
-        return result;
-    }
-
-    public static <T> CallResult<T> paramError(String message) {
-        CallResult<T> result = new CallResult<>(ResultEnum.PARAM_ERROR.getStatus(), message);
-        return result;
     }
 
     /**

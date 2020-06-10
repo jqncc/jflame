@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.jflame.commons.config.ConfigKey;
+import org.jflame.commons.util.ArrayHelper;
 import org.jflame.commons.util.file.FileHelper;
 import org.jflame.web.WebUtils;
 
@@ -54,7 +55,9 @@ public abstract class IgnoreUrlMatchFilter extends OncePerRequestFilter {
     protected void internalInit(FilterConfig filterConfig) {
         ignoreStatic = filterParam.getBoolean(IGNORE_STATIC);
         ignoreUrlPattern = filterParam.getStringArray(IGNORE_PATTERN);
-        matcher = new AntStyleUrlPatternMatcherStrategy(ignoreUrlPattern);
+        if (ArrayHelper.isNotEmpty(ignoreUrlPattern)) {
+            matcher = new AntStyleUrlPatternMatcherStrategy(ignoreUrlPattern);
+        }
         doInternalInit(filterConfig);
     }
 

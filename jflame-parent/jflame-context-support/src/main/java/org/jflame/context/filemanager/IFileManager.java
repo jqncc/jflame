@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
+
 /**
  * 附件管理接口,实现文件的上传,下载
  * 
@@ -90,5 +92,7 @@ public interface IFileManager extends Closeable {
      * @return
      */
     String getServerUrl();
+
+    FileManagerMode getFileManagerMode();
 
 }

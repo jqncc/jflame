@@ -58,17 +58,17 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
 
         if (isJsonResult(request, handler)) {
             // 请求方法未使用BindingResult保存验证结果时,将抛出BindException异常,由此处统一处理
+            CallResult<Object> errResult = new CallResult<>();
             if (ex instanceof BindException) {
                 // 参数异常只记录信息,不记录大量异常堆栈
                 logDebugMsg(request, ex.getMessage());
                 BindException validEx = (BindException) ex;
-                CallResult<Object> errResult = new CallResult<>();
                 BaseController.convertError(validEx.getBindingResult(), errResult);
                 return ErrorJsonView.view(errResult);
             } else if (ex instanceof BaseResult) {
                 logDebugMsg(request, ex.getMessage());
-                BaseResult errResult = (BaseResult) ex;
-                return ErrorJsonView.view(new CallResult<>(errResult.getStatus(), errResult.getMessage()));
+                errResult.setResult((BaseResult) ex);
+                return ErrorJsonView.view(errResult);
             } else if (ex instanceof ConstraintViolationException) {
                 ConstraintViolationException cve = (ConstraintViolationException) ex;
                 List<String> msgs = cve.getConstraintViolations()
@@ -77,15 +77,14 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                         .collect(Collectors.toList());
                 String errMsg = String.join(";", msgs);
                 logDebugMsg(request, errMsg);
-                return ErrorJsonView.view(CallResult.paramError(errMsg));
+                return ErrorJsonView.view(errResult.paramError(errMsg));
             } else if (ex instanceof ValidationException) {
                 logDebugMsg(request, ex.getMessage());
-                return ErrorJsonView.view(CallResult.paramError(ex.getMessage()));
+                return ErrorJsonView.view(errResult.paramError(ex.getMessage()));
             } else if (isHandleBadRequest(ex)) {
                 logDebugMsg(request, ex.getMessage());
                 if (ex instanceof MethodArgumentNotValidException) {
                     MethodArgumentNotValidException validEx = (MethodArgumentNotValidException) ex;
-                    CallResult<Object> errResult = new CallResult<>();
                     BaseController.convertError(validEx.getBindingResult(), errResult);
                     return ErrorJsonView.view(errResult);
                 } else {

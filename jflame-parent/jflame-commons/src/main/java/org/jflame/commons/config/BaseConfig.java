@@ -42,6 +42,10 @@ public abstract class BaseConfig {
         return PropertiesConfigHolder.getStringArray(cfgKey);
     }
 
+    public static int getIntParam(String key) {
+        return PropertiesConfigHolder.getInt(key);
+    }
+
     /**
      * 系统当前是否是开发模式
      * 

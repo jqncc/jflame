@@ -9,15 +9,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.apache.dubbo.rpc.Filter;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.dubbo.rpc.Filter;
-import com.alibaba.dubbo.rpc.Invocation;
-import com.alibaba.dubbo.rpc.Invoker;
-import com.alibaba.dubbo.rpc.Result;
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.alibaba.dubbo.rpc.RpcException;
 
 import org.jflame.commons.util.CollectionHelper;
 
@@ -55,9 +54,11 @@ public class WhitelistFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         // rest协议不限制ip
-        if (CollectionHelper.isNotEmpty(ipWhiteList)
-                && !excludeProtocol.equals(RpcContext.getContext().getUrl().getProtocol())) {
-            String clientIp = RpcContext.getContext().getRemoteHost();
+        if (CollectionHelper.isNotEmpty(ipWhiteList) && !excludeProtocol.equals(RpcContext.getContext()
+                .getUrl()
+                .getProtocol())) {
+            String clientIp = RpcContext.getContext()
+                    .getRemoteHost();
             logger.debug("访问ip:{}", clientIp);
             if (!ipWhiteList.contains(clientIp)) {
                 throw new RpcException("不允许访问服务,IP: " + clientIp);

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -262,5 +263,25 @@ public final class CollectionHelper {
             }
             return collect1.containsAll(collect2);
         }
+    }
+
+    /**
+     * 从给定的集合中,根据映射操作返回一个新的集合. 如提取元素的一个属性组成新的集合.示例:
+     * 
+     * <pre>
+     * CollectionHelper.transform(users, u -> u.getName());
+     * </pre>
+     * 
+     * @param collection
+     * @param mapper
+     * @return
+     */
+    public static <T,R> List<R> transform(Collection<T> collection, Function<? super T,? extends R> mapper) {
+        if (CollectionHelper.isEmpty(collection)) {
+            throw new IllegalArgumentException("parameter 'collection' not be null");
+        }
+        return collection.stream()
+                .map(mapper)
+                .collect(Collectors.toList());
     }
 }

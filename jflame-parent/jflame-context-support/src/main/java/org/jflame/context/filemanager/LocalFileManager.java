@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.jflame.commons.util.UrlHelper;
 import org.jflame.commons.util.file.FileHelper;
+import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
 
 /**
  * 本地硬盘或NFS文件管理
@@ -130,4 +131,8 @@ public class LocalFileManager extends BaseFileManager {
     public void close() {
     }
 
+    @Override
+    public FileManagerMode getFileManagerMode() {
+        return FileManagerMode.local;
+    }
 }

@@ -25,6 +25,7 @@ import org.jflame.commons.exception.BusinessException;
 import org.jflame.commons.key.IDHelper;
 import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.file.FileHelper;
+import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
 
 /**
  * FastDFS文件管理. 注:一个实例一个连接,非线程安全
@@ -151,6 +152,11 @@ public class FastDFSFileManager extends BaseFileManager {
                 storageClient = null;
             }
         }
+    }
+
+    @Override
+    public FileManagerMode getFileManagerMode() {
+        return FileManagerMode.fastdfs;
     }
 
     private void initConnect() throws IOException {

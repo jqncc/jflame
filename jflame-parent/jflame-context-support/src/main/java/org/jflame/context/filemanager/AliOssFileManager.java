@@ -36,6 +36,7 @@ import org.jflame.commons.util.IOHelper;
 import org.jflame.commons.util.MapHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.file.FileHelper;
+import org.jflame.context.filemanager.FileManagerFactory.FileManagerMode;
 
 /**
  * Ali OSS云存储文件管理
@@ -283,5 +284,10 @@ public class AliOssFileManager extends BaseFileManager {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public FileManagerMode getFileManagerMode() {
+        return FileManagerMode.alioss;
     }
 }

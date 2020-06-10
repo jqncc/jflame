@@ -9,10 +9,10 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import org.jflame.commons.util.StringHelper;
 import org.jflame.context.auth.AuthorityUtils;
+import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.IRole;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.context.auth.model.UrlPermission;
-import org.jflame.web.spring.WebContextHolder;
 
 /**
  * 权限判断标签
@@ -58,7 +58,8 @@ public class IfAuthTag extends ConditionalTagSupport {
     @Override
     protected boolean condition() throws JspTagException {
         boolean hasPm = false,hasRole = false;
-        LoginUser curUser = WebContextHolder.getLoginUser();
+        LoginUser curUser = UserContextHolder.getContext()
+                .getUser();
         if (StringHelper.isNotEmpty(pm)) {
             Set<UrlPermission> userFuns = curUser.getPermissions();
             hasPm = AuthorityUtils.hasPermissionByFunCode(userFuns, StringHelper.split(pm));

@@ -15,10 +15,9 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.rpc.protocol.rest.support.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 
 import org.jflame.commons.model.BaseResult;
 import org.jflame.commons.model.CallResult;
@@ -83,7 +82,9 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
         } else {
             logger.error("请求:{},ex:{}", apiUrl, exception);
         }
-        return responseBuilder.entity(result).type(ContentType.APPLICATION_JSON_UTF_8).build();
+        return responseBuilder.entity(result)
+                .type(ContentType.APPLICATION_JSON_UTF_8)
+                .build();
     }
 
     /**
@@ -94,7 +95,8 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
         result.setStatus(ResultEnum.PARAM_ERROR.getStatus());
         Map<String,String> errMap = new HashMap<>();
         for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
-            errMap.put(cv.getPropertyPath().toString(), cv.getMessage());
+            errMap.put(cv.getPropertyPath()
+                    .toString(), cv.getMessage());
         }
         result.setMessage(StringUtils.join(errMap.values(), ';'));
         // result.setData(errMap);
