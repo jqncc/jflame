@@ -73,9 +73,8 @@ public final class ExcelUtils {
             return property.getWriteConverter()
                     .convert(value);
         } else {
-            Class<?> valueClazz = property.getPropertyDescriptor()
-                    .getPropertyType();
-            ObjectToStringConverter converter = getDefaultWriteConverter(valueClazz, property.getFmt());
+            ObjectToStringConverter converter = getDefaultWriteConverter(property.getPropertyDescriptor()
+                    .getPropertyType(), property.getFmt());
             property.setWriteConverter(converter);// 转换器设置到ExcelColumnProperty,下一行数据直接用
             return converter.convert(value);
         }

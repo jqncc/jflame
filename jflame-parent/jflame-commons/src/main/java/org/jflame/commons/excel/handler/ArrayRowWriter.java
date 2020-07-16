@@ -1,9 +1,7 @@
 package org.jflame.commons.excel.handler;
 
 import java.util.Map;
-
-import org.jflame.commons.convert.ObjectToStringConverter;
-import org.jflame.commons.excel.ExcelUtils;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharUtils;
@@ -11,7 +9,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
+
+import org.jflame.commons.convert.ObjectToStringConverter;
+import org.jflame.commons.excel.ExcelUtils;
 
 @SuppressWarnings("rawtypes")
 public class ArrayRowWriter implements IExcelRowWriter<Object[]> {

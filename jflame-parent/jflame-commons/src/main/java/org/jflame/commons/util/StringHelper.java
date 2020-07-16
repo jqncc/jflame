@@ -1,8 +1,11 @@
 package org.jflame.commons.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -448,4 +451,24 @@ public final class StringHelper {
         return str.charAt(str.length() - 1);
     }
 
+    public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens,
+            boolean ignoreEmptyTokens) {
+
+        if (str == null) {
+            return null;
+        }
+
+        StringTokenizer st = new StringTokenizer(str, delimiters);
+        List<String> tokens = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (trimTokens) {
+                token = token.trim();
+            }
+            if (!ignoreEmptyTokens || token.length() > 0) {
+                tokens.add(token);
+            }
+        }
+        return ArrayHelper.toArray(tokens);
+    }
 }

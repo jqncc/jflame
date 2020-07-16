@@ -9,8 +9,9 @@ import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
 
+import org.jflame.commons.config.BaseConfig;
+import org.jflame.commons.json.JsonHelper;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.json.JsonHelper;
 import org.jflame.context.auth.context.UserContext;
 import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
@@ -25,6 +26,7 @@ import org.jflame.context.auth.model.SimpleLoginUser;
 public class DubboUserContextFilter implements Filter {
 
     private final String[] userFields = { "id","userName" };
+    private final String APPNO_KEY = "appNo";
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -37,6 +39,11 @@ public class DubboUserContextFilter implements Filter {
                 String text = JsonHelper.toJsonInclude(curUser, userFields);
                 RpcContext.getContext()
                         .setAttachment(UserContext.CONTEXT_KEY, text);
+            }
+            String appNo = BaseConfig.getAppNo();
+            if (StringHelper.isNotEmpty(BaseConfig.getAppNo())) {
+                RpcContext.getContext()
+                        .setAttachment(APPNO_KEY, appNo);
             }
         } else if (RpcContext.getContext()
                 .isProviderSide()) {

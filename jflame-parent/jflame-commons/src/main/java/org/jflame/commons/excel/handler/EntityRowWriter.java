@@ -50,7 +50,7 @@ public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<
                         .getReadMethod()
                         .invoke(rowData);
                 if (currentValue == null || StringUtils.EMPTY.equals(currentValue)) {
-                    currentCell.setCellType(CellType.BLANK);
+                    // currentCell.setCellType(CellType.BLANK);
                     continue;
                 }
                 currentCell.setCellType(CellType.STRING);

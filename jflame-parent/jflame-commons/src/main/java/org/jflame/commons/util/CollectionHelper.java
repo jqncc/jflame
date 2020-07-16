@@ -56,10 +56,12 @@ public final class CollectionHelper {
     /**
      * 集合转数组
      * 
+     * @deprecated 请使用ArrayHelper里的同名方法
      * @param collection 枚举集合
      * @return
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <E> E[] toArray(Collection<E> collection) {
         E[] arr = (E[]) Array.newInstance(collection.iterator()
                 .next()

@@ -24,4 +24,5 @@ public class DataAccessException extends RuntimeException {
     public DataAccessException(String message, Throwable exception) {
         super(message, exception);
     }
+
 }

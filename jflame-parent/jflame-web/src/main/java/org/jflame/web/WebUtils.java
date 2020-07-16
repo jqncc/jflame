@@ -12,12 +12,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.jflame.commons.json.JsonHelper;
 import org.jflame.commons.model.pair.NameValuePair;
 import org.jflame.commons.net.IPAddressHelper;
 import org.jflame.commons.util.CharsetHelper;
 import org.jflame.commons.util.EnumHelper;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * web环境常用常量定义和工具方法

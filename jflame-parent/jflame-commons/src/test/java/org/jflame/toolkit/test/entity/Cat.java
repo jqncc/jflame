@@ -25,9 +25,41 @@ public class Cat extends Pet {
                     .append(streak)
                     .append(", ");
         }
-
-        builder.append(super.toString());
-
+        if (getName() != null) {
+            builder.append("name=")
+                    .append(getName())
+                    .append(", ");
+        }
+        builder.append("age=")
+                .append(getAge())
+                .append(", ");
+        if (getSkin() != null) {
+            builder.append("skin=")
+                    .append(getSkin())
+                    .append(", ");
+        }
+        if (getBirthday() != null) {
+            builder.append("birthday=")
+                    .append(getBirthday())
+                    .append(", ");
+        }
+        if (getMoney() != null) {
+            builder.append("money=")
+                    .append(getMoney())
+                    .append(", ");
+        }
+        if (getCreateDate() != null) {
+            builder.append("createDate=")
+                    .append(getCreateDate())
+                    .append(", ");
+        }
+        builder.append("weight=")
+                .append(getWeight())
+                .append(", ");
+        if (getHasCert() != null) {
+            builder.append("hasCert=")
+                    .append(getHasCert());
+        }
         builder.append("]");
         return builder.toString();
     }

@@ -1,6 +1,7 @@
 package org.jflame.toolkit.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,15 +24,16 @@ import org.jflame.commons.util.CharsetHelper;
 public class HttpTest {
 
     @Test
-    public void testGet() {
+    public void testGet() throws IOException {
         HttpResponse result = HttpHelper.get("https://www.baidu.com/s?wd=keyword");
+
         System.out.println("请求状态：" + result.getStatus());
         System.out.println("返回消息描述：" + result.getMessage());
         System.out.println("返回数据：" + result.getResponseAsText());
     }
 
     @Test
-    public void testPost() {
+    public void testPost() throws IOException {
         List<NameValuePair> pairs = new ArrayList<>();
         pairs.add(new NameValuePair("email", "jq@163.com"));
         pairs.add(new NameValuePair("password", "123456"));
@@ -42,7 +44,7 @@ public class HttpTest {
      * 使用json解析返回结果
      */
     @Test
-    public void testJsonResponse() {
+    public void testJsonResponse() throws IOException {
         List<NameValuePair> pairs = new ArrayList<>();
         HttpResponse result = HttpHelper.post("http://127.0.0.1:88/user/1", pairs);
         if (result.success()) {
@@ -60,7 +62,7 @@ public class HttpTest {
      * 模拟登录
      */
     @Test
-    public void testFull() {
+    public void testFull() throws IOException {
         HttpHelper httpHelper = new HttpHelper();
         httpHelper.setRequestUrl("http://localhost:9090/zp-admin/login")
                 .setCharset(CharsetHelper.GBK_18030.name())
@@ -107,7 +109,7 @@ public class HttpTest {
      * 文件域上传
      */
     @Test
-    public void testUpload() {
+    public void testUpload() throws IOException {
         HttpHelper httpHelper = new HttpHelper();
         String shopAdminUrl = "http://localhost:9092/activity/a/client/upload";
         List<NameValuePair> pairs = new ArrayList<>();

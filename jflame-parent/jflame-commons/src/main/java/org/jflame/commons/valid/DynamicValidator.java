@@ -10,15 +10,15 @@ import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jflame.commons.util.CollectionHelper;
-import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.valid.annotation.DynamicValid;
-import org.jflame.commons.valid.annotation.DynamicValid.ValidRule;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+
+import org.jflame.commons.util.CollectionHelper;
+import org.jflame.commons.util.StringHelper;
+import org.jflame.commons.valid.annotation.DynamicValid;
+import org.jflame.commons.valid.annotation.DynamicValid.ValidRule;
 
 /**
  * 使用指定的内置验证规则验证
@@ -40,7 +40,7 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                 .length() > 1) {
             paramMap = new HashMap<>();
             if (rules.length == 1 && constraintAnnotation.params()
-                    .indexOf(":") == 0) {
+                    .indexOf(":") < 0) {
                 paramMap.put(rules[0].name(), new String[] { constraintAnnotation.params() });
             } else {
                 if (StringHelper.isNotEmpty(constraintAnnotation.params())) {
@@ -51,6 +51,7 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                     if (!paramText.endsWith("}")) {
                         paramText = paramText + '}';
                     }
+
                     JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowUnQuotedFieldNames);
                     for (Entry<String,Object> kv : tempMap.entrySet()) {
                         if (kv.getValue() instanceof JSONObject) {

@@ -7,15 +7,17 @@ import java.sql.SQLException;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.MappedJdbcTypes;
 
+import org.jflame.commons.json.JsonHelper;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * 转json字符串
  * 
  * @author yucan.zhang
  */
+@MappedJdbcTypes(JdbcType.VARCHAR)
 public class JsonTypeHandler<T> extends BaseTypeHandler<T> {
 
     private Class<T> type;

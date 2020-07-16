@@ -1,10 +1,10 @@
 package org.jflame.commons.net.http.handler;
 
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.json.JsonHelper;
 import org.jflame.commons.model.TypeRef;
 import org.jflame.commons.net.http.HttpResponse;
 import org.jflame.commons.util.StringHelper;
-import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * 返回结果json反解析为java对象

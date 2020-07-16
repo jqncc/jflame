@@ -18,8 +18,6 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
     private int order;
     private int width = 256 * 20;
     private String fmt;
-    @Deprecated
-    private String convert;
     private ObjectToStringConverter writeConverter;
     private Converter readConverter;
 
@@ -53,14 +51,6 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
 
     public void setFmt(String fmt) {
         this.fmt = fmt;
-    }
-
-    public String getConvert() {
-        return convert;
-    }
-
-    public void setConvert(String convert) {
-        this.convert = convert;
     }
 
     public PropertyDescriptor getPropertyDescriptor() {

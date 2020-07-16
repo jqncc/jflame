@@ -5,12 +5,14 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -148,4 +150,26 @@ public final class MapHelper {
             String... excludes) {
         return (TreeMap<String,Object>) convertBeanToMap(beanObj, ignoreNullValue, true, excludes);
     }
+
+    /**
+     * 集合转Map.map的key由集合元素转换而来, value为集合元素. 示例 :<br>
+     * {@code
+     *     Map<String,Cat> map = MapHelper.toMap(lst, cat -> cat.getName());
+     * }
+     * 
+     * @param list 集合
+     * @param mapper 从集合元素中获取map key的方法
+     * @return Map
+     */
+    public static <K,V> Map<K,V> toMap(Collection<V> list, Function<V,K> mapper) {
+        if (list == null) {
+            return null;
+        }
+        Map<K,V> map = new HashMap<>(list.size());
+        for (V v : list) {
+            map.put(mapper.apply(v), v);
+        }
+        return map;
+    }
+
 }

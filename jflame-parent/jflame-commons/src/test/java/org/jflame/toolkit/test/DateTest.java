@@ -29,5 +29,7 @@ public class DateTest {
         Date enDate = DateHelper.parseDate("2019-05-26 10:22:22", DateHelper.YYYY_MM_DD_HH_mm_ss);
         long dt = DateHelper.intervalMinutes(enDate, new Date());
         System.out.println(dt);
+
+        System.out.println(DateHelper.getLastTimeOfThisYear());
     }
 }

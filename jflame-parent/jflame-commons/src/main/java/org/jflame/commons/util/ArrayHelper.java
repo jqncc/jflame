@@ -1,5 +1,6 @@
 package org.jflame.commons.util;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -50,19 +51,7 @@ public final class ArrayHelper {
         for (T t : arr2) {
             newSet.add(t);
         }
-
-        /*int len = newSet.size();
-        int i = 0;
-        
-        final Class<?> type1 = arr1.getClass()
-                .getComponentType();
-        T[] joinedArray = (T[]) Array.newInstance(type1, len);
-        
-        for (T t : newSet) {
-            joinedArray[i++] = t;
-        }*/
-
-        return CollectionHelper.toArray(newSet);
+        return toArray(newSet);
     }
 
     /**
@@ -79,6 +68,20 @@ public final class ArrayHelper {
         return collection.stream()
                 .map(mapper)
                 .toArray(String[]::new);
+    }
+
+    /**
+     * 集合转数组
+     * 
+     * @param collection
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <E> E[] toArray(Collection<E> collection) {
+        E[] arr = (E[]) Array.newInstance(collection.iterator()
+                .next()
+                .getClass(), collection.size());
+        return collection.toArray(arr);
     }
 
     /**

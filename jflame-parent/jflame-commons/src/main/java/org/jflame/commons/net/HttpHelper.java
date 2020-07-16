@@ -110,6 +110,7 @@ public final class HttpHelper {
     private final String headContentType = "Content-Type";
     private final static int defaultConnTimeout = 1500 * 6;
     private final static int defaultReadTimeout = 1000 * 6;
+    private final static String charsetRegex = "charset=\"?([\\w\\d-]+)\"?;?";
 
     private String requestUrl;
     private HttpURLConnection conn;
@@ -182,7 +183,7 @@ public final class HttpHelper {
      * @param requestBodyHandler 请求参数处理器
      * @return
      */
-    public <T> HttpResponse sendRequest(T requestData, RequestBodyHandler<T> requestBodyHandler) {
+    public <T> HttpResponse sendRequest(T requestData, RequestBodyHandler<T> requestBodyHandler) throws IOException {
         OutputStream outStream = null;
         HttpResponse response = new HttpResponse();
         try {
@@ -201,8 +202,8 @@ public final class HttpHelper {
             }
             response = getResponse(conn);
         } catch (IOException e) {
-            response.setStatus(HttpURLConnection.HTTP_BAD_GATEWAY);
-            response.setMessage(e.getMessage());
+            log.error("http请求异常,url:" + requestUrl, e);
+            throw e;
         } catch (Exception e) {
             response.setStatus(HttpURLConnection.HTTP_INTERNAL_ERROR);
             response.setMessage(e.getMessage());
@@ -221,7 +222,7 @@ public final class HttpHelper {
      * 
      * @return HttpResponse
      */
-    public HttpResponse sendRequest() {
+    public HttpResponse sendRequest() throws IOException {
         return sendTextRequest((String) null);
     }
 
@@ -231,7 +232,7 @@ public final class HttpHelper {
      * @param params 请求参数 List&lt;NameValuePair&gt;
      * @return HttpResponse
      */
-    public HttpResponse sendRequest(List<NameValuePair> params) {
+    public HttpResponse sendRequest(List<NameValuePair> params) throws IOException {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
             String paramStr = HttpHelper.toUrlParam(params);
@@ -247,7 +248,7 @@ public final class HttpHelper {
      * @param params 请求参数 Map&lt;String,Object&gt;
      * @return HttpResponse
      */
-    public HttpResponse sendRequest(Map<String,Object> params) {
+    public HttpResponse sendRequest(Map<String,Object> params) throws IOException {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
             String paramStr = HttpHelper.toUrlParam(params, getCharset());
@@ -278,7 +279,7 @@ public final class HttpHelper {
      * @param bodyParamText http body参数字符串
      * @return HttpResponse
      */
-    public HttpResponse sendTextRequest(String bodyParamText) {
+    public HttpResponse sendTextRequest(String bodyParamText) throws IOException {
         log.debug("发起http请求:url={},方式={},body参数={}", requestUrl, getMethod(), bodyParamText);
         return sendRequest(bodyParamText, new TextRequestBodyHandler());
     }
@@ -289,7 +290,7 @@ public final class HttpHelper {
      * @param params byte[]请求参数
      * @return HttpResponse
      */
-    public HttpResponse sendRequest(byte[] params) {
+    public HttpResponse sendRequest(byte[] params) throws IOException {
         log.debug("发起http请求:url={},方式={},参数byte[]", requestUrl, getMethod());
         return sendRequest(params, new ByteRequestBodyHandler());
     }
@@ -413,7 +414,7 @@ public final class HttpHelper {
      * @param entity 要提交的java对象
      * @return
      */
-    public <T extends Serializable> HttpResponse sendJsonRequest(T entity) {
+    public <T extends Serializable> HttpResponse sendJsonRequest(T entity) throws IOException {
         setContentType("application/json;charset=" + getCharset());
         if (getMethod() == HttpMethod.GET) {
             setMethod(HttpMethod.POST);
@@ -428,7 +429,7 @@ public final class HttpHelper {
      * @param resultClazz 结果类型
      * @return
      */
-    public <T extends Serializable,E> E sendJsonRequest(T entity, Class<E> resultClazz) {
+    public <T extends Serializable,E> E sendJsonRequest(T entity, Class<E> resultClazz) throws IOException {
         HttpResponse response = sendJsonRequest(entity);
         if (response.success()) {
             return response.getResponseAsJson(resultClazz);
@@ -442,7 +443,7 @@ public final class HttpHelper {
      * @param entity 要提交的java对象
      * @return
      */
-    public <T> HttpResponse sendXmlRequest(T entity) {
+    public <T> HttpResponse sendXmlRequest(T entity) throws IOException {
         setContentType("application/xml;charset=" + getCharset());
         if (getMethod() == HttpMethod.GET) {
             setMethod(HttpMethod.POST);
@@ -506,8 +507,6 @@ public final class HttpHelper {
         return conn.getInputStream();
     }
 
-    private final String charsetRegex = "charset=\"?([\\w\\d-]+)\"?;?";
-
     private String detectCharset(String input) {
         if (StringHelper.isNotEmpty(input)) {
             Pattern pattern = Pattern.compile(charsetRegex, Pattern.CASE_INSENSITIVE);
@@ -517,88 +516,6 @@ public final class HttpHelper {
             }
         }
         return null;
-    }
-
-    public static HttpResponse get(String url) {
-        return get(url, (List<NameValuePair>) null);
-    }
-
-    /**
-     * 执行一个get请求，使用默认属性.
-     * 
-     * @param url 请求地址
-     * @param params 请求参数 Map
-     * @return HttpResponse请求结果,实际数据为文本字符
-     */
-    public static HttpResponse get(String url, Map<String,String> params) {
-        HttpHelper helper = new HttpHelper(url);
-        helper.setMethod(HttpMethod.GET);
-        return helper.sendRequest(NameValuePair.toList(params));
-    }
-
-    /**
-     * 执行一个get请求，使用默认属性.
-     * 
-     * @param url 请求地址
-     * @param params 请求参数 NameValuePair
-     * @return HttpResponse请求结果,实际数据为文本字符
-     */
-    public static HttpResponse get(String url, List<NameValuePair> params) {
-        HttpHelper helper = new HttpHelper(url);
-        helper.setMethod(HttpMethod.GET);
-        return helper.sendRequest(params);
-    }
-
-    /**
-     * 执行一个post请求,使用默认属性
-     * 
-     * @param url 请求地址
-     * @param params NameValuePair. 请求参数
-     * @return HttpResponse请求结果,实际数据为文本字符
-     */
-    public static HttpResponse post(String url, List<NameValuePair> params) {
-        HttpHelper helper = new HttpHelper(url);
-        helper.setMethod(HttpMethod.POST);
-        return helper.sendRequest(params);
-    }
-
-    /**
-     * 执行一个post请求,使用默认属性
-     * 
-     * @param url 请求地址
-     * @param params Map.请求参数
-     * @return HttpResponse请求结果,实际数据为文本字符
-     */
-    public static HttpResponse post(String url, Map<String,Object> params) {
-        HttpHelper helper = new HttpHelper(url);
-        helper.setMethod(HttpMethod.POST);
-        return helper.sendRequest(params);
-    }
-
-    /**
-     * 执行一个post请求,使用默认属性,提交json内容
-     * 
-     * @param url 请求地址
-     * @param entity 提交对象
-     * @return
-     */
-    public static <T extends Serializable> HttpResponse postJson(String url, T entity) {
-        HttpHelper helper = new HttpHelper(url);
-        helper.setMethod(HttpMethod.POST);
-        return helper.sendJsonRequest(entity);
-    }
-
-    /**
-     * 执行一个post请求,使用默认属性,提交xml内容
-     * 
-     * @param url 请求地址
-     * @param entity 提交对象
-     * @return
-     */
-    public static <T> HttpResponse postXml(String url, T entity) {
-        HttpHelper helper = new HttpHelper();
-        helper.setMethod(HttpMethod.POST);
-        return helper.sendXmlRequest(entity);
     }
 
     private void setConnectionProperty() throws ProtocolException, URISyntaxException, MalformedURLException {
@@ -898,4 +815,87 @@ public final class HttpHelper {
     public String getHeader(String headField) {
         return this.requestProperty.getHeader(headField);
     }
+
+    public static HttpResponse get(String url) throws IOException {
+        return get(url, (List<NameValuePair>) null);
+    }
+
+    /**
+     * 执行一个get请求，使用默认属性.
+     * 
+     * @param url 请求地址
+     * @param params 请求参数 Map
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse get(String url, Map<String,String> params) throws IOException {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.GET);
+        return helper.sendRequest(NameValuePair.toList(params));
+    }
+
+    /**
+     * 执行一个get请求，使用默认属性.
+     * 
+     * @param url 请求地址
+     * @param params 请求参数 NameValuePair
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse get(String url, List<NameValuePair> params) throws IOException {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.GET);
+        return helper.sendRequest(params);
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性
+     * 
+     * @param url 请求地址
+     * @param params NameValuePair. 请求参数
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse post(String url, List<NameValuePair> params) throws IOException {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendRequest(params);
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性
+     * 
+     * @param url 请求地址
+     * @param params Map.请求参数
+     * @return HttpResponse请求结果,实际数据为文本字符
+     */
+    public static HttpResponse post(String url, Map<String,Object> params) throws IOException {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendRequest(params);
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性,提交json内容
+     * 
+     * @param url 请求地址
+     * @param entity 提交对象
+     * @return
+     */
+    public static <T extends Serializable> HttpResponse postJson(String url, T entity) throws IOException {
+        HttpHelper helper = new HttpHelper(url);
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendJsonRequest(entity);
+    }
+
+    /**
+     * 执行一个post请求,使用默认属性,提交xml内容
+     * 
+     * @param url 请求地址
+     * @param entity 提交对象
+     * @return
+     */
+    public static <T> HttpResponse postXml(String url, T entity) throws IOException {
+        HttpHelper helper = new HttpHelper();
+        helper.setMethod(HttpMethod.POST);
+        return helper.sendXmlRequest(entity);
+    }
+
 }

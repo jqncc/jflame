@@ -9,8 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Ant-style 路径匹配工具类.摘至spring
@@ -75,7 +74,9 @@ public class AntPathMatcher {
      * @since 4.1
      */
     public AntPathMatcher(String pathSeparator) {
-        Assert.notNull(pathSeparator, "'pathSeparator' is required");
+        if (pathSeparator == null) {
+            throw new IllegalArgumentException("'pathSeparator' is required");
+        }
         this.pathSeparator = pathSeparator;
         this.pathSeparatorPatternCache = new PathSeparatorPatternCache(pathSeparator);
     }
@@ -367,7 +368,7 @@ public class AntPathMatcher {
      * @return the tokenized path parts
      */
     protected String[] tokenizePath(String path) {
-        return StringUtils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
+        return StringHelper.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
     }
 
     /**
@@ -438,8 +439,8 @@ public class AntPathMatcher {
      * <strong>not</strong> enforce this.
      */
     public String extractPathWithinPattern(String pattern, String path) {
-        String[] patternParts = StringUtils.tokenizeToStringArray(pattern, this.pathSeparator, this.trimTokens, true);
-        String[] pathParts = StringUtils.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
+        String[] patternParts = StringHelper.tokenizeToStringArray(pattern, this.pathSeparator, this.trimTokens, true);
+        String[] pathParts = StringHelper.tokenizeToStringArray(path, this.pathSeparator, this.trimTokens, true);
         StringBuilder builder = new StringBuilder();
         boolean pathStarted = false;
 
@@ -524,13 +525,13 @@ public class AntPathMatcher {
      * @throws IllegalArgumentException if the two patterns cannot be combined
      */
     public String combine(String pattern1, String pattern2) {
-        if (!StringUtils.hasText(pattern1) && !StringUtils.hasText(pattern2)) {
-            return "";
+        if (StringUtils.isBlank(pattern1) && StringUtils.isBlank(pattern2)) {
+            return StringUtils.EMPTY;
         }
-        if (!StringUtils.hasText(pattern1)) {
+        if (StringUtils.isBlank(pattern1)) {
             return pattern2;
         }
-        if (!StringUtils.hasText(pattern2)) {
+        if (StringUtils.isBlank(pattern2)) {
             return pattern1;
         }
 

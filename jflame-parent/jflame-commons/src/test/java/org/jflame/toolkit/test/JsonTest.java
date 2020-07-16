@@ -9,10 +9,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.jflame.commons.json.Fastjsons;
+import org.jflame.commons.json.Jacksons;
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.TypeRef;
-import org.jflame.commons.util.json.Fastjsons;
-import org.jflame.commons.util.json.Jacksons;
 import org.jflame.toolkit.test.entity.Pet;
 import org.jflame.toolkit.test.entity.Pig;
 
@@ -26,6 +26,7 @@ public class JsonTest {
     @Before
     public void initEntity() {
         pet = new Pet("black cat", 2, "black", new Date(), new BigDecimal("122.5"));
+        pet.setWeight(9007199254740998d);
         pet.setCreateDate(LocalDateTime.now());
         Pet pet1 = new Pet("white cat", 1, "white", new Date(), new BigDecimal("200.39"));
         pets.add(pet);
@@ -37,7 +38,7 @@ public class JsonTest {
 
     @Test
     public void testJackson() {
-        Jacksons json = new Jacksons();
+        Jacksons json = new Jacksons(true);
         // 泛型对象转换
         String jsonStr = json.toJson(result);
         String viewjsonStr = json.toJsonView(pet, org.jflame.toolkit.test.entity.Pet.View.class);
@@ -75,7 +76,7 @@ public class JsonTest {
 
     @Test
     public void testFastjson() {
-        Fastjsons json = new Fastjsons();
+        Fastjsons json = new Fastjsons(true);
         // 泛型对象转换
         String jsonStr = json.toJson(result);
         System.out.println("result toJson:" + jsonStr);

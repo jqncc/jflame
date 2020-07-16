@@ -2,9 +2,9 @@ package org.jflame.context.env;
 
 import java.util.Arrays;
 
-import org.jflame.commons.cache.redis.RedisClient;
 import org.jflame.commons.net.IPAddressHelper;
 import org.jflame.commons.util.StringHelper;
+import org.jflame.context.cache.redis.RedisClient;
 
 /**
  * 基于redis的应用登记中心实现
@@ -51,7 +51,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         String ip = IPAddressHelper.getHostIP();
         String identifyNodeFix = ip + '_' + workerPathMd5();
         // 脚本实现登记逻辑
-        String workerIdStr = redisClient.runSHAScript(luaScript, Arrays.asList(zsetKey), Arrays.asList(identifyNodeFix),
+        String workerIdStr = redisClient.runScript(luaScript, Arrays.asList(zsetKey), Arrays.asList(identifyNodeFix),
                 String.class);
         return Integer.parseInt(workerIdStr);
     }

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -298,7 +299,7 @@ public final class DateHelper {
     }
 
     /**
-     * 返回某天的结束时间，即当天23点59分59秒
+     * 返回某天的结束时间，即当天23点59分59秒999毫秒
      * 
      * @param date 时间
      * @return
@@ -309,6 +310,7 @@ public final class DateHelper {
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
         return calendar.getTime();
     }
 
@@ -635,6 +637,17 @@ public final class DateHelper {
     }
 
     /**
+     * 获取LocalDateTime的毫秒时间戳
+     * 
+     * @param dateTime
+     * @return
+     */
+    public static long timestamp(LocalDateTime dateTime) {
+        return dateTime.toInstant(ZoneOffset.ofHours(8))
+                .toEpochMilli();
+    }
+
+    /**
      * 取参数date年的第一天时间
      * 
      * @param date 时间
@@ -652,6 +665,50 @@ public final class DateHelper {
      */
     public static LocalDate getLastDayOfYear(LocalDate date) {
         return date.with(TemporalAdjusters.lastDayOfYear());
+    }
+
+    /**
+     * 返回指定日期年份的最后时间,即当年最后一天的23:59:59.999999999
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDateTime getLastTimeOfYear(LocalDate date) {
+        return date.with(TemporalAdjusters.lastDayOfYear())
+                .atTime(LocalTime.MAX);
+    }
+
+    /**
+     * 获取今年的最后时间点.,即今年最后一天的23:59:59.999999999
+     * 
+     * @return
+     */
+    public static LocalDateTime getLastTimeOfThisYear() {
+        return getLastTimeOfYear(LocalDate.now());
+    }
+
+    /**
+     * 明年第一天
+     * 
+     * @return LocalDate
+     */
+    public static LocalDate firstDayOfNextYear() {
+        return LocalDate.now()
+                .with(TemporalAdjusters.firstDayOfNextYear());
+    }
+
+    /**
+     * 明年第一天0:0:0
+     * 
+     * @return Date
+     */
+    public static Date firstDateOfNextYear() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR) + 1;
+        calendar.clear();
+        calendar.set(Calendar.YEAR, year);
+        Date currYearFirst = calendar.getTime();
+        return currYearFirst;
     }
 
     /**

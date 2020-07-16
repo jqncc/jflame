@@ -57,4 +57,8 @@ public class BusinessException extends RuntimeException implements BaseResult {
         this(exceptionInfo.getMessage(), exceptionInfo.getStatus());
     }
 
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }

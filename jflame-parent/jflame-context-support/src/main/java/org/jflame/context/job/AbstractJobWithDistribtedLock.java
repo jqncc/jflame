@@ -3,7 +3,7 @@ package org.jflame.context.job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jflame.commons.lock.DistributedLock;
+import org.jflame.context.lock.DistributedLock;
 
 /**
  * 一个简易的分布式任务调试方案抽象类,使用分布式锁的任务,保证一次只有一个点执行该任务.
@@ -21,7 +21,7 @@ public abstract class AbstractJobWithDistribtedLock {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private int lockTimeout;// 锁超时时间
-    private int lockWaitTime = 200;// 获取锁等待时间
+    private int lockWaitTime = 100;// 获取锁等待时间
     protected String jobName;
     private boolean oneNodeMode = false;// 一个任务周期内只允许一个任务运行
 

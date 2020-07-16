@@ -91,7 +91,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                     return defaultParamErrorJsonView;
                 }
             } else {
-                logger.error("", ex);
+                logger.error(request.getPathInfo(), ex);
                 return defaultErrorJsonView;
             }
         } else {
@@ -195,7 +195,9 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
         if (handler != null && handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             if (handlerMethod.getMethodAnnotation(ResponseBody.class) != null || handlerMethod.getBeanType()
-                    .getAnnotation(RestController.class) != null) {
+                    .isAnnotationPresent(RestController.class)
+                    || handlerMethod.getBeanType()
+                            .isAnnotationPresent(ResponseBody.class)) {
                 return true;
             }
         }

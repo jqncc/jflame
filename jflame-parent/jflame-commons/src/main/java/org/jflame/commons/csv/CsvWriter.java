@@ -12,12 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.netty.util.internal.ConcurrentHashMap;
 
 import org.jflame.commons.convert.ObjectToStringConverter;
 import org.jflame.commons.excel.ExcelColumnProperty;

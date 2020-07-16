@@ -6,8 +6,8 @@ import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import org.jflame.commons.json.JsonHelper;
 import org.jflame.commons.util.CharsetHelper;
-import org.jflame.commons.util.json.JsonHelper;
 
 /**
  * Rabbit消息队列工具类

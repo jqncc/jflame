@@ -2,8 +2,6 @@ package org.jflame.commons.util;
 
 import java.util.Collection;
 
-import org.springframework.util.AntPathMatcher;
-
 /**
  * ant风格url匹配工具类,同spring
  * <p>

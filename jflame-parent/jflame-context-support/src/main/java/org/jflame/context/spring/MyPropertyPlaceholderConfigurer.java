@@ -20,6 +20,7 @@ import org.jflame.commons.crypto.SymmetricEncryptor;
  * 1.支持将属性注入到自己的参数配置类，方便代码直接获取 <br>
  * 2.属性aes加密
  * 
+ * @see MyPropertySourceFactory
  * @author yucan.zhang
  */
 public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer implements InitializingBean {

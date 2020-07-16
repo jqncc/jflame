@@ -75,12 +75,6 @@ import org.jflame.commons.util.IOHelper;
  */
 public class ExcelCreator implements Closeable {
 
-    @Deprecated
-    public enum ExcelVersion {
-        office2003,
-        office2007
-    }
-
     private SXSSFWorkbook workbook;
     private CellStyle defaultTitleStyle;
     private CellStyle titleStyle;
@@ -92,7 +86,7 @@ public class ExcelCreator implements Closeable {
      * 构造函数,默认生成office2007工作表.
      */
     public ExcelCreator() {
-        this(500);
+        this(200);
     }
 
     /**
@@ -101,8 +95,8 @@ public class ExcelCreator implements Closeable {
      * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认100行
      */
     public ExcelCreator(int rowAccessWindowSize) {
-        if (rowAccessWindowSize == 0) {
-            rowAccessWindowSize = 500;
+        if (rowAccessWindowSize < 1) {
+            rowAccessWindowSize = 200;
         }
         workbook = new SXSSFWorkbook(rowAccessWindowSize);
     }
@@ -290,6 +284,7 @@ public class ExcelCreator implements Closeable {
         if (workbook != null) {
             try {
                 workbook.close();
+                workbook.dispose();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -332,12 +327,21 @@ public class ExcelCreator implements Closeable {
     }
 
     /**
+     * 在第一个工作表上创建标题行.
+     * 
+     * @param titleNames 标题列的名称
+     */
+    public void createTitleRow(String[] titleNames) {
+        createTitleRow(getSheet(0), titleNames);
+    }
+
+    /**
      * 指定的工作表上创建标题行.
      * 
      * @param sheet excel sheet
      * @param titleNames 标题列的名称
      */
-    private void createTitleRow(Sheet sheet, String[] titleNames) {
+    public void createTitleRow(Sheet sheet, String[] titleNames) {
         Row row = sheet.createRow(getAndMoveRowIndex());
         if (titleStyle == null) {
             initDefaultTitleRowStyle();
@@ -392,9 +396,10 @@ public class ExcelCreator implements Closeable {
      * 
      * @param data 要导出数据集
      * @param out 文件输出流
+     * @param isCloseOutStream 写入完成后是否关闭输出流
      * @throws ExcelAccessException
      */
-    public static void export(final List<? extends IExcelEntity> data, final OutputStream out)
+    public static void export(final List<? extends IExcelEntity> data, final OutputStream out, boolean isCloseOutStream)
             throws ExcelAccessException {
         ExcelCreator creator = null;
         try {
@@ -408,7 +413,9 @@ public class ExcelCreator implements Closeable {
             if (creator != null) {
                 creator.close();
             }
-            IOHelper.closeQuietly(out);
+            if (isCloseOutStream) {
+                IOHelper.closeQuietly(out);
+            }
         }
     }
 
@@ -427,7 +434,7 @@ public class ExcelCreator implements Closeable {
         } catch (IOException e) {
             throw new ExcelAccessException(e);
         }
-        ExcelCreator.export(data, out);
+        ExcelCreator.export(data, out, true);
     }
 
     /**
@@ -443,7 +450,7 @@ public class ExcelCreator implements Closeable {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();
-        ExcelCreator.export(data, out);
+        ExcelCreator.export(data, out, false);
     }
 
     static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
