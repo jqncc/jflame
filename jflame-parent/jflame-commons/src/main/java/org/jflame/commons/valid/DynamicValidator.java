@@ -1,21 +1,13 @@
 package org.jflame.commons.valid;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-
-import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.valid.annotation.DynamicValid;
 import org.jflame.commons.valid.annotation.DynamicValid.ValidRule;
@@ -38,35 +30,16 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         nullable = constraintAnnotation.nullable();
         if (constraintAnnotation.params()
                 .length() > 1) {
-            paramMap = new HashMap<>();
             if (rules.length == 1 && constraintAnnotation.params()
                     .indexOf(":") < 0) {
-                paramMap.put(rules[0].name(), new String[] { constraintAnnotation.params() });
+                paramMap = new HashMap<>();
+                paramMap.put(rules[0].name(),
+                        parseParamValue(StringUtils.deleteWhitespace(constraintAnnotation.params())));
             } else {
-                if (StringHelper.isNotEmpty(constraintAnnotation.params())) {
-                    String paramText = StringUtils.deleteWhitespace(constraintAnnotation.params());
-                    if (paramText.charAt(0) != '{') {
-                        paramText = '{' + paramText;
-                    }
-                    if (!paramText.endsWith("}")) {
-                        paramText = paramText + '}';
-                    }
 
-                    JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowUnQuotedFieldNames);
-                    for (Entry<String,Object> kv : tempMap.entrySet()) {
-                        if (kv.getValue() instanceof JSONObject) {
-                            String v = ((JSONObject) kv.getValue()).getString(kv.getKey());
-                            paramMap.put(kv.getKey(), new String[] { v });
-                        } else if (kv.getValue() instanceof JSONArray) {
-                            List<String> list = ((JSONArray) kv.getValue()).toJavaList(String.class);
-                            paramMap.put(kv.getKey(), CollectionHelper.toArray(list));
-                        } else {
-                            paramMap.put(kv.getKey(), new String[] { String.valueOf(kv.getValue()) });
-                        }
-                    }
-                }
             }
         }
+
     }
 
     @Override
@@ -134,33 +107,49 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
         return flag;
     }
 
-    /* public static void main(String[] args) {
-        String x = "{size:1, min:[1,2]}";
-        // String x = "{regex:\"[0-9]{1,3}\"}";
-    
-        String paramText = StringUtils.deleteWhitespace(x);
-        if (paramText.charAt(0) != '{') {
-            paramText = '{' + paramText;
-        }
-        if (!paramText.endsWith("}")) {
-            paramText = paramText + '}';
-        }
+    /**
+     * 解析验证规则的参数.参数格式:规则名1:参数1;规则名2:[数组参数1,数组参数2],多个规则时参数中不能含;号
+     * 
+     * @param paramText
+     * @return
+     */
+    static Map<String,String[]> parseParam(String paramText) {
         Map<String,String[]> paramMap = new HashMap<>();
-        //
-        JSONObject tempMap = JSON.parseObject(paramText, Feature.AllowSingleQuotes);
-    
-        // Map<String,String> tempMap = JSON.parseObject(paramText, type, ~SerializerFeature.QuoteFieldNames.mask);
-        for (Entry<String,Object> kv : tempMap.entrySet()) {
-            if (kv.getValue() instanceof JSONObject) {
-                String v = ((JSONObject) kv.getValue()).getString(kv.getKey());
-                paramMap.put(kv.getKey(), new String[] { v });
-            } else if (kv.getValue() instanceof JSONArray) {
-                List<String> list = ((JSONArray) kv.getValue()).toJavaList(String.class);
-                paramMap.put(kv.getKey(), CollectionHelper.toArray(list));
-            } else {
-                paramMap.put(kv.getKey(), new String[] { String.valueOf(kv.getValue()) });
-            }
+        String[] paramArr = StringUtils.deleteWhitespace(paramText)
+                .split(";");
+        String[] tmpArr;
+        String[] tmpValueArr;
+        for (String paramKv : paramArr) {
+            tmpArr = paramKv.split(":");
+            tmpValueArr = parseParamValue(tmpArr[1]);
+            paramMap.put(tmpArr[0], tmpValueArr);
         }
-        System.out.println(paramMap);
+
+        return paramMap;
+    }
+
+    static String[] parseParamValue(String paramValue) {
+        if (paramValue.charAt(0) == '\'') {
+            char[] tmpChars = paramValue.toCharArray();
+            return new String[] { String.valueOf(tmpChars, 1, tmpChars.length - 2) };
+        } else if (paramValue.charAt(0) == '[') {
+            char[] tmpChars = paramValue.toCharArray();
+            return String.valueOf(tmpChars, 1, tmpChars.length - 2)
+                    .split(",");
+        } else {
+            return new String[] { paramValue };
+        }
+    }
+
+    /*public static void main(String[] args) {
+        Map<String,String[]> m1 = parseParam("min:1;size:[2,3]");
+        m1.forEach((k, v) -> {
+            System.out.println(k + "=" + Arrays.toString(v));
+        });
+    
+        Map<String,String[]> m2 = parseParam("min:1;noContain:'%88*'");
+        m2.forEach((k, v) -> {
+            System.out.println(k + "=" + Arrays.toString(v));
+        });
     }*/
 }

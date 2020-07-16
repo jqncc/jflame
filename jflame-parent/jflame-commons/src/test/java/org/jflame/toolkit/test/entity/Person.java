@@ -20,7 +20,7 @@ public class Person implements Serializable {
      */
     private static final long serialVersionUID = 1L;
     @NotBlank
-    @DynamicValid(rules = ValidRule.letter, message = "名字不正确")
+    @DynamicValid(rules = { ValidRule.letter,ValidRule.minLen }, params = "minLen:3", message = "名字不正确")
     private String name;
     @Min(payload = Child.class, value = 10)
     @Max(payload = Adult.class, value = 30)
