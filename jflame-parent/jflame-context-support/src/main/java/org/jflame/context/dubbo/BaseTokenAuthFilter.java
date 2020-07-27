@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.jflame.commons.model.CallResult;
-import org.jflame.commons.model.Chars;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlMatcher;
@@ -25,8 +25,8 @@ import org.jflame.commons.util.UrlMatcher;
  */
 public abstract class BaseTokenAuthFilter implements ContainerRequestFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(BaseTokenAuthFilter.class);
-    private CallResult<?> result = new CallResult<>(ResultEnum.NO_AUTH);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private final CallResult<?> result = new CallResult<>(ResultEnum.NO_AUTH);
     private final String DEFAULT_TOKEN_HEADER = "Authorization";
 
     protected String getToken(ContainerRequestContext requestContext) {

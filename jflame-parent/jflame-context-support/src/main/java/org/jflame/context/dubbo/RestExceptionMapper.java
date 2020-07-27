@@ -80,7 +80,7 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
                 logger.debug("请求:{},ex:{}", apiUrl, result.getMessage());
             }
         } else {
-            logger.error("请求:{},ex:{}", apiUrl, exception);
+            logger.error("请求:" + apiUrl, exception);
         }
         return responseBuilder.entity(result)
                 .type(ContentType.APPLICATION_JSON_UTF_8)

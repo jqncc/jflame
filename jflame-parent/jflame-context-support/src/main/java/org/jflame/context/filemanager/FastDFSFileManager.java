@@ -38,6 +38,12 @@ public class FastDFSFileManager extends BaseFileManager {
     private TrackerClient trackerClient = null;
     private String serverUrl;
 
+    /**
+     * 构造函数
+     * 
+     * @param configFile 配置文件路径
+     * @param serverUrl fdfs服务地址
+     */
     public FastDFSFileManager(String configFile, String serverUrl) {
         try {
             String ext = FileHelper.getExtension(configFile, false);

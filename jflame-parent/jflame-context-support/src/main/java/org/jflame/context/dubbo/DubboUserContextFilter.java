@@ -1,5 +1,7 @@
 package org.jflame.context.dubbo;
 
+import java.util.Optional;
+
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.Filter;
@@ -33,10 +35,9 @@ public class DubboUserContextFilter implements Filter {
         // 调用方传递当前用户给服务提供方
         if (RpcContext.getContext()
                 .isConsumerSide()) {
-            LoginUser curUser = UserContextHolder.getContext()
-                    .getUser();
-            if (curUser != null) {
-                String text = JsonHelper.toJsonInclude(curUser, userFields);
+            Optional<LoginUser> curUser = UserContextHolder.getLoginUser();
+            if (curUser.isPresent()) {
+                String text = JsonHelper.toJsonInclude(curUser.get(), userFields);
                 RpcContext.getContext()
                         .setAttachment(UserContext.CONTEXT_KEY, text);
             }

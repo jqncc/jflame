@@ -62,7 +62,7 @@ public final class FileManagerFactory {
     public static IFileManager createFastDFSManager() {
         String confFileName = BaseConfig.getFastDFSConfigFile();
         String fileServer = BaseConfig.getFileServer();
-        return new FastDFSFileManager(fileServer, confFileName);
+        return new FastDFSFileManager(confFileName, fileServer);
     }
 
     /**

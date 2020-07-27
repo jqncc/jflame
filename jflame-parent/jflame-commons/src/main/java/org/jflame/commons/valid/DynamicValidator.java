@@ -36,7 +36,7 @@ public class DynamicValidator implements ConstraintValidator<DynamicValid,String
                 paramMap.put(rules[0].name(),
                         parseParamValue(StringUtils.deleteWhitespace(constraintAnnotation.params())));
             } else {
-
+                paramMap = parseParam(constraintAnnotation.params());
             }
         }
 

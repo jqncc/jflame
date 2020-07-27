@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.JSONSerializer;
@@ -46,7 +47,8 @@ public class Fastjsons implements Jsons {
             parseFeatures = new Feature[] { Feature.IgnoreNotMatch,Feature.AllowSingleQuotes,Feature.SupportAutoType };
         } else {
             serializerFeatures = new SerializerFeature[] { SerializerFeature.IgnoreNonFieldGetter,
-                    SerializerFeature.IgnoreErrorGetter,SerializerFeature.DisableCircularReferenceDetect };
+                    SerializerFeature.IgnoreErrorGetter,SerializerFeature.DisableCircularReferenceDetect,
+                    SerializerFeature.WriteMapNullValue };
             parseFeatures = new Feature[] { Feature.IgnoreNotMatch,Feature.AllowSingleQuotes };
         }
 
@@ -203,6 +205,10 @@ public class Fastjsons implements Jsons {
         if (!ArrayUtils.contains(serializerFeatures, SerializerFeature.PrettyFormat)) {
             serializerFeatures = ArrayUtils.add(serializerFeatures, SerializerFeature.PrettyFormat);
         }
+    }
+
+    public JSONObject parse(String jsonStr) {
+        return JSON.parseObject(jsonStr);
     }
 
 }

@@ -1,6 +1,9 @@
 package org.jflame.context.auth.context;
 
+import java.util.Optional;
+
 import org.jflame.commons.reflect.SpiFactory;
+import org.jflame.context.auth.model.LoginUser;
 
 public class UserContextHolder {
 
@@ -26,4 +29,8 @@ public class UserContextHolder {
         return strategy;
     }
 
+    public static Optional<LoginUser> getLoginUser() {
+        UserContext ctx = getContext();
+        return Optional.ofNullable(ctx.getUser());
+    }
 }

@@ -98,6 +98,7 @@ public class Pet implements IExcelEntity, Serializable {
         this.money = money;
     }
 
+    // @Transient
     public LocalDateTime getCreateDate() {
         return createDate;
     }

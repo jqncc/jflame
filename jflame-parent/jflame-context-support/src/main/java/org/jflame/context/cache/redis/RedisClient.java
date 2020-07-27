@@ -62,7 +62,6 @@ public interface RedisClient {
     /**
      * 将集合缓存到哈希集,key由集合元素转换,value为集合元素.示例:<br>
      * {@code
-     *  
      *  hputAll("key",list, cat -> cat.getName());
      * }
      * 
@@ -76,7 +75,25 @@ public interface RedisClient {
     }
 
     /**
-     * 先从缓存获取集合数据,如果不存在则调用Supplier获取数据并缓存,集合缓存为哈希集,各元素key由参数hkeyMapper转换
+     * 查询哈希集成员,如果不存在执行查询操作querySupplier
+     * 
+     * @param hkey
+     * @param fieldKey
+     * @param querySupplier Supplier
+     * @return
+     */
+    default public <T> T hget(String hkey, String fieldKey, Supplier<T> querySupplier) {
+        T t = hget(hkey, fieldKey);
+        if (t == null) {
+            t = querySupplier.get();
+        }
+        return t;
+    }
+
+    /**
+     * 先从缓存获取集合数据,如果不存在则调用Supplier获取数据并缓存,集合缓存为哈希集,各元素key由参数hkeyMapper转换.
+     * <p>
+     * 示例: {@code redisClient.hvalues("allappkey", a -> a.getAppCode(), () -> { return selectList(); }); }
      * 
      * @param key 缓存key
      * @param hkeyMapper 集合元素转为map时key的转换方法Function

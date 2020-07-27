@@ -1,9 +1,12 @@
 package org.jflame.context.dubbo;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -36,8 +39,23 @@ public class RestCallResultWrapperFilter implements ContainerRequestFilter, Cont
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
             throws IOException {
-        if (responseContext.getMediaType() != null
-                && MediaType.APPLICATION_JSON_TYPE.isCompatible(responseContext.getMediaType())) {
+        boolean isJsonWrapper = false;
+        // 无内容返回204时可能getMediaType==null
+        if (responseContext.getMediaType() == null && responseContext.getStatus() == 204) {
+            for (Annotation annot : responseContext.getEntityAnnotations()) {
+                if (annot.annotationType() == Produces.class) {
+                    isJsonWrapper = Arrays.stream(((Produces) annot).value())
+                            .anyMatch(m -> m.indexOf(MediaType.APPLICATION_JSON_TYPE.getSubtype()) >= 0);
+                    if (isJsonWrapper) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            isJsonWrapper = MediaType.APPLICATION_JSON_TYPE.isCompatible(responseContext.getMediaType());
+        }
+
+        if (isJsonWrapper) {
             // 结果为200且非BaseResult类型的子类,统一封装进CallResult返回
             if (responseContext.getStatus() == Response.Status.OK.getStatusCode() && responseContext.hasEntity()
                     && !BaseResult.class.isAssignableFrom(responseContext.getEntityClass())) {

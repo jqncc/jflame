@@ -150,14 +150,14 @@ public final class StringHelper {
     }
 
     /**
-     * 将map转为url参数字符串 如:key=value&amp;key1=value1,参数值不做url编码
+     * 将map转为url参数字符串 如:key=value&amp;key1=value1,参数值做url编码
      * 
      * @param paramMap Map&lt;String, String&gt;
      * @see #buildMapFromUrlParam(String)
      * @return url参数字符串, 如:x=1&amp;y=2
      */
-    public static String buildUrlParamFromMap(Map<String,Object> paramMap) {
-        return buildUrlParamFromMap(paramMap, false);
+    public static String buildUrlParamFromMap(Map<String,?> paramMap) {
+        return buildUrlParamFromMap(paramMap, true);
     }
 
     /**
@@ -167,12 +167,12 @@ public final class StringHelper {
      * @param isUrlEncode 是否url编码
      * @return
      */
-    public static String buildUrlParamFromMap(Map<String,Object> paramMap, boolean isUrlEncode) {
+    public static String buildUrlParamFromMap(Map<String,?> paramMap, boolean isUrlEncode) {
         if (paramMap == null || paramMap.isEmpty()) {
             return null;
         }
         StringBuilder strBuf = new StringBuilder(20);
-        for (Entry<String,Object> kv : paramMap.entrySet()) {
+        for (Entry<String,?> kv : paramMap.entrySet()) {
             if (kv.getValue() != null) {
                 strBuf.append(Chars.AND)
                         .append(kv.getKey())

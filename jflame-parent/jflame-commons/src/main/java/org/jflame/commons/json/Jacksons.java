@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -252,6 +253,14 @@ public class Jacksons implements Jsons {
     @Override
     public void prettyPrint() {
         objMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
+    public JsonNode parse(String jsonStr) {
+        try {
+            return objMapper.readTree(jsonStr);
+        } catch (JsonProcessingException e) {
+            throw new SerializeException(e);
+        }
     }
 
 }
