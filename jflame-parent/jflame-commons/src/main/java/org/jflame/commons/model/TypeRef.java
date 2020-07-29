@@ -3,8 +3,6 @@ package org.jflame.commons.model;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import com.alibaba.fastjson.TypeReference;
-
 public abstract class TypeRef<T> implements Comparable<TypeRef<T>> {
 
     final Type type;
@@ -18,10 +16,10 @@ public abstract class TypeRef<T> implements Comparable<TypeRef<T>> {
         type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
     }
 
-    public TypeReference<T> toFastJsonTypeRef() {
+    /* public TypeReference<T> toFastJsonTypeRef() {
         return new TypeReference<T>() {
         };
-    }
+    }*/
 
     public Type getType() {
         return type;

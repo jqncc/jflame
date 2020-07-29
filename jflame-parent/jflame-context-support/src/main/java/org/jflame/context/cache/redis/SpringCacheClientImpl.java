@@ -48,8 +48,6 @@ public class SpringCacheClientImpl implements RedisClient {
         redisTemplate.setConnectionFactory(redisConnection);
         redisTemplate.setKeySerializer(keySerializer);
         redisTemplate.setHashKeySerializer(keySerializer);
-        redisTemplate.setValueSerializer(valueSerializer);
-        redisTemplate.afterPropertiesSet();
     }
 
     public void setValueSerializer(RedisSerializer<Object> valueSerializer) {
@@ -61,6 +59,8 @@ public class SpringCacheClientImpl implements RedisClient {
         if (this.valueSerializer == null) {
             valueSerializer = new GenericJackson2JsonRedisSerializer();
         }
+        redisTemplate.setValueSerializer(valueSerializer);
+        redisTemplate.afterPropertiesSet();
     }
 
     @Override

@@ -175,6 +175,11 @@ public class Fastjsons implements Jsons {
     }
 
     @Override
+    public Object parseNode(String jsonStr) {
+        return JSON.parseObject(jsonStr);
+    }
+
+    @Override
     public void dateFormat() {
         serializerFeatures = ArrayUtils.add(serializerFeatures, SerializerFeature.WriteDateUseDateFormat);
     }

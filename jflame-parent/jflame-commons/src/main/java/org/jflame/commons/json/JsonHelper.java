@@ -81,7 +81,7 @@ public final class JsonHelper {
     }
 
     /**
-     * JSON字符串反序列化为Java对象(适用于非泛型对象)
+     * JSON字符串解析为Java对象(适用于非泛型对象)
      * 
      * @param jsonStr json字符串
      * @param clazz 目标Java类型
@@ -92,7 +92,7 @@ public final class JsonHelper {
     }
 
     /**
-     * JSON字符串反序列化为java对象(适合于复杂泛型对象)
+     * JSON字符串解析为java对象(适合于复杂泛型对象)
      * 
      * @see TypeRef
      * @param text JSON字符串
@@ -104,7 +104,7 @@ public final class JsonHelper {
     }
 
     /**
-     * 将JSON字符串反序列化为泛型List
+     * 将JSON字符串解析为泛型List
      * 
      * @param jsonStr json字符串
      * @param elementClazz List元素类型
@@ -115,7 +115,7 @@ public final class JsonHelper {
     }
 
     /**
-     * JSON字符串反序列化为Map
+     * JSON字符串解析为Map
      * 
      * @param jsonStr json字符串
      * @param keyClazz Map键类型
@@ -127,7 +127,7 @@ public final class JsonHelper {
     }
 
     /**
-     * JSON字符串反序列化为 Map&lt;String,String&gt;
+     * JSON字符串解析为 Map&lt;String,String&gt;
      * 
      * @param jsonStr json字符串
      * @return Map&lt;String,String&gt;
@@ -137,7 +137,7 @@ public final class JsonHelper {
     }
 
     /**
-     * SON字符串反序列化为CallResult
+     * JSON字符串解析为CallResult
      * 
      * @param jsonStr json字符串
      * @param dataClazz CallResult.data类型
@@ -148,4 +148,13 @@ public final class JsonHelper {
         });
     }
 
+    /**
+     * JSON字符串解析为转为Json Node对象,使用fastjson时是JSONObject,使用Jackson时是JsonNode
+     * 
+     * @param jsonStr
+     * @return
+     */
+    public static Object parseNode(String jsonStr) {
+        return jsonClient.parseNode(jsonStr);
+    }
 }

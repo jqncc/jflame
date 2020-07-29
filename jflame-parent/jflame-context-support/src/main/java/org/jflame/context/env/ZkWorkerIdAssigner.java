@@ -14,25 +14,22 @@ import org.jflame.context.zookeeper.ZookeeperClient;
  * 
  * @author yucan.zhang
  */
-public class ZkWorkerIdAssigner implements WorkerIdAssigner {
+public class ZkWorkerIdAssigner extends WorkerIdAssigner {
 
-    private final String CENTER_ROOT_NODE = "/cluster_worker_center";
+    private final String CENTER_ROOT_NODE = "/" + CENTER_ROOT_KEY;
     private ZookeeperClient zkClient;
 
-    public ZkWorkerIdAssigner(ZookeeperClient zkClient) {
+    public ZkWorkerIdAssigner(String appNo, ZookeeperClient zkClient) {
+        super(appNo);
         this.zkClient = zkClient;
     }
 
-    @Override
-    public int registerWorker(String appCode) {
-        if (StringHelper.isEmpty(appCode)) {
-            throw new IllegalArgumentException("parameter appCode not be null");
-        }
+    protected int registerWorker() {
         // 顺序节点组成:/cluster_worker_center/appCode/ip_应用安装路径md5&001
         String ip = IPAddressHelper.getHostIP();// 主机ip
         String identifyNodeFix = ip + '_' + workerPathMd5() + Chars.AND;
         // 应用标识节点
-        String appNode = StringHelper.join(Chars.SLASH, CENTER_ROOT_NODE, appCode);
+        String appNode = StringHelper.join(Chars.SLASH, CENTER_ROOT_NODE, appNo);
         int myWorkerId;
 
         if (!zkClient.isExist(appNode)) {
@@ -51,8 +48,7 @@ public class ZkWorkerIdAssigner implements WorkerIdAssigner {
         }
         String myNodeName = zkClient.createPersistent(identifyNodeFix, true);
         tmpArr = StringUtils.split(myNodeName, Chars.AND);
-        myWorkerId = Integer.parseInt(tmpArr[1]) + 1;// 从1开始
-        return myWorkerId;
+        return Integer.parseInt(tmpArr[1]) + 1;// 从1开始
 
     }
 

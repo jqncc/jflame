@@ -82,6 +82,14 @@ public interface Jsons {
     <K,V> Map<K,V> parseMap(String jsonStr, Class<K> keyClazz, Class<V> valueClazz);
 
     /**
+     * 转为Json Node对象,使用fastjson时是JSONObject,使用Jackson时是JsonNode
+     * 
+     * @param jsonStr
+     * @return
+     */
+    Object parseNode(String jsonStr);
+
+    /**
      * 启用日期按格式输出,默认格式yyyy-MM-dd HH:mm:ss
      */
     void dateFormat();

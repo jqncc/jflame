@@ -1,6 +1,8 @@
 package org.jflame.context.dubbo;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -11,9 +13,11 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.jflame.commons.config.PropertiesConfigHolder;
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.commons.model.Chars;
+import org.jflame.commons.util.ArrayHelper;
 import org.jflame.commons.util.CollectionHelper;
 import org.jflame.commons.util.StringHelper;
 import org.jflame.commons.util.UrlMatcher;
@@ -28,13 +32,22 @@ public abstract class BaseTokenAuthFilter implements ContainerRequestFilter {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private final CallResult<?> result = new CallResult<>(ResultEnum.NO_AUTH);
     private final String DEFAULT_TOKEN_HEADER = "Authorization";
+    private Set<String> ignoreUrlSet = null;
+
+    public BaseTokenAuthFilter() {
+        String[] ignoreUrls = PropertiesConfigHolder.getStringArray("rest.auth.exclude");
+        if (ArrayHelper.isNotEmpty(ignoreUrls)) {
+            ignoreUrlSet = new HashSet<>(ignoreUrls.length);
+            Collections.addAll(ignoreUrlSet, ignoreUrls);
+        }
+    }
 
     protected String getToken(ContainerRequestContext requestContext) {
         return requestContext.getHeaderString(DEFAULT_TOKEN_HEADER);
     }
 
-    protected Set<String> getIgnoreUrls() {
-        return null;
+    public Set<String> getIgnoreUrls() {
+        return ignoreUrlSet;
     }
 
     protected abstract boolean doAuthenticate(String requestUrl, String token, ContainerRequestContext requestContext);

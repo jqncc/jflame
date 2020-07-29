@@ -255,6 +255,11 @@ public class Jacksons implements Jsons {
         objMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    @Override
+    public Object parseNode(String jsonStr) {
+        return parse(jsonStr);
+    }
+
     public JsonNode parse(String jsonStr) {
         try {
             return objMapper.readTree(jsonStr);

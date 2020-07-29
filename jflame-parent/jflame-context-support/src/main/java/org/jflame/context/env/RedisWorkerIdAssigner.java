@@ -3,7 +3,6 @@ package org.jflame.context.env;
 import java.util.Arrays;
 
 import org.jflame.commons.net.IPAddressHelper;
-import org.jflame.commons.util.StringHelper;
 import org.jflame.context.cache.redis.RedisClient;
 
 /**
@@ -11,15 +10,27 @@ import org.jflame.context.cache.redis.RedisClient;
  * 
  * @author yucan.zhang
  */
-public class RedisWorkerIdAssigner implements WorkerIdAssigner {
+public class RedisWorkerIdAssigner extends WorkerIdAssigner {
 
-    private final String CENTER_ROOT_KEY = "cluster_worker_center";
     private RedisClient redisClient;
-    private String luaScript;
 
-    public RedisWorkerIdAssigner(RedisClient redisClient) {
+    public RedisWorkerIdAssigner(String appNo, RedisClient redisClient) {
+        super(appNo);
         this.redisClient = redisClient;
+    }
 
+    protected int registerWorker() {
+        // 以zset存储应用注册数据
+        String zsetKey = CENTER_ROOT_KEY + '_' + appNo;
+        String ip = IPAddressHelper.getHostIP();
+        String identifyNodeFix = ip + '_' + workerPathMd5();
+        // 脚本实现登记逻辑
+        String workerIdStr = redisClient.runScript(registerScript(), Arrays.asList(zsetKey),
+                Arrays.asList(identifyNodeFix), String.class);
+        return Integer.parseInt(workerIdStr);
+    }
+
+    private String registerScript() {
         StringBuilder sb = new StringBuilder();
         sb.append("if redis.call('EXISTS',KEYS[1])==0 then ");
         sb.append("   redis.call('ZADD',KEYS[1],1,ARGV[1]) ");
@@ -38,22 +49,7 @@ public class RedisWorkerIdAssigner implements WorkerIdAssigner {
         sb.append("   redis.call('ZADD',KEYS[1],1,ARGV[1]) ");
         sb.append("   return '\"1\"' ");
         sb.append("end ");
-        luaScript = sb.toString();
-    }
-
-    @Override
-    public int registerWorker(String appCode) {
-        if (StringHelper.isEmpty(appCode)) {
-            throw new IllegalArgumentException("parameter appCode not be null");
-        }
-        // 以zset存储应用注册数据
-        String zsetKey = CENTER_ROOT_KEY + '_' + appCode;
-        String ip = IPAddressHelper.getHostIP();
-        String identifyNodeFix = ip + '_' + workerPathMd5();
-        // 脚本实现登记逻辑
-        String workerIdStr = redisClient.runScript(luaScript, Arrays.asList(zsetKey), Arrays.asList(identifyNodeFix),
-                String.class);
-        return Integer.parseInt(workerIdStr);
+        return sb.toString();
     }
 
 }

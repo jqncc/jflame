@@ -812,7 +812,6 @@ public interface RedisClient {
 
     /**
      * 运行lua脚本命令,eval命令.结果返回使用默认的JSON转换器,返回脚本返回的数据应该是可识别的json格式,或者使用
-     * {@link #runScript(String, List, List, Class, IRedisSerializer)}
      * 
      * @param luaScript lua脚本
      * @param keys 脚本中的key
@@ -821,21 +820,6 @@ public interface RedisClient {
      */
     public <T> T runScript(final String luaScript, List<String> keys, List<? extends Serializable> args,
             Class<T> resultClazz);
-
-    /**
-     * 运行lua脚本命令(eval).结果可使用自定义序列化类转换
-     * 
-     * @param luaScript lua脚本
-     * @param keys 脚本中的key
-     * @param args 脚本中的参数
-     * @param resultClazz 返回结果类型
-     * @param resultSerializer 结果反序列化类
-     * @return
-     */
-    /*public <T> T runScript(final String luaScript, List<String> keys, List<? extends Serializable> args,
-            Class<T> resultClazz, RedisSerializer<T> resultSerializer);
-    */
-    // void flushDB();
 
     void publish(String channel, String message);
 
