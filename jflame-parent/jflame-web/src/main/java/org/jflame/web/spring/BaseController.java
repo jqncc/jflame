@@ -3,8 +3,6 @@ package org.jflame.web.spring;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -12,13 +10,10 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
 import org.jflame.commons.model.CallResult;
-import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.context.auth.context.UserContext;
 import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
@@ -55,29 +50,8 @@ public abstract class BaseController {
      * @param result
      * @see org.springframework.validation.Errors
      */
-    @SuppressWarnings({ "rawtypes","unchecked" })
-    public static void convertError(Errors error, CallResult result) {
-        if (error.hasErrors()) {
-            result.setStatus(ResultEnum.PARAM_ERROR.getStatus());
-            Map<String,String> errMap = new HashMap<>();
-            String errorMsg = "";
-            if (error.hasGlobalErrors()) {
-                String globalMsg = "";
-                for (ObjectError ferr : error.getGlobalErrors()) {
-                    globalMsg = globalMsg + ferr.getDefaultMessage() + ";";
-                }
-                errorMsg += globalMsg;
-                errMap.put("_global_msg", globalMsg);
-            }
-            if (error.hasFieldErrors()) {
-                for (FieldError ferr : error.getFieldErrors()) {
-                    errMap.put(ferr.getField(), ferr.getDefaultMessage());
-                    errorMsg = errorMsg + ferr.getDefaultMessage() + ";";
-                }
-            }
-            result.setMessage(errorMsg);
-            result.setData(errMap);
-        }
+    public static void convertError(Errors error, CallResult<?> result) {
+        SpringWebUtils.convertError(error, result);
     }
 
     /**

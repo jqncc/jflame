@@ -20,9 +20,6 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.View;
@@ -56,14 +53,14 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
             }
         }
 
-        if (isJsonResult(request, handler)) {
+        if (SpringWebUtils.isJsonResult(request, handler)) {
             // 请求方法未使用BindingResult保存验证结果时,将抛出BindException异常,由此处统一处理
             CallResult<Object> errResult = new CallResult<>();
             if (ex instanceof BindException) {
                 // 参数异常只记录信息,不记录大量异常堆栈
                 logDebugMsg(request, ex.getMessage());
                 BindException validEx = (BindException) ex;
-                BaseController.convertError(validEx.getBindingResult(), errResult);
+                SpringWebUtils.convertError(validEx.getBindingResult(), errResult);
                 return ErrorJsonView.view(errResult);
             } else if (ex instanceof BaseResult) {
                 logDebugMsg(request, ex.getMessage());
@@ -85,7 +82,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                 logDebugMsg(request, ex.getMessage());
                 if (ex instanceof MethodArgumentNotValidException) {
                     MethodArgumentNotValidException validEx = (MethodArgumentNotValidException) ex;
-                    BaseController.convertError(validEx.getBindingResult(), errResult);
+                    SpringWebUtils.convertError(validEx.getBindingResult(), errResult);
                     return ErrorJsonView.view(errResult);
                 } else {
                     return defaultParamErrorJsonView;
@@ -177,32 +174,6 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
     @Override
     public int getOrder() {
         return -100;
-    }
-
-    /**
-     * 是否需要返回json数据.判断条件:<br>
-     * 1.如果是accept是json,或带有x-requested-with的请求头 <br>
-     * 2.contoller方法有ResponseBody注解和类上有RestController注解
-     * 
-     * @param request HttpServletRequest
-     * @param handler handler
-     * @return
-     */
-    public static boolean isJsonResult(HttpServletRequest request, Object handler) {
-        if (WebUtils.isJsonRequest(request) || WebUtils.isAjaxRequest(request)) {
-            return true;
-        }
-        if (handler != null && handler instanceof HandlerMethod) {
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.getMethodAnnotation(ResponseBody.class) != null || handlerMethod.getBeanType()
-                    .isAnnotationPresent(RestController.class)
-                    || handlerMethod.getBeanType()
-                            .isAnnotationPresent(ResponseBody.class)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

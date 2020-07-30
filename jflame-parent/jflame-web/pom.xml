@@ -17,15 +17,15 @@
 			<version>${version.jflame}</version>
 		</dependency>
 		<dependency>
-            <groupId>org.jflame</groupId>
-            <artifactId>jflame-context-support</artifactId>
-            <version>${version.jflame}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <optional>true</optional>
-        </dependency>
+			<groupId>org.jflame</groupId>
+			<artifactId>jflame-context-support</artifactId>
+			<version>${version.jflame}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -69,10 +69,16 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-            <groupId>org.jasig.cas.client</groupId>
-            <artifactId>cas-client-core</artifactId>
-            <version>3.4.1-a</version>
-            <optional>true</optional>
-        </dependency>
+			<groupId>org.jasig.cas.client</groupId>
+			<artifactId>cas-client-core</artifactId>
+			<version>3.4.1-a</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>24.1.1-jre</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 </project>

@@ -125,6 +125,14 @@ public class CallResult<T> extends SimpleResult {
         return new CallResult<T>().success(data);
     }
 
+    public static <T> CallResult<T> createError() {
+        return new CallResult<T>(ResultEnum.SERVER_ERROR);
+    }
+
+    public static <T> CallResult<T> createParamError() {
+        return new CallResult<T>(ResultEnum.PARAM_ERROR);
+    }
+
     /**
      * 默认的执行结果枚举. <br>
      * 200=执行成功 <br>

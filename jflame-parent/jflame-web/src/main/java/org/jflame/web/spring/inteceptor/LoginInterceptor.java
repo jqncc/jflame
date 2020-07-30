@@ -11,7 +11,7 @@ import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.context.auth.context.UserContext;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
-import org.jflame.web.spring.MyExceptionResolver;
+import org.jflame.web.spring.SpringWebUtils;
 
 /**
  * 登录拦截器
@@ -29,7 +29,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         LoginUser loginUser = getLoginUser(req, resp);
         if (!authenticate(loginUser, req)) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            if (MyExceptionResolver.isJsonResult(req, handler)) {
+            if (SpringWebUtils.isJsonResult(req, handler)) {
                 WebUtils.outJson(resp, failed);
             } else {
                 if (null != failed.getMessage()) {
@@ -99,7 +99,7 @@ public class LoginInterceptor implements HandlerInterceptor {
      * @return true有效
      */
     protected LoginUser getLoginUser(HttpServletRequest req, HttpServletResponse resp) {
-        return (LoginUser) req.getSession()
+        return (LoginUser) req.getSession(false)
                 .getAttribute(getUserKey());
     }
 

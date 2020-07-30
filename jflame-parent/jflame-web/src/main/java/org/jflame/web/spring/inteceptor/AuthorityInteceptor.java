@@ -13,7 +13,7 @@ import org.jflame.commons.model.CallResult.ResultEnum;
 import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
-import org.jflame.web.spring.MyExceptionResolver;
+import org.jflame.web.spring.SpringWebUtils;
 
 /**
  * url权限判断拦截器,应配置于登录拦截器之后
@@ -44,7 +44,7 @@ public class AuthorityInteceptor implements HandlerInterceptor {
         if (!curUser.hasRight(uri)) {
             log.warn("access no permission url:{}", uri);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            if (MyExceptionResolver.isJsonResult(request, arg2)) {
+            if (SpringWebUtils.isJsonResult(request, arg2)) {
                 WebUtils.outJson(response, errJson);
             } else {
                 request.getRequestDispatcher(fobidUrl)
