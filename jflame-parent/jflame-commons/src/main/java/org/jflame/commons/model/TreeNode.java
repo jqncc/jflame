@@ -22,6 +22,7 @@ public class TreeNode implements Serializable {
     private String iconCls;// 标签图标
     private Integer parentId;// 父节点
     private int level;// 节点级别
+    private String url;
     /**
      * 节点状态,打开或关闭.
      * 
@@ -59,16 +60,10 @@ public class TreeNode implements Serializable {
     public TreeNode(int id, String label, Integer parentId, Integer level) {
         this.id = id;
         this.label = label;
-        this.parentId = parentId;
-        this.level = level;
-    }
-
-    public TreeNode(int id, String label, String iconCls, Integer parentId, Integer level) {
-        this.id = id;
-        this.label = label;
-        this.iconCls = iconCls;
-        this.parentId = parentId;
-        this.level = level;
+        if (parentId != null) {
+            this.parentId = parentId;
+        }
+        this.level = level == null ? 0 : level;
     }
 
     public int getId() {
@@ -125,6 +120,14 @@ public class TreeNode implements Serializable {
 
     public void setChecked(Boolean checked) {
         this.checked = checked;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public List<TreeNode> getChildren() {
@@ -224,16 +227,6 @@ public class TreeNode implements Serializable {
         TreeNode root = new TreeNode();
         root.setId(0);
         buildTreeNode(root, nodes, checkedIds);
-        /*for (T node : funs) {
-            if (node.getParentId() == 0) {
-                if (ArrayUtils.contains(checkedIds, node.getId())) {
-                    node.setChecked(true);
-                }
-                treeGrid.add(node);
-                buildElTreeNode(node, funs, checkedIds);
-                node.setState(TreeNode.STATE_OPEN);// 一级展开
-            }
-        }*/
         return treeGrid;
     }
 

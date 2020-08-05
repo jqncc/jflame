@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.CallResult.ResultEnum;
+import org.jflame.commons.util.StringHelper;
 import org.jflame.context.auth.context.UserContextHolder;
 import org.jflame.context.auth.model.LoginUser;
 import org.jflame.web.WebUtils;
@@ -25,9 +26,14 @@ public class AuthorityInteceptor implements HandlerInterceptor {
     private final Logger log = LoggerFactory.getLogger(AuthorityInteceptor.class);
     private String fobidUrl = "/403.html";// 无权限转向页面地址，相对应用路径
     private final CallResult<?> errJson = new CallResult<>(ResultEnum.FORBIDDEN);
+    private String superAdminRoleCode = null;// 设置超级管理员的角色标识,如果设置了值表示启用超管角色无需验证权限
 
     public void setFobidUrl(String fobidUrl) {
         this.fobidUrl = fobidUrl;
+    }
+
+    public void setSuperAdminRoleCode(String superAdminRoleCode) {
+        this.superAdminRoleCode = superAdminRoleCode;
     }
 
     @Override
@@ -39,7 +45,9 @@ public class AuthorityInteceptor implements HandlerInterceptor {
         // 获取用户
         LoginUser curUser = UserContextHolder.getContext()
                 .getUser();
-
+        if (StringHelper.isNotEmpty(superAdminRoleCode) && curUser.hasRole(superAdminRoleCode)) {
+            return true;
+        }
         // 判断权限
         if (!curUser.hasRight(uri)) {
             log.warn("access no permission url:{}", uri);

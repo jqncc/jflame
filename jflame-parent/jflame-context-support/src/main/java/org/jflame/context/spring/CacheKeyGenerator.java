@@ -18,6 +18,9 @@ public class CacheKeyGenerator implements KeyGenerator {
     private String keyPrefix;
 
     public CacheKeyGenerator() {
+        keyPrefix = this.getClass()
+                .getPackage()
+                .getName();
     }
 
     public CacheKeyGenerator(String _keyPrefix) {
@@ -65,6 +68,6 @@ public class CacheKeyGenerator implements KeyGenerator {
 
     public void setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
-    };
+    }
 
 }

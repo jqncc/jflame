@@ -5,12 +5,17 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -31,15 +36,45 @@ import org.jflame.commons.convert.StringToTemporalConverter;
 import org.jflame.commons.convert.TemporalToStringConverter;
 import org.jflame.commons.excel.convertor.BoolToTextConverter;
 import org.jflame.commons.excel.convertor.DoubleToNumberConverter;
+import org.jflame.commons.excel.convertor.KeyValuePairToTextConverter;
 import org.jflame.commons.excel.handler.NullConverter;
 import org.jflame.commons.exception.BusinessException;
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.model.pair.IIntKeyPair;
 import org.jflame.commons.reflect.BeanHelper;
 import org.jflame.commons.util.NumberHelper;
 import org.jflame.commons.util.StringHelper;
 
 @SuppressWarnings("rawtypes")
 public final class ExcelUtils {
+
+    final static Map<Class,ObjectToStringConverter> defaultWriterConverters = new HashMap<>();
+    static {
+        BoolToTextConverter boolConverter = new BoolToTextConverter();
+        defaultWriterConverters.put(boolean.class, boolConverter);
+        defaultWriterConverters.put(Boolean.class, boolConverter);
+
+        DateToStringConverter dateConverter = new DateToStringConverter();
+        defaultWriterConverters.put(java.util.Date.class, dateConverter);
+        defaultWriterConverters.put(java.sql.Date.class, dateConverter);
+        defaultWriterConverters.put(java.sql.Time.class, dateConverter);
+
+        TemporalToStringConverter jdk8dateConverter = new TemporalToStringConverter();
+        defaultWriterConverters.put(LocalDate.class, jdk8dateConverter);
+        defaultWriterConverters.put(LocalDateTime.class, jdk8dateConverter);
+        defaultWriterConverters.put(LocalTime.class, jdk8dateConverter);
+
+        CalendarToStringConverter calendarConverter = new CalendarToStringConverter();
+        defaultWriterConverters.put(Calendar.class, calendarConverter);
+
+        KeyValuePairToTextConverter kvConverter = new KeyValuePairToTextConverter();
+        defaultWriterConverters.put(IIntKeyPair.class, kvConverter);
+
+        NumberToStringConverter numConverter = new NumberToStringConverter();
+        defaultWriterConverters.put(Number.class, numConverter);
+
+        defaultWriterConverters.put(Object.class, new ObjectToStringConverter());
+    }
 
     /**
      * 使用指定名称转换器，将java属性值转为excel单元格值,未找到转换器返回toString()
@@ -175,24 +210,64 @@ public final class ExcelUtils {
      */
     public static <S> ObjectToStringConverter getDefaultWriteConverter(Class<S> valueClazz, String fmt) {
         // 数字如果有格式使用NumberToTextConverter,否则使用toString
-        if (NumberHelper.isNumberType(valueClazz)) {
+        if (StringHelper.isNotEmpty(fmt)) {
+            if (java.util.Date.class.isAssignableFrom(valueClazz)) {
+                return new DateToStringConverter(fmt);
+            } else if (Temporal.class.isAssignableFrom(valueClazz)) {
+                return new TemporalToStringConverter(fmt);
+            } else if (NumberHelper.isNumberType(valueClazz)) {
+                DecimalFormat numFormator = new DecimalFormat(fmt);
+                numFormator.setGroupingUsed(false);
+                return new NumberToStringConverter(numFormator);
+            } else if (valueClazz == Calendar.class) {
+                return new CalendarToStringConverter(fmt);
+            }
+        } else {
+            if (IIntKeyPair.class.isAssignableFrom(valueClazz)) {
+                return defaultWriterConverters.get(IIntKeyPair.class);
+            } else if (NumberHelper.isNumberType(valueClazz)) {
+                return defaultWriterConverters.get(Number.class);
+            } else {
+                defaultWriterConverters.get(valueClazz);
+            }
+        }
+        return defaultWriterConverters.containsKey(valueClazz) ? defaultWriterConverters.get(valueClazz)
+                : defaultWriterConverters.get(Object.class);
+        /*if (NumberHelper.isNumberType(valueClazz)) {
             if (StringHelper.isNotEmpty(fmt)) {
                 DecimalFormat numFormator = new DecimalFormat(fmt);
                 numFormator.setGroupingUsed(false);
                 return new NumberToStringConverter(numFormator);
             } else {
-                return new NumberToStringConverter();
+                return defaultConverters.get(Number.class);
             }
-        } else if (boolean.class == valueClazz || Boolean.class == valueClazz) {
-            return new BoolToTextConverter();
         } else if (java.util.Date.class.isAssignableFrom(valueClazz)) {
-            return new DateToStringConverter(fmt);
+            if (StringHelper.isNotEmpty(fmt)) {
+                return new DateToStringConverter(fmt);
+            } else {
+                return defaultConverters.get(valueClazz);
+            }
         } else if (Temporal.class.isAssignableFrom(valueClazz)) {
-            return new TemporalToStringConverter(fmt);
+            if (StringHelper.isNotEmpty(fmt)) {
+                return new TemporalToStringConverter(fmt);
+            } else {
+                return defaultConverters.get(valueClazz);
+            }
         } else if (valueClazz == Calendar.class) {
-            return new CalendarToStringConverter(fmt);
+            if (StringHelper.isNotEmpty(fmt)) {
+                return new CalendarToStringConverter(fmt);
+            } else {
+                return defaultConverters.get(valueClazz);
+            }
+        } else if (IIntKeyPair.class.isAssignableFrom(valueClazz)) {
+            return defaultConverters.get(IIntKeyPair.class);
+        } else {
+            ObjectToStringConverter converter = defaultConverters.get(valueClazz);
+            if (converter != null) {
+                return converter;
+            }
         }
-        return new ObjectToStringConverter<S>();
+        return new ObjectToStringConverter<S>();*/
     }
 
     /**

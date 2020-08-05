@@ -61,7 +61,7 @@ public class Jacksons implements Jsons {
                 .configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
                 .configure(Feature.IGNORE_UNKNOWN, true)
                 .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
-                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)// 忽略@Transient或transient修改符成员
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

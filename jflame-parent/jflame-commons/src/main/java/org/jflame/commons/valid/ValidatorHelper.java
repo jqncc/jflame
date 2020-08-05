@@ -50,7 +50,7 @@ public final class ValidatorHelper {
     /**
      * 手机号正则
      */
-    public static final String REGEX_MOBLIE = "^((\\+86)|(86))?0{0,1}1[3-8]\\d{9}$";
+    public static final String REGEX_MOBLIE = "^((\\+86)|(86))?0{0,1}1[3-9]\\d{9}$";
     /**
      * 电话号正则
      */

@@ -13,6 +13,7 @@ import org.jflame.commons.json.Fastjsons;
 import org.jflame.commons.json.Jacksons;
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.TypeRef;
+import org.jflame.toolkit.test.entity.MemberInfo;
 import org.jflame.toolkit.test.entity.Pet;
 import org.jflame.toolkit.test.entity.Pig;
 
@@ -34,6 +35,25 @@ public class JsonTest {
 
         pig = new Pig(1, "litte Pig", 30, "white");
         result.setData(pig);
+    }
+
+    @Test
+    public void testTransient() {
+        MemberInfo mem = new MemberInfo();
+        mem.setUserName("user1");
+        mem.setPasswd("mypasswd");// Transient field
+        System.out.println("before json:" + mem);
+        Jacksons json = new Jacksons();
+        String memJson = json.toJson(mem);
+        System.out.println(memJson);
+
+        MemberInfo mem1 = json.parseObject(memJson, MemberInfo.class);
+        System.out.println(mem1);
+
+        String jsonStr = "{\"userName\":\"user2\",\"passwd\":\"newpasswd\"}";
+        MemberInfo mem2 = json.parseObject(jsonStr, MemberInfo.class);
+        System.out.println(mem2);
+
     }
 
     @Test

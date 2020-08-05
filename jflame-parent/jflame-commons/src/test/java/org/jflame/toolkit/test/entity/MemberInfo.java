@@ -1,5 +1,6 @@
 package org.jflame.toolkit.test.entity;
 
+import java.beans.Transient;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -78,10 +79,12 @@ public class MemberInfo implements Serializable {
         this.userName = userName;
     }
 
+    // @Transient
     public String getPasswd() {
         return passwd;
     }
 
+    @Transient
     public void setPasswd(String passwd) {
         this.passwd = passwd;
     }
@@ -176,6 +179,83 @@ public class MemberInfo implements Serializable {
 
     public void setAppNo(String appNo) {
         this.appNo = appNo;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("MemberInfo [");
+        if (userId != null) {
+            builder.append("userId=")
+                    .append(userId)
+                    .append(", ");
+        }
+        if (userName != null) {
+            builder.append("userName=")
+                    .append(userName)
+                    .append(", ");
+        }
+        if (passwd != null) {
+            builder.append("passwd=")
+                    .append(passwd)
+                    .append(", ");
+        }
+        if (userMobile != null) {
+            builder.append("userMobile=")
+                    .append(userMobile)
+                    .append(", ");
+        }
+        if (sex != null) {
+            builder.append("sex=")
+                    .append(sex)
+                    .append(", ");
+        }
+        if (userStatus != null) {
+            builder.append("userStatus=")
+                    .append(userStatus)
+                    .append(", ");
+        }
+        if (nickName != null) {
+            builder.append("nickName=")
+                    .append(nickName)
+                    .append(", ");
+        }
+        if (userEmail != null) {
+            builder.append("userEmail=")
+                    .append(userEmail)
+                    .append(", ");
+        }
+        if (headImage != null) {
+            builder.append("headImage=")
+                    .append(headImage)
+                    .append(", ");
+        }
+        if (realName != null) {
+            builder.append("realName=")
+                    .append(realName)
+                    .append(", ");
+        }
+        if (birthday != null) {
+            builder.append("birthday=")
+                    .append(birthday)
+                    .append(", ");
+        }
+        if (idcard != null) {
+            builder.append("idcard=")
+                    .append(idcard)
+                    .append(", ");
+        }
+        if (age != null) {
+            builder.append("age=")
+                    .append(age)
+                    .append(", ");
+        }
+        if (appNo != null) {
+            builder.append("appNo=")
+                    .append(appNo);
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
 }

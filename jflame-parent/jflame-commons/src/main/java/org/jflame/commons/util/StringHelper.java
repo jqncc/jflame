@@ -81,6 +81,9 @@ public final class StringHelper {
      * @return 字符串数组
      */
     public static String[] split(String str) {
+        if (str == null) {
+            return null;
+        }
         return StringUtils.split(str, Chars.COMMA);
     }
 

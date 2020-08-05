@@ -1,15 +1,10 @@
 package org.jflame.commons.model.pair;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.jflame.commons.util.CollectionHelper;
 
 /**
  * 通用键值对封装bean接口. 常用于字典类型、扩展枚举等
@@ -143,33 +138,6 @@ public class KeyValuePair<K,V> implements IKeyValuePair<K,V> {
             results.add(pair);
         }
         return results;
-    }
-
-    /**
-     * 转为url参数格式的字符串
-     * 
-     * @param list
-     * @return
-     */
-    @Deprecated
-    public static <E extends KeyValuePair<T,R>,T,R> String toUrlParam(List<E> list) {
-        if (CollectionHelper.isNotEmpty(list)) {
-            StringBuilder strBuf = new StringBuilder(20);
-            try {
-                for (IKeyValuePair<T,R> kv : list) {
-                    strBuf.append('&')
-                            .append(kv.getKey())
-                            .append('=')
-                            .append(URLEncoder.encode(kv.getValue()
-                                    .toString(), StandardCharsets.UTF_8.name()));
-                }
-            } catch (UnsupportedEncodingException e) {
-                // ignore
-            }
-            strBuf.deleteCharAt(0);
-            return strBuf.toString();
-        }
-        return "";
     }
 
 }
