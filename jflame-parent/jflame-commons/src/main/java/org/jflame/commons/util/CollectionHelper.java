@@ -271,7 +271,9 @@ public final class CollectionHelper {
      * 从给定的集合中,根据映射操作返回一个新的集合. 如提取元素的一个属性组成新的集合.示例:
      * 
      * <pre>
+     * {@code
      * CollectionHelper.transform(users, u -> u.getName());
+     * }
      * </pre>
      * 
      * @param collection

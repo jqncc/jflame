@@ -82,21 +82,23 @@ public class ExcelCreator implements Closeable {
     private SXSSFSheet currentSheet;
     private Integer currentSheetIndex;
 
+    private final int DEFAULT_ROWACCESS_SIZE = 200;
+
     /**
      * 构造函数,默认生成office2007工作表.
      */
     public ExcelCreator() {
-        this(200);
+        this(-1);
     }
 
     /**
      * 构造函数.是否创建标题参数
      * 
-     * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认100行
+     * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认200行
      */
     public ExcelCreator(int rowAccessWindowSize) {
         if (rowAccessWindowSize < 1) {
-            rowAccessWindowSize = 200;
+            rowAccessWindowSize = DEFAULT_ROWACCESS_SIZE;
         }
         workbook = new SXSSFWorkbook(rowAccessWindowSize);
     }
@@ -104,13 +106,15 @@ public class ExcelCreator implements Closeable {
     /**
      * 将实体数据集合填充到指定的工作表,不指定分组
      * 
-     * @param sheet 要填充的工作表
      * @param dataList 实体数据集合
      * @exception ExcelAccessException
      */
     public <T extends IExcelEntity> void fillEntityData(final List<T> dataList) {
         fillEntityData(dataList, null);
     }
+
+    @SuppressWarnings("rawtypes")
+    Map<Class<? extends IExcelEntity>,EntityRowWriter> rowWriterMap = new HashMap<>();
 
     /**
      * 将实体数据集合填充到指定的工作表
@@ -119,22 +123,26 @@ public class ExcelCreator implements Closeable {
      * @param group 分组
      * @exception ExcelAccessException
      */
+    @SuppressWarnings("unchecked")
     public <T extends IExcelEntity> void fillEntityData(final List<T> dataList, final String group) {
         /* 获取有ExcelColumn注解的属性 */
         if (CollectionHelper.isNotEmpty(dataList)) {
             Class<? extends IExcelEntity> dataClass = dataList.get(0)
                     .getClass();
-            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
-                    Optional.ofNullable(group));
-            if (CollectionHelper.isEmpty(columnPropertys)) {
-                throw new ExcelAccessException("没有找到要导入的属性");
+            EntityRowWriter<T> rowHandler = rowWriterMap.get(dataClass);
+            if (rowHandler == null) {
+                List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
+                        Optional.ofNullable(group));
+                if (CollectionHelper.isEmpty(columnPropertys)) {
+                    throw new ExcelAccessException("没有找到要导入的属性");
+                }
+                if (currentSheet == null) {
+                    selectSheet(0);
+                }
+                rowHandler = new EntityRowWriter<>(columnPropertys);
+                // 创建标题行
+                createTitleRow(currentSheet, columnPropertys);
             }
-            if (currentSheet == null) {
-                selectSheet(0);
-            }
-            EntityRowWriter<T> rowHandler = new EntityRowWriter<>(columnPropertys);
-            // 创建标题行
-            createTitleRow(currentSheet, columnPropertys);
             // 填充数据
             Row row = null;
             for (T rowData : dataList) {

@@ -89,11 +89,12 @@ public class CsvReader implements Closeable {
     private boolean allowDuplicate = true;// 是否允许重复数据
 
     /**
-     * Creates a {@link CsvReader} object using a file as the data source.
+     * 构造函数
      * 
-     * @param fileName The path to the file to use as the data source.
-     * @param delimiter The character to use as the column delimiter.
-     * @param charset The {@link java.nio.charset.Charset Charset} to use while parsing the data.
+     * @param fileName csv文件路径.
+     * @param delimiter csv分隔符
+     * @param charset 字符编码
+     * @throws FileNotFoundException csv文件不存在时抛出异常
      */
     public CsvReader(String fileName, char delimiter, Charset charset) throws FileNotFoundException {
         if (fileName == null) {

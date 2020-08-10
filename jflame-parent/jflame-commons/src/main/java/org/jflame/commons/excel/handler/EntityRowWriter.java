@@ -70,4 +70,8 @@ public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<
 
     }
 
+    public List<ExcelColumnProperty> getColumnPropertys() {
+        return columnPropertys;
+    }
+
 }
