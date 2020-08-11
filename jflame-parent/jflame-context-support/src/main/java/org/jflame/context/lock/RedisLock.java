@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jflame.context.cache.redis.RedisAccessException;
 import org.jflame.context.cache.redis.RedisClient;
@@ -76,22 +78,28 @@ public class RedisLock implements DistributedLock {
                 .toString();
         long startTime = System.currentTimeMillis();
         long spanTime = 0;
-        do {
-            if (setNX(lockKey, lockValue)) {
-                locked = true; // 上锁成功结束请求
-                return true;
-            }
-            if (spanTime > 10) {
-                try {
-                    // 随机延迟
-                    TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current()
-                            .nextLong(spanTime));
-                } catch (InterruptedException e) {
-                    // e.printStackTrace();
+        Lock localLock = new ReentrantLock();
+        try {
+            localLock.lock();
+            do {
+                if (setNX(lockKey, lockValue)) {
+                    locked = true; // 上锁成功结束请求
+                    return true;
                 }
-            }
-            spanTime = System.currentTimeMillis() - startTime;
-        } while (spanTime < waitTime);
+                if (spanTime > 10) {
+                    try {
+                        // 随机延迟
+                        TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current()
+                                .nextLong(spanTime));
+                    } catch (InterruptedException e) {
+                        // e.printStackTrace();
+                    }
+                }
+                spanTime = System.currentTimeMillis() - startTime;
+            } while (spanTime < waitTime);
+        } finally {
+            localLock.unlock();
+        }
         return false;
     }
 

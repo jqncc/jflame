@@ -22,6 +22,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException.NoNodeException;
 import org.apache.zookeeper.KeeperException.NodeExistsException;
@@ -207,7 +208,7 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient {
                 IOHelper.closeQuietly(v);
             });
         }
-        client.close();
+        CloseableUtils.closeQuietly(client);
     }
 
     private final ConcurrentMap<String,ConcurrentMap<ChildNodeListener,PathChildrenCacheListener>> childListeners = new ConcurrentHashMap<>();
