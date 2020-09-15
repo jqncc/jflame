@@ -82,13 +82,13 @@ public class ExcelCreator implements Closeable {
     private SXSSFSheet currentSheet;
     private Integer currentSheetIndex;
 
-    private final int DEFAULT_ROWACCESS_SIZE = 200;
+    private static final int DEFAULT_ROWACCESS_SIZE = 200;
 
     /**
      * 构造函数,默认生成office2007工作表.
      */
     public ExcelCreator() {
-        this(-1);
+        this(DEFAULT_ROWACCESS_SIZE);
     }
 
     /**
@@ -97,10 +97,11 @@ public class ExcelCreator implements Closeable {
      * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认200行
      */
     public ExcelCreator(int rowAccessWindowSize) {
-        if (rowAccessWindowSize < 1) {
+        if (rowAccessWindowSize <= 0) {
             rowAccessWindowSize = DEFAULT_ROWACCESS_SIZE;
         }
         workbook = new SXSSFWorkbook(rowAccessWindowSize);
+        currentSheet = workbook.createSheet();
     }
 
     /**
@@ -291,8 +292,8 @@ public class ExcelCreator implements Closeable {
     public void close() {
         if (workbook != null) {
             try {
-                workbook.close();
                 workbook.dispose();
+                workbook.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

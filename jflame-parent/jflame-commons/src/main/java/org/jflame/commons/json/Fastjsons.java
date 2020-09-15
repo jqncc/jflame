@@ -47,8 +47,7 @@ public class Fastjsons implements Jsons {
             parseFeatures = new Feature[] { Feature.IgnoreNotMatch,Feature.AllowSingleQuotes,Feature.SupportAutoType };
         } else {
             serializerFeatures = new SerializerFeature[] { SerializerFeature.IgnoreNonFieldGetter,
-                    SerializerFeature.IgnoreErrorGetter,SerializerFeature.DisableCircularReferenceDetect,
-                    SerializerFeature.WriteMapNullValue };
+                    SerializerFeature.IgnoreErrorGetter,SerializerFeature.DisableCircularReferenceDetect };
             parseFeatures = new Feature[] { Feature.IgnoreNotMatch,Feature.AllowSingleQuotes };
         }
 

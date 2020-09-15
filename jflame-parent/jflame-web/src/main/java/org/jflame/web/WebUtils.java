@@ -2,7 +2,6 @@ package org.jflame.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.nio.charset.Charset;
 
 import javax.servlet.http.Cookie;
@@ -189,7 +188,7 @@ public class WebUtils {
         return yes;
     }
 
-    public static <T extends Serializable> void outJson(HttpServletResponse response, T entity) throws IOException {
+    public static void outJson(HttpServletResponse response, Object entity) throws IOException {
         outJson(response, entity, null);
     }
 
@@ -201,8 +200,7 @@ public class WebUtils {
      * @param charset 字符集,为null时采用utf-8
      * @throws IOException
      */
-    public static <T extends Serializable> void outJson(HttpServletResponse response, T entity, Charset charset)
-            throws IOException {
+    public static void outJson(HttpServletResponse response, Object entity, Charset charset) throws IOException {
         setDisableCacheHeader(response);
         if (charset == null) {
             response.setContentType(MIME_TYPE_JSON_UTF8);

@@ -121,6 +121,10 @@ public class CallResult<T> extends SimpleResult {
         return getStatus() == ResultEnum.SUCCESS.getStatus();
     }
 
+    public static <T> CallResult<T> ok() {
+        return new CallResult<T>(ResultEnum.SUCCESS);
+    }
+
     public static <T> CallResult<T> ok(T data) {
         return new CallResult<T>().success(data);
     }
@@ -131,6 +135,10 @@ public class CallResult<T> extends SimpleResult {
 
     public static <T> CallResult<T> createParamError() {
         return new CallResult<T>(ResultEnum.PARAM_ERROR);
+    }
+
+    public static <T> CallResult<T> createParamError(String errMsg) {
+        return new CallResult<T>(ResultEnum.PARAM_ERROR.getStatus(), errMsg);
     }
 
     /**

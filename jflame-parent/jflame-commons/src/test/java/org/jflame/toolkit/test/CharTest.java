@@ -16,4 +16,10 @@ public class CharTest {
         System.out.println("繁体转简体: 中華人民共和國=" + ChineseHelper.big5ToSimplifiedChinese("中華人民共和國"));
     }
 
+    @Test
+    public void testStr() {
+
+        System.out.println("classpath:abc".replaceFirst("classpath:/?", ""));
+    }
+
 }

@@ -2,6 +2,9 @@ package org.jflame.commons.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -297,4 +300,122 @@ public final class NumberHelper {
     public static boolean gtZero(BigDecimal num) {
         return num != null && num.signum() > 0;
     }
+
+    /**
+     * 对long集合求和,空集合返回0. 注:'和'不应超过Long.MAX_VALUE
+     * 
+     * @param longs
+     * @return
+     */
+    public static long sumLong(Collection<Long> longs) {
+        if (CollectionHelper.isEmpty(longs)) {
+            return 0;
+        }
+        return longs.stream()
+                .collect(Collectors.summingLong(x -> x));
+    }
+
+    /**
+     * 对Integer集合求和,空集合返回0. 注:'和'不应超过Integer.MAX_VALUE
+     * 
+     * @param ints
+     * @return
+     */
+    public static int sumInt(Collection<Integer> ints) {
+        if (CollectionHelper.isEmpty(ints)) {
+            return 0;
+        }
+        return ints.stream()
+                .collect(Collectors.summingInt(x -> x));
+    }
+
+    /**
+     * 对Double集合求和,空集合返回0. 注:'和'不应超过Double.MAX_VALUE
+     * 
+     * @param doubles
+     * @return
+     */
+    public static double sumDouble(Collection<Double> doubles) {
+        if (CollectionHelper.isEmpty(doubles)) {
+            return 0;
+        }
+        return doubles.stream()
+                .collect(Collectors.summingDouble(x -> x));
+    }
+
+    /**
+     * 对BigDecimal集合求和,空集合返回BigDecimal.ZERO.
+     * 
+     * @param decimals
+     * @return
+     */
+    public static BigDecimal sumDecimal(Collection<BigDecimal> decimals) {
+        if (CollectionHelper.isEmpty(decimals)) {
+            return BigDecimal.ZERO;
+        }
+        return decimals.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * 多个BigDecimal求和
+     * 
+     * @param decimals
+     * @return
+     */
+    public static BigDecimal sumDecimal(BigDecimal... decimals) {
+        if (ArrayHelper.isEmpty(decimals)) {
+            return BigDecimal.ZERO;
+        }
+
+        return Arrays.stream(decimals)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * 对多个long求和. 注:'和'不应超过Long.MAX_VALUE
+     * 
+     * @param longs
+     * @return
+     */
+    public static long sumLong(long... longs) {
+        if (longs.length == 0) {
+            return 0;
+        }
+        return Arrays.stream(longs)
+                .sum();
+    }
+
+    /**
+     * 对多个int求和. 注:'和'不应超过Integer.MAX_VALUE
+     * 
+     * @param ints
+     * @return
+     */
+    public static int sumInt(int... ints) {
+        if (ints.length == 0) {
+            return 0;
+        }
+        return Arrays.stream(ints)
+                .sum();
+    }
+
+    /**
+     * 对多个double求和. 注:'和'不应超过Double.MAX_VALUE
+     * 
+     * @param doubles
+     * @return
+     */
+    public static double sumDouble(double... doubles) {
+        if (doubles.length == 0) {
+            return 0;
+        }
+        return Arrays.stream(doubles)
+                .sum();
+    }
+
+    /* public static void main(String[] args) {
+        List<BigDecimal> bgs = Arrays.asList(new BigDecimal("1.3"), new BigDecimal("1.32"));
+        System.out.println(sumDecimal(bgs));
+    }*/
 }

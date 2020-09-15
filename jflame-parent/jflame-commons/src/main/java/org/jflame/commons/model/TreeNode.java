@@ -142,6 +142,10 @@ public class TreeNode implements Serializable {
         return attributes;
     }
 
+    public Object getAttribute(String attributeName) {
+        return attributes.get(attributeName);
+    }
+
     public void setAttributes(Map<String,Object> attributes) {
         this.attributes = attributes;
     }

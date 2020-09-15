@@ -13,8 +13,8 @@ import org.jflame.commons.reflect.SpiFactory;
  * 提供json常用操作静态方法工具类.
  * <p>
  * 内部使用{@link Jsons}接口实现类完成json操作,默认使用Fastjsons.<br>
- * 如果想切换为其他json组件可通过SPI机制实现. 如切换为Jacksons,在项目META-INF/services目录下新建名称为org.jflame.commons.util.json.Jsons的文件,文件内容:org.
- * jflame.commons.util.json.Jsons.Jacksons
+ * 如果想切换为其他json组件可通过SPI机制实现.
+ * 如切换为Jacksons,在项目META-INF/services目录下新建名称为org.jflame.commons.json.Jsons的文件,文件内容:org.jflame.commons.json.Jacksons
  * 
  * @see org.jflame.commons.json.Jsons
  * @author yucan.zhang

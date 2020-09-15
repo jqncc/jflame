@@ -19,6 +19,11 @@ public abstract class PropertiesConfigHolder {
         config = new PropertiesConfig(props);
     }
 
+    @Deprecated
+    public static void loadConfig(Properties props) {
+        loadProperties(props);
+    }
+
     public static String getString(final ConfigKey<String> configKey) {
         return config.getString(configKey);
     }
@@ -27,12 +32,20 @@ public abstract class PropertiesConfigHolder {
         return config.getString(configKey);
     }
 
+    public static String getStringOrDefault(final String configKey, String defaultValue) {
+        return config.getStringOrDefault(configKey, defaultValue);
+    }
+
     public static Integer getInt(String configKey) {
         return config.getInt(configKey);
     }
 
     public static Integer getInt(final ConfigKey<Integer> configKey) {
         return config.getInt(configKey);
+    }
+
+    public static Integer getIntOrDefault(final String configKey, int defaultValue) {
+        return config.getIntOrDefault(configKey, defaultValue);
     }
 
     public static Boolean getBoolean(String configKey) {

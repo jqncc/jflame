@@ -123,7 +123,7 @@ public class ValidateCodeServlet extends HttpServlet {
         // 将验证码保存到session中
         HttpSession session = request.getSession();
         session.setAttribute(codeName, randomCode);
-        log.debug("生成图片验证码:{]", randomCode);
+        log.debug("生成图片验证码:{}", randomCode);
         // 禁止图像缓存
         WebUtils.setDisableCacheHeader(response);
         response.setContentType(MimeImages.jpg.getMime());

@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 
 import org.jflame.commons.model.BaseResult;
 import org.jflame.commons.model.CallResult;
-import org.jflame.commons.model.CallResult.ResultEnum;
 
 /**
  * 统一rest接口json结果封装进CallResult
@@ -41,7 +40,8 @@ public class RestCallResultWrapperFilter implements ContainerRequestFilter, Cont
             throws IOException {
         boolean isJsonWrapper = false;
         // 无内容返回204时可能getMediaType==null
-        if (responseContext.getMediaType() == null && responseContext.getStatus() == 204) {
+        if (responseContext.getMediaType() == null
+                && responseContext.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
             for (Annotation annot : responseContext.getEntityAnnotations()) {
                 if (annot.annotationType() == Produces.class) {
                     isJsonWrapper = Arrays.stream(((Produces) annot).value())
@@ -66,7 +66,7 @@ public class RestCallResultWrapperFilter implements ContainerRequestFilter, Cont
                 // 方法返回null时,需重设属性
                 CallResult<?> result = new CallResult<>();
                 result.setData(null);
-                responseContext.setStatus(ResultEnum.SUCCESS.getStatus());
+                responseContext.setStatus(Response.Status.OK.getStatusCode());
                 responseContext.setEntity(result, responseContext.getEntityAnnotations(),
                         MediaType.APPLICATION_JSON_TYPE);
             }

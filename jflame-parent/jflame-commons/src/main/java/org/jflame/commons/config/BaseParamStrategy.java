@@ -55,6 +55,10 @@ public abstract class BaseParamStrategy implements ParamStrategy {
         return getInt(new ConfigKey<>(configKey));
     }
 
+    public final Integer getIntOrDefault(final String configKey, int defaultValue) {
+        return getInt(new ConfigKey<>(configKey, defaultValue));
+    }
+
     public final Double getDouble(ConfigKey<Double> configKey) {
         return getValue(configKey, new Parser<Double>() {
 
@@ -79,6 +83,10 @@ public abstract class BaseParamStrategy implements ParamStrategy {
 
     public final String getString(final String configKey) {
         return getString(new ConfigKey<>(configKey));
+    }
+
+    public final String getStringOrDefault(final String configKey, String defaultValue) {
+        return getString(new ConfigKey<>(configKey, defaultValue));
     }
 
     public String[] getStringArray(ConfigKey<String[]> configKey) {
