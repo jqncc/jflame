@@ -2,6 +2,9 @@ package org.jflame.commons.util;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -20,8 +23,12 @@ public class SignHelper {
     }
 
     /**
+     * <p>
      * map参数签名,签名算法: 以key按单词自然排序后,将key与value用=和&amp;接接, 再对字符串做md5,null值忽略.<br>
      * 如:{@code md5hex(k1=v1&k2=v2&)}
+     * </p>
+     * <p>
+     * 注:时间格式(Date,LocalDateTime)默认格式:yyyyMMddHHmmss,日期格式(LocalDate,java.sql.Date):yyyyMMdd
      * 
      * @param mapData 待签名的map
      * @param excludeKeys 不参与签名的map key
@@ -63,6 +70,15 @@ public class SignHelper {
             if (kv.getValue() instanceof BigDecimal) {
                 str.append(((BigDecimal) kv.getValue()).stripTrailingZeros()
                         .toPlainString());
+            }
+            if (kv.getValue() instanceof Date) {
+                str.append(DateHelper.format((Date) kv.getValue(), DateHelper.yyyyMMddHHmmss));
+            } else if (kv.getValue() instanceof LocalDateTime) {
+                str.append(DateHelper.format((LocalDateTime) kv.getValue(), DateHelper.yyyyMMddHHmmss));
+            } else if (kv.getValue() instanceof LocalDate) {
+                str.append(DateHelper.format((LocalDate) kv.getValue(), DateHelper.yyyyMMdd));
+            } else if (kv.getValue() instanceof java.sql.Date) {
+                str.append(DateHelper.format((java.sql.Date) kv.getValue(), DateHelper.yyyyMMdd));
             } else if (isArray) {
                 str.append(toArrayString(kv.getValue()));
             } else {

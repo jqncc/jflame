@@ -24,7 +24,11 @@ public final class JsonHelper {
     private static Jsons jsonClient;
 
     static {
-        jsonClient = SpiFactory.getBean(Jsons.class, Jacksons.class);
+        try {
+            jsonClient = SpiFactory.getBean(Jsons.class, Jacksons.class);
+        } catch (NoClassDefFoundError e) {
+            jsonClient = new Fastjsons();
+        }
     }
 
     /**

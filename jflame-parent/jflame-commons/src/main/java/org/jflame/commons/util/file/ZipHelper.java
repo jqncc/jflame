@@ -16,6 +16,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.jflame.commons.util.IOHelper;
+
 /**
  * zip文件操作工具类
  * 
@@ -69,10 +71,11 @@ public final class ZipHelper {
      * @param srcPath 要压缩的源文件路径。如果压缩一个文件，则为该文件的全路径；如果压缩一个目录，则为该目录的顶层目录路径
      * @param newZipPath 压缩文件保存的路径。注意：zipPath不能是srcPath路径下的子文件夹
      * @param newZipFileName 压缩文件名
-     * @param isDelSameZipFile 如果已存在同名的压缩文件是否删除,不删除则抛出异常
+     * @param isDelSameZipFile 如果已存在同名的压缩文件是否删除.如果不同删除则重新生成文件名
      * @throws IOException
+     * @return 返回压缩文件完整路径
      */
-    public static void zip(String srcPath, String newZipPath, String newZipFileName, boolean isDelSameZipFile,
+    public static String zip(String srcPath, String newZipPath, String newZipFileName, boolean isDelSameZipFile,
             Charset charset) throws IOException {
         if (StringUtils.isEmpty(srcPath) || StringUtils.isEmpty(newZipPath) || StringUtils.isEmpty(newZipFileName)) {
             throw new IllegalArgumentException("参数不能为空");
@@ -96,11 +99,12 @@ public final class ZipHelper {
             String zipFilePath = newZipPath + File.separator + newZipFileName;
             File zipFile = new File(zipFilePath);
             if (zipFile.exists()) {
-                // 检测文件是否允许删除，如果不允许删除，将会抛出SecurityException
-                SecurityManager securityManager = new SecurityManager();
-                securityManager.checkDelete(zipFilePath);
-                // 删除已存在的目标文件
-                zipFile.delete();
+                if (isDelSameZipFile) {
+                    zipFile.delete();
+                } else {
+                    zipFilePath = zipFilePath + File.separator + System.nanoTime() + newZipFileName;
+                    zipFile = new File(zipFilePath);
+                }
             }
 
             cos = new CheckedOutputStream(new FileOutputStream(zipFile), new CRC32());
@@ -117,17 +121,11 @@ public final class ZipHelper {
             // 调用递归压缩方法进行目录或文件压缩
             zip(srcRootDir, srcFile, zos);
             zos.flush();
+            return zipFilePath;
         } catch (IOException e) {
             throw e;
         } finally {
-            try {
-                if (zos != null) {
-                    zos.close();
-                }
-            } catch (IOException e) {
-                zos = null;
-                e.printStackTrace();
-            }
+            IOHelper.closeQuietly(zos);
         }
     }
 

@@ -41,7 +41,7 @@ public final class DateHelper {
     /**
      * 日期格式yyyyMMdd
      */
-    public static final String YYYYMMDD = "yyyyMMdd";
+    public static final String yyyyMMdd = "yyyyMMdd";
     /**
      * 日期格式yyyy/MM/dd
      */
@@ -81,7 +81,7 @@ public final class DateHelper {
     /**
      * 常用日期格式数组
      */
-    public static final String[] SHORT_PATTEN = { YYYY_MM_DD,YYYYMMDD,CN_YYYY_MM_DD,YYYYMMDD_OBLIQUE };
+    public static final String[] SHORT_PATTEN = { YYYY_MM_DD,yyyyMMdd,CN_YYYY_MM_DD,YYYYMMDD_OBLIQUE };
 
     /**
      * 常用时间长格式数组

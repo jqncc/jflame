@@ -94,7 +94,7 @@ public class CallResult<T> extends SimpleResult {
      * @return 返回设置后的CallResult
      */
     public CallResult<T> success(T data) {
-        setStatus(ResultEnum.SUCCESS.getStatus());
+        setResult(ResultEnum.SUCCESS);
         this.data = data;
         return this;
     }
