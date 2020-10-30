@@ -132,7 +132,7 @@ public class HttpResponse extends CallResult<byte[]> {
      * @return
      */
     public <T> CallResult<List<T>> getResponseAsCallResultWithList(Class<T> listElementClass) {
-        return getResponseAsJson(new TypeRef<CallResult<List<T>>>() {
+        return getResponseAsJson(new TypeRef<CallResult<List<T>>>(listElementClass) {
         });
     }
 

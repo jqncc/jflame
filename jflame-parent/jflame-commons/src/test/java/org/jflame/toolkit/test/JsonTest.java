@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import org.jflame.commons.json.Fastjsons;
 import org.jflame.commons.json.Jacksons;
+import org.jflame.commons.json.Jsons;
 import org.jflame.commons.model.CallResult;
 import org.jflame.commons.model.TypeRef;
 import org.jflame.toolkit.test.entity.MemberInfo;
@@ -125,5 +126,43 @@ public class JsonTest {
 
         String viewjsonStr = json.toJsonView(pet, "test");
         System.out.println("viewjsonStr:" + viewjsonStr);
+    }
+
+    @Test
+    public void testTypeRef() {
+        CallResult<List<Pet>> results = new CallResult<>();
+        results.setData(pets);
+        Fastjsons fjson = new Fastjsons();
+        Jacksons jason = new Jacksons();
+
+        String jst = fjson.toJson(results);
+        System.out.println(jst);
+
+        System.out.println("fastjson parse:");
+        CallResult<List<Pet>> resultf = fjson.parseObject(jst, new TypeRef<CallResult<List<Pet>>>() {
+        });
+        System.out.println(fjson.toJson(resultf));
+
+        System.out.println("Jacksons parse:");
+
+        CallResult<List<Pet>> resultj = jason.parseObject(jst, new TypeRef<CallResult<List<Pet>>>() {
+        });
+
+        System.out.println(fjson.toJson(resultj));
+
+        System.out.println("fastjson parse:");
+        CallResult<List<Pet>> resultf1 = parseCallResult(fjson, jst, Pet.class);
+        System.out.println(fjson.toJson(resultf1));
+
+        System.out.println("Jacksons parse:");
+
+        CallResult<List<Pet>> resultj1 = parseCallResult(jason, jst, Pet.class);
+        System.out.println(fjson.toJson(resultj1));
+
+    }
+
+    <T> CallResult<List<T>> parseCallResult(Jsons jsons, String jst, Class<T> listEleClazz) {
+        return jsons.parseObject(jst, new TypeRef<CallResult<List<T>>>(listEleClazz) {
+        });
     }
 }
