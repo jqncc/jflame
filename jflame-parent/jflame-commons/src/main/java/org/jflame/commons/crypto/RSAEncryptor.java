@@ -1,5 +1,6 @@
 package org.jflame.commons.crypto;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,8 +19,10 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -50,6 +53,10 @@ public class RSAEncryptor extends BaseEncryptor {
         super(Algorithm.RSA, OpMode.ECB, Padding.PKCS1PADDING);
     }
 
+    public RSAEncryptor(Provider provider, String providerName) {
+        super(Algorithm.RSA, OpMode.ECB, Padding.PKCS1PADDING, provider, providerName);
+    }
+
     /**
      * 构造函数
      * 
@@ -60,15 +67,44 @@ public class RSAEncryptor extends BaseEncryptor {
         super(Algorithm.RSA, encMode, paddingMode);
     }
 
+    public RSAEncryptor(OpMode encMode, Padding paddingMode, Provider provider, String providerName) {
+        super(Algorithm.RSA, encMode, paddingMode, provider, providerName);
+    }
+
     /**
-     * 随机生成公私密钥对,存入密钥文件,密钥长度1024.
+     * 随机生成公私密钥对,并存入密钥文件中,密钥长度1024.
      * 
-     * @param publicKeyFile 公钥文件路径
-     * @param privateKeyFile 私钥文件路径
+     * @param publicKeyFile 公钥文件路径.null则不存
+     * @param privateKeyFile 私钥文件路径.null则不存
      * @throws EncryptException 加解密异常
      */
     public KeyPair generateKeyPair(String publicKeyFile, String privateKeyFile) throws EncryptException {
-        // RSA算法要求有一个可信任的随机数源
+        KeyPair keyPair = generateKeyPair(1024);
+        Key publicKey = keyPair.getPublic();
+        Key privateKey = keyPair.getPrivate();
+        // 用对象流将生成的密钥写入文件
+        if (publicKey != null && privateKeyFile != null) {
+            if (StringHelper.isNotEmpty(publicKeyFile)) {
+                try (ObjectOutputStream pubKeyOutStream = new ObjectOutputStream(new FileOutputStream(publicKeyFile))) {
+                    pubKeyOutStream.writeObject(publicKey);
+                } catch (IOException e) {
+                    throw new EncryptException("写入公钥文件失败" + publicKeyFile, e);
+                }
+            }
+            if (StringHelper.isNotEmpty(privateKeyFile)) {
+                try (ObjectOutputStream priKeyOutStream = new ObjectOutputStream(
+                        new FileOutputStream(privateKeyFile))) {
+                    priKeyOutStream.writeObject(privateKey);
+                } catch (IOException e) {
+                    throw new EncryptException("写入笆钥文件失败" + privateKeyFile, e);
+                }
+            }
+        }
+
+        return keyPair;
+    }
+
+    public KeyPair generateKeyPair(int keySize) throws EncryptException {
         SecureRandom sr = new SecureRandom();
         KeyPairGenerator kpg = null;
         try {
@@ -76,23 +112,9 @@ public class RSAEncryptor extends BaseEncryptor {
         } catch (NoSuchAlgorithmException e) {
             throw new EncryptException(e);
         }
-        kpg.initialize(1024, sr);
+        kpg.initialize(keySize, sr);
         // 生成密匙对
-        KeyPair keyPair = kpg.generateKeyPair();
-        Key publicKey = keyPair.getPublic();
-        Key privateKey = keyPair.getPrivate();
-        // 用对象流将生成的密钥写入文件
-        if (publicKey != null && privateKeyFile != null) {
-            try (ObjectOutputStream pubKeyOutStream = new ObjectOutputStream(new FileOutputStream(publicKeyFile));
-                    ObjectOutputStream priKeyOutStream = new ObjectOutputStream(new FileOutputStream(privateKeyFile))) {
-                pubKeyOutStream.writeObject(publicKey);
-                priKeyOutStream.writeObject(privateKey);
-            } catch (IOException e) {
-                throw new EncryptException("写入密钥文件失败", e);
-            }
-        }
-
-        return keyPair;
+        return kpg.generateKeyPair();
     }
 
     /**
@@ -296,21 +318,51 @@ public class RSAEncryptor extends BaseEncryptor {
      * @return
      */
     public byte[] docrypt(Key key, byte[] cryptBytes, int cipherMode) {
-        byte[] resultBytes;
+        byte[] resultBytes = null;
         Cipher cipher = null;
+        int mapBlockSize;
         try {
             if (StringHelper.isNotEmpty(providerName)) {
                 cipher = Cipher.getInstance(getCipherStr(), providerName);
+                cipher.init(cipherMode, key);
+                mapBlockSize = cipher.getBlockSize();// BouncyCastleProvider已有处理
             } else {
-                cipher = Cipher.getInstance(getCipherStr());// RSA/ECB/PKCS1Padding
+                cipher = Cipher.getInstance(getCipherStr());
+                cipher.init(cipherMode, key);
+                // 加密数据长度 <= 模长-11, 解密数据长度 <= 模长
+                mapBlockSize = ((RSAKey) key).getModulus()
+                        .bitLength() / 8;
+                if (cipherMode == Cipher.ENCRYPT_MODE) {
+                    mapBlockSize = mapBlockSize - 11;
+                }
             }
-            cipher.init(cipherMode, key);
-            resultBytes = cipher.doFinal(cryptBytes);
+
+            if (cryptBytes.length <= mapBlockSize) {
+                resultBytes = cipher.doFinal(cryptBytes);
+            } else {
+                // 一次处理明/密文应小于密钥长度,所以需要对数据分段处理
+                int offSet = 0;
+                int tmpBlockSize;
+                int remainLength = cryptBytes.length;// 剩余长度
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+                while (remainLength > 0) {
+                    tmpBlockSize = Math.min(remainLength, mapBlockSize);
+                    out.write(cipher.doFinal(cryptBytes, offSet, tmpBlockSize));
+
+                    offSet += mapBlockSize;
+                    remainLength = cryptBytes.length - offSet;
+                }
+
+                resultBytes = out.toByteArray();
+            }
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
             throw new EncryptException(e);
         } catch (NoSuchProviderException e) {
             throw new EncryptException("未找到名为" + providerName + "的Provider", e);
+        } catch (IOException e) {
+            throw new EncryptException(e);
         }
         return resultBytes;
     }

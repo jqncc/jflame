@@ -154,7 +154,8 @@ public abstract class BaseEncryptor {
     protected String getCipherStr() {
         String tram = curAlgorithm.name();
         if (curOpMode != null && curPadding != null) {
-            tram = tram + '/' + curOpMode.name() + '/' + curPadding.name();
+            // tram = tram + '/' + curOpMode.name() + '/' + curPadding.name();
+            tram = String.join("/", tram, curOpMode.name(), curPadding.name());
         }
         return tram;
     }

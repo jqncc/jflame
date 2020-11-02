@@ -183,6 +183,111 @@ public final strictfp class MathHelper {
         BigDecimal result = createBigDecimal(num).divide(createBigDecimal("1"), scale, BigDecimal.ROUND_HALF_UP);
         return result.doubleValue();
     }
+
+    /**
+     * 判断是否大于0的数,且不等于null
+     * 
+     * @param decimal
+     * @return
+     */
+    public static boolean isPositiveNum(BigDecimal decimal) {
+        return decimal != null && decimal.signum() == 1;
+    }
+
+    /**
+     * 判断是否不等于0,且不等于null
+     * 
+     * @param decimal
+     * @return
+     */
+    public static boolean isNotZero(BigDecimal decimal) {
+        return decimal != null && decimal.signum() != 0;
+    }
+
+    /**
+     * 小于
+     * 
+     * @param num1
+     * @param num2
+     * @return true=num1<num2
+     */
+    public static boolean lt(BigDecimal num1, BigDecimal num2) {
+        return num1.compareTo(num2) == -1;
+    }
+
+    /**
+     * 小于等于
+     * 
+     * @param num1
+     * @param num2
+     * @return true=num1<=num2
+     */
+    public static boolean le(BigDecimal num1, BigDecimal num2) {
+        return num1.compareTo(num2) <= 0;
+    }
+
+    /**
+     * 大于
+     * 
+     * @param num1
+     * @param num2
+     * @return true=num1>num2
+     */
+    public static boolean gt(BigDecimal num1, BigDecimal num2) {
+        return num1.compareTo(num2) == 1;
+    }
+
+    /**
+     * 大于等于
+     * 
+     * @param num1
+     * @param num2
+     * @return true=num1>=num2
+     */
+    public static boolean ge(BigDecimal num1, BigDecimal num2) {
+        return num1.compareTo(num2) >= 0;
+    }
+
+    /**
+     * 等于
+     * 
+     * @param num1
+     * @param num2
+     * @return true=num1==num2
+     */
+    public static boolean eq(BigDecimal num1, BigDecimal num2) {
+        return (num1 == null && num2 == null) || num1.compareTo(num2) == 0;
+    }
+
+    /**
+     * 判断integer类型不为null且大于0
+     * 
+     * @param i
+     * @return
+     */
+    public static boolean gtZero(Integer i) {
+        return i != null && i > 0;
+    }
+
+    /**
+     * 判断Long类型不为null且大于0
+     * 
+     * @param i
+     * @return
+     */
+    public static boolean gtZero(Long i) {
+        return i != null && i > 0;
+    }
+
+    /**
+     * 判断Double类型不为null且大于0
+     * 
+     * @param i
+     * @return
+     */
+    public static boolean gtZero(Double i) {
+        return i != null && i > 0;
+    }
     /*
     public static void main(String[] args) {
         System.out.println(round(0.3959243086, 4));

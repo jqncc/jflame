@@ -126,7 +126,7 @@ public final class HttpHelper {
     public HttpHelper() {
         requestProperty = new RequestProperty(defaultConnTimeout, defaultReadTimeout, StandardCharsets.UTF_8.name());
         cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         CookieHandler.setDefault(cookieManager);
     }
 

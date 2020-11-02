@@ -1,16 +1,18 @@
 package org.jflame.toolkit.test;
 
 import java.security.KeyPair;
-
-import org.jflame.commons.codec.TranscodeHelper;
-import org.jflame.commons.crypto.RSAEncryptor;
-import org.jflame.commons.crypto.SymmetricEncryptor;
-import org.jflame.commons.crypto.BaseEncryptor.Algorithm;
-import org.jflame.commons.crypto.BaseEncryptor.OpMode;
-import org.jflame.commons.crypto.BaseEncryptor.Padding;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+
+import org.jflame.commons.codec.TranscodeHelper;
+import org.jflame.commons.crypto.BaseEncryptor.Algorithm;
+import org.jflame.commons.crypto.BaseEncryptor.OpMode;
+import org.jflame.commons.crypto.BaseEncryptor.Padding;
+import org.jflame.commons.crypto.RSAEncryptor;
+import org.jflame.commons.crypto.SymmetricEncryptor;
 
 public class CryptoTest {
 
@@ -39,6 +41,27 @@ public class CryptoTest {
         String plain1 = rsa1.dencryptHex(cihper1, priKey1);
         System.out.println("私钥解密:" + plain1);
 
+    }
+
+    @Test
+    public void testRsa1() {
+        String pubKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBpIHQL9FCsSJ/WAWBPNHJK5Cif7QplZIlQRrREMPbewPEVYOGMmfjTb94ZnbdsnQfsWXuvNPMAN9mYjfruUSoTiZLQqyorb4rG7tuQM+xaXdvmvDULJf+NnFls5Ws6Bsn3RdhnXOPaHaPhv8O+cTS6J1uZsyx+grTci0JYVDeXQIDAQAB";
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String plain = now.format(formatter)
+                + "中国字中国字中国字中国字中国字中国字中国字中国字中国字yyyyMMddHHmmssMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCBpIHQL9FCsSasdfsdfsdfsdfffffffffffffffffffffffff";
+
+        RSAEncryptor encryptor = new RSAEncryptor();
+        KeyPair keyPair = encryptor.generateKeyPair(1024);
+        String result = encryptor.encryptToBase64(plain, keyPair.getPublic());
+        System.out.println(result);
+
+        String decr = encryptor.dencryptBase64(result, keyPair.getPrivate());
+        System.out.println(decr);
+
+        RSAEncryptor bcencryptor = new RSAEncryptor(new BouncyCastleProvider(), "BC");
+        String bresult = bcencryptor.encryptToBase64(plain, pubKey);
+        System.out.println(bresult);
     }
 
     @Test
