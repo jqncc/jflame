@@ -2,14 +2,24 @@ package org.jflame.commons.util;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import org.jflame.commons.exception.SerializeException;
 
@@ -40,6 +50,40 @@ public final class XmlBeanHelper {
      */
     public static <T> String toXml(T bean, String encoding) {
         return toXml(bean, encoding, false);
+    }
+
+    /**
+     * JavaBean转换成xml
+     * 
+     * @param bean
+     * @param charset 字符编码
+     * @param proerties xml属性.参照Marshaller中的定义
+     * @see Marshaller
+     * @return
+     */
+    public static <T> String toXml(T bean, Charset charset, final Map<String,Object> proerties) {
+        String result = null;
+        JAXBContext context;
+        try {
+            context = JAXBContext.newInstance(bean.getClass());
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            if (charset != null) {
+                marshaller.setProperty(Marshaller.JAXB_ENCODING, charset.name());
+            }
+            if (MapHelper.isNotEmpty(proerties)) {
+                for (Map.Entry<String,Object> kv : proerties.entrySet()) {
+                    marshaller.setProperty(kv.getKey(), kv.getValue());
+                }
+            }
+
+            StringWriter writer = new StringWriter();
+            marshaller.marshal(bean, writer);
+            result = writer.toString();
+        } catch (JAXBException e) {
+            throw new SerializeException(e);
+        }
+        return result;
     }
 
     public static <T> String toXml(JAXBElement<T> beanEle, String encoding, boolean isIgnoreHeader) {
@@ -144,6 +188,33 @@ public final class XmlBeanHelper {
         return t;
     }
 
+    /**
+     * xml字符串转换成JavaBean
+     * 
+     * @param xml
+     * @param ignoreNamespace 是否忽略命令空间.true=忽略
+     * @param beanClass
+     * @return
+     */
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
+    public static <T> T toBean(String xml, boolean ignoreNamespace, Class<T>... beanClass) {
+        T t = null;
+        try {
+            JAXBContext context = JAXBContext.newInstance(beanClass);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            if (ignoreNamespace) {
+                t = (T) unmarshaller.unmarshal(saxSource(xml));
+            } else {
+                t = (T) unmarshaller.unmarshal(new StringReader(xml));
+            }
+        } catch (JAXBException | SAXException | ParserConfigurationException e) {
+            throw new SerializeException(e);
+        }
+
+        return t;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T xmlFileToBean(Path xmlPath, Class<T>... beanClass) {
         T t = null;
@@ -157,4 +228,15 @@ public final class XmlBeanHelper {
 
         return t;
     }
+
+    private static Source saxSource(String xmlStr) throws SAXException, ParserConfigurationException {
+        StringReader reader = new StringReader(xmlStr);
+        SAXParserFactory sax = SAXParserFactory.newInstance();
+        sax.setNamespaceAware(false);// 忽略命令空间
+        XMLReader xmlReader = sax.newSAXParser()
+                .getXMLReader();
+        Source source = new SAXSource(xmlReader, new InputSource(reader));
+        return source;
+    }
+
 }

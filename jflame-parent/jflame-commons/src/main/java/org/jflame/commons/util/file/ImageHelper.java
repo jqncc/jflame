@@ -174,7 +174,8 @@ public final class ImageHelper {
                 return saveImage(newImgPath, newImgName, newImageBuf);
             } else {
                 // 如果不需要缩放.直接复制文件
-                File toFile = Paths.get(newImgPath, newImgName).toFile();
+                File toFile = Paths.get(newImgPath, newImgName)
+                        .toFile();
                 FileHelper.copyFile(srcFile, toFile, true);
                 return newImgName;
             }
@@ -276,12 +277,15 @@ public final class ImageHelper {
      * @throws IOException
      */
     private static String saveImage(String saveDir, String imgName, BufferedImage newImg) throws IOException {
-        File file = Paths.get(saveDir, imgName).toFile();
+        File file = Paths.get(saveDir, imgName)
+                .toFile();
         if (file.exists()) {
             file.delete();
         }
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
+        if (!file.getParentFile()
+                .exists()) {
+            file.getParentFile()
+                    .mkdirs();
         }
 
         ImageIO.write(newImg, FileHelper.getExtension(imgName, false), file);

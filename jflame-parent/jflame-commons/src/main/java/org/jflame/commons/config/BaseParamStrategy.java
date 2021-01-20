@@ -59,6 +59,19 @@ public abstract class BaseParamStrategy implements ParamStrategy {
         return getInt(new ConfigKey<>(configKey, defaultValue));
     }
 
+    public final Float getFloat(final String configKey) {
+        return getFloat(new ConfigKey<>(configKey));
+    }
+
+    public final Float getFloat(ConfigKey<Float> configKey) {
+        return getValue(configKey, new Parser<Float>() {
+
+            public Float parse(final String value) {
+                return NumberHelper.parseFloat(value);
+            }
+        });
+    }
+
     public final Double getDouble(ConfigKey<Double> configKey) {
         return getValue(configKey, new Parser<Double>() {
 

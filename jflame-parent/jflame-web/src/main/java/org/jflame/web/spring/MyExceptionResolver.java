@@ -88,7 +88,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
                     return defaultParamErrorJsonView;
                 }
             } else {
-                logger.error(request.getPathInfo(), ex);
+                logger.error(request.getRequestURI(), ex);
                 return defaultErrorJsonView;
             }
         } else {
@@ -106,7 +106,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            logger.error("", ex);
+            logger.error(request.getRequestURI(), ex);
         }
         return viewName != null ? getModelAndView(viewName, ex, request) : null;
     }
@@ -137,7 +137,7 @@ public class MyExceptionResolver extends SimpleMappingExceptionResolver {
 
     void logDebugMsg(HttpServletRequest request, String msg) {
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("error,url:%s,message:%s", request.getServletPath(), msg));
+            logger.debug(String.format("error,url:%s,message:%s", request.getRequestURI(), msg));
         }
     }
 

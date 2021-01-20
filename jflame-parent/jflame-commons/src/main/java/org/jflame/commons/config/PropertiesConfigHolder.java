@@ -64,12 +64,28 @@ public abstract class PropertiesConfigHolder {
         return config.getLong(configKey);
     }
 
+    public static Float getFloat(String configKey) {
+        return config.getFloat(configKey);
+    }
+
+    public static Float getFloat(String configKey, float defaultValue) {
+        return config.getFloat(new ConfigKey<Float>(configKey, defaultValue));
+    }
+
+    public static Float getFloat(final ConfigKey<Float> configKey) {
+        return config.getFloat(configKey);
+    }
+
     public static Double getDouble(String configKey) {
         return config.getDouble(configKey);
     }
 
+    public static Double getDouble(String configKey, double defaultValue) {
+        return config.getDouble(new ConfigKey<Double>(configKey, defaultValue));
+    }
+
     public static Double getDouble(final ConfigKey<Double> configKey) {
-        return getDouble(configKey);
+        return config.getDouble(configKey);
     }
 
     public static String[] getStringArray(ConfigKey<String[]> configKey) {

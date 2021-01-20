@@ -2,10 +2,12 @@ package org.jflame.commons.util;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -326,6 +328,7 @@ public final class DateHelper {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.clear(Calendar.MINUTE);
         calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
         return calendar.getTime();
 
     }
@@ -409,8 +412,8 @@ public final class DateHelper {
     /**
      * 计算两个日期间隔天数.date1大于date2时返回负数
      * 
-     * @param date1 时间1
-     * @param date2 时间2
+     * @param date1 java.util.Date时间1
+     * @param date2 java.util.Date时间2
      * @return
      */
     public static long intervalDays(Date date1, Date date2) {
@@ -420,6 +423,17 @@ public final class DateHelper {
         } else {
             return 0 - TimeUnit.MILLISECONDS.toDays(Math.abs(differTime));
         }
+    }
+
+    /**
+     * 计算两个日期间隔天数
+     * 
+     * @param start LocalDate
+     * @param end LocalDate
+     * @return
+     */
+    public static long intervalDays(LocalDate start, LocalDate end) {
+        return java.time.temporal.ChronoUnit.DAYS.between(start, end);
     }
 
     /**
@@ -497,6 +511,11 @@ public final class DateHelper {
      */
     public static Date fromLocalDateTime(LocalDateTime localDateTime) {
         return fromInstant(localDateTime.atZone(ZoneId.systemDefault())
+                .toInstant());
+    }
+
+    public static Date fromLocalDate(LocalDate localDate) {
+        return fromInstant(localDate.atStartOfDay(ZoneId.systemDefault())
                 .toInstant());
     }
 
@@ -648,9 +667,9 @@ public final class DateHelper {
     }
 
     /**
-     * 取参数date年的第一天时间
+     * 取指定日期所在年份的第一天时间
      * 
-     * @param date 时间
+     * @param date 日期
      * @return LocalDate
      */
     public static LocalDate getFirstDayOfYear(LocalDate date) {
@@ -658,9 +677,9 @@ public final class DateHelper {
     }
 
     /**
-     * 取参数date年的最后一天时间
+     * 取指定日期所在年份最后一天时间
      * 
-     * @param date 时间
+     * @param date 日期
      * @return LocalDate
      */
     public static LocalDate getLastDayOfYear(LocalDate date) {
@@ -688,6 +707,46 @@ public final class DateHelper {
     }
 
     /**
+     * 返回指定日期所在周的周一
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate getMonday(LocalDate date) {
+        return date.with(DayOfWeek.MONDAY);
+    }
+
+    /**
+     * 返回本周一日期
+     * 
+     * @return
+     */
+    public static LocalDate monday() {
+        return LocalDate.now()
+                .with(DayOfWeek.MONDAY);
+    }
+
+    /**
+     * 回指定日期所在周的周日
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate getSunday(LocalDate date) {
+        return date.with(DayOfWeek.SUNDAY);
+    }
+
+    /**
+     * 返回本周日日期
+     * 
+     * @return
+     */
+    public static LocalDate sunday() {
+        return LocalDate.now()
+                .with(DayOfWeek.SUNDAY);
+    }
+
+    /**
      * 明年第一天
      * 
      * @return LocalDate
@@ -709,6 +768,114 @@ public final class DateHelper {
         calendar.set(Calendar.YEAR, year);
         Date currYearFirst = calendar.getTime();
         return currYearFirst;
+    }
+
+    /**
+     * 获取上月第一天
+     * 
+     * @return
+     */
+    public static LocalDate getStartDayOfLastMonth() {
+        return LocalDate.now()
+                .minusMonths(1)
+                .with(TemporalAdjusters.firstDayOfMonth());
+    }
+
+    /**
+     * 获取上月最后一天
+     * 
+     * @return
+     */
+    public static LocalDate getEndDayOfLastMonth() {
+        return LocalDate.now()
+                .minusMonths(1)
+                .with(TemporalAdjusters.lastDayOfMonth());
+    }
+
+    /**
+     * 获取去年第一天
+     * 
+     * @return
+     */
+    public static LocalDate getStartDayOfLastYear() {
+        return LocalDate.now()
+                .minusYears(1)
+                .with(TemporalAdjusters.firstDayOfYear());
+    }
+
+    /**
+     * 获取去年最后一天
+     * 
+     * @return
+     */
+    public static LocalDate getEndDayOfLastYear() {
+        return LocalDate.now()
+                .minusYears(1)
+                .with(TemporalAdjusters.lastDayOfYear());
+    }
+
+    /**
+     * 获取当前季度第一天的日期
+     * 
+     * @return LocalDate
+     */
+    public static LocalDate getStartDayOfCurQuarter() {
+        return getStartDayOfQuarter(LocalDate.now());
+    }
+
+    /**
+     * 获取当前季度最后一天的日期
+     * 
+     * @return
+     */
+    public static LocalDate getEndDayOfCurQuarter() {
+        return getEndDayOfQuarter(LocalDate.now());
+    }
+
+    /**
+     * 获取上一季度第一天
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate getStartDayOfLastQuarter() {
+        return getStartDayOfQuarter(LocalDate.now()
+                .minusMonths(3));
+    }
+
+    /**
+     * 获取上一季度最后一天
+     * 
+     * @return
+     */
+    public static LocalDate getEndDayOfLastQuarter() {
+        return getEndDayOfQuarter(LocalDate.now()
+                .minusMonths(3));
+    }
+
+    /**
+     * 获取指定日期所在季度的第一天的日期
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate getStartDayOfQuarter(LocalDate date) {
+        Month month = date.getMonth();
+        Month firstMonthOfQuarter = month.firstMonthOfQuarter();
+        return LocalDate.of(date.getYear(), firstMonthOfQuarter, 1);
+    }
+
+    /**
+     * 获取指定日期所在季度的最后一天的日期
+     * 
+     * @param date
+     * @return
+     */
+    public static LocalDate getEndDayOfQuarter(LocalDate date) {
+        Month month = date.getMonth();
+        Month firstMonthOfQuarter = month.firstMonthOfQuarter();
+        Month endMonthOfQuarter = Month.of(firstMonthOfQuarter.getValue() + 2);
+        return LocalDate.of(date.getYear(), endMonthOfQuarter, endMonthOfQuarter.length(date.isLeapYear()));
     }
 
     /**

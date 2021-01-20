@@ -33,11 +33,16 @@ public abstract class BaseFileManager implements IFileManager {
     }
 
     protected String getFileId(String filePath) {
-        if (filePath.startsWith("http")) {
-            URI uri = URI.create(filePath);
-            filePath = uri.getPath();
+        String serverUrl = getServerUrl();
+        if (StringHelper.isNotEmpty(serverUrl) && filePath.startsWith(serverUrl)) {
+            filePath = StringUtils.removeFirst(filePath, serverUrl);
+        } else {
+            if (filePath.startsWith("http")) {
+                URI uri = URI.create(filePath);
+                filePath = uri.getPath();
+            }
         }
-        if (filePath.charAt(0) == Chars.SLASH) {
+        if (filePath.charAt(0) == Chars.BACKSLASH) {
             filePath = filePath.substring(1);
         }
         return filePath;

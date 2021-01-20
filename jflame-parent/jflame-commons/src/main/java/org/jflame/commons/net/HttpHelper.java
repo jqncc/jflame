@@ -22,8 +22,6 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,7 +36,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -75,13 +72,13 @@ import org.jflame.commons.util.StringHelper;
  * HttpHelper httpHelper = new HttpHelper();
  * httpHelper.setRequestUrl("http://localhost").setCharset(CharsetHelper.GBK.name())
  *              .setMethod(HttpMethod.POST);
- *  List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt;();
- *  params.add(new NameValuePair("paramName","paramValue"));
+ * List&lt;NameValuePair&gt; params=new ArrayList&lt;&gt;();
+ * params.add(new NameValuePair("paramName","paramValue"));
  *  
- *  HttpResponse result=helper.sendRequest(params);
- *  if(result.success()){
- *     System.out.print(result.getData());
- *  }
+ * HttpResponse result=helper.sendRequest(params);
+ * if(result.success()){
+ *    System.out.print(result.getData());
+ * }
  *  
  * </code>
  * </pre>
@@ -107,7 +104,7 @@ public final class HttpHelper {
     public final static String accept = "text/html,application/json,application/xhtml+xml, */*";
     public final static String contentTypePost = "application/x-www-form-urlencoded";
     public final static String userAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
-    private final String headContentType = "Content-Type";
+    private final static String headContentType = "Content-Type";
     private final static int defaultConnTimeout = 1500 * 6;
     private final static int defaultReadTimeout = 1000 * 6;
     private final static String charsetRegex = "charset=\"?([\\w\\d-]+)\"?;?";
@@ -115,8 +112,7 @@ public final class HttpHelper {
     private String requestUrl;
     private HttpURLConnection conn;
     private RequestProperty requestProperty;
-    // cookie管理器
-    private CookieManager cookieManager;
+
     private SSLSocketFactory sslSocketFactory;
     private TrustAnyHostnameVerifier trustVerifier;
 
@@ -125,9 +121,6 @@ public final class HttpHelper {
      */
     public HttpHelper() {
         requestProperty = new RequestProperty(defaultConnTimeout, defaultReadTimeout, StandardCharsets.UTF_8.name());
-        cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
-        CookieHandler.setDefault(cookieManager);
     }
 
     public HttpHelper(String url) {
@@ -190,7 +183,7 @@ public final class HttpHelper {
             initConnect();
             setConnectionProperty();
             conn.connect();
-            // post请求时提交参数
+            // 提交body参数
             if ((getMethod() == HttpMethod.POST || getMethod() == HttpMethod.DELETE || getMethod() == HttpMethod.PUT)
                     && requestData != null) {
                 byte[] params = requestBodyHandler.handle(requestData, requestProperty);
@@ -201,6 +194,7 @@ public final class HttpHelper {
                 }
             }
             response = getResponse(conn);
+
         } catch (IOException e) {
             log.error("http请求异常,url:" + requestUrl, e);
             throw e;
@@ -235,11 +229,13 @@ public final class HttpHelper {
     public HttpResponse sendRequest(List<NameValuePair> params) throws IOException {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
-            String paramStr = HttpHelper.toUrlParam(params);
-            mergeUrl(paramStr);
+            if (CollectionHelper.isNotEmpty(params)) {
+                String paramStr = HttpHelper.toUrlParam(params, getCharset());
+                mergeUrl(paramStr);
+            }
             return sendTextRequest(null);
         }
-        return sendTextRequest(HttpHelper.toUrlParam(params));
+        return sendTextRequest(HttpHelper.toUrlParam(params, getCharset()));
     }
 
     /**
@@ -251,8 +247,10 @@ public final class HttpHelper {
     public HttpResponse sendRequest(Map<String,Object> params) throws IOException {
         assertUrl();
         if (getMethod() == HttpMethod.GET) {
-            String paramStr = HttpHelper.toUrlParam(params, getCharset());
-            mergeUrl(paramStr);
+            if (MapHelper.isNotEmpty(params)) {
+                String paramStr = HttpHelper.toUrlParam(params, getCharset());
+                mergeUrl(paramStr);
+            }
             return sendTextRequest(null);
         }
         return sendTextRequest(HttpHelper.toUrlParam(params, getCharset()));
@@ -327,14 +325,16 @@ public final class HttpHelper {
         String prefix = "--";
         StringBuilder paramStrBuf = new StringBuilder(50);
         DataOutputStream outStream = null;
-        log.debug("发起http请求:url={}", requestUrl);
+        if (log.isDebugEnabled()) {
+            log.debug("发起http请求:url={}", requestUrl);
+        }
         try {
             initConnect();
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             if (getMethod() != HttpMethod.POST) {
                 conn.setRequestMethod(HttpMethod.POST.name());
-                conn.setDoOutput(true);
             }
+            conn.setDoOutput(true);
             conn.connect();
             outStream = new DataOutputStream(conn.getOutputStream());
             // 提交普通参数
@@ -414,7 +414,7 @@ public final class HttpHelper {
      * @param entity 要提交的java对象
      * @return
      */
-    public <T extends Serializable> HttpResponse sendJsonRequest(T entity) throws IOException {
+    public <T extends Serializable> HttpResponse sendJsonRequest(Object entity) throws IOException {
         setContentType("application/json;charset=" + getCharset());
         if (getMethod() == HttpMethod.GET) {
             setMethod(HttpMethod.POST);
@@ -429,7 +429,7 @@ public final class HttpHelper {
      * @param resultClazz 结果类型
      * @return
      */
-    public <T extends Serializable,E> E sendJsonRequest(T entity, Class<E> resultClazz) throws IOException {
+    public <E> E sendJsonRequest(Object entity, Class<E> resultClazz) throws IOException {
         HttpResponse response = sendJsonRequest(entity);
         if (response.success()) {
             return response.getResponseAsJson(resultClazz);
@@ -461,9 +461,11 @@ public final class HttpHelper {
     private HttpResponse getResponse(HttpURLConnection httpConn) throws IOException {
         HttpResponse result = new HttpResponse();
         result.setStatus(httpConn.getResponseCode());
+
         if (log.isDebugEnabled()) {
             log.debug("请求结果:url:{},status={}", requestUrl, result.getStatus());
         }
+
         result.setHeaders(httpConn.getHeaderFields());
         // System.out.println(httpConn.getHeaderField("encryptKey"));
         String respCharset = detectCharset(httpConn.getContentType());
@@ -472,6 +474,7 @@ public final class HttpHelper {
         } else if (StringHelper.isNotEmpty(getCharset())) {
             result.setCharset(getCharset());
         }
+
         // >200 or <300算成功处理
         if (result.getStatus() >= HttpURLConnection.HTTP_OK
                 && result.getStatus() < HttpURLConnection.HTTP_MULT_CHOICE) {
@@ -522,7 +525,7 @@ public final class HttpHelper {
         conn.setRequestMethod(getMethod().name());
         // 设置通用属性
         conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-        conn.setRequestProperty("Connection", "keep-alive");
+        // conn.setRequestProperty("Connection", "keep-alive");
         conn.setRequestProperty("User-Agent", userAgent);
         conn.setRequestProperty("Accept", accept);
         conn.setRequestProperty("Charset", getCharset());
@@ -559,24 +562,8 @@ public final class HttpHelper {
         }
     }
 
-    /**
-     * https证书管理
-     */
-    private class TrustAnyTrustManager implements X509TrustManager {
-
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        }
-
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-        }
-    }
-
-    private SSLSocketFactory initDefaultSSLSocketFactory() {
-        TrustManager[] tm = { new HttpHelper().new TrustAnyTrustManager() };
+    public static SSLSocketFactory initDefaultSSLSocketFactory() {
+        TrustManager[] tm = { new TrustAnyTrustManager() };
         return HttpHelper.initSSLSocketFactory("TLS", tm);
     }
 
@@ -606,13 +593,17 @@ public final class HttpHelper {
     }
 
     /**
-     * 设置cookie
+     * 设置cookie,必须启用CookieHandler
      * 
      * @param cookieName cookie name
      * @param cookieValue cookie value
      */
     public void addCookie(String cookieName, String cookieValue) {
         if (cookieName != null) {
+            CookieManager cookieManager = (CookieManager) CookieHandler.getDefault();
+            if (cookieManager == null) {
+                throw new BusinessException("未设置CookieManager");
+            }
             HttpCookie cookie = new HttpCookie(cookieName, cookieValue);
             try {
                 cookieManager.getCookieStore()
@@ -624,7 +615,10 @@ public final class HttpHelper {
     }
 
     String getCookies(URI uri) {
-        // List<HttpCookie> cookiess = cookieManager.getCookieStore().getCookies();
+        CookieManager cookieManager = (CookieManager) CookieHandler.getDefault();
+        if (cookieManager == null) {
+            return null;
+        }
         List<HttpCookie> cookies = cookieManager.getCookieStore()
                 .get(uri);
         if (cookies != null) {
@@ -641,58 +635,6 @@ public final class HttpHelper {
             }
         }
         return null;
-    }
-
-    /**
-     * NameValuePair参数 转为url参数格式的字符串
-     * 
-     * @param params 参数 List&lt;NameValuePair&gt;
-     * @return
-     */
-    public static String toUrlParam(List<NameValuePair> params) {
-        if (CollectionHelper.isNotEmpty(params)) {
-            StringBuilder strBuf = new StringBuilder(20);
-            try {
-                for (NameValuePair kv : params) {
-                    strBuf.append(Chars.AND)
-                            .append(kv.getKey())
-                            .append(Chars.EQUAL)
-                            .append(URLEncoder.encode(kv.getValue()
-                                    .toString(), StandardCharsets.UTF_8.name()));
-                }
-            } catch (UnsupportedEncodingException e) {
-                // ignore
-            }
-            strBuf.deleteCharAt(0);
-            return strBuf.toString();
-        }
-        return StringUtils.EMPTY;
-    }
-
-    /**
-     * Map参数转为url参数格式的字符串
-     * 
-     * @param params Map&lt;String,Object&gt;
-     * @return
-     */
-    static String toUrlParam(Map<String,Object> params, String charset) {
-        if (MapHelper.isNotEmpty(params)) {
-            StringBuilder strBuf = new StringBuilder(20);
-            try {
-                for (Entry<String,Object> kv : params.entrySet()) {
-                    strBuf.append(Chars.AND)
-                            .append(kv.getKey())
-                            .append(Chars.EQUAL)
-                            .append(URLEncoder.encode(kv.getValue()
-                                    .toString(), charset == null ? StandardCharsets.UTF_8.name() : charset));
-                }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            strBuf.deleteCharAt(0);
-            return strBuf.toString();
-        }
-        return StringUtils.EMPTY;
     }
 
     public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
@@ -814,6 +756,74 @@ public final class HttpHelper {
      */
     public String getHeader(String headField) {
         return this.requestProperty.getHeader(headField);
+    }
+
+    /**
+     * 设置一个默认的cookieManager
+     * 
+     * @param cookieHandler
+     */
+    public static void setCookieHandler(CookieHandler cookieHandler) {
+        CookieHandler.setDefault(cookieHandler);
+    }
+
+    public static void enableDefaultCookieHandler() {
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+        CookieHandler.setDefault(cookieManager);
+    }
+
+    /**
+     * NameValuePair参数 转为url参数格式的字符串
+     * 
+     * @param params 参数 List&lt;NameValuePair&gt;
+     * @return
+     */
+    public static String toUrlParam(List<NameValuePair> params, String charset) {
+        if (CollectionHelper.isNotEmpty(params)) {
+            StringBuilder strBuf = new StringBuilder(30);
+            try {
+                for (NameValuePair kv : params) {
+                    strBuf.append(Chars.AND)
+                            .append(kv.getKey())
+                            .append(Chars.EQUAL)
+                            .append(URLEncoder.encode(kv.getValue()
+                                    .toString(), charset == null ? StandardCharsets.UTF_8.name() : charset));
+                }
+            } catch (UnsupportedEncodingException e) {
+                // ignore
+                throw new RuntimeException(e);
+            }
+            strBuf.deleteCharAt(0);
+            return strBuf.toString();
+        }
+        return StringUtils.EMPTY;
+    }
+
+    /**
+     * Map参数转为url参数格式的字符串
+     * 
+     * @param params Map&lt;String,Object&gt;
+     * @return
+     */
+    static String toUrlParam(Map<String,Object> params, String charset) {
+        if (MapHelper.isNotEmpty(params)) {
+            StringBuilder strBuf = new StringBuilder(30);
+            try {
+                for (Entry<String,Object> kv : params.entrySet()) {
+                    strBuf.append(Chars.AND)
+                            .append(kv.getKey())
+                            .append(Chars.EQUAL)
+                            .append(URLEncoder.encode(kv.getValue()
+                                    .toString(), charset == null ? StandardCharsets.UTF_8.name() : charset));
+                }
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            strBuf.deleteCharAt(0);
+            return strBuf.toString();
+        }
+        return StringUtils.EMPTY;
     }
 
     public static HttpResponse get(String url) throws IOException {

@@ -614,7 +614,7 @@ public class CsvWriter implements Closeable {
         writeCsv(out, dataList);
     }
 
-    static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
+    public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {
         String encodedfileName = CharsetHelper.reEncodeGBK(fileName);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedfileName + "\"");
         response.setContentType("applicatoin/octet-stream");

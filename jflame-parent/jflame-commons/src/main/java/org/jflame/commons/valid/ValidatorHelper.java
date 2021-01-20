@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.ConstraintViolation;
@@ -76,6 +77,22 @@ public final class ValidatorHelper {
             return false;
         }
         return Pattern.matches(pattern, value);
+    }
+
+    /**
+     * 检测指定字符串中是否有符合给定正则表达式的部分
+     * 
+     * @param value
+     * @param regex
+     * @return
+     */
+    public static boolean find(String value, String regex) {
+        if (value == null) {
+            return false;
+        }
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(value);
+        return m.find();
     }
 
     /**

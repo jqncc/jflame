@@ -3,6 +3,7 @@ package org.jflame.commons.util.file;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map.Entry;
@@ -76,69 +77,6 @@ public final class PropertiesHelper {
     public String getProperty(String key, String defaultValue) {
         String value = getValue(key);
         return value != null ? value.trim() : defaultValue;
-    }
-
-    /**
-     * 取出Integer类型的属性.如果都为Null或内容错误则抛出异常.
-     * 
-     * @param key 属性名
-     */
-    public Integer getInteger(String key) {
-        String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Integer.valueOf(value.trim());
-    }
-
-    /**
-     * 取出Integer类型的属性.如果都为Null则返回Default值，如果内容错误则抛出异常
-     * 
-     * @param key 属性名
-     * @param defaultValue 默认值
-     */
-    public Integer getInteger(String key, Integer defaultValue) {
-        String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Integer.valueOf(value.trim()) : defaultValue;
-    }
-
-    /**
-     * 取出Double类型的属性.
-     * 
-     * @param key 属性名
-     */
-    public Double getDouble(String key) {
-        String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Double.valueOf(value.trim());
-    }
-
-    /**
-     * 取出Double类型的属性.如果都为Null则返回Default值，如果内容错误则抛出异常
-     * 
-     * @param key 属性名
-     * @param defaultValue 默认值
-     */
-    public Double getDouble(String key, Integer defaultValue) {
-        String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Double.valueOf(value.trim()) : defaultValue;
-    }
-
-    /**
-     * 取出Boolean类型的属性.如果都为Null抛出异常,如果内容不是true/false则返回false.
-     * 
-     * @param key 属性名
-     */
-    public Boolean getBoolean(String key) {
-        String value = getValue(key);
-        return StringHelper.isEmpty(value) ? null : Boolean.valueOf(value.trim());
-    }
-
-    /**
-     * 取出Boolean类型的Propert.如果都为Null则返回Default值,如果内容不为true/false则返回false.
-     * 
-     * @param key 属性名
-     * @param defaultValue 默认值
-     */
-    public Boolean getBoolean(String key, boolean defaultValue) {
-        String value = getValue(key);
-        return StringHelper.isNotEmpty(value) ? Boolean.valueOf(value.trim()) : defaultValue;
     }
 
     /**
@@ -218,6 +156,10 @@ public final class PropertiesHelper {
         } else {
             log.warn("未加载到任何属性");
         }
+    }
+
+    public void store(Path filePath) throws IOException {
+        properties.store(Files.newOutputStream(filePath), null);
     }
 
     boolean isAbsolute(String path) {

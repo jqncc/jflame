@@ -2,6 +2,7 @@ package org.jflame.commons.config;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -24,10 +25,6 @@ public class PropertiesConfig extends BaseParamStrategy {
     private String[] propertiesFiles;
     private Properties properties;
     private boolean valueConvert = false;// 是否对属性值做转换,
-
-    /*   public PropertiesConfig() {
-        properties = new Properties();
-    }*/
 
     /**
      * 构造函数,指定配置文件
@@ -70,6 +67,11 @@ public class PropertiesConfig extends BaseParamStrategy {
 
     }
 
+    public void reload() throws IOException {
+        clear();
+        loadFromProperties();
+    }
+
     /**
      * 设置参数
      * 
@@ -93,6 +95,20 @@ public class PropertiesConfig extends BaseParamStrategy {
     @Override
     public String getParam(ConfigKey configKey) {
         return properties.getProperty(configKey.getName());
+    }
+
+    /**
+     * 返回所有属性和值的map
+     * 
+     * @return
+     */
+    public Map<String,Object> getParams() {
+        Map<String,Object> paramMap = new HashMap<>(properties.size());
+        for (Entry<Object,Object> kv : properties.entrySet()) {
+            paramMap.put(kv.getKey()
+                    .toString(), kv.getValue());
+        }
+        return paramMap;
     }
 
     public void clear() {

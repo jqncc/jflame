@@ -45,6 +45,16 @@ public class HttpResponse extends CallResult<byte[]> {
         return headers;
     }
 
+    public void setHeaders(Map<String,List<String>> headers) {
+        this.headers = headers;
+    }
+
+    /**
+     * 获取指定header的值,如果有多个值只取首个
+     * 
+     * @param headField
+     * @return
+     */
     public String getHeader(String headField) {
         if (headers.containsKey(headField)) {
             return headers.get(headField)
@@ -53,8 +63,27 @@ public class HttpResponse extends CallResult<byte[]> {
         return null;
     }
 
-    public void setHeaders(Map<String,List<String>> headers) {
-        this.headers = headers;
+    public List<String> getHeaders(String headField) {
+        if (headers.containsKey(headField)) {
+            return headers.get(headField);
+        }
+        return null;
+    }
+
+    /**
+     * 返回cookies字符串
+     * 
+     * @return
+     */
+    public String getCookies() {
+        if (headers.containsKey("Set-Cookie")) {
+            return headers.get("Set-Cookie")
+                    .get(0);
+        } else if (headers.containsKey("Set-Cookie2")) {
+            return headers.get("Set-Cookie2")
+                    .get(0);
+        }
+        return null;
     }
 
     @Override

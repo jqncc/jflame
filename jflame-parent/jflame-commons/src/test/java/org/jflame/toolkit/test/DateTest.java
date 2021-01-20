@@ -1,5 +1,11 @@
 package org.jflame.toolkit.test;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Test;
@@ -10,8 +16,43 @@ public class DateTest {
 
     @Test
     public void test() {
-        Date date = DateHelper.setDate(1970, 1, 1);
-        System.out.println(DateHelper.formatShort(date));
+        // Date date = DateHelper.setDate(1970, 1, 1);
+        // System.out.println(DateHelper.formatShort(date));
+        LocalDate now = LocalDate.of(2020, 12, 1);
+        System.out.println(now.minusDays(29));
+        System.out.println(now.plusDays(0));
+
+        LocalDate startDate = LocalDate.of(2020, 12, 1);
+        LocalDate endDate = LocalDate.of(2020, 12, 10);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DateHelper.yyyyMMdd);
+        int intervalDay = (int) startDate.until(endDate, ChronoUnit.DAYS) + 1;// 需包含endDate
+        System.out.println(intervalDay);
+        ArrayList<Integer> countPointers = new ArrayList<>(intervalDay);
+        for (int i = 0; i < intervalDay; i++) {
+            countPointers.add(Integer.parseInt(startDate.plusDays(i)
+                    .format(dtf)));
+        }
+
+        System.out.println(countPointers);
+
+    }
+
+    @Test
+    public void testWeek() {
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.with(DayOfWeek.MONDAY);
+        LocalDate endDate = now.with(DayOfWeek.SUNDAY);
+        System.out.println("周一:" + startDate);
+        System.out.println("周日:" + endDate);
+
+        startDate = now.with(TemporalAdjusters.firstDayOfMonth());
+        endDate = now.with(TemporalAdjusters.lastDayOfMonth());
+
+        System.out.println("月初:" + startDate);
+        System.out.println("月末:" + endDate);
+
+        System.out.println(startDate.until(endDate, ChronoUnit.DAYS));
     }
 
     public static void main(String[] args) {
@@ -31,5 +72,16 @@ public class DateTest {
         System.out.println(dt);
 
         System.out.println(DateHelper.getLastTimeOfThisYear());
+
+        System.out.println(DateHelper.fromLocalDate(LocalDate.now()));
+
+        System.out.println(String.format("%d月", 12));
+        System.out.println(String.format("%d月", 2));
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(20190526);
+        buffer.insert(4, '/')
+                .insert(7, '/');
+        System.out.println(buffer);
     }
 }
