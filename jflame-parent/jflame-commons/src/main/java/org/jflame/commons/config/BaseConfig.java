@@ -42,6 +42,10 @@ public abstract class BaseConfig {
         return PropertiesConfigHolder.getStringArray(cfgKey);
     }
 
+    public static String getString(String key) {
+        return PropertiesConfigHolder.getString(key);
+    }
+
     public static int getIntParam(String key) {
         return PropertiesConfigHolder.getInt(key);
     }

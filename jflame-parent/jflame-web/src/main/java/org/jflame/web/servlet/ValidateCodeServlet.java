@@ -140,15 +140,15 @@ public class ValidateCodeServlet extends HttpServlet {
      * @param height
      */
     private void drawBackground(Graphics2D g, int width, int height) {
-        g.setColor(getRandColor(220, 250, random));
+        g.setColor(getRandColor(200, 250, random));
         g.fillRect(0, 0, width, height);
         // 画边框
         g.setColor(Color.GRAY);
         g.drawRect(0, 0, width - 1, height - 1);
         // 随机产生干扰线
         int start_x,start_y,end_x,end_y,i = 0;
-        for (i = 0; i < 15; i++) {
-            g.setColor(getRandColor(50, 150, random));
+        for (i = 0; i < 60; i++) {
+            g.setColor(getRandColor(80, 120, random));
             start_x = random.nextInt(width);
             start_y = random.nextInt(height);
             end_x = random.nextInt(width);
@@ -167,7 +167,7 @@ public class ValidateCodeServlet extends HttpServlet {
      */
     private void drawString(String randomCode, Graphics2D g, int width, int height) {
         int x = 0;
-        g.setColor(new Color(150, 80 + random.nextInt(50), 50 + random.nextInt(30)));
+        g.setColor(new Color(90, 80 + random.nextInt(50), 50 + random.nextInt(30)));
         Font font = new Font(Font.SANS_SERIF, Font.BOLD, height - 4);
         g.setFont(font);
         // 计算文字居中时x,y坐标
