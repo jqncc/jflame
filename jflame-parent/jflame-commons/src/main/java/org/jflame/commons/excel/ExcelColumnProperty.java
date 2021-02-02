@@ -20,6 +20,7 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
     private String fmt;
     private ObjectToStringConverter writeConverter;
     private Converter readConverter;
+    private boolean preventSCINotation = false;
 
     public String getName() {
         return name;
@@ -75,6 +76,14 @@ public class ExcelColumnProperty implements Comparable<ExcelColumnProperty> {
 
     public void setReadConverter(Converter readConverter) {
         this.readConverter = readConverter;
+    }
+
+    public boolean isPreventSCINotation() {
+        return preventSCINotation;
+    }
+
+    public void setPreventSCINotation(boolean preventSCINotation) {
+        this.preventSCINotation = preventSCINotation;
     }
 
     public int compareTo(ExcelColumnProperty obj) {

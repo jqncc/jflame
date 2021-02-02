@@ -1,16 +1,19 @@
 package org.jflame.commons.util.file;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
 
 import org.apache.commons.lang3.StringUtils;
@@ -175,15 +178,11 @@ public final class FileHelper {
      * 
      * @param sourceFile 源文件
      * @param targetFile 目标文件
-     * @param isReplaceOnExit 如果目标文件存在是否替换
+     * @param isReplaceOnExit 如果目标文件存在是否替换,false时如果目标文件已存在抛出FileAlreadyExistsException异常
      * @throws IOException 读写或替换文件异常
      */
-    public static void copyFile(File sourceFile, File targetFile, boolean isReplaceOnExit) throws IOException {
-        if (isReplaceOnExit) {
-            Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } else {
-            Files.copy(sourceFile.toPath(), targetFile.toPath());
-        }
+    public static void copyFile(Path sourceFile, Path targetFile, boolean isReplaceOnExit) throws IOException {
+        copyFile(sourceFile.toFile(), targetFile.toFile(), isReplaceOnExit);
     }
 
     /**
@@ -191,15 +190,71 @@ public final class FileHelper {
      * 
      * @param sourceFile 源文件路径
      * @param targetFile 目标文件路径
-     * @param isReplaceOnExit 如果目标文件存在是否替换
+     * @param isReplaceOnExit 如果目标文件存在是否替换,false时如果目标文件已存在抛出FileAlreadyExistsException异常
      * @throws IOException 读写或替换文件异常
      */
     public static void copyFile(String sourceFile, String targetFile, boolean isReplaceOnExit) throws IOException {
-        if (isReplaceOnExit) {
-            Files.copy(Paths.get(sourceFile), Paths.get(targetFile), StandardCopyOption.REPLACE_EXISTING);
-        } else {
-            Files.copy(Paths.get(sourceFile), Paths.get(targetFile));
+        copyFile(Paths.get(sourceFile), Paths.get(targetFile), isReplaceOnExit);
+    }
+
+    /**
+     * 复制文件.如果目标文件存在则替换
+     * 
+     * @param sourceFile
+     * @param targetFile
+     * @param isReplaceOnExit 如果目标文件存在是否替换,false时如果目标文件已存在抛出FileAlreadyExistsException异常
+     * @return
+     * @throws IOException
+     */
+    public static boolean copyFile(File sourceFile, File targetFile, boolean isReplaceOnExit) throws IOException {
+
+        if (!sourceFile.exists()) {
+            throw new FileNotFoundException(sourceFile.getAbsolutePath());
         }
+        if (sourceFile.isDirectory()) {
+            throw new IllegalArgumentException("不支持目录复制");
+        }
+        File parent = targetFile.getParentFile();
+        // 创建目标文件路径文件夹
+        if (!parent.exists()) {
+            parent.mkdirs();
+        }
+        // 判断目标文件是否存在
+        if (targetFile.exists()) {
+            if (isReplaceOnExit) {
+                targetFile.delete();
+            } else {
+                throw new FileAlreadyExistsException(targetFile.getAbsolutePath());
+            }
+        }
+        // 创建目标文件
+        if (!targetFile.exists()) {
+            targetFile.createNewFile();
+        }
+
+        FileChannel in = null;
+        FileChannel out = null;
+
+        FileInputStream inStream = null;
+        FileOutputStream outStream = null;
+        try {
+            inStream = new FileInputStream(sourceFile);
+            outStream = new FileOutputStream(targetFile);
+            in = inStream.getChannel();
+            out = outStream.getChannel();
+            in.transferTo(0, in.size(), out);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            IOHelper.closeQuietly(inStream);
+            IOHelper.closeQuietly(in);
+            IOHelper.closeQuietly(outStream);
+            IOHelper.closeQuietly(out);
+        }
+        if (!targetFile.exists()) {
+            return false;
+        }
+        return true;
     }
 
     /**

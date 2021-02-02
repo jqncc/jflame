@@ -9,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +44,7 @@ public class CsvWriter implements Closeable {
 
     private boolean initialized = false;
     private boolean closed = false;
+    private Boolean utf8bom;
     private String systemRecordDelimiter = System.getProperty("line.separator");
 
     /**
@@ -217,6 +220,14 @@ public class CsvWriter implements Closeable {
      */
     public void setForceQualifier(boolean forceQualifier) {
         userSettings.ForceQualifier = forceQualifier;
+    }
+
+    public Boolean getUtf8bom() {
+        return utf8bom;
+    }
+
+    public void setUtf8bom(Boolean utf8bom) {
+        this.utf8bom = utf8bom;
     }
 
     final char SPACE = ' ';
@@ -415,7 +426,11 @@ public class CsvWriter implements Closeable {
                         if (currentValue == null || StringUtils.EMPTY.equals(currentValue)) {
                             write(StringUtils.EMPTY);
                         } else {
-                            write(ExcelUtils.convertToCellValue(currentProperty, currentValue));
+                            if (currentProperty.isPreventSCINotation()) {
+                                write(ExcelUtils.convertToCellValue(currentProperty, currentValue) + Chars.TAB, true);
+                            } else {
+                                write(ExcelUtils.convertToCellValue(currentProperty, currentValue));
+                            }
                         }
                     }
                     endRecord();
@@ -474,6 +489,9 @@ public class CsvWriter implements Closeable {
             if (fileName != null) {
                 try {
                     outputStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), charset));
+                    if (Boolean.TRUE.equals(utf8bom) && charset.equals(StandardCharsets.UTF_8)) {
+                        outputStream.write(new String(new byte[] { (byte) 0xEF,(byte) 0xBB,(byte) 0xBF }));
+                    }
                 } catch (IOException e) {
                     throw new CsvAccessException(e);
                 }
@@ -607,11 +625,17 @@ public class CsvWriter implements Closeable {
      * @throws IOException
      */
     public static <T extends IExcelEntity> void writeCsv(HttpServletResponse response, String fileName,
-            List<T> dataList) throws CsvAccessException, IOException {
-        response.reset();
-        setFileDownloadHeader(response, fileName);
-        ServletOutputStream out = response.getOutputStream();
-        writeCsv(out, dataList);
+            List<T> dataList, String group) throws CsvAccessException, IOException {
+        Path tmpPath = Files.createTempFile(fileName + System.nanoTime(), "csv");
+        try (CsvWriter csvWriter = new CsvWriter(tmpPath.toString())) {
+            csvWriter.setUtf8bom(true);
+            csvWriter.writeEntityData(dataList, group);
+
+            response.reset();
+            setFileDownloadHeader(response, fileName);
+            ServletOutputStream out = response.getOutputStream();
+            Files.copy(tmpPath, out);
+        }
     }
 
     public static void setFileDownloadHeader(HttpServletResponse response, String fileName) {

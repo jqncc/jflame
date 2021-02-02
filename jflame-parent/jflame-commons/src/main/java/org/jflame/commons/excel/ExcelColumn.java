@@ -55,6 +55,14 @@ public @interface ExcelColumn {
      */
     public String[] group() default {};
 
+    /**
+     * 禁止科学计数法.<br>
+     * Excel对于大于12位的数字型会自动转为科学计数法,通过后面增加制表符解决(csv文件适用,excel文件忽略)
+     * 
+     * @return
+     */
+    public boolean preventSCINotation() default false;
+
     @SuppressWarnings("rawtypes")
     public Class<? extends ObjectToStringConverter> writeConverter() default NullConverter.class;
 
