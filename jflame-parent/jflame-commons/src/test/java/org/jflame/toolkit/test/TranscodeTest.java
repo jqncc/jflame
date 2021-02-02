@@ -29,4 +29,11 @@ public class TranscodeTest {
         System.out.println(astr);
     }
 
+    @Test
+    public void testUnicode() {
+        String un = TranscodeHelper.encodeUnicode("aaba中文");
+        System.out.println(un);
+        System.out.println(TranscodeHelper.decodeUnicode(un));
+    }
+
 }

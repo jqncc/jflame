@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.jflame.commons.exception.ConvertException;
+import org.jflame.commons.util.StringHelper;
 
 /**
  * 转码工具类,支持base64,hex转码,int与byte[4]转换,url编码,byte与Long转换
@@ -241,5 +242,42 @@ public final class TranscodeHelper {
             b[i] = (byte) (num >>> (56 - i * 8));
         }
         return b;
+    }
+
+    /**
+     * 编码uncode字符
+     * 
+     * @param str
+     * @return
+     */
+    public static String encodeUnicode(String str) {
+        if (StringHelper.isEmpty(str)) {
+            return str;
+        }
+        char[] cs = str.toCharArray();
+        StringBuilder unicode = new StringBuilder(6 * cs.length);
+        for (char c : cs) {
+            unicode.append("\\u")
+                    .append(Integer.toHexString(c));
+        }
+        return unicode.toString();
+    }
+
+    /**
+     * 解码uncode字符
+     * 
+     * @param unicode uncode字符
+     * @return
+     */
+    public static String decodeUnicode(String unicode) {
+        StringBuilder string = new StringBuilder();
+        String[] hex = unicode.split("\\\\u");
+        int codePoint;
+        for (int i = 1; i < hex.length; i++) {
+            codePoint = Integer.parseInt(hex[i], 16);
+            string.append((char) codePoint);
+        }
+
+        return string.toString();
     }
 }

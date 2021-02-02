@@ -6,7 +6,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.imageio.ImageIO;
@@ -71,6 +70,7 @@ public class ValidateCodeServlet extends HttpServlet {
     private int defaultCount;// 缺省字符个数
     private String[] codeRestrictNames = new String[] { "validcode" };// 验证码限定名称，默认"validcode"
     private ThreadLocalRandom random = ThreadLocalRandom.current();
+    private final String randomChars = "abcdefghjkmnpqrstuvwxyz98765432";
 
     public ValidateCodeServlet() {
         super();
@@ -84,6 +84,7 @@ public class ValidateCodeServlet extends HttpServlet {
         int width;
         int height;
         int count;
+        boolean isBorder = true;
         String codeName;
         String paramWidth = request.getParameter("w");
         String paramHeight = request.getParameter("h");
@@ -102,6 +103,9 @@ public class ValidateCodeServlet extends HttpServlet {
         count = NumberUtils.toInt(paramCount, defaultCount);
         width = NumberUtils.toInt(paramWidth, defaultWidth);
         height = NumberUtils.toInt(paramHeight, defaultHeight);
+        if (request.getParameter("border") != null) {
+            isBorder = "true".equals(request.getParameter("border"));
+        }
         // 限制图片高宽及字符数
         if (count < 2 || count > 10) {
             count = defaultCount;
@@ -116,10 +120,11 @@ public class ValidateCodeServlet extends HttpServlet {
         BufferedImage buffImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = buffImg.createGraphics();
         // 绘制背景
-        drawBackground(g, width, height);
+        drawBackground(g, width, height, isBorder);
         // 绘制随机字符
-        String randomCode = RandomStringUtils.random(count, true, true);
+        String randomCode = RandomStringUtils.random(count, randomChars);
         drawString(randomCode, g, width, height);
+        g.dispose();
         // 将验证码保存到session中
         HttpSession session = request.getSession();
         session.setAttribute(codeName, randomCode);
@@ -139,22 +144,30 @@ public class ValidateCodeServlet extends HttpServlet {
      * @param width
      * @param height
      */
-    private void drawBackground(Graphics2D g, int width, int height) {
-        g.setColor(getRandColor(200, 250, random));
+    private void drawBackground(Graphics2D g, int width, int height, boolean isBorder) {
+        g.setColor(getRandColor(160, 250));
         g.fillRect(0, 0, width, height);
         // 画边框
-        g.setColor(Color.GRAY);
-        g.drawRect(0, 0, width - 1, height - 1);
+        if (isBorder) {
+            g.setColor(g.getColor()
+                    .darker());
+            g.drawRect(0, 0, width - 1, height - 1);
+        } else {
+            g.drawRect(0, 0, width, height);
+        }
         // 随机产生干扰线
         int start_x,start_y,end_x,end_y,i = 0;
-        for (i = 0; i < 60; i++) {
-            g.setColor(getRandColor(80, 120, random));
+        Color[] lineColors = { getRandColor(),getRandColor(),getRandColor() };
+        int rndNum = random.nextInt(20, 50);
+        for (i = 0; i < rndNum; i++) {
+            g.setColor(lineColors[i % 3]);
             start_x = random.nextInt(width);
             start_y = random.nextInt(height);
-            end_x = random.nextInt(width);
+            end_x = random.nextInt(height);
             end_y = random.nextInt(height);
             g.drawLine(start_x, start_y, start_x + end_x, start_y + end_y);
         }
+
     }
 
     /**
@@ -167,8 +180,8 @@ public class ValidateCodeServlet extends HttpServlet {
      */
     private void drawString(String randomCode, Graphics2D g, int width, int height) {
         int x = 0;
-        g.setColor(new Color(90, 80 + random.nextInt(50), 50 + random.nextInt(30)));
-        Font font = new Font(Font.SANS_SERIF, Font.BOLD, height - 4);
+        g.setColor(getRandColor(50, 150));
+        Font font = new Font(Font.SANS_SERIF, random.nextInt(4), height - 4);
         g.setFont(font);
         // 计算文字居中时x,y坐标
         FontMetrics metrics = g.getFontMetrics(font);
@@ -179,8 +192,21 @@ public class ValidateCodeServlet extends HttpServlet {
         g.drawString(randomCode, x, y);
     }
 
-    private Color getRandColor(int f, int b, Random random) {
-        return new Color(f + random.nextInt(b - f), f + random.nextInt(b - f), f + random.nextInt(b - f));
+    private Color getRandColor() {
+        return getRandColor(0, 255);
+    }
+
+    private Color getRandColor(int start, int end) {
+        if (start < 0) {
+            start = 0;
+        }
+        if (start > 255) {
+            start = 200;
+        }
+        if (end < 0 || end > 255) {
+            end = 255;
+        }
+        return new Color(random.nextInt(start, end), random.nextInt(start, end), random.nextInt(start, end));
     }
 
     @Override
