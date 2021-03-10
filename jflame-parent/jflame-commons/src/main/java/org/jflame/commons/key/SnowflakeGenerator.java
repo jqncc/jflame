@@ -3,8 +3,11 @@ package org.jflame.commons.key;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.jflame.commons.util.DateHelper;
 import org.jflame.commons.util.StringHelper;
 
 /**
@@ -22,7 +25,7 @@ import org.jflame.commons.util.StringHelper;
 public final class SnowflakeGenerator {
 
     // 时间起始标记点，确定后不可修改
-    private final long startTime = 1483436297001L;
+    private long startTime = 1483436297001L;
     // 机器id所占的位数
     private final static long workerIdBits = 5L;
     // 数据中心标识id所占的位数
@@ -53,27 +56,49 @@ public final class SnowflakeGenerator {
      * 构造函数,默认使用机器MAC地址和进程号作为数据中心位和机器位
      */
     public SnowflakeGenerator() {
-        this.datacenterId = getDatacenterId(maxDatacenterId);
-        this.workerId = getMaxWorkerId(datacenterId, maxWorkerId);
+        this(null);
+    }
+
+    public SnowflakeGenerator(LocalDateTime startTime) {
+        this(Optional.empty(), Optional.empty(), Optional.ofNullable(startTime));
     }
 
     /**
      * 构造函数
      * 
-     * @param workerId 主机id
-     * @param datacenterId 机房id
+     * @param workerId
+     *            主机id
+     * @param datacenterId
+     *            机房id
      */
     public SnowflakeGenerator(long workerId, long datacenterId) {
-        if (workerId < 0 || workerId > maxWorkerId) {
-            throw new IllegalArgumentException(
-                    String.format("workerId[%d] 小于0或大于 maxWorkerId[%d].", workerId, maxWorkerId));
+        this(Optional.of(workerId), Optional.of(datacenterId), Optional.empty());
+    }
+
+    public SnowflakeGenerator(Optional<Long> workerId, Optional<Long> dataCenterId, Optional<LocalDateTime> startTime) {
+        if (!startTime.isPresent()) {
+            this.startTime = DateHelper.timestamp(startTime.get());
         }
-        if (datacenterId < 0 || datacenterId > maxDatacenterId) {
-            throw new IllegalArgumentException(
-                    String.format("datacenterId[%d] 小于0或大于 maxDatacenterId[%d].", datacenterId, maxDatacenterId));
+
+        if (dataCenterId.isPresent()) {
+            if (dataCenterId.get() < 0 || dataCenterId.get() > maxDatacenterId) {
+                throw new IllegalArgumentException(
+                        String.format("datacenterId[%d] 小于0或大于 maxDatacenterId[%d].", dataCenterId, maxDatacenterId));
+            }
+            this.datacenterId = dataCenterId.get();
+        } else {
+            this.datacenterId = getDatacenterId(maxDatacenterId);
         }
-        this.workerId = workerId;
-        this.datacenterId = datacenterId;
+
+        if (workerId.isPresent()) {
+            if (workerId.get() < 0 || workerId.get() > maxWorkerId) {
+                throw new IllegalArgumentException(
+                        String.format("workerId[%d] 小于0或大于 maxWorkerId[%d].", workerId, maxWorkerId));
+            }
+            this.workerId = workerId.get();
+        } else {
+            this.workerId = getMaxWorkerId(this.datacenterId, maxWorkerId);
+        }
     }
 
     /**

@@ -5,8 +5,7 @@ import java.util.List;
 
 import org.jflame.commons.excel.ExcelAccessException;
 import org.jflame.commons.excel.ExcelColumnProperty;
-import org.jflame.commons.excel.ExcelUtils;
-import org.jflame.commons.excel.IExcelEntity;
+import org.jflame.commons.excel.ExcelConvertUtils;
 import org.jflame.commons.exception.ConvertException;
 
 import org.apache.poi.ss.usermodel.Row;
@@ -16,7 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
  * 
  * @author yucan.zhang
  */
-public class EntityRowReader<T extends IExcelEntity> implements IExcelRowReader<T> {
+public class EntityRowReader<T> implements IExcelRowReader<T> {
 
     private List<ExcelColumnProperty> columnPropertys = null;
     private Class<T> entityClazz;
@@ -27,8 +26,10 @@ public class EntityRowReader<T extends IExcelEntity> implements IExcelRowReader<
     /**
      * 构造函数
      * 
-     * @param columnPropertys ExcelColumnProperty集合
-     * @param dataClass 数据类型
+     * @param columnPropertys
+     *            ExcelColumnProperty集合
+     * @param dataClass
+     *            数据类型
      */
     public EntityRowReader(List<ExcelColumnProperty> columnPropertys, Class<T> dataClass) {
         this.columnPropertys = columnPropertys;
@@ -52,7 +53,7 @@ public class EntityRowReader<T extends IExcelEntity> implements IExcelRowReader<
                     continue;
                 }
                 currentProperty = columnPropertys.get(cellIndex);
-                currentValue = ExcelUtils.extractValueFromCell(currentProperty,
+                currentValue = ExcelConvertUtils.extractValueFromCell(currentProperty,
                         excelSheetRow.getCell(cellIndex));
                 if (currentValue != null) {
                     currentProperty.getPropertyDescriptor()

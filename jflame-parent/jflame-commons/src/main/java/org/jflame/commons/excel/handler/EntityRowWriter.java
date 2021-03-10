@@ -3,6 +3,10 @@ package org.jflame.commons.excel.handler;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import org.jflame.commons.excel.ExcelAccessException;
+import org.jflame.commons.excel.ExcelColumnProperty;
+import org.jflame.commons.excel.ExcelConvertUtils;
+
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,17 +14,12 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
-import org.jflame.commons.excel.ExcelAccessException;
-import org.jflame.commons.excel.ExcelColumnProperty;
-import org.jflame.commons.excel.ExcelUtils;
-import org.jflame.commons.excel.IExcelEntity;
-
 /**
  * excel单行数据与实体bean转换处理器.
  * 
  * @author yucan.zhang
  */
-public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<T> {
+public class EntityRowWriter<T> implements IExcelRowWriter<T> {
 
     private int propertySize;
     private Cell currentCell = null;
@@ -32,7 +31,8 @@ public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<
     /**
      * 构造函数
      * 
-     * @param columnPropertys ExcelColumnProperty集合
+     * @param columnPropertys
+     *            ExcelColumnProperty集合
      */
     public EntityRowWriter(List<ExcelColumnProperty> columnPropertys) {
         this.columnPropertys = columnPropertys;
@@ -54,7 +54,7 @@ public class EntityRowWriter<T extends IExcelEntity> implements IExcelRowWriter<
                     continue;
                 }
                 currentCell.setCellType(CellType.STRING);
-                stringValue = ExcelUtils.convertToCellValue(currentProperty, currentValue);
+                stringValue = ExcelConvertUtils.convertToCellValue(currentProperty, currentValue);
                 // 支持换行符
                 if (stringValue.indexOf(CharUtils.LF) >= 0) {
                     currentCell.getCellStyle()

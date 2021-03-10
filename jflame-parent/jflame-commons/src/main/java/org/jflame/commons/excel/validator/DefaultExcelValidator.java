@@ -7,15 +7,13 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import org.jflame.commons.excel.IExcelEntity;
-
 /**
  * 默认excel单元格数据验证器. <br>
  * 使用Bean Validation规范验证
  * 
  * @author zyc
  */
-public class DefaultExcelValidator<T extends IExcelEntity> implements IExcelValidator<T> {
+public class DefaultExcelValidator<T> implements IExcelValidator<T> {
 
     protected ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     protected Validator validator = factory.getValidator();

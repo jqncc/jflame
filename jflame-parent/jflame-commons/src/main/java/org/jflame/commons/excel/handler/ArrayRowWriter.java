@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import org.jflame.commons.convert.ObjectToStringConverter;
-import org.jflame.commons.excel.ExcelUtils;
+import org.jflame.commons.excel.ExcelConvertUtils;
 
 @SuppressWarnings("rawtypes")
 public class ArrayRowWriter implements IExcelRowWriter<Object[]> {
@@ -36,7 +36,7 @@ public class ArrayRowWriter implements IExcelRowWriter<Object[]> {
                 if (columnConvertMap.containsKey(cellIndex)) {
                     converter = columnConvertMap.get(cellIndex);
                 } else {
-                    converter = ExcelUtils.getDefaultWriteConverter(currentValue.getClass(), null);
+                    converter = ExcelConvertUtils.getDefaultWriteConverter(currentValue.getClass(), null);
                     columnConvertMap.put(cellIndex, converter);
                 }
 

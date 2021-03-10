@@ -2,7 +2,7 @@ package org.jflame.commons.excel.handler;
 
 import org.apache.poi.ss.usermodel.Row;
 
-import org.jflame.commons.excel.ExcelUtils;
+import org.jflame.commons.excel.ExcelConvertUtils;
 
 public class ArrayRowReader implements IExcelRowReader<Object[]> {
 
@@ -16,7 +16,7 @@ public class ArrayRowReader implements IExcelRowReader<Object[]> {
         lastIndex = excelSheetRow.getLastCellNum();
         newObjs = new Object[lastIndex - firstIndex];
         for (int i = firstIndex, j = 0; i < lastIndex; i++, j++) {
-            newObjs[j] = ExcelUtils
+            newObjs[j] = ExcelConvertUtils
                     .getCellValue(excelSheetRow.getCell(i, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK));
         }
         return newObjs;

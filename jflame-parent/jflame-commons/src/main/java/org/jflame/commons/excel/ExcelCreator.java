@@ -10,9 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+
+import org.jflame.commons.excel.handler.ArrayRowWriter;
+import org.jflame.commons.excel.handler.EntityRowWriter;
+import org.jflame.commons.excel.handler.IExcelRowWriter;
+import org.jflame.commons.util.CharsetHelper;
+import org.jflame.commons.util.CollectionHelper;
+import org.jflame.commons.util.IOHelper;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -26,12 +34,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-
-import org.jflame.commons.excel.handler.ArrayRowWriter;
-import org.jflame.commons.excel.handler.EntityRowWriter;
-import org.jflame.commons.util.CharsetHelper;
-import org.jflame.commons.util.CollectionHelper;
-import org.jflame.commons.util.IOHelper;
 
 /**
  * <p>
@@ -81,8 +83,10 @@ public class ExcelCreator implements Closeable {
     private Map<Integer,Integer> rowIndexMap = new HashMap<>();// 记录每个sheet的当前行索引
     private SXSSFSheet currentSheet;
     private Integer currentSheetIndex;
+    // @SuppressWarnings("rawtypes")
+    // private Map<Class<? extends IExcelEntity>,EntityRowWriter> rowWriterMap = new HashMap<>();
 
-    private static final int DEFAULT_ROWACCESS_SIZE = 200;
+    private static final int DEFAULT_ROWACCESS_SIZE = 100;
 
     /**
      * 构造函数,默认生成office2007工作表.
@@ -94,7 +98,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 构造函数.是否创建标题参数
      * 
-     * @param rowAccessWindowSize 内存缓冲行数,超过数据行将写入磁盘.默认200行
+     * @param rowAccessWindowSize
+     *            内存缓冲行数,超过数据行将写入磁盘.默认200行
      */
     public ExcelCreator(int rowAccessWindowSize) {
         if (rowAccessWindowSize <= 0) {
@@ -107,48 +112,96 @@ public class ExcelCreator implements Closeable {
     /**
      * 将实体数据集合填充到指定的工作表,不指定分组
      * 
-     * @param dataList 实体数据集合
+     * @param dataList
+     *            实体数据集合
      * @exception ExcelAccessException
      */
-    public <T extends IExcelEntity> void fillEntityData(final List<T> dataList) {
+    public <T> void fillEntityData(final List<T> dataList) {
         fillEntityData(dataList, null);
     }
-
-    @SuppressWarnings("rawtypes")
-    Map<Class<? extends IExcelEntity>,EntityRowWriter> rowWriterMap = new HashMap<>();
 
     /**
      * 将实体数据集合填充到指定的工作表
      * 
-     * @param dataList 实体数据集合
-     * @param group 分组
+     * @param dataList
+     *            实体数据集合
+     * @param group
+     *            分组，null时导出所有{@code @ExcelColumn}标注的的属性
      * @exception ExcelAccessException
      */
-    @SuppressWarnings("unchecked")
-    public <T extends IExcelEntity> void fillEntityData(final List<T> dataList, final String group) {
-        /* 获取有ExcelColumn注解的属性 */
-        if (CollectionHelper.isNotEmpty(dataList)) {
-            Class<? extends IExcelEntity> dataClass = dataList.get(0)
-                    .getClass();
-            EntityRowWriter<T> rowHandler = rowWriterMap.get(dataClass);
-            if (rowHandler == null) {
-                List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
-                        Optional.ofNullable(group));
-                if (CollectionHelper.isEmpty(columnPropertys)) {
-                    throw new ExcelAccessException("没有找到要导入的属性");
+    public <T> void fillEntityData(final List<T> dataList, final String group) {
+        if (CollectionHelper.isEmpty(dataList)) {
+            return;
+        }
+        EntityRowWriter<T> rowHandler = createEntityRowWriter(dataList, group);
+        createTitleRow(currentSheet, rowHandler.getColumnPropertys());
+        fillData(dataList, rowHandler);
+    }
+
+    /**
+     * 分批次获取实体数据导出到excel.
+     * <p>
+     * 当数据量较大时,一次性拉取所有数据到内存容易导致OOM发生,该方法使用分批拉取写入的方式避免
+     * 
+     * @param group
+     *            分组，null时导出所有{@code @ExcelColumn}标注的的属性
+     * @param maxRow
+     *            导出数据总大小
+     * @param batchSize
+     *            一次获取数据行数
+     * @param batchDataFetcher
+     *            获取数据的函数，接收参数为当前页数
+     */
+    public <T> void batchFillEntityData(final String group, final int maxRow, final int batchSize,
+            final IntFunction<List<T>> batchDataFetcher) {
+        if (currentSheet == null) {
+            selectSheet(0);
+        }
+        Row row = null;
+        int maxPage = countMaxPage(maxRow, batchSize);
+        List<T> dataList;
+        EntityRowWriter<T> rowWriter = null;
+        for (int i = 1; i <= maxPage; i++) {
+            dataList = batchDataFetcher.apply(i);
+            if (CollectionHelper.isNotEmpty(dataList)) {
+                if (i == 1) {
+                    rowWriter = createEntityRowWriter(dataList, group);
+                    createTitleRow(currentSheet, rowWriter.getColumnPropertys());
                 }
-                if (currentSheet == null) {
-                    selectSheet(0);
+                for (T rowData : dataList) {
+                    row = currentSheet.createRow(getAndMoveRowIndex());
+                    rowWriter.fillRow(rowData, row);
                 }
-                rowHandler = new EntityRowWriter<>(columnPropertys);
-                // 创建标题行
-                createTitleRow(currentSheet, columnPropertys);
             }
-            // 填充数据
-            Row row = null;
-            for (T rowData : dataList) {
-                row = currentSheet.createRow(getAndMoveRowIndex());
-                rowHandler.fillRow(rowData, row);
+        }
+    }
+
+    public <T> void fillData(final Iterable<T> dataList, IExcelRowWriter<T> rowWriter) {
+        if (currentSheet == null) {
+            selectSheet(0);
+        }
+        Row row = null;
+        for (T rowData : dataList) {
+            row = currentSheet.createRow(getAndMoveRowIndex());
+            rowWriter.fillRow(rowData, row);
+        }
+    }
+
+    public <T> void batchFillData(final int maxRow, final int batchSize, final IntFunction<List<T>> batchDataFetcher,
+            IExcelRowWriter<T> rowWriter) {
+        if (currentSheet == null) {
+            selectSheet(0);
+        }
+        Row row = null;
+        int maxPage = countMaxPage(maxRow, batchSize);
+        List<T> dataList;
+        for (int i = 1; i <= maxPage; i++) {
+            dataList = batchDataFetcher.apply(i);
+            if (CollectionHelper.isNotEmpty(dataList)) {
+                for (T rowData : dataList) {
+                    row = currentSheet.createRow(getAndMoveRowIndex());
+                    rowWriter.fillRow(rowData, row);
+                }
             }
         }
     }
@@ -156,33 +209,32 @@ public class ExcelCreator implements Closeable {
     /**
      * 将Object[]数据集合填充到工作表.
      * 
-     * @param titles 标题行数组,可以为空
-     * @param data List&lt;Object[]&gt;
+     * @param titles
+     *            标题行数组,可以为空
+     * @param data
+     *            List&lt;Object[]&gt;
      */
     public void fillArrayData(final String[] titles, final List<Object[]> data) {
-        if (currentSheet == null) {
-            selectSheet(0);
+        if (CollectionHelper.isEmpty(data)) {
+            return;
         }
         if (ArrayUtils.isNotEmpty(titles)) {
             createTitleRow(currentSheet, titles);
         }
-        if (CollectionHelper.isNotEmpty(data)) {
-            Row row = null;
-            ArrayRowWriter rowHandler = new ArrayRowWriter();
-            for (Object[] rowData : data) {
-                row = currentSheet.createRow(getAndMoveRowIndex());
-                rowHandler.fillRow(rowData, row);
-            }
-        }
+        fillData(data, new ArrayRowWriter());
     }
 
     /**
      * 合并单元格
      * 
-     * @param startRow 起始行
-     * @param endRow 结束行
-     * @param startCol 起始列
-     * @param endCol 结束列
+     * @param startRow
+     *            起始行
+     * @param endRow
+     *            结束行
+     * @param startCol
+     *            起始列
+     * @param endCol
+     *            结束列
      */
     public void mergedCell(int startRow, int endRow, int startCol, int endCol) {
         CellRangeAddress region = new CellRangeAddress(startRow, endRow, startCol, endCol);
@@ -201,7 +253,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 创建一个工作表,并指定工作表名.
      * 
-     * @param sheetName 工作表名
+     * @param sheetName
+     *            工作表名
      * @return 创建完成的工作表对象Sheet
      */
     public SXSSFSheet createSheet(String sheetName) {
@@ -211,7 +264,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 按名称返回excel sheet.
      * 
-     * @param sheetName excel sheet name
+     * @param sheetName
+     *            excel sheet name
      * @return Sheet
      */
     public SXSSFSheet getSheet(String sheetName) {
@@ -221,7 +275,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 按索引返回excel sheet.
      * 
-     * @param sheetIndex excel sheet index
+     * @param sheetIndex
+     *            excel sheet index
      * @return Sheet
      */
     public SXSSFSheet getSheet(int sheetIndex) {
@@ -231,7 +286,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 选择要操作的sheet
      * 
-     * @param sheetIndex sheet索引
+     * @param sheetIndex
+     *            sheet索引
      */
     public void selectSheet(int sheetIndex) {
         currentSheet = workbook.getSheetAt(sheetIndex);
@@ -241,7 +297,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 选择要操作的sheet
      * 
-     * @param sheetName sheet名称
+     * @param sheetName
+     *            sheet名称
      */
     public void selectSheet(String sheetName) {
         currentSheet = workbook.getSheet(sheetName);
@@ -260,7 +317,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 写入工作薄到一个输入流.
      * 
-     * @param output 输出流
+     * @param output
+     *            输出流
      * @throws ExcelAccessException
      */
     public void write(OutputStream output) throws ExcelAccessException {
@@ -320,7 +378,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 设置标题行样式.
      * 
-     * @param titleStyle 标题行样式
+     * @param titleStyle
+     *            标题行样式
      */
     public void setTitleStyle(CellStyle titleStyle) {
         this.titleStyle = titleStyle;
@@ -338,7 +397,8 @@ public class ExcelCreator implements Closeable {
     /**
      * 在第一个工作表上创建标题行.
      * 
-     * @param titleNames 标题列的名称
+     * @param titleNames
+     *            标题列的名称
      */
     public void createTitleRow(String[] titleNames) {
         createTitleRow(getSheet(0), titleNames);
@@ -347,8 +407,10 @@ public class ExcelCreator implements Closeable {
     /**
      * 指定的工作表上创建标题行.
      * 
-     * @param sheet excel sheet
-     * @param titleNames 标题列的名称
+     * @param sheet
+     *            excel sheet
+     * @param titleNames
+     *            标题列的名称
      */
     public void createTitleRow(Sheet sheet, String[] titleNames) {
         Row row = sheet.createRow(getAndMoveRowIndex());
@@ -400,15 +462,40 @@ public class ExcelCreator implements Closeable {
         defaultTitleStyle.setFont(titleCellFont);
     }
 
+    private int countMaxPage(final int maxRow, final int batchSize) {
+        int maxPage;
+        if (maxRow % batchSize == 0) {
+            maxPage = (int) (maxRow / batchSize);
+        } else {
+            maxPage = (int) (maxRow / batchSize) + 1;
+        }
+        return maxPage;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> EntityRowWriter<T> createEntityRowWriter(final List<T> dataList, String group) {
+        Class<T> dataClass = (Class<T>) dataList.get(0)
+                .getClass();
+        List<ExcelColumnProperty> columnPropertys = ExcelConvertUtils.resolveExcelColumnProperty(dataClass, true,
+                Optional.ofNullable(group));
+        if (CollectionHelper.isEmpty(columnPropertys)) {
+            throw new ExcelAccessException("没有找到@ExcelColumn标注的属性");
+        }
+        return new EntityRowWriter<>(columnPropertys);
+    }
+
     /**
      * 导出实体类数据到单表的便捷方法.自动关闭输出流
      * 
-     * @param data 要导出数据集
-     * @param out 文件输出流
-     * @param isCloseOutStream 写入完成后是否关闭输出流
+     * @param data
+     *            要导出数据集
+     * @param out
+     *            文件输出流
+     * @param isCloseOutStream
+     *            写入完成后是否关闭输出流
      * @throws ExcelAccessException
      */
-    public static void export(final List<? extends IExcelEntity> data, final OutputStream out, boolean isCloseOutStream)
+    public static <T> void export(final List<T> data, final OutputStream out, boolean isCloseOutStream)
             throws ExcelAccessException {
         ExcelCreator creator = null;
         try {
@@ -431,12 +518,13 @@ public class ExcelCreator implements Closeable {
     /**
      * 导出实体类数据到单表的便捷方法.自动关闭输出流
      * 
-     * @param data 要导出数据集
-     * @param excelFile 文件
+     * @param data
+     *            要导出数据集
+     * @param excelFile
+     *            文件
      * @throws ExcelAccessException
      */
-    public static void export(final List<? extends IExcelEntity> data, final String excelFile)
-            throws ExcelAccessException {
+    public static <T> void export(final List<T> data, final String excelFile) throws ExcelAccessException {
         OutputStream out;
         try {
             out = Files.newOutputStream(Paths.get(excelFile), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -449,13 +537,16 @@ public class ExcelCreator implements Closeable {
     /**
      * 实体数据生成excel文件,并输出到HttpServletResponse下载流
      * 
-     * @param data List&lt;? extends IExcelEntity&gt;实体数据集
-     * @param fileName 文件名,浏览器要显示的文件名
-     * @param response HttpServletResponse
+     * @param data
+     *            List&lt;? extends IExcelEntity&gt;实体数据集
+     * @param fileName
+     *            文件名,浏览器要显示的文件名
+     * @param response
+     *            HttpServletResponse
      * @throws IOException
      */
-    public static void export(final List<? extends IExcelEntity> data, final String fileName,
-            HttpServletResponse response) throws ExcelAccessException, IOException {
+    public static <T> void export(final List<T> data, final String fileName, HttpServletResponse response)
+            throws ExcelAccessException, IOException {
         response.reset();
         setFileDownloadHeader(response, fileName);
         ServletOutputStream out = response.getOutputStream();

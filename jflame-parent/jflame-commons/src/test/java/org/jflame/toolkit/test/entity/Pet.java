@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonView;
-
 import org.jflame.commons.excel.ExcelColumn;
 import org.jflame.commons.excel.IExcelEntity;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class Pet implements IExcelEntity, Serializable {
 
@@ -20,6 +20,7 @@ public class Pet implements IExcelEntity, Serializable {
 
     @JsonView(View.class)
     @JSONField(label = "test")
+    @ExcelColumn(name = "名称", order = 1)
     private String name;
 
     @JsonView(View.class)

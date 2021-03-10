@@ -18,12 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-
 import org.jflame.commons.convert.CalendarToStringConverter;
 import org.jflame.commons.convert.Converter;
 import org.jflame.commons.convert.DateToStringConverter;
@@ -45,10 +39,16 @@ import org.jflame.commons.reflect.BeanHelper;
 import org.jflame.commons.util.NumberHelper;
 import org.jflame.commons.util.StringHelper;
 
-@SuppressWarnings("rawtypes")
-public final class ExcelUtils {
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 
-    final static Map<Class,ObjectToStringConverter> defaultWriterConverters = new HashMap<>();
+@SuppressWarnings("rawtypes")
+public final class ExcelConvertUtils {
+
+    private final static Map<Class,ObjectToStringConverter> defaultWriterConverters = new HashMap<>();
     static {
         BoolToTextConverter boolConverter = new BoolToTextConverter();
         defaultWriterConverters.put(boolean.class, boolConverter);
@@ -79,9 +79,12 @@ public final class ExcelUtils {
     /**
      * 使用指定名称转换器，将java属性值转为excel单元格值,未找到转换器返回toString()
      * 
-     * @param property ExcelColumnProperty
-     * @param value excel单元格值
-     * @throws ConvertException 转换器未找到或转换异常
+     * @param property
+     *            ExcelColumnProperty
+     * @param value
+     *            excel单元格值
+     * @throws ConvertException
+     *             转换器未找到或转换异常
      * @return 转换后字符串
      */
     @SuppressWarnings({ "unchecked" })
@@ -118,8 +121,10 @@ public final class ExcelUtils {
     /**
      * 转换excel单元格值到java属性
      * 
-     * @param property ExcelColumnProperty
-     * @param cell excel单元格
+     * @param property
+     *            ExcelColumnProperty
+     * @param cell
+     *            excel单元格
      * @return java属性值
      */
     @SuppressWarnings("unchecked")
@@ -161,7 +166,8 @@ public final class ExcelUtils {
     /**
      * 获取excel读取的值转为java属性的默认类型转换器
      * 
-     * @param valueClazz 读取到的excel值类型,请看{@link #getCellValue}
+     * @param valueClazz
+     *            读取到的excel值类型,请看{@link #getCellValue}
      * @param needClazz
      * @param fmt
      * @return
@@ -204,7 +210,8 @@ public final class ExcelUtils {
     /**
      * 获取属性转为字符串的默认转换器
      * 
-     * @param valueClazz 要转换的数据类型
+     * @param valueClazz
+     *            要转换的数据类型
      * @param fmt
      * @return
      */
@@ -273,7 +280,8 @@ public final class ExcelUtils {
     /**
      * 读取excel单元格的值.读取出来的值类型只可能是:bool,number,date,string.
      * 
-     * @param curCell 单元格cell
+     * @param curCell
+     *            单元格cell
      * @return
      */
     public static Object getCellValue(Cell curCell) {
@@ -298,13 +306,16 @@ public final class ExcelUtils {
     /**
      * 根据excel column获取bean的属性.
      * 
-     * @param dataClass Class&lt;? extends IExcelEntity&gt;
-     * @param isWrite 是否是写操作,即生成excel
-     * @param group 属性分组
+     * @param dataClass
+     *            Class&lt;? extends IExcelEntity&gt;
+     * @param isWrite
+     *            是否是写操作,即生成excel
+     * @param group
+     *            属性分组
      * @return excel column注解属性
      */
-    public static List<ExcelColumnProperty> resolveExcelColumnProperty(Class<? extends IExcelEntity> dataClass,
-            boolean isWrite, Optional<String> group) {
+    public static <T> List<ExcelColumnProperty> resolveExcelColumnProperty(Class<T> dataClass, boolean isWrite,
+            Optional<String> group) {
         List<ExcelColumnProperty> as = new ArrayList<ExcelColumnProperty>();
 
         final Class<ExcelColumn> clazz = ExcelColumn.class;

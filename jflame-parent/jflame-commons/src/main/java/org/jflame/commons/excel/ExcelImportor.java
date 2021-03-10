@@ -8,6 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.jflame.commons.excel.handler.ArrayRowReader;
+import org.jflame.commons.excel.handler.EntityRowReader;
+import org.jflame.commons.excel.validator.DefaultExcelValidator;
+import org.jflame.commons.excel.validator.ExcelValidationException;
+import org.jflame.commons.excel.validator.IExcelValidator;
+import org.jflame.commons.util.CollectionHelper;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -17,13 +24,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.jflame.commons.excel.handler.ArrayRowReader;
-import org.jflame.commons.excel.handler.EntityRowReader;
-import org.jflame.commons.excel.validator.DefaultExcelValidator;
-import org.jflame.commons.excel.validator.ExcelValidationException;
-import org.jflame.commons.excel.validator.IExcelValidator;
-import org.jflame.commons.util.CollectionHelper;
 
 /**
  * excel数据导入工具类 ，导入数据转为对应实体类集合或Object[]集体.导入过程可指定数据验证规则
@@ -63,7 +63,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 构造函数
      * 
-     * @param excelFile 指定excel文件
+     * @param excelFile
+     *            指定excel文件
      * @throws ExcelAccessException
      */
     public ExcelImportor(String excelFile) throws ExcelAccessException {
@@ -87,7 +88,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 取得某行在excel中对应的行索引.
      * 
-     * @param index 导入数据集中的索引
+     * @param index
+     *            导入数据集中的索引
      * @return excel中行号
      */
     /* public Integer getRowIndex(int index) {
@@ -100,8 +102,7 @@ public class ExcelImportor implements Closeable {
      * @param dataClass
      * @return
      */
-    public <T extends IExcelEntity> List<T> importSheet(final Class<T> dataClass)
-            throws ExcelAccessException, ExcelValidationException {
+    public <T> List<T> importSheet(final Class<T> dataClass) throws ExcelAccessException, ExcelValidationException {
         return importSheet(workbook.getSheetAt(0), dataClass, null);
     }
 
@@ -109,10 +110,11 @@ public class ExcelImportor implements Closeable {
      * 导入指定的excel工作表数据,并转换为相应的对象集合.从第一张sheet导入
      * 
      * @param dataClass
-     * @param validator 自定义验证器
+     * @param validator
+     *            自定义验证器
      * @return
      */
-    public <T extends IExcelEntity> List<T> importSheet(final Class<T> dataClass, IExcelValidator<T> validator)
+    public <T> List<T> importSheet(final Class<T> dataClass, IExcelValidator<T> validator)
             throws ExcelAccessException, ExcelValidationException {
         return importSheet(workbook.getSheetAt(0), dataClass, validator);
     }
@@ -121,13 +123,16 @@ public class ExcelImportor implements Closeable {
      * 导入指定的excel工作表数据,并转换为相应的对象集合. 要转换属性及顺序由dataClass的excelColumn注解决定. <br>
      * 使用默认的验证器验证.使用默认单行数据转换器
      * 
-     * @param sheet 工作表
-     * @param dataClass 转换类型
-     * @param <T> dataClass 泛型类型
+     * @param sheet
+     *            工作表
+     * @param dataClass
+     *            转换类型
+     * @param <T>
+     *            dataClass 泛型类型
      * @exception ExcelAccessException
      * @return
      */
-    public <T extends IExcelEntity> List<T> importSheet(Sheet sheet, final Class<T> dataClass)
+    public <T> List<T> importSheet(Sheet sheet, final Class<T> dataClass)
             throws ExcelAccessException, ExcelValidationException {
         return importSheet(sheet, dataClass, null);
     }
@@ -135,22 +140,28 @@ public class ExcelImportor implements Closeable {
     /**
      * 导入excel工作表数据转换为指定类型的对象集合.
      * 
-     * @param sheet 工作表,null时导入第一张sheet
-     * @param dataClass 转换类型class
-     * @param validator 指定数据验证类,为null使用DefaultValidator验证
-     * @param <T> IExcelEntity
-     * @exception ExcelAccessException 导入出错
-     * @exception ExcelValidationException 单元格数据验证异常
+     * @param sheet
+     *            工作表,null时导入第一张sheet
+     * @param dataClass
+     *            转换类型class
+     * @param validator
+     *            指定数据验证类,为null使用DefaultValidator验证
+     * @param <T>
+     *            IExcelEntity
+     * @exception ExcelAccessException
+     *                导入出错
+     * @exception ExcelValidationException
+     *                单元格数据验证异常
      * @return
      * @see DefaultExcelValidator
      */
-    public <T extends IExcelEntity> List<T> importSheet(Sheet sheet, final Class<T> dataClass,
-            IExcelValidator<T> validator) throws ExcelAccessException, ExcelValidationException {
+    public <T> List<T> importSheet(Sheet sheet, final Class<T> dataClass, IExcelValidator<T> validator)
+            throws ExcelAccessException, ExcelValidationException {
         if (validator == null) {
             validator = new DefaultExcelValidator<T>();
         }
 
-        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false,
+        List<ExcelColumnProperty> lstDescriptors = ExcelConvertUtils.resolveExcelColumnProperty(dataClass, false,
                 Optional.empty());
         if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new ExcelAccessException("没有找到要转换的属性");
@@ -189,7 +200,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 导入指定的excel工作表数据,转换为数组列表 数组元素类型只可能是bool,string类型.是否为bool,double类型由单元格类型决定.
      * 
-     * @param sheet excel sheet
+     * @param sheet
+     *            excel sheet
      * @return Object[]列表
      */
     public List<Object[]> importSheet(final Sheet sheet) throws ExcelAccessException, ExcelValidationException {
@@ -210,7 +222,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 设置是否单行数据验证失败立刻返回,默认为true 为false,则所有excel数据转换为java对象后再执行验证.
      * 
-     * @param stepValid 是否单行数据验证失败立刻返回
+     * @param stepValid
+     *            是否单行数据验证失败立刻返回
      */
     /* public void setStepValid(boolean stepValid) {
         this.stepValid = stepValid;
@@ -232,7 +245,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 设置从第几行开始导入,行索引从1开始.
      * 
-     * @param startRowIndex 开始sheet行索引
+     * @param startRowIndex
+     *            开始sheet行索引
      */
     public void setStartRowIndex(int startRowIndex) {
         this.startRowIndex = startRowIndex;
@@ -253,7 +267,8 @@ public class ExcelImportor implements Closeable {
     /**
      * 设置是否允许重复数据,数据重复使用对象equals方法比较,所以如果需要去重导入对象类型应重写equals
      * 
-     * @param ignoreRepeat true=允许
+     * @param ignoreRepeat
+     *            true=允许
      */
     public void setAllowDuplicate(boolean ignoreRepeat) {
         this.allowDuplicate = ignoreRepeat;

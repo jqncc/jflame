@@ -57,8 +57,10 @@ public class PageBean<T> implements Serializable {
     /**
      * 设置当前页码和每页行数.
      * 
-     * @param curPage 当前页码
-     * @param rowsPerPage 每页行数
+     * @param curPage
+     *            当前页码
+     * @param rowsPerPage
+     *            每页行数
      */
     public void setPageNo(final int curPage, final int rowsPerPage) {
         this.pageNo = curPage < 1 ? 1 : curPage;
@@ -72,8 +74,10 @@ public class PageBean<T> implements Serializable {
     /**
      * 设置当前起始位置.
      * 
-     * @param startIndex 起始位置索引
-     * @param rowsPerPage 每页行数
+     * @param startIndex
+     *            起始位置索引
+     * @param rowsPerPage
+     *            每页行数
      */
     public void setStartIndex(final int startIndex, final int rowsPerPage) {
         if (maxRowCount <= 0 || startIndex < 0) {
@@ -151,7 +155,7 @@ public class PageBean<T> implements Serializable {
         if (this.maxRowCount % this.pageSize == 0) {
             this.maxPage = (int) (this.maxRowCount / this.pageSize);
         } else {
-            this.maxPage = (int) (this.maxRowCount / this.pageSize + 1);
+            this.maxPage = (int) (this.maxRowCount / this.pageSize) + 1;
         }
     }
 

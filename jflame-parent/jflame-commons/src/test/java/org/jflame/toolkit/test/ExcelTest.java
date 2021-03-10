@@ -31,11 +31,13 @@ public class ExcelTest extends TestCase {
      */
     @org.junit.Test
     public void testExport() throws IOException {
+        System.in.read();
         long start = System.nanoTime();
-        List<Cat> pets = new ArrayList<>(20000);
+        final int max = 100000;
+        List<Cat> pets = new ArrayList<>(max);
         Cat p = null;
         // 生成导出数据
-        for (int i = 1; i < 20000; i++) {
+        for (int i = 0; i < max; i++) {
             p = new Cat();
             p.setAge(i);
             p.setBirthday(new Date());
@@ -66,7 +68,11 @@ public class ExcelTest extends TestCase {
         // 快捷静态方法导出
 
         // ExcelCreator.export(pets, "D:\\datacenter\\cat20001.xlsx");
-
+        try {
+            TimeUnit.MINUTES.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -112,6 +118,65 @@ public class ExcelTest extends TestCase {
             e.printStackTrace();
         } finally {
             xlsImport.close();
+        }
+    }
+
+    /**
+     * 实体类导出到文件流
+     * 
+     * @throws IOException
+     */
+    @org.junit.Test
+    public void testBatchExport() throws IOException {
+        System.in.read();
+        long start = System.nanoTime();
+
+        File f = new File("D:\\datacenter\\cat10w.xlsx");
+        final int row = 3000,max = 100000;
+        try (ExcelCreator creator = new ExcelCreator(100); FileOutputStream out = new FileOutputStream(f)) {
+            creator.batchFillEntityData(null, max, 3000, (page) -> {
+                List<Cat> pets = new ArrayList<>(row);
+                Cat p = null;
+                // 生成导出数据
+                int i = (page - 1) * row;
+                int offset = page * row;
+                if (offset > max) {
+                    offset = max;
+                }
+                Date now = new Date();
+                for (; i < offset; i++) {
+                    p = new Cat();
+                    p.setAge(i);
+                    p.setBirthday(now);
+                    p.setMoney(MathHelper.multiplyDecimal(i, 2.3f, 2));
+                    p.setName("猫咪名" + i);
+                    p.setStreak(i % 2 == 0 ? "灰白相间" : "纯白");
+                    p.setSkin("皮肤狗");
+                    p.setWeight(i + 20);
+                    p.setHasCert(i % 3 == 0);
+                    p.setCreateDate(LocalDateTime.now());
+                    pets.add(p);
+                }
+                return pets;
+            });
+
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            creator.write(out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        long t = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
+        System.out.println(String.format("耗时:%d秒", t));
+
+        // 快捷静态方法导出
+
+        // ExcelCreator.export(pets, "D:\\datacenter\\cat20001.xlsx");
+        try {
+            TimeUnit.MINUTES.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

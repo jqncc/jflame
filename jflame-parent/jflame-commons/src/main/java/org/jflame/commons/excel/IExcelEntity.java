@@ -5,6 +5,7 @@ package org.jflame.commons.excel;
  * 
  * @author yucan.zhang
  */
+@Deprecated
 public interface IExcelEntity {
 
 }

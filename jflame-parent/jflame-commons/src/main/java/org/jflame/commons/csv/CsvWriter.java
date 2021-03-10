@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.jflame.commons.convert.ObjectToStringConverter;
 import org.jflame.commons.excel.ExcelColumnProperty;
-import org.jflame.commons.excel.ExcelUtils;
+import org.jflame.commons.excel.ExcelConvertUtils;
 import org.jflame.commons.excel.IExcelEntity;
 import org.jflame.commons.model.Chars;
 import org.jflame.commons.util.CharsetHelper;
@@ -408,7 +408,7 @@ public class CsvWriter implements Closeable {
         if (CollectionHelper.isNotEmpty(dataList)) {
             Class<? extends IExcelEntity> dataClass = dataList.get(0)
                     .getClass();
-            List<ExcelColumnProperty> columnPropertys = ExcelUtils.resolveExcelColumnProperty(dataClass, true,
+            List<ExcelColumnProperty> columnPropertys = ExcelConvertUtils.resolveExcelColumnProperty(dataClass, true,
                     Optional.ofNullable(group));
             if (CollectionHelper.isEmpty(columnPropertys)) {
                 throw new CsvAccessException("没有找到要导入的属性");
@@ -427,9 +427,9 @@ public class CsvWriter implements Closeable {
                             write(StringUtils.EMPTY);
                         } else {
                             if (currentProperty.isPreventSCINotation()) {
-                                write(ExcelUtils.convertToCellValue(currentProperty, currentValue) + Chars.TAB, true);
+                                write(ExcelConvertUtils.convertToCellValue(currentProperty, currentValue) + Chars.TAB, true);
                             } else {
-                                write(ExcelUtils.convertToCellValue(currentProperty, currentValue));
+                                write(ExcelConvertUtils.convertToCellValue(currentProperty, currentValue));
                             }
                         }
                     }
@@ -452,7 +452,7 @@ public class CsvWriter implements Closeable {
                     if (columnConvertMap.containsKey(index)) {
                         converter = columnConvertMap.get(index);
                     } else {
-                        converter = ExcelUtils.getDefaultWriteConverter(rowData[index].getClass(), null);
+                        converter = ExcelConvertUtils.getDefaultWriteConverter(rowData[index].getClass(), null);
                         columnConvertMap.put(index, converter);
                     }
                     write(converter.convert(rowData[index]));

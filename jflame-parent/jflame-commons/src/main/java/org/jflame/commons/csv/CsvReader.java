@@ -29,7 +29,7 @@ import org.jflame.commons.convert.StringToNumberConverter;
 import org.jflame.commons.convert.StringToTemporalConverter;
 import org.jflame.commons.excel.ExcelAccessException;
 import org.jflame.commons.excel.ExcelColumnProperty;
-import org.jflame.commons.excel.ExcelUtils;
+import org.jflame.commons.excel.ExcelConvertUtils;
 import org.jflame.commons.excel.IExcelEntity;
 import org.jflame.commons.excel.validator.DefaultExcelValidator;
 import org.jflame.commons.excel.validator.ExcelValidationException;
@@ -1149,7 +1149,7 @@ public class CsvReader implements Closeable {
             validator = new DefaultExcelValidator<T>();
         }
 
-        List<ExcelColumnProperty> lstDescriptors = ExcelUtils.resolveExcelColumnProperty(dataClass, false,
+        List<ExcelColumnProperty> lstDescriptors = ExcelConvertUtils.resolveExcelColumnProperty(dataClass, false,
                 Optional.empty());
         if (CollectionHelper.isEmpty(lstDescriptors)) {
             throw new CsvAccessException("没有找到要转换的属性");
